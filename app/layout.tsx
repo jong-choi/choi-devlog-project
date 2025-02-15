@@ -3,7 +3,6 @@ import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 
 const notoSansKr = Noto_Sans_KR({
-  variable: "--font-noto-sans",
   subsets: ["latin"],
 });
 
@@ -19,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko-KR">
-      <body className={`${notoSansKr.variable} antialiased`}>{children}</body>
+      <body className={`${notoSansKr.className} antialiased`}>{children}</body>
     </html>
   );
 }
