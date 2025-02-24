@@ -262,7 +262,7 @@ desc
 Supabase는 '파이어베이스의 오픈소스형 대안'을 표방한다.  
 파이어베이스에서 지원하는 실시간 데이터베이스에 더해
 
-PostgresSQL 기반으로 작동하며, Row Level Security, OAuth 2.0 기반의 PKCE flow 인증, Next.js를 위한 서버클라이언트도 지원한다.  
+PostgresSQL 기반으로 작동하며, Row Level Security, OAuth 2.1 기반의 PKCE flow 인증, Next.js를 위한 서버클라이언트도 지원한다.  
 
 오픈소스이기에 소스코드만 별도로 on premise로 배포도 가능하다.
 
@@ -461,4 +461,146 @@ export const updateSession = async (request: NextRequest) => {
 };
 ```
 
+## Auth 구현
+### Implicit Flow vs. PKCE (Proof Key for Code Exchange) Flow
+1. Implicit Flow
+   - 클라이언트가 인증 서버에 로그인을 요청한 후, 토큰을 클라이언트 측에 저장한다.
+   - URL 혹은 Request에 해당 토큰을 담아 사용한다.
+   - 토큰이 쉽게 탈취될 가능성이 있고 CSRF(사이트간 위조)를 방어하기 취약하다.
+
+2. PKCE 
+	- 클라이언트가 임의의 난수(code_verifier)와 난수를 암호화한 수(code_challenge)를 가짐
+	- 서버가 code_challenge를 전달받음.
+	- 이후 클라이언트가 엑세스 토큰을 요청할 때마다 code_verifier를 함께 보내고, code_verifier가 유효할 때에만 엑세스 토큰이 발급됨.
+	- 토큰이 유출되더라도 토큰이 만료되면 code_verifier가 있어야 새로운 토큰을 발급받을 수 있으며, code_verifier는 엑세스 토큰에 비해 유출될 위험이 비교적 적음.
+
+### PKCE (Proof Key for Code Exchange) Flow 구현
+#### Google 로그인 구현
+##### Google Cloud API Oauth 세팅
+  - [구글 클라우드 콘솔](https://console.cloud.google.com/) 에 접속한다.
+  - 새 프로젝트를 생성한다.
+  - [프로젝트-API 및 서비스-OAuth 동의 화면](https://console.cloud.google.com/auth/overview)에 접속한다.
+  - '시작하기' 버튼을 누른 후 아래와 관련된 사항들을 입력하여 OAuth를 시작한다.
+    - '앱 이름'(로그인 시 노출될 프로젝트 명)
+    - '사용자 지원 이메일'(내 이메일)
+    - '대상'(외부) 
+  - 이제 Supabase에 접속해서 'https://supabase.com/dashboard/project/{Project ID}/auth/providers'에 접속하여 Google을 Provider로 선택한다.
+  - 해당 페이지에서 'Callback URL (for OAuth)'를 확인한다.
+  - 다시 구글 클라우드 콘솔 [프로젝트-API 및 서비스-OAuth 동의 화면](https://console.cloud.google.com/auth/overview)에서 'OAuth 클라이언트 만들기'를 클릭하고 아래의 사항들을 입력하여 Client를 만든다.
+    - '애플리케이션 유형'(웹 애플리케이션) 
+    - '승인된 JavaScript 원본'(http://localhost:3000) 
+    - '승인된 리디렉션 URI'(https://{Project ID}.supabase.co/auth/v1/callback)
+  - 다시 Supabase에 접속해서 'https://supabase.com/dashboard/project/{Project ID}/auth/providers'에 아래 사항들을 입력해준다.
+    - Enable Sign in with Google를 활성화한다.
+    - 클라이언트 ID : Google OAuth 클라이언트의 ID (566..877-cuhhs...apps.googleusercontent.com)
+    - 클라이언트 Secret : Google OAuth 클라이언트의 보안 비밀번호 (GO...PX-fK...xQ)
+  - 이제 Supabase에 Google Cloud API의 OAuth Client가 등록되었다.
+
+##### Route Handlers 구현
+  - .env 파일에 `NEXT_PUBLIC_BASE_URL=http://localhost:3000`을 변수명으로 추가해준다. (해당 변수명은 배포/개발시마다 바뀔 수 있다.)
+  - 아래와 같이 `app\auth\callback\route.ts` 파일을 작성한다.
+    - code : 인증서비스제공자가 Authorization Code를 supabase 서버에 전달하면, supabase 서버는 이를 Search Params의 code라는 key에 담아서 보내준다.
+    - next : Next.js에서 이동할 URL을 설정할 때에는 next라는 key로 이동할 url을 Search Params에 담으면 된다.
+    - exchangeCodeForSession : supabase 클라이언트에서 Authorization Code를 인자로 받아, access_token을 반환받고 세션을 생성한다. 
+    - if !error : exchange가 성공적으로 완료되면 사용자를 redirect한다. (forwardedHost는 한 어플리케이션을 여러 서버가 다룰 때에 사용하는 서버의 주소이다.(로드 밸런싱 방식))
+```tsx
+import { NextResponse } from "next/server";
+// The client you created from the Server-Side Auth instructions
+import { createClient } from "@/utils/supabase/server";
+
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  // if "next" is in param, use it as the redirect URL
+  const next = searchParams.get("next") ?? "/";
+
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
+      const isLocalEnv = process.env.NODE_ENV === "development";
+      if (isLocalEnv) {
+        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+        return NextResponse.redirect(`${origin}${next}`);
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      } else {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+    }
+  }
+
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+}
+```
+
+
+##### Pages 구현
+- login page : signInWithOAuth 클라이언트에 provider와 /auth/callback 주소를 전송한다.
+```tsx
+// app/auth/login/page.tsx (로그인 페이지)
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+
+export default function LoginPage() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  
+  const handleLogin = async () => {
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google", // Google OAuth 로그인
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) {
+      router.push(`/auth/auth-code-error?message=${encodeURIComponent(error.message)}`);
+    }
+    setLoading(false);
+  };
+  
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-2xl font-bold">로그인</h1>
+      <button 
+        onClick={handleLogin} 
+        disabled={loading} 
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        {loading ? "로그인 중..." : "Google 로그인"}
+      </button>
+    </div>
+  );
+}
+```
+- auth-code-error에서는 searchParams으로 넘어온 에러 메시지를 노출시킨다. 
+```tsx
+import Link from "next/link";
+
+// app/auth/auth-code-error/page.tsx (로그인 에러 페이지)
+export default function AuthCodeErrorPage({
+  searchParams,
+}: {
+  searchParams: { message?: string };
+}) {
+  const errorMessage =
+    searchParams?.message || "로그인 중 문제가 발생했습니다.";
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-2xl font-bold text-red-500">인증 오류 발생</h1>
+      <p className="text-gray-600 mt-2">{errorMessage}</p>
+      <Link
+        href="/auth/login"
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        로그인 다시 시도하기
+      </Link>
+    </div>
+  );
+}
+```
 
