@@ -629,176 +629,6 @@ export function encodedRedirect(
 encodeURIComponent는 JavaScript 내장 함수로, 특수 문자나 공백이 포함된 문자열을 URL-safe 형식으로 인코딩하는 역할을 합니다.
 
 ##### Actions
-app\auth\actions.tsx
-```ts
-"use server"; // Next.js의 Server Actions를 사용하도록 지정
-
-import { encodedRedirect } from "@/utils/encodedRedirect"; // 메시지를 포함한 리디렉션 함수
-import { createClient } from "@/utils/supabase/server"; // Supabase 클라이언트 생성 함수
-import { headers } from "next/headers"; // 요청 헤더 가져오기
-import { redirect } from "next/navigation"; // Next.js 리디렉션 함수
-
-// ✅ 회원가입 처리 (Sign Up)
-export const signUpAction = async (formData: FormData) => {
-  // 🔹 폼 데이터에서 이메일과 비밀번호 추출
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
-  const supabase = await createClient(); // Supabase 클라이언트 생성
-  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
-
-  // 🔹 이메일 또는 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
-  if (!email || !password) {
-    return encodedRedirect(
-      "error",
-      "/sign-up",
-      "Email and password are required"
-    );
-  }
-
-  // 🔹 Supabase를 사용해 회원가입 요청
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`, // 이메일 확인 후 이동할 URL 설정
-    },
-  });
-
-  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
-  if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
-  }
-
-  // 🔹 회원가입 성공 시 성공 메시지를 포함하여 리디렉션
-  return encodedRedirect(
-    "success",
-    "/sign-up",
-    "Thanks for signing up! Please check your email for a verification link."
-  );
-};
-
-// ✅ 로그인 처리 (Sign In)
-export const signInAction = async (formData: FormData) => {
-  // 🔹 폼 데이터에서 이메일과 비밀번호 추출
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const supabase = await createClient(); // Supabase 클라이언트 생성
-
-  // 🔹 Supabase를 사용해 로그인 요청
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
-  if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
-  }
-
-  // 🔹 로그인 성공 시 보호된 페이지로 이동
-  return redirect("/protected");
-};
-
-// ✅ 비밀번호 재설정 요청 (Forgot Password)
-export const forgotPasswordAction = async (formData: FormData) => {
-  // 🔹 폼 데이터에서 이메일 추출
-  const email = formData.get("email")?.toString();
-  const supabase = await createClient(); // Supabase 클라이언트 생성
-  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
-  const callbackUrl = formData.get("callbackUrl")?.toString(); // 콜백 URL이 있는 경우 가져오기
-
-  // 🔹 이메일이 없으면 에러 메시지를 포함하여 리디렉션
-  if (!email) {
-    return encodedRedirect("error", "/forgot-password", "Email is required");
-  }
-
-  // 🔹 Supabase를 사용해 비밀번호 재설정 이메일 전송 요청
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`, // 비밀번호 재설정 후 이동할 URL 설정
-  });
-
-  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
-  if (error) {
-    console.error(error.message);
-    return encodedRedirect(
-      "error",
-      "/forgot-password",
-      "Could not reset password"
-    );
-  }
-
-  // 🔹 콜백 URL이 있으면 해당 URL로 리디렉션
-  if (callbackUrl) {
-    return redirect(callbackUrl);
-  }
-
-  // 🔹 비밀번호 재설정 이메일이 전송되었음을 알리는 메시지 포함하여 리디렉션
-  return encodedRedirect(
-    "success",
-    "/forgot-password",
-    "Check your email for a link to reset your password."
-  );
-};
-
-// ✅ 비밀번호 변경 처리 (Reset Password)
-export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient(); // Supabase 클라이언트 생성
-
-  // 🔹 폼 데이터에서 새 비밀번호와 확인용 비밀번호 추출
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  // 🔹 비밀번호 또는 확인용 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
-  if (!password || !confirmPassword) {
-    return encodedRedirect(
-      "error",
-      "/protected/reset-password",
-      "Password and confirm password are required"
-    );
-  }
-
-  // 🔹 비밀번호와 확인용 비밀번호가 일치하지 않으면 에러 메시지를 포함하여 리디렉션
-  if (password !== confirmPassword) {
-    return encodedRedirect(
-      "error",
-      "/protected/reset-password",
-      "Passwords do not match"
-    );
-  }
-
-  // 🔹 Supabase를 사용해 비밀번호 변경 요청
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
-
-  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
-  if (error) {
-    return encodedRedirect(
-      "error",
-      "/protected/reset-password",
-      "Password update failed"
-    );
-  }
-
-  // 🔹 비밀번호 변경 성공 시 성공 메시지를 포함하여 리디렉션
-  return encodedRedirect("success", "/protected/reset-password", "Password updated");
-};
-
-// ✅ 로그아웃 처리 (Sign Out)
-export const signOutAction = async () => {
-  const supabase = await createClient(); // Supabase 클라이언트 생성
-
-  // 🔹 Supabase를 사용해 로그아웃 요청
-  await supabase.auth.signOut();
-
-  // 🔹 로그아웃 후 로그인 페이지로 이동
-  return redirect("/sign-in");
-};
-```
-
----
-
 ## 🚀 **📌 코드 분석 요약**
 1. **회원가입 (`signUpAction`)**
    - 이메일과 비밀번호를 받아 **Supabase에 회원가입 요청**.
@@ -824,6 +654,176 @@ export const signOutAction = async () => {
 
 ✔️ **모든 액션에서 `encodedRedirect()`를 활용하여 성공/실패 메시지를 포함한 리디렉션을 수행하는 것이 특징!** 🚀
 
+app\auth\actions.tsx
+```ts
+"use server"; // Next.js의 Server Actions를 사용하도록 지정
+
+import { encodedRedirect } from "@/utils/encodedRedirect"; // 메시지를 포함한 리디렉션 함수
+import { createClient } from "@/utils/supabase/server"; // Supabase 클라이언트 생성 함수
+import { headers } from "next/headers"; // 요청 헤더 가져오기
+import { redirect } from "next/navigation"; // Next.js 리디렉션 함수
+
+// ✅ 회원가입 처리 (Sign Up)
+export const signUpAction = async (formData: FormData) => {
+  // 폼 데이터에서 이메일과 비밀번호 추출
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
+
+  // 이메일 또는 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
+  if (!email || !password) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Email and password are required"
+    );
+  }
+
+  // Supabase를 사용해 회원가입 요청
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`, // 이메일 확인 후 이동할 URL 설정
+    },
+  });
+
+  // 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    console.error(error.code + " " + error.message);
+    return encodedRedirect("error", "/sign-up", error.message);
+  }
+
+  // 회원가입 성공 시 성공 메시지를 포함하여 리디렉션
+  return encodedRedirect(
+    "success",
+    "/sign-up",
+    "Thanks for signing up! Please check your email for a verification link."
+  );
+};
+
+// ✅ 로그인 처리 (Sign In)
+export const signInAction = async (formData: FormData) => {
+  // 폼 데이터에서 이메일과 비밀번호 추출
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // Supabase를 사용해 로그인 요청
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  // 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  // 로그인 성공 시 보호된 페이지로 이동
+  return redirect("/protected");
+};
+
+// ✅ 비밀번호 재설정 요청 (Forgot Password)
+export const forgotPasswordAction = async (formData: FormData) => {
+  // 폼 데이터에서 이메일 추출
+  const email = formData.get("email")?.toString();
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
+  const callbackUrl = formData.get("callbackUrl")?.toString(); // 콜백 URL이 있는 경우 가져오기
+
+  // 이메일이 없으면 에러 메시지를 포함하여 리디렉션
+  if (!email) {
+    return encodedRedirect("error", "/forgot-password", "Email is required");
+  }
+
+  // Supabase를 사용해 비밀번호 재설정 이메일 전송 요청
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`, // 비밀번호 재설정 후 이동할 URL 설정
+  });
+
+  // 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Could not reset password"
+    );
+  }
+
+  // 콜백 URL이 있으면 해당 URL로 리디렉션
+  if (callbackUrl) {
+    return redirect(callbackUrl);
+  }
+
+  // 비밀번호 재설정 이메일이 전송되었음을 알리는 메시지 포함하여 리디렉션
+  return encodedRedirect(
+    "success",
+    "/forgot-password",
+    "Check your email for a link to reset your password."
+  );
+};
+
+// ✅ 비밀번호 변경 처리 (Reset Password)
+export const resetPasswordAction = async (formData: FormData) => {
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // 폼 데이터에서 새 비밀번호와 확인용 비밀번호 추출
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  // 비밀번호 또는 확인용 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
+  if (!password || !confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Password and confirm password are required"
+    );
+  }
+
+  // 비밀번호와 확인용 비밀번호가 일치하지 않으면 에러 메시지를 포함하여 리디렉션
+  if (password !== confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Passwords do not match"
+    );
+  }
+
+  // Supabase를 사용해 비밀번호 변경 요청
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  // 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Password update failed"
+    );
+  }
+
+  // 비밀번호 변경 성공 시 성공 메시지를 포함하여 리디렉션
+  return encodedRedirect("success", "/protected/reset-password", "Password updated");
+};
+
+// ✅ 로그아웃 처리 (Sign Out)
+export const signOutAction = async () => {
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // Supabase를 사용해 로그아웃 요청
+  await supabase.auth.signOut();
+
+  // 로그아웃 후 로그인 페이지로 이동
+  return redirect("/sign-in");
+};
+```
+
+---
+
 해당 Server Actions는 두 가지 사용법이 있다.
 
 1. Form 태그에 action 속성에 넘겨주는 방법
@@ -845,3 +845,97 @@ export const signOutAction = async () => {
 ```
 
 ## CRUD 구현
+### 테이블 추가
+- Supabase - 대시보드 - 테이블 에디터로 접속한다. `https://supabase.com/dashboard/project/{Project Id}/editor`
+- Client에서 기본적으로 다루는 Schema는 Public이다. Public Schema를 선택한 후, 'Create a new table'을 클릭한다.
+- 테이블 명은 'todos_with_rls'
+- Columns는 아래와 같이 설정한다.  
+  
+| name       | type        | default value | primary |
+| ---------- | ----------- | ------------- | ------- |
+| id         | int8        | null          | O       |
+| user_id    | uuid        | null          | X       |
+| content    | text        | null          | X       |
+| created_at | timestamptz | now()         | X       |
+| updated_at | timestamptz | now()         | X       |
+| deleted_at | timestamptz | null          | X       |
+  
+`user_id`는 Name에서 foreign key 옵션을 클릭하여 아래와 같이 설정한다.
+- Select a schema : **auth**
+- Select a table to reference to : **users**
+- Select columns from auth.usersto reference to : **public.todos_with_rls.user_id -> auth.users.id**
+- Action if referenced row is updated : **Cascade**
+- Action if referenced row is removed : **Cascade**
+- 
+`timestamptz`는 클라이언트의 세션 시간대를 조회하여 UTC 기준으로 변환하여 저장하는 타입이다.
+
+### Postgres SQL의 Row-Level Security (RLS)
+- 행 수준 보안. 사용자가 어떤 행에 접근할 수 있는지를 설정할 수 있는 기능을 한다.
+```Postgres SQL
+create policy "policy_name"
+on "public"."todos_with_rls"
+as PERMISSIVE
+for SELECT
+to public
+using (true);
+```
+- ***create* policy "policy_name"** : 정책을 생성한다. 이름을 "policy_name"로 설정했다.
+- ***on* "public"."todos_with_rls"** : 적용할 테이블을 지정한다. "public" 스키마의 "todos_with_rls" 테이블을 지정했다.
+- ***as* PERMISSIVE** : 정책의 유형을 지정한다. `PERMISSIVE`는 접근할 수 있는 사용자를 지정하는 유형이고, `RESTRICTIVE`는 접근이 불가능한 사용자를 지정하는 유형이다.
+- ***for* SELECT** : 작동 대상 및 권한. `SELECTE(조회)`, `INSERT(삽입)`, `UPDATE(수정)`, `DELETE(삭제)`
+- ***to* public** : 대상 사용자. `public(모두)`, `authenticated(로그인 된 사용자)`
+- ***using* ()** : 괄호 안의 조건을 충족할 때에만 해당 조건이 작동한다. `using (true)`는 항상. `using ((select auth.uid()) = user_id)`는 user_id가 같을 때에 작동한다.
+  - using 정책이 적용되면, 내부적으로 WHERE 절을 활용하여 필터링이 수행된다. 즉, 다음과 같은 필터링이 자동으로 적용된다. [Row Level Security - Supabase Docs](https://supabase.com/docs/guides/database/postgres/row-level-security)
+  ```sql
+  SELECT * FROM todos_with_rls WHERE auth.uid() = todos_with_rls.user_id;
+  ```
+  결과적으로, todos_with_rls 테이블의 user_id 컬럼이 현재 로그인한 사용자의 auth.uid() 값과 동일한 경우에만 행이 반환된다.
+
+using 표현식과 with check 표현식의 차이는 아래와 같다.
+| **구분**   | **`using`**                                                | **`with check`**                                              |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
+| **목적**   | 데이터에 대한 **조회**, **업데이트**, **삭제** 권한을 제한 | 데이터 삽입 및 수정 시 **유효성 검사**                        |
+| **시점**   | 쿼리 실행 시, **행이 선택**될 때 조건을 적용               | 데이터가 **삽입**되거나 **수정**될 때 조건을 적용             |
+| **사용처** | 사용자가 접근할 수 있는 행을 필터링                        | 새로운 행이 데이터베이스에 삽입되거나 업데이트될 때 조건 검증 |
+
+
+### RLS Policy 추가
+- Supabase - 대시보드 - Authentication - Configuration - Policies로 접속한다. `https://supabase.com/dashboard/project/{Project ID}/auth/policies`
+- todos_with_rls 테이블에 'Create policy' 버튼을 클릭한다.
+- `Select - Enable read access for all users` 를 클릭한 후 `Save Policy`를 눌러 정책을 추가해준다. 앞서 예시로 든 `using(true)`를 사용한 Select 정책이 추가된다.
+- `Insert - Enable insert for authenticated users only`를 클릭한 후 `Save Policy`를 눌러 정책을 추가해준다. `with check (true)`라는 표현식이 끝에 붙는데, with check는 명령을 실행하기 전에 조건을 충족하는지를 체크한다. true로 두었기에 로그인 한 유저 누구나 작성할 수 있다.
+- `Update - Enable update for users based on email` 템플릿을 클릭하면 아래와 같이 템플릿이 나온다.
+```Postgres SQL
+create policy "Enable update for users based on email"
+on "public"."todos_with_rls"
+as PERMISSIVE
+for UPDATE
+to public
+using (
+  (select auth.jwt()) ->> 'email' = email
+with check (
+  (select auth.jwt()) ->> 'email' = email
+);
+```
+이를 uid와 비교하도록 아래와 같이 수정한 후 Save Policy를 한다.
+  
+```Postgres SQL
+create policy "Enable update for users based on user_id"
+on "public"."todos_with_rls"
+as PERMISSIVE
+for UPDATE
+to public
+using (
+  (select auth.uid()) = user_id
+with check (
+  (select auth.uid()) = user_id
+);
+```
+
+[업데이트 RLS에 대한 설명 - Reddit](https://www.reddit.com/r/Supabase/comments/18bj4u4/implementing_rls_policy_for_item_updates_in/?rdt=34917)
+
+- `DELETE - Enable delete for users based on user_id`를 클릭한 후 `Save Policy`를 눌러 정책을 추가해준다.
+
+이로써 CRUD에 대한 RLS 정책들을 추가 완료하였다.
+
+### CRUD Server Actions 구현
