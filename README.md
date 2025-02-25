@@ -604,3 +604,244 @@ export default function AuthCodeErrorPage({
 }
 ```
 
+#### Password 로그인 구현
+[Supabase is now compatible with Next.js 14 - supabase blogs](https://supabase.com/blog/supabase-is-now-compatible-with-nextjs-14) 를 참고하여 Sign-up 액션과 Sign-in 액션을 구현하여 보자.
+##### Redirect용 Util 함수
+utils\encodedRedirect.tsx
+```tsx
+import { redirect } from "next/navigation";
+
+/**
+ * Redirects to a specified path with an encoded message as a query parameter.
+ * @param {('error' | 'success')} type - The type of message, either 'error' or 'success'.
+ * @param {string} path - The path to redirect to.
+ * @param {string} message - The message to be encoded and added as a query parameter.
+ * @returns {never} This function doesn't return as it triggers a redirect.
+ */
+export function encodedRedirect(
+  type: "error" | "success", // 메시지 타입 (에러 또는 성공)
+  path: string, // 리디렉션할 경로
+  message: string // 전달할 메시지
+) {
+  return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
+}
+```
+encodeURIComponent는 JavaScript 내장 함수로, 특수 문자나 공백이 포함된 문자열을 URL-safe 형식으로 인코딩하는 역할을 합니다.
+
+##### Actions
+app\auth\actions.tsx
+```ts
+"use server"; // Next.js의 Server Actions를 사용하도록 지정
+
+import { encodedRedirect } from "@/utils/encodedRedirect"; // 메시지를 포함한 리디렉션 함수
+import { createClient } from "@/utils/supabase/server"; // Supabase 클라이언트 생성 함수
+import { headers } from "next/headers"; // 요청 헤더 가져오기
+import { redirect } from "next/navigation"; // Next.js 리디렉션 함수
+
+// ✅ 회원가입 처리 (Sign Up)
+export const signUpAction = async (formData: FormData) => {
+  // 🔹 폼 데이터에서 이메일과 비밀번호 추출
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
+
+  // 🔹 이메일 또는 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
+  if (!email || !password) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Email and password are required"
+    );
+  }
+
+  // 🔹 Supabase를 사용해 회원가입 요청
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`, // 이메일 확인 후 이동할 URL 설정
+    },
+  });
+
+  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    console.error(error.code + " " + error.message);
+    return encodedRedirect("error", "/sign-up", error.message);
+  }
+
+  // 🔹 회원가입 성공 시 성공 메시지를 포함하여 리디렉션
+  return encodedRedirect(
+    "success",
+    "/sign-up",
+    "Thanks for signing up! Please check your email for a verification link."
+  );
+};
+
+// ✅ 로그인 처리 (Sign In)
+export const signInAction = async (formData: FormData) => {
+  // 🔹 폼 데이터에서 이메일과 비밀번호 추출
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // 🔹 Supabase를 사용해 로그인 요청
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  // 🔹 로그인 성공 시 보호된 페이지로 이동
+  return redirect("/protected");
+};
+
+// ✅ 비밀번호 재설정 요청 (Forgot Password)
+export const forgotPasswordAction = async (formData: FormData) => {
+  // 🔹 폼 데이터에서 이메일 추출
+  const email = formData.get("email")?.toString();
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+  const origin = (await headers()).get("origin"); // 현재 요청의 Origin (도메인) 가져오기
+  const callbackUrl = formData.get("callbackUrl")?.toString(); // 콜백 URL이 있는 경우 가져오기
+
+  // 🔹 이메일이 없으면 에러 메시지를 포함하여 리디렉션
+  if (!email) {
+    return encodedRedirect("error", "/forgot-password", "Email is required");
+  }
+
+  // 🔹 Supabase를 사용해 비밀번호 재설정 이메일 전송 요청
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`, // 비밀번호 재설정 후 이동할 URL 설정
+  });
+
+  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Could not reset password"
+    );
+  }
+
+  // 🔹 콜백 URL이 있으면 해당 URL로 리디렉션
+  if (callbackUrl) {
+    return redirect(callbackUrl);
+  }
+
+  // 🔹 비밀번호 재설정 이메일이 전송되었음을 알리는 메시지 포함하여 리디렉션
+  return encodedRedirect(
+    "success",
+    "/forgot-password",
+    "Check your email for a link to reset your password."
+  );
+};
+
+// ✅ 비밀번호 변경 처리 (Reset Password)
+export const resetPasswordAction = async (formData: FormData) => {
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // 🔹 폼 데이터에서 새 비밀번호와 확인용 비밀번호 추출
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  // 🔹 비밀번호 또는 확인용 비밀번호가 없으면 에러 메시지를 포함하여 리디렉션
+  if (!password || !confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Password and confirm password are required"
+    );
+  }
+
+  // 🔹 비밀번호와 확인용 비밀번호가 일치하지 않으면 에러 메시지를 포함하여 리디렉션
+  if (password !== confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Passwords do not match"
+    );
+  }
+
+  // 🔹 Supabase를 사용해 비밀번호 변경 요청
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  // 🔹 에러 발생 시 에러 메시지를 포함하여 리디렉션
+  if (error) {
+    return encodedRedirect(
+      "error",
+      "/protected/reset-password",
+      "Password update failed"
+    );
+  }
+
+  // 🔹 비밀번호 변경 성공 시 성공 메시지를 포함하여 리디렉션
+  return encodedRedirect("success", "/protected/reset-password", "Password updated");
+};
+
+// ✅ 로그아웃 처리 (Sign Out)
+export const signOutAction = async () => {
+  const supabase = await createClient(); // Supabase 클라이언트 생성
+
+  // 🔹 Supabase를 사용해 로그아웃 요청
+  await supabase.auth.signOut();
+
+  // 🔹 로그아웃 후 로그인 페이지로 이동
+  return redirect("/sign-in");
+};
+```
+
+---
+
+## 🚀 **📌 코드 분석 요약**
+1. **회원가입 (`signUpAction`)**
+   - 이메일과 비밀번호를 받아 **Supabase에 회원가입 요청**.
+   - 인증 이메일을 전송하고, 성공 또는 실패 여부에 따라 적절한 페이지로 **리디렉션**.
+
+2. **로그인 (`signInAction`)**
+   - 이메일과 비밀번호를 받아 **Supabase에 로그인 요청**.
+   - 로그인 실패 시 `/sign-in`으로 **에러 메시지를 포함하여 리디렉션**.
+   - 로그인 성공 시 **보호된 페이지 `/protected`로 이동**.
+
+3. **비밀번호 재설정 요청 (`forgotPasswordAction`)**
+   - 이메일을 받아 **비밀번호 재설정 이메일을 전송**.
+   - 실패하면 `/forgot-password`로 **에러 메시지를 포함하여 리디렉션**.
+   - 성공하면 사용자가 이메일을 확인하도록 안내하는 메시지를 포함하여 **리디렉션**.
+
+4. **비밀번호 변경 (`resetPasswordAction`)**
+   - 사용자가 입력한 **새 비밀번호를 확인 후 Supabase에 업데이트 요청**.
+   - 비밀번호가 일치하지 않거나 요청이 실패하면 **에러 메시지를 포함하여 리디렉션**.
+   - 성공 시 비밀번호가 변경되었음을 알리는 메시지를 포함하여 **리디렉션**.
+
+5. **로그아웃 (`signOutAction`)**
+   - Supabase에서 **세션을 삭제하고 `/sign-in` 페이지로 이동**.
+
+✔️ **모든 액션에서 `encodedRedirect()`를 활용하여 성공/실패 메시지를 포함한 리디렉션을 수행하는 것이 특징!** 🚀
+
+해당 Server Actions는 두 가지 사용법이 있다.
+
+1. Form 태그에 action 속성에 넘겨주는 방법
+```tsx
+      <form action={signOutAction}>
+        <button type="submit">
+          Sign out
+        </button>
+      </form>
+```
+
+2. Form 태그 내부의 Button 태그에 formAction 속성에 넘겨주는 방법
+```tsx
+      <form>
+        <button formAction={signOutAction}>
+          Sign out
+        </button>
+      </form>
+```
+
+## CRUD 구현
