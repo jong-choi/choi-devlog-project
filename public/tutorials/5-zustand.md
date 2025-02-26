@@ -1,0 +1,1 @@
+https://zustand.docs.pmnd.rs/guides/nextjs
