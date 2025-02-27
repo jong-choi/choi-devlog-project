@@ -964,3 +964,97 @@ with check (
 이로써 CRUD에 대한 RLS 정책들을 추가 완료하였다.
 
 ### CRUD Server Actions 구현
+#### SELECT 
+`select("*")`로 데이터를 불러온 후, `.eq()`, `.lt()`, `.is()`와 같은 연산자를 추가하여 조건을 넣는다.
+
+```tsx
+// todoList 가져오기 + by UserId
+export const getTodosByUserId = async (userId: string) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .select("*")
+    .is("deleted_at", null)
+    .eq("user_id", userId);
+
+  return result.data;
+};
+```
+
+위의 예시에서 사용된 SELECT 구문은 아래와 같다.
+
+```SQL
+SELECT * FROM "todos_with_rls"
+WHERE deleted_at IS NULL 
+AND user_id = '사용자_ID';
+```
+
+특정 문자열을 받아 검색하는 구문은 아래와 같다. 이때 ilike는 대소문자를 구별하지 않는 검색이다.
+
+```tsx
+// todoList 가져오기 + search
+export const getTodosBySearch = async (terms: string) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .select("*")
+    .is("deleted_at", null)
+    .ilike("content", `%${terms}%`)
+    .order("id", { ascending: false })
+    .limit(500);
+
+  return result.data;
+};
+```
+
+#### INSERT
+```tsx
+// todoList 생성하기
+export const createTodos = async (content: string) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .insert({
+      content,
+    })
+    .select();
+
+  return result.data;
+};
+```
+
+#### UPDATE
+```tsx
+// todoList 업데이트 하기
+export const updateTodos = async (id: number, content: string) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .update({
+      content,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select();
+
+  return result.data;
+};
+```
+
+#### DELETE
+```tsx
+// todoList softDelete
+export const deleteTodosSoft = async (id: number) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .update({
+      deleted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select();
+
+  return result.data;
+};
+```
