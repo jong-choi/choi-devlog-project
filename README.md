@@ -391,9 +391,9 @@ export const createClient = async () => {
 ### 미들웨어
 요청을 받을 때마다 실행할 로직을 작성해둘 수 있다.
 
-예시에서는 supabase.auth를 통해 유저의 정보를 전달받은 후, 
-
-user의 정보에 맞게 redirect를 시킨다.
+예시에서는 
+1. updateSession을 통해서 쿠키를 업데이트 한다.
+2. supabase.auth를 통해 유저의 정보를 전달받은 후, user의 정보에 맞게 redirect를 시킨다.
 
 ```ts
 import { createServerClient } from "@supabase/ssr";
@@ -460,6 +460,31 @@ export const updateSession = async (request: NextRequest) => {
   }
 };
 ```
+
+미들웨어를 적용하기 위해서는 프로젝트의 루트 폴더에 `middleware.ts` 를 만든 후 적용하면 된다.
+```ts
+import { type NextRequest } from "next/server";
+import { updateSession } from "@/utils/supabase/middleware";
+
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
+```
+
+참고로 해당 미들웨어를 적용하면, 서버 컴포넌트에서는 `utils\supabase\server.ts`의 `setAll(cookiesToSet)`이 실행되지 않는다.
 
 ## Auth 구현
 ### Implicit Flow vs. PKCE (Proof Key for Code Exchange) Flow
