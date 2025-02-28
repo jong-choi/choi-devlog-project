@@ -29,6 +29,7 @@ export const getTodosById = async (id: number) => {
 // todoList 가져오기 + by UserId
 export const getTodosByUserId = async (userId: string) => {
   const supabase = await createClient();
+  // const userId = supabase.auth.getUser().then(e=>e.data.user?.id)
   const result = await supabase
     .from("todos_with_rls")
     .select("*")

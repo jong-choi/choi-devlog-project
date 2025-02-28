@@ -55,94 +55,80 @@ Creating a new Next.js app in C:\Users\bluec\Desktop\next-js-boilerplate.
 file - preferences - configure snippets - typescriptreact를 선택하여 수정한다.
 C:\Users\bluec\AppData\Roaming\Code\User\snippets\typescriptreact.json
 
-tafce : 폴더명을 기준으로 컴포넌트를 생성 후 export한다.  
-tafcep : props children을 가지는 인터페이스와 함께 컴포넌트를 생성한다.  
-tafcem : React.memo를 import하여 감싼 후 export한다.  
-...f : 폴더명이 아닌 파일명을 기준으로 생성한다.  
+tafce : 파일명을 기준으로 화살표 함수 컴포넌트를 생성한다.  
+tafcew : 폴더명을 기준으로 props와 interface를 정의한 후, Next.js 15에 맞는 Page 컴포넌트를 생성한다.
 
 ```json
 {
 	"TSX Arrow Function Component Export": {
 		"prefix": "tafce",
 		"body": [
-			"const ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}: React.FC = () => {",
-			"  return <div>${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}</div>;",
-			"};",
-			"",
-			"export default ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/};"
-		],
-		"description": "TSX Arrow Function Component Export with Folder Name and React.FC"
-	},
-	"TSX Arrow Function Component Export Memoized": {
-		"prefix": "tafcem",
-		"body": [
-			"import { memo } from \"react\";",
-			"",
-			"const ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}: React.FC = () => {",
-			"  return <div>${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}</div>;",
-			"};",
-			"",
-			"export default memo(${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/});"
-		],
-		"description": "TSX Memoized Arrow Function Component Export with Folder Name and React.FC"
-	},
-	"TSX Arrow Function Component with Props Export": {
-		"prefix": "tafcep",
-		"body": [
-			"interface ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}Props {",
-			"  children: React.ReactNode;",
-			"}",
-			"",
-			"const ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}: React.FC<${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/}Props> = ({",
-			"  children,",
-			"}) => {",
-			"  return <div>{children}</div>;",
-			"};",
-			"",
-			"export default ${TM_DIRECTORY/(.+[\\/\\\\])?([^\\/\\\\]+)[\\/\\\\]*$/${2:/pascalcase}/};"
-		],
-		"description": "TSX Arrow Function Component with Props Interface Export based on Folder Name"
-	},
-	"TSX Arrow Function Component Export (File Name)": {
-		"prefix": "tafcef",
-		"body": [
 			"const ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}: React.FC = () => {",
 			"  return <div>${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}</div>;",
 			"};",
 			"",
 			"export default ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/};"
 		],
-		"description": "TSX Arrow Function Component Export with File Name and React.FC"
+		"description": "TSX Arrow Function Component with File Name for TypeScript"
 	},
-	"TSX Arrow Function Component Export Memoized (File Name)": {
-		"prefix": "tafcemf",
+	"TSX Arrow Function Component Export for Next.js Page (w)ith Dynamic Params": {
+		"prefix": "tafcew",
 		"body": [
-			"import { memo } from \"react\";",
-			"",
-			"const ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}: React.FC = () => {",
-			"  return <div>${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}</div>;",
-			"};",
-			"",
-			"export default memo(${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/});"
-		],
-		"description": "TSX Memoized Arrow Function Component Export with File Name and React.FC"
-	},
-	"TSX Arrow Function Component with Props Export (File Name)": {
-		"prefix": "tafcepf",
-		"body": [
-			"interface ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}Props {",
-			"  children: React.ReactNode;",
+			"interface PageProps {",
+			"  params: Promise<{",
+			"    ${TM_DIRECTORY/(.+[\\/\\\\])?\\[([^\\/\\\\]+)\\][\\/\\\\]*$/$2/}: string",
+			"  }>;",
+			"  searchParams?: Promise<Record<string, string | string[]>>;",
+			"  children?: React.ReactNode;",
 			"}",
 			"",
-			"const ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}: React.FC<${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}Props> = ({",
-			"  children,",
-			"}) => {",
-			"  return <div>{children}</div>;",
+			"const Page: React.FC<PageProps> = async ({ params, searchParams, children }) => {",
+			"  return (",
+			"    <div>",
+			"      <h1>Page Component</h1>",
+			"      <pre>{JSON.stringify(await params, null, 2)}</pre>",
+			"      <pre>{JSON.stringify(await searchParams, null, 2)}</pre>",
+			"      {children}",
+			"    </div>",
+			"  );",
 			"};",
 			"",
-			"export default ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/};"
+			"export default Page;"
 		],
-		"description": "TSX Arrow Function Component with Props Interface Export based on File Name"
+		"description": "TSX Arrow Function Component with Directory Name for Next.js 15 App Router"
+	},
+	"TSX Function Component": {
+		"prefix": "tfc",
+		"body": [
+			"export default function ${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}() {",
+			"  return <div>${TM_FILENAME_BASE/(.+)/${1:/pascalcase}/}</div>;",
+			"}"
+		],
+		"description": "TSX Function Component with File Name for TypeScript"
+	},
+	"TSX Function Component for Next.js Page (w)ith Dynamic Params": {
+		"prefix": "tfcw",
+		"body": [
+			"interface PageProps {",
+			"  params: Promise<{",
+			"    ${TM_DIRECTORY/(.+[\\/\\\\])?\\[([^\\/\\\\]+)\\][\\/\\\\]*$/$2/}: string",
+			"  }>;",
+			"  searchParams?: Promise<Record<string, string | string[]>>;",
+			"  children?: React.ReactNode;",
+			"}",
+			"",
+			"export default async function Page({ params, searchParams, children }: PageProps) {",
+			"  return (",
+			"    <div>",
+			"      <h1>Page Component</h1>",
+			"      <pre>{JSON.stringify(await params, null, 2)}</pre>",
+			"      <pre>{JSON.stringify(await searchParams, null, 2)}</pre>",
+			"      {children}",
+			"    </div>",
+			"  );",
+			"}"
+		],
+		"description": "TSX Function Component with Directory Name for Next.js 15 App Router"
 	}
 }
 ```
@@ -1058,3 +1044,150 @@ export const deleteTodosSoft = async (id: number) => {
   return result.data;
 };
 ```
+
+
+Data Fetching, Caching 작성하기,
+- 로그인부터 쭉 페이지 로직 다시
+- TODO APP Shadcn으로 구현하기 
+
+
+
+
+## Data Fetching과 Caching
+### Server Components
+```tsx
+export default async function Page() {
+  const data = await fetch('https://api.vercel.app/blog')
+  const posts = await data.json()
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+
+
+## TODO APP 화면 구현하기
+[Intermediate Todo App With Next.js 14](https://fatihbirtil.com.tr/blog/intermediate-todo-app-with-nextjs-14)  
+
+1. shadcn에서 사용할 UI들을 추가해준다.  
+(shadcn을 설치하지 않앗다면 )`npx shadcn@latest init`  
+`npx shadcn@latest add button input form dialog`  
+
+2. shadcn 토스트(sonner) 설정 [sonner - shadcn docs](https://ui.shadcn.com/docs/components/sonner)  
+`npx shadcn@latest add sonner`
+```tsx
+//app\example\todos\layout.tsx
+import { Toaster } from "@ui/sonner";
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <>
+      <div className="w-full h-full">{children}</div>;
+      <Toaster />
+    </>
+  );
+};
+
+export default Layout;
+```
+
+3. 타입 설정하기 `npx supabase gen types typescript --project-id {프로젝트 ID} --schema public > types/supabase.ts`
+
+4. Modal 구현하기
+
+
+
+## Data Fetching과 Caching
+Data를 Fetching하여 Caching한 후, Revalidate하는 패턴은 크게 두가지로 나눌 수 있다.
+
+첫번째는 `fetch()` + `Route Handlers` + `revalidatePath`
+
+
+
+
+오케이! 그 문제는 revalidateTag()가 fetch()를 사용한 API Route(/api/todos/[userId])의 캐시를 무효화하지 않기 때문이야.
+🔹 해결책: revalidatePath()를 사용해야 해.
+
+🚀 1. revalidateTodos() 수정 (revalidateTag → revalidatePath)
+📌 app/actions.ts
+tsx
+Copy
+Edit
+"use server";
+
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase";
+
+export const getTodosByUserId = async (userId: string) => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("todos_with_rls")
+    .select("*")
+    .is("deleted_at", null)
+    .eq("user_id", userId);
+
+  return result.data;
+};
+
+export const getCachedTodos = unstable_cache(
+  getTodosByUserId,
+  (userId) => [`todos-${userId}`],
+  { revalidate: 300 }
+);
+
+// ✅ `fetch()` 방식에서는 `revalidatePath()` 사용
+export const revalidateTodos = async (userId: string) => {
+  "use server";
+  revalidatePath(`/todos/${userId}/fetch`); // 이 경로의 캐시를 무효화
+};
+✅ fetch() 방식에서는 revalidateTag()가 아닌 revalidatePath() 사용해야 함!
+✅ revalidatePath("/todos/[userId]/fetch")로 특정 페이지의 캐시를 무효화
+
+🚀 2. fetch() 버전 페이지 수정
+📌 app/todos/[userId]/fetch/page.tsx
+tsx
+Copy
+Edit
+// app/todos/[userId]/fetch/page.tsx
+import { revalidateTodos } from "@/actions";
+
+export default async function FetchTodosPage({ params }: { params: { userId: string } }) {
+  const { userId } = params;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${userId}`, {
+    next: { revalidate: 300 }, // ✅ Next.js의 자동 fetch 캐싱 활용
+  });
+  const todos = await res.json();
+
+  return (
+    <div>
+      <h1>Todos for User: {userId} (fetch + API Route)</h1>
+
+      <form action={async () => revalidateTodos(userId)}>
+        <button type="submit">🔄 Revalidate Todos</button>
+      </form>
+
+      <ul>
+        {todos?.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+✅ Revalidate 버튼이 revalidateTodos(userId)를 실행하면 해당 페이지의 캐시가 무효화됨.
+✅ fetch()로 가져온 데이터가 새롭게 갱신됨.
+
+✅ 최종 정리
+페이지	데이터 가져오는 방식	캐싱 여부	Revalidate 방식
+/todos/[userId]/fetch	fetch() + API Route	✅ O (5분)	revalidatePath() 사용
+/todos/[userId]/cache	unstable_cache()	✅ O (5분)	revalidateTag() 사용
+이제 fetch() 방식에서도 Revalidate 버튼이 정상 동작할 거야!
