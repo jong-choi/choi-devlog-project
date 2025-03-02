@@ -865,7 +865,7 @@ export const signOutAction = async () => {
 | name       | type        | default value | primary |
 | ---------- | ----------- | ------------- | ------- |
 | id         | int8        | null          | O       |
-| user_id    | uuid        | null          | X       |
+| user_id    | uuid        | auth.uid()    | X       |
 | content    | text        | null          | X       |
 | created_at | timestamptz | now()         | X       |
 | updated_at | timestamptz | now()         | X       |
@@ -1044,6 +1044,119 @@ export const deleteTodosSoft = async (id: number) => {
   return result.data;
 };
 ```
+
+## Data Fetching과 Caching
+앞서 만든 Todo Actions를 통해 Data Fetching과 Caching을 구현한다.
+
+먼저 app\example\page.tsx 를 아래와 같이 만든다.
+```tsx
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+
+export default async function Page() {
+  const supabase = await createClient();
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+
+  // ✅ userId가 없으면 로그인 페이지로, 있으면 해당 경로로 리다이렉트
+  if (!userId) {
+    redirect("/auth/login");
+  } else {
+    redirect(`/example/${userId}`);
+  }
+}
+```
+`redirect(`/example/${userId}`);`를 이용해 `app\example\[userId]\page.tsx`로 이동시킨다. 
+id를 params로 받아 Caching하기 위함이다.
+
+
+`app\example\[userId]\page.tsx`는 아래와 같이 만든다.
+```tsx
+import TodoAdder from "@/components/example/TodoAdder";
+import TodoListCached from "@/components/example/TodoListCached";
+import TodoListFetch from "@/components/example/TodoListFetch";
+
+interface PageProps {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { userId } = await params;
+  return (
+    <div>
+      <TodoAdder />
+      <TodoListCached userId={userId} />
+      <TodoListFetch userId={userId} />
+    </div>
+  );
+}
+```
+`TodoAdder` : Todo 리스트를 생성하는 컴포넌트이다.
+`TodoListCached` : Todo 리스트를 server action으로 불러온 후, unstable_cache를 통해서 caching하는 컴포넌트이다.
+`TodoListFetch` : Todo 리스트를 Next.js의 확장된 fetch를 통해 불러와 caching하는 컴포넌트이다.
+
+
+### 1 server action에 타입 지정하기
+
+`npx supabase gen` 명령어로 타입을 지정했다면 응답으로 올 DATA의 타입도 생성이 된다.
+`Database["public"]["Tables"]["todos_with_rls"]["Insert"]` 타입은 Insert를 실행했을 때의 데이터이다.
+
+아래와 같이 createTodos의 응답값에 대하여 `Promise<Array<Database["public"]["Tables"]["todos_with_rls"]["Insert"]> | null>`라는 타입을 지정해주자.
+
+result는 기본적으로 `PostgrestSingleResponse<any[]>` 타입을 갖는데, server action에 타입을 지정해줌으로써 result.data의 타입이 추론된다.
+```tsx
+// todoList 생성하기
+export const createTodos = async (
+  content: string
+): Promise<Array<
+  Database["public"]["Tables"]["todos_with_rls"]["Insert"]
+> | null> => {
+  const supabase = await createClient();
+
+  const result = await supabase
+    .from("todos_with_rls")
+    .insert({
+      content,
+    })
+    .select();
+
+  return result.data;
+};
+```
+
+### TodoAdder Component
+```tsx
+//components\example\TodoAdder.tsx
+import { createTodos } from "@/app/example/[userId]/actions";
+
+export default function TodoAdder() {
+  async function formAction(formData: FormData) {
+    "use server";
+
+    const content = formData.get("contentInput");
+
+    if (typeof content !== "string") return; // Type Guard
+
+    await createTodos(content);
+    // 생성을 완료한 후 실행할 로직들을 이곳에 작성합니다.
+  }
+
+  return (
+    <form action={formAction}>
+      <input name="contentInput" placeholder="할 일을 적어라" />
+      <button type="submit">할 일 추가</button>
+    </form>
+  );
+}
+```
+
+1. `formAction` 이라는 새로운 server action을 생성해주었다. server action 함수는 "use server" 지시자를 입력하여 만든다.
+2. `FormData` 인터페이스의 `.get(name)`라는 인스턴스 메서드를 통해 FormData에 있는 요소를 가져올 수 있다. 이때 파라미터는 HTML요소의 name 어트리뷰트와 일치한다.
+3. `formData.get(name)`으로 가져온 데이터는 `any` 타입으로 지정되어 있어 Type Guard를 사용해주어야 한다.
+4. 이후 `formData.get(name)`으로 가져온 데이터를 앞서 만든 `createTodos`라는 server action에 파라미터로 넘겨주며 이를 실행한다.
+
+
 
 
 Data Fetching, Caching 작성하기,

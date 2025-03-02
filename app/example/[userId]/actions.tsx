@@ -1,3 +1,4 @@
+import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 
 // todoList 가져오기
@@ -54,16 +55,19 @@ export const getTodosBySearch = async (terms: string) => {
 };
 
 // todoList 생성하기
-export const createTodos = async (content: string) => {
+export const createTodos = async (
+  content: string
+): Promise<Array<
+  Database["public"]["Tables"]["todos_with_rls"]["Insert"]
+> | null> => {
   const supabase = await createClient();
+
   const result = await supabase
     .from("todos_with_rls")
     .insert({
       content,
     })
     .select();
-
-  console.log(result);
 
   return result.data;
 };
@@ -97,10 +101,3 @@ export const deleteTodosSoft = async (id: number) => {
 
   return result.data;
 };
-
-// todoList hardDelete
-// export const deleteTodosHard = async (id: number) => {
-//   const supabase = await createClient();
-//   const result = await supabase.from("todos_with_rls").delete().eq("id", id);
-//   return result.data;
-// };
