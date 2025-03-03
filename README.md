@@ -1,3 +1,4 @@
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -1155,6 +1156,16 @@ export default function TodoAdder() {
 2. `FormData` 인터페이스의 `.get(name)`라는 인스턴스 메서드를 통해 FormData에 있는 요소를 가져올 수 있다. 이때 파라미터는 HTML요소의 name 어트리뷰트와 일치한다.
 3. `formData.get(name)`으로 가져온 데이터는 `any` 타입으로 지정되어 있어 Type Guard를 사용해주어야 한다.
 4. 이후 `formData.get(name)`으로 가져온 데이터를 앞서 만든 `createTodos`라는 server action에 파라미터로 넘겨주며 이를 실행한다.
+
+
+### TodoListCached Component
+
+
+
+
+
+
+
 
 
 

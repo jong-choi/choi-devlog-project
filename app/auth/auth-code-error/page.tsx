@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 // app/auth/auth-code-error/page.tsx (로그인 에러 페이지)
-export default function AuthCodeErrorPage({
+export default async function AuthCodeErrorPage({
   searchParams,
 }: {
-  searchParams: { message?: string };
+  searchParams: Promise<{ message?: string }>;
 }) {
   const errorMessage =
-    searchParams?.message || "로그인 중 문제가 발생했습니다.";
+    (await searchParams)?.message || "로그인 중 문제가 발생했습니다.";
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
