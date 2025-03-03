@@ -1,8 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 
+/* 수정 전
 export const createClient = async () => {
   const cookieStore = await cookies();
+*/
+export const createClient = async (
+  initialCookieStore?: ReadonlyRequestCookies
+) => {
+  const cookieStore = initialCookieStore || (await cookies());
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,5 +1,6 @@
 import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 // todoList 가져오기
 export const getTodos = async () => {
@@ -28,9 +29,13 @@ export const getTodosById = async (id: number) => {
 };
 
 // todoList 가져오기 + by UserId
-export const getTodosByUserId = async (userId: string) => {
-  const supabase = await createClient();
-  // const userId = supabase.auth.getUser().then(e=>e.data.user?.id)
+export const getTodosByUserId = async (
+  userId: string,
+  cookieStore?: ReadonlyRequestCookies
+): Promise<Array<
+  Database["public"]["Tables"]["todos_with_rls"]["Row"]
+> | null> => {
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("todos_with_rls")
     .select("*")

@@ -5,7 +5,6 @@ export default function TodoAdder() {
     "use server";
 
     const content = formData.get("contentInput");
-
     if (typeof content !== "string") return; // Type Guard
 
     await createTodos(content);
