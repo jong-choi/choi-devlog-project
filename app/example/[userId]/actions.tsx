@@ -1,6 +1,27 @@
+"use server";
+
 import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { revalidateTag } from "next/cache";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+
+export const createRevalidationTagFactory = async ({
+  userId,
+}: {
+  userId?: string;
+}) => ({
+  get todoListByUserId() {
+    return `todoList:userId:${userId}`;
+  },
+});
+
+export const revalidateTodoListByUserId = async (supabase: SupabaseClient) => {
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+  const tagFactory = await createRevalidationTagFactory({ userId });
+  const tag = tagFactory.todoListByUserId;
+  revalidateTag(tag);
+};
 
 // todoList 가져오기
 export const getTodos = async () => {
@@ -40,7 +61,8 @@ export const getTodosByUserId = async (
     .from("todos_with_rls")
     .select("*")
     .is("deleted_at", null)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
   return result.data;
 };
@@ -74,6 +96,7 @@ export const createTodos = async (
     })
     .select();
 
+  await revalidateTodoListByUserId(supabase);
   return result.data;
 };
 
@@ -89,6 +112,8 @@ export const updateTodos = async (id: number, content: string) => {
     .eq("id", id)
     .select();
 
+  await revalidateTodoListByUserId(supabase);
+
   return result.data;
 };
 
@@ -103,6 +128,8 @@ export const deleteTodosSoft = async (id: number) => {
     })
     .eq("id", id)
     .select();
+
+  await revalidateTodoListByUserId(supabase);
 
   return result.data;
 };

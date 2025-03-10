@@ -136,6 +136,33 @@ tafcew : 폴더명을 기준으로 props와 interface를 정의한 후, Next.js 
 }
 ```
 
+### **VSCode 설정 변경으로 절대경로(`alias`) 강제 적용하기**
+
+[Always use alias for automatic imports - Stack Overflow](https://stackoverflow.com/questions/77314336/always-use-alias-for-automatic-imports)
+
+`tsconfig.json`(또는 `jsconfig.json`)에서 **경로 별칭(path alias)**을 올바르게 설정했다면, VSCode의 설정을 변경하여 **항상 절대경로를 사용하도록** 강제할 수 있다.
+
+1. VSCode에서 **설정(User Settings)**을 열고,
+2. **"Import Module Specifier"**를 검색하면 **TypeScript 및 JavaScript용 설정**이 나타난다.
+3. 이를 `"non-relative"`로 변경하면, **항상 경로 별칭(alias)을 사용**하도록 강제할 수 있다.
+
+---
+
+### **VSCode `settings.json` 직접 수정**
+
+만약 설정 파일을 직접 수정하고 싶다면, `settings.json`에 아래 내용을 추가하면 된다.
+
+```json
+{
+  //...
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative"
+  //...
+}
+```
+
+이렇게 설정하면, VSCode에서 자동으로 import를 정리할 때 **상대경로(`./`)가 아닌 경로 별칭(`@/`)을 사용**하도록 변경된다.
+
 ## shadcn/ui 설치
 
 `npx shadcn@latest init`
@@ -370,6 +397,8 @@ export const createClient = () =>
 cookies에 담긴 JWT 토큰을 읽어 세션을 업데이트하는 로직이 추가된다.
 
 ```ts
+"use server";
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -412,6 +441,8 @@ export const createClient = async () => {
 2. supabase.auth를 통해 유저의 정보를 전달받은 후, user의 정보에 맞게 redirect를 시킨다.
 
 ```ts
+"use server";
+
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -1459,146 +1490,5 @@ export default async function TodoListFetch({ userId }: TodoListFetchProps) {
 }
 ```
 
-Data Fetching, Caching 작성하기,
-
-- 로그인부터 쭉 페이지 로직 다시
-- TODO APP Shadcn으로 구현하기
-
-## Data Fetching과 Caching
-
-### Server Components
-
-```tsx
-export default async function Page() {
-  const data = await fetch("https://api.vercel.app/blog");
-  const posts = await data.json();
-  return (
-    <ul>
-      {posts.map((post) => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-## TODO APP 화면 구현하기
-
-[Intermediate Todo App With Next.js 14](https://fatihbirtil.com.tr/blog/intermediate-todo-app-with-nextjs-14)
-
-1. shadcn에서 사용할 UI들을 추가해준다.  
-   (shadcn을 설치하지 않앗다면 )`npx shadcn@latest init`  
-   `npx shadcn@latest add button input form dialog`
-
-2. shadcn 토스트(sonner) 설정 [sonner - shadcn docs](https://ui.shadcn.com/docs/components/sonner)  
-   `npx shadcn@latest add sonner`
-
-```tsx
-//app\example\todos\layout.tsx
-import { Toaster } from "@ui/sonner";
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <>
-      <div className="w-full h-full">{children}</div>;
-      <Toaster />
-    </>
-  );
-};
-
-export default Layout;
-```
-
-3. 타입 설정하기 `npx supabase gen types typescript --project-id {프로젝트 ID} --schema public > types/supabase.ts`
-
-4. Modal 구현하기
-
-## Data Fetching과 Caching
-
-Data를 Fetching하여 Caching한 후, Revalidate하는 패턴은 크게 두가지로 나눌 수 있다.
-
-첫번째는 `fetch()` + `Route Handlers` + `revalidatePath`
-
-오케이! 그 문제는 revalidateTag()가 fetch()를 사용한 API Route(/api/todos/[userId])의 캐시를 무효화하지 않기 때문이야.
-🔹 해결책: revalidatePath()를 사용해야 해.
-
-🚀 1. revalidateTodos() 수정 (revalidateTag → revalidatePath)
-📌 app/actions.ts
-tsx
-Copy
-Edit
-"use server";
-
-import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase";
-
-export const getTodosByUserId = async (userId: string) => {
-const supabase = await createClient();
-const result = await supabase
-.from("todos_with_rls")
-.select("\*")
-.is("deleted_at", null)
-.eq("user_id", userId);
-
-return result.data;
-};
-
-export const getCachedTodos = unstable_cache(
-getTodosByUserId,
-(userId) => [`todos-${userId}`],
-{ revalidate: 300 }
-);
-
-// ✅ `fetch()` 방식에서는 `revalidatePath()` 사용
-export const revalidateTodos = async (userId: string) => {
-"use server";
-revalidatePath(`/todos/${userId}/fetch`); // 이 경로의 캐시를 무효화
-};
-✅ fetch() 방식에서는 revalidateTag()가 아닌 revalidatePath() 사용해야 함!
-✅ revalidatePath("/todos/[userId]/fetch")로 특정 페이지의 캐시를 무효화
-
-🚀 2. fetch() 버전 페이지 수정
-📌 app/todos/[userId]/fetch/page.tsx
-tsx
-Copy
-Edit
-// app/todos/[userId]/fetch/page.tsx
-import { revalidateTodos } from "@/actions";
-
-export default async function FetchTodosPage({ params }: { params: { userId: string } }) {
-const { userId } = params;
-const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${userId}`, {
-next: { revalidate: 300 }, // ✅ Next.js의 자동 fetch 캐싱 활용
-});
-const todos = await res.json();
-
-return (
-
-<div>
-<h1>Todos for User: {userId} (fetch + API Route)</h1>
-
-      <form action={async () => revalidateTodos(userId)}>
-        <button type="submit">🔄 Revalidate Todos</button>
-      </form>
-
-      <ul>
-        {todos?.map((todo) => (
-          <li key={todo.id}>{todo.text}</li>
-        ))}
-      </ul>
-    </div>
-
-);
-}
-✅ Revalidate 버튼이 revalidateTodos(userId)를 실행하면 해당 페이지의 캐시가 무효화됨.
-✅ fetch()로 가져온 데이터가 새롭게 갱신됨.
-
-✅ 최종 정리
-페이지 데이터 가져오는 방식 캐싱 여부 Revalidate 방식
-/todos/[userId]/fetch fetch() + API Route ✅ O (5분) revalidatePath() 사용
-/todos/[userId]/cache unstable_cache() ✅ O (5분) revalidateTag() 사용
-이제 fetch() 방식에서도 Revalidate 버튼이 정상 동작할 거야!
+이제 `app/todo` 에서 shadcn을 이용해 ui를 구축하도록 한다.
+[➡ 새로운 README로 이동하기](app/todo/README.md)
