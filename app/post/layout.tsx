@@ -7,7 +7,7 @@ export default function TodoLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main>
+    <main className="w-full h-full">
       <PostTopBar />
       <section className="flex flex-row">
         <PostSidebar />
