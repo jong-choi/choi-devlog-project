@@ -757,3 +757,5 @@ export default function Home() {
   );
 }
 ```
+
+지금까지 만든 TODO APP에 대해 test-later development 방식으로 테스트 코드를 작성하며 Next.js의 TDD 에 대해 공부하고자 한다. [➡ TEST폴더 README로 이동하기](../../__test__/README.md)

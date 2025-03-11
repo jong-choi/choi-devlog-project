@@ -1491,4 +1491,4 @@ export default async function TodoListFetch({ userId }: TodoListFetchProps) {
 ```
 
 이제 `app/todo` 에서 shadcn을 이용해 ui를 구축하도록 한다.
-[➡ 새로운 README로 이동하기](app/todo/README.md)
+[➡ TODO APP README로 이동하기](app/todo/README.md)
