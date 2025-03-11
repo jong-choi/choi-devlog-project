@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { Todo } from "@/types/todo";
 import { Button } from "@ui/button";
-import { deleteTodosSoft } from "@/app/example/[userId]/actions";
+import { deleteTodosSoft } from "@/app/(example)/example/[userId]/actions";
 
 interface TodoItemProps {
   todo: Todo;

@@ -16,7 +16,10 @@ import { Input } from "@/components/ui/input"; // 입력 필드 컴포넌트
 import { Button } from "@/components/ui/button"; // 버튼 컴포넌트
 import { useEffect } from "react"; // 리액트의 useEffect 훅
 import toast from "react-hot-toast"; // 알림을 위한 라이브러리
-import { createTodos, updateTodos } from "@/app/example/[userId]/actions"; // Todo 생성 및 수정 함수
+import {
+  createTodos,
+  updateTodos,
+} from "@/app/(example)/example/[userId]/actions"; // Todo 생성 및 수정 함수
 import { useSelectedTodo } from "@/hooks/use-selected-todo"; // 선택된 Todo 관리 훅
 
 // 폼 데이터 유효성 검사 스키마 정의 (content는 반드시 1자 이상이어야 함)

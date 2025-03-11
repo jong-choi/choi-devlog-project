@@ -1,4 +1,4 @@
-import { createTodos } from "@/app/example/[userId]/actions";
+import { createTodos } from "@/app/(example)/example/[userId]/actions";
 
 export default function TodoAdder() {
   async function formAction(formData: FormData) {

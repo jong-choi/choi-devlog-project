@@ -1,7 +1,7 @@
 import {
   createRevalidationTagFactory,
   getTodosByUserId,
-} from "@/app/example/[userId]/actions";
+} from "@/app/(example)/example/[userId]/actions";
 import { TodoItem } from "@/components/todo/todo-item";
 import { createClient } from "@/utils/supabase/server";
 import { unstable_cache } from "next/cache";

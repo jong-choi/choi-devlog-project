@@ -1,4 +1,4 @@
-import { getTodosByUserId } from "@/app/example/[userId]/actions";
+import { getTodosByUserId } from "@/app/(example)/example/[userId]/actions";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {

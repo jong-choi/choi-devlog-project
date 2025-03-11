@@ -1,4 +1,4 @@
-import { getTodosByUserId } from "@/app/example/[userId]/actions";
+import { getTodosByUserId } from "@/app/(example)/example/[userId]/actions";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
