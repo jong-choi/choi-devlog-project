@@ -1,7 +1,7 @@
 "use client";
 
 import SidebarPenel from "@/components/post/sidebar/panels/sidebar-penel";
-import { useSidebarStore } from "@/hooks/use-sidebar";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
 
 export default function SidebarApp({ categories }: { categories: Category[] }) {

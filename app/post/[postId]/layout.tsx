@@ -1,12 +1,17 @@
 import PostSidebar from "@/components/post/sidebar/post-sidebar";
 import PostTopBar from "@/components/post/topBar/post-top-bar";
-import { Suspense } from "react";
+import { ReactNode, Suspense } from "react";
+
+interface TodoLayoutProps {
+  params?: Promise<{ postId: string }>;
+  children: ReactNode;
+}
 
 export default async function TodoLayout({
+  params,
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: TodoLayoutProps) {
+  const postId = (await params)?.postId || "";
   return (
     <main className="w-full h-full flex flex-col">
       <PostTopBar />
@@ -19,7 +24,7 @@ export default async function TodoLayout({
               </div>
             }
           >
-            <PostSidebar />
+            <PostSidebar postId={postId} />
           </Suspense>
         </div>
         <article className="flex-1 overflow-auto">{children}</article>{" "}

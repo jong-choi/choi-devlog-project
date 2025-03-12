@@ -1,7 +1,7 @@
-import { useSidebarStore } from "@/hooks/use-sidebar";
 import { Category, Subcategory, Post } from "@/types/post";
 import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import CollapsedPanel from "@/components/post/sidebar/panels/collapsed-panel";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
 
 interface SidebarPenelProps {
   type: "category" | "subcategory" | "post"; // 패널의 타입
