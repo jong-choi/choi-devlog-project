@@ -2,7 +2,7 @@ import PostSidebar from "@/components/post/sidebar/post-sidebar";
 import PostTopBar from "@/components/post/topBar/post-top-bar";
 import { Suspense } from "react";
 
-export default function TodoLayout({
+export default async function TodoLayout({
   children,
 }: {
   children: React.ReactNode;
