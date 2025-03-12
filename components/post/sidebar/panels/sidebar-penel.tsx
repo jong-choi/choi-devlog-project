@@ -37,8 +37,7 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
 
   // 공통된 collapsed 패널 클릭 처리
   const onCollapsedPanelClick = () => {
-    if (type === "category") setSelectedPanel("subcategory");
-    if (type === "subcategory") setSelectedPanel("post");
+    setSelectedPanel(type);
   };
 
   // 선택된 패널에 맞는 collapsed 패널을 보여주는 부분
@@ -48,6 +47,7 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
       : type === "subcategory"
       ? selectedSubcategory
       : selectedPost;
+
   if (selectedItem && selectedPanel !== type) {
     return (
       <CollapsedPanel
@@ -63,7 +63,7 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
 
   // 각 항목을 PanelItem으로 렌더링
   return (
-    <div className="w-64 p-4 border-r border-gray-200 bg-white">
+    <div className="w-64 p-4 border-r border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
       {data.map((item) => (
         <PanelItem
           key={`${type}-${item.id}`}

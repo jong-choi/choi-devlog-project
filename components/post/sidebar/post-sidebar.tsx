@@ -19,14 +19,11 @@ export default function PostSidebar({
       {selectedCategory && (
         <SidebarPenel
           type="subcategory"
-          data={categories[0].subcategories || []} // 첫 번째 카테고리의 서브카테고리 데이터
+          data={selectedCategory.subcategories || []}
         />
       )}
       {selectedSubcategory && (
-        <SidebarPenel
-          type="post"
-          data={categories[0].subcategories[0].posts || []} // 첫 번째 서브카테고리의 포스트 데이터
-        />
+        <SidebarPenel type="post" data={selectedSubcategory.posts || []} />
       )}
     </div>
   );

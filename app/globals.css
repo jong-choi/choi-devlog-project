@@ -29,3 +29,26 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+/* 스크롤바 추가 https://stackoverflow.com/questions/69400560/how-to-change-scrollbar-when-using-tailwind-next-js-react */
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: #f7f4ed;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #e0cbcb;
+    border-radius: 100vh;
+    border: 0px solid #f6f7ed;
+
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #c0a0b9;
+  }
+}
