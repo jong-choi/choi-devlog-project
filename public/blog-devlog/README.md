@@ -85,3 +85,108 @@
 - 단순한 블로그가 아닌, 학습 및 지식 정리를 위한 체계적인 플랫폼 제공
 - 기술 스택 및 개발 역량을 포트폴리오에 효과적으로 어필 가능
 - 실무 수준의 Next.js 프로젝트 경험 축적
+
+# 개발일지
+
+## 1일차 : Sidebar
+
+주요 기능
+
+- 패널 단위 관리 : OneNote를 벤치마크하는 만큼 각 카테고리를 Panel 단위로 관리한다.
+- Collapsed : 패널을 열고 닫을 수 있다. (사이드로 열고 닫으려다가 Layout Shift가 심하여 상하로 열고 닫도록 구현함)
+- Zustand와 SSR : 사이드바의 상태를 Zustand로 관리하되, SSR을 통해 초기상태를 설정할 수 있도록 한다.
+
+### Layout
+
+- 각 게시글에 따라 사이드바의 초기 상태를 유지하도록 폴더 구조를 설정하였다.
+- 게시글의 Id를 params에서 읽어 사이드바에 넘겨준다.
+- 사이드바 내부에 client compoent가 많은 점, 사이드바의 초기 상태를 별도로 구성해야하는 점 등의 이유로 React.Suspense로 분리하여 로딩하도록 하였다.
+
+`app/post/[postId]/layout.tsx`
+
+```tsx
+import PostSidebar from "@/components/post/sidebar/post-sidebar";
+import PostTopBar from "@/components/post/topBar/post-top-bar";
+import { ReactNode, Suspense } from "react";
+
+interface TodoLayoutProps {
+  params?: Promise<{ postId: string }>;
+  children: ReactNode;
+}
+
+export default async function TodoLayout({
+  params,
+  children,
+}: TodoLayoutProps) {
+  const postId = (await params)?.postId || "";
+  return (
+    <main className="w-full h-full flex flex-col">
+      <PostTopBar />
+      <section className="flex flex-row flex-1">
+        <div className="w-64 h-full border-r">
+          {/* Sidebar를 suspense로 감싸 로딩을 기다린다. Sidebar의 초기상태를 만들기 위해 postId를 params에서 받아 넘겨준다. */}
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-full w-full">
+                <div className="spinner"></div>
+              </div>
+            }
+          >
+            <PostSidebar postId={postId} />
+          </Suspense>
+        </div>
+        <article className="flex-1 overflow-auto">{children}</article>{" "}
+      </section>
+    </main>
+  );
+}
+```
+
+### Sidebar Store
+
+카테고리를 '대분류', '소분류', '게시글'로 나눈다고 하였을 때, 이를 효율적으로 관리하기 위해 Zustand가 필요하다.  
+이때 Zustand 상태를 Global Store가 아닌 Scoped 방식으로 관리하여야 SSR이 가능해진다.  
+[Setup with Next.js - Zustand](https://zustand.docs.pmnd.rs/guides/nextjs)
+
+`hooks/use-sidebar.tsx`, `providers/sidebar-store-provider.tsx`
+
+서버에서 초기 렌더링시에 initialState를 전달하도록 하였다.
+
+```tsx
+export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
+```
+
+### PostSidebar
+
+`PostSidebar`는 클라이언트 컴포넌트인 `SidebarApp` 컴포넌트에 `SidebarStoreProvider`를 주입하는 서버 컴포넌트이다.
+
+PostSidebar를 서버 컴포넌트로 설정함으로써 React.Suspense를 사용할 수 있고, SSR을 할 때에 SidebarStore에 초기 상태를 설정할 수 있다.
+
+아래의 사항을 염두에 두었다.
+
+1. 주소로부터 `postId`를 전달받아 초기 상태를 로딩한다.
+2. 초기 상태를 전달받는 Api Call은 Promise.all로 묶어 로딩 시간을 줄인다.
+
+`components/post/sidebar/post-sidebar.tsx`
+
+```tsx
+export default async function PostSidebar({ postId }: PostSidebarProps) {
+  const [categories, initialState] = await Promise.all([
+    fetchCategories(),
+    fetchInitialData(postId),
+  ]);
+
+  return (
+    <SidebarStoreProvider initialState={initialState}>
+      <SidebarApp categories={categories} />
+    </SidebarStoreProvider>
+  );
+}
+```
+
+### SidebarPanel
+
+SidebarApp의 주요 구성요소인 패널 컴포넌트이다.  
+중복된 코드가 많아져서 하나의 코드로 합치고, panel 타입을 "category", "subcategory", "post"로 나누어 비즈니스 로직이 다르게 동작하도록 구성하였다.
+
+`components/post/sidebar/panels/sidebar-panel.tsx`

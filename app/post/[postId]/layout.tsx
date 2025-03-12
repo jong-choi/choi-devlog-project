@@ -17,6 +17,7 @@ export default async function TodoLayout({
       <PostTopBar />
       <section className="flex flex-row flex-1">
         <div className="w-64 h-full border-r">
+          {/* Sidebar를 suspense로 감싸 로딩을 기다린다. Sidebar의 초기상태를 만들기 위해 postId를 params에서 받아 넘겨준다. */}
           <Suspense
             fallback={
               <div className="flex justify-center items-center h-full w-full">

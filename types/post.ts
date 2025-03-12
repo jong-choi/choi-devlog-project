@@ -14,4 +14,4 @@ export type Category = {
   subcategories: Subcategory[];
 };
 
-export type Penel = "category" | "subcategory" | "post";
+export type Panel = "category" | "subcategory" | "post";

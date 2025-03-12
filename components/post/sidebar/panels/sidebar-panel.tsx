@@ -1,15 +1,15 @@
-import { Category, Subcategory, Post, Penel } from "@/types/post";
+import { Category, Subcategory, Post, Panel } from "@/types/post";
 import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import CollapsedPanel from "@/components/post/sidebar/panels/collapsed-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import Link from "next/link";
 
-interface SidebarPenelProps {
-  type: Penel; // 패널의 타입
+interface SidebarPanelProps {
+  type: Panel; // 패널의 타입
   data: Category[] | Subcategory[] | Post[]; // 해당 타입에 맞는 데이터
 }
 
-export default function SidebarPenel({ type, data }: SidebarPenelProps) {
+export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   const {
     selectedCategory,
     selectedSubcategory,

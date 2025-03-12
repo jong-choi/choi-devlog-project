@@ -1,4 +1,4 @@
-import { Category, Subcategory, Post, Penel } from "@/types/post";
+import { Category, Subcategory, Post, Panel } from "@/types/post";
 import { createStore } from "zustand";
 
 export interface SidebarState {
@@ -9,7 +9,7 @@ export interface SidebarState {
   setSelectedCategory: (category: Category | null) => void;
   setSelectedSubcategory: (subcategory: Subcategory | null) => void;
   setSelectedPost: (post: Post | null) => void;
-  setSelectedPanel: (panel: Penel) => void;
+  setSelectedPanel: (panel: Panel) => void;
 }
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
@@ -22,6 +22,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     setSelectedSubcategory: (subcategory) =>
       set({ selectedSubcategory: subcategory }),
     setSelectedPost: (post) => set({ selectedPost: post }),
-    setSelectedPanel: (penel: Penel) => set({ selectedPanel: penel }),
+    setSelectedPanel: (Panel: Panel) => set({ selectedPanel: Panel }),
     ...initialState, // 초기값 덮어쓰기
   }));

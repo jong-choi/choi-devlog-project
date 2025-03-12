@@ -1,10 +1,10 @@
 import { FiBookOpen, FiChevronDown } from "react-icons/fi";
 import { FiBook } from "react-icons/fi";
 import { PiBooks } from "react-icons/pi";
-import { Penel } from "@/types/post";
+import { Panel } from "@/types/post";
 
 interface CollapsedPanelProps {
-  icon: Penel;
+  icon: Panel;
   title: string;
   onClick: () => void;
 }

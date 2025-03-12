@@ -8,17 +8,18 @@ interface PostSidebarProps {
 }
 
 export default async function PostSidebar({ postId }: PostSidebarProps) {
-  const categories = await fetchCategories();
-  const initialState = await fetchInitalData();
+  const [categories, initialState] = await Promise.all([
+    fetchCategories(),
+    fetchInitialData(postId),
+  ]);
   return (
     <SidebarStoreProvider initialState={initialState}>
-      <div>{postId}</div>
       <SidebarApp categories={categories} />
     </SidebarStoreProvider>
   );
 }
 
-const fetchInitalData = (): Promise<Partial<SidebarState>> => {
+const fetchInitialData = (_postId: string): Promise<Partial<SidebarState>> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
