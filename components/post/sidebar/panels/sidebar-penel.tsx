@@ -69,7 +69,7 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
 
   // 각 항목을 PanelItem으로 렌더링
   return (
-    <div className="w-64 p-4 border-r border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
+    <div className="w-full p-4  border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
       {data.map((item) => (
         <PanelItem
           key={`${type}-${item.id}`}
