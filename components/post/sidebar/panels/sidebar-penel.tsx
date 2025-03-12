@@ -48,14 +48,20 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
       ? selectedSubcategory
       : selectedPost;
 
-  if (selectedItem && selectedPanel !== type) {
-    return (
-      <CollapsedPanel
-        icon={type}
-        title={selectedItem.name}
-        onClick={onCollapsedPanelClick}
-      />
-    );
+  if (selectedPanel !== type) {
+    if (!selectedItem) {
+      return <></>;
+    }
+
+    if (selectedItem) {
+      return (
+        <CollapsedPanel
+          icon={type}
+          title={selectedItem.name}
+          onClick={onCollapsedPanelClick}
+        />
+      );
+    }
   }
 
   // 데이터가 없으면 빈 화면 반환
