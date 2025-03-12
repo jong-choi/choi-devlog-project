@@ -1,10 +1,11 @@
-import { Category, Subcategory, Post } from "@/types/post";
+import { Category, Subcategory, Post, Penel } from "@/types/post";
 import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import CollapsedPanel from "@/components/post/sidebar/panels/collapsed-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import Link from "next/link";
 
 interface SidebarPenelProps {
-  type: "category" | "subcategory" | "post"; // 패널의 타입
+  type: Penel; // 패널의 타입
   data: Category[] | Subcategory[] | Post[]; // 해당 타입에 맞는 데이터
 }
 
@@ -67,17 +68,31 @@ export default function SidebarPenel({ type, data }: SidebarPenelProps) {
   // 데이터가 없으면 빈 화면 반환
   if (!data || data.length === 0) return null;
 
-  // 각 항목을 PanelItem으로 렌더링
+  const ItemContiner: React.FC<{ id: number } & React.PropsWithChildren> = ({
+    id,
+    children,
+  }) => {
+    if (type === "post") {
+      // Link 태그를 써서 pre-loading을 시도
+      return <Link href={`/post/${id}`}>{children}</Link>;
+    } else {
+      return <div>{children}</div>;
+    }
+  };
+
   return (
     <div className="w-full p-4  border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
-      {data.map((item) => (
-        <PanelItem
-          key={`${type}-${item.id}`}
-          onClick={() => onSelect(item)}
-          description={item.name}
-          isSelected={selectedItem?.id === item.id}
-        />
-      ))}
+      {data.map((item) => {
+        return (
+          <ItemContiner key={`${type}-${item.id}`} id={item.id}>
+            <PanelItem
+              onClick={() => onSelect(item)}
+              description={item.name}
+              isSelected={selectedItem?.id === item.id}
+            />
+          </ItemContiner>
+        );
+      })}
     </div>
   );
 }
