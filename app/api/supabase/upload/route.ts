@@ -7,6 +7,7 @@ interface UploadRequestBody {
   imageUrl: string;
 }
 
+// velog의 이미지 주소를 받아서 supabase 스토리지에 업로드하는 API
 export async function POST(req: NextRequest) {
   try {
     // 요청에서 JSON 데이터 파싱
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     // Supabase 클라이언트 생성
     const supabase = await createClient(undefined, true);
-
+    await supabase.auth.signOut(); // service-role을 수행하기 위해 로그아웃
     // Velog 이미지 기본 URL
     const baseUrl = "https://velog.velcdn.com/images/bluecoolgod80/";
     const fullImageUrl = `${baseUrl}${imageUrl}`;

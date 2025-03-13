@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      subcategories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          url_slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          url_slug?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          url_slug?: string
+        }
+        Relationships: []
+      }
       todos_with_rls: {
         Row: {
           content: string
