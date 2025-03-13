@@ -50,7 +50,7 @@ const fetchInitialData = (_postId: string): Promise<Partial<SidebarState>> => {
         selectedPost: { id: 1002, name: "Hooks 완전 정복" },
         selectedPanel: "post",
       });
-    }, 2000); // 2초 후에 데이터 반환
+    }, 200); // 0.2초 후에 데이터 반환
   });
 };
 
@@ -89,6 +89,6 @@ const fetchCategories = (): Promise<Category[]> => {
           ],
         },
       ]);
-    }, 2000); // 2초 후에 데이터 반환
+    }, 200); // 0.2초 후에 데이터 반환
   });
 };

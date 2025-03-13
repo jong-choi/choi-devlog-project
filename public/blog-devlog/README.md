@@ -100,7 +100,7 @@
 
 - 각 게시글에 따라 사이드바의 초기 상태를 유지하도록 폴더 구조를 설정하였다.
 - 게시글의 Id를 params에서 읽어 사이드바에 넘겨준다.
-- 사이드바 내부에 client compoent가 많은 점, 사이드바의 초기 상태를 별도로 구성해야하는 점 등의 이유로 React.Suspense로 분리하여 로딩하도록 하였다.
+- ~~사이드바 내부에 client compoent가 많은 점, 사이드바의 초기 상태를 별도로 구성해야하는 점 등의 이유로 React.Suspense로 분리하여 로딩하도록 하였다.~~ _SSR로 캐싱하기 위해 Suspense 태그 삭제_
 
 `app/post/[postId]/layout.tsx`
 
@@ -190,3 +190,153 @@ SidebarApp의 주요 구성요소인 패널 컴포넌트이다.
 중복된 코드가 많아져서 하나의 코드로 합치고, panel 타입을 "category", "subcategory", "post"로 나누어 비즈니스 로직이 다르게 동작하도록 구성하였다.
 
 `components/post/sidebar/panels/sidebar-panel.tsx`
+
+## 2일차 : Post 스크랩 방안 테스트
+
+### Post 데이터 구조
+
+Post는 velog에 작성했던 글들을 스크래핑할 예정이다.  
+Velog의 요청, 응답 데이터 구조는 velog-client 깃허브에서 확인할 수 있다.  
+[velog-client/src/lib/graphql - github](https://github.com/velopert/velog-client/tree/master/src/lib/graphql)
+
+본 앱에서 Post의 데이터는 아래와 같이 구성하였다.  
+velog의 series는 본 앱의 subcategory에 대응된다.
+
+```gql
+  post {
+    id
+    title
+    released_at
+    updated_at
+    tags
+    body
+    short_description
+    thumbnail
+    url_slug
+    category {
+      id
+      name
+      url_slug
+    }
+    subcategory {
+      id
+      name
+      url_slug
+    }
+  }
+```
+
+```JS
+const post = {
+  id: 'af5b4530-b350-11e8-9696-f1fffe8a36f1',
+  title: '상태 관리 라이브러리의 미학: Redux 또는 MobX 를 통한 상태 관리',
+  released_at: '2018-09-08T10:19:35.556Z',
+  updated_at: '2019-07-30T14:19:14.326Z',
+  tags: ['redux', '상태관리'],
+  body: '리액트 생태계에서 사용되는 상태 관리 라이브러리는 대표적으로 Redux 와 MobX 가 있습니다. 이 둘의 특징을 배워보고 직접 사용하면서 알아가봅시다.\n\n## 상태 관리 라이브러리의 필요성\n\n상태 관리 라이브러리란게, 과연 필요할까요? 무조건 필요하지는 않습니다. 하지만 한가지는 확실합니다. 규모가 큰 앱에선 있는게, 확실히 편합니다. 제가 존경하는 개발자이면서도.. 리덕스의 라이브러리의 창시자인 Dan Abramov 는 말합니다. ["You might not need Redux"](https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367) [(번역)](https://medium.com/@Dev_Bono/%EB%8B%B9%EC%8B%A0%EC%97%90%EA%B2%8C-redux%EB%8A%94-%ED%95%84%EC%9A%94-%EC%97%86%EC%9D%84%EC%A7%80%EB%8F%84-%EB%AA%A8%EB%A6%85%EB%8B%88%EB%8B%A4-b88dcd175754)\n\n실제로, 여러분은 리덕스 없이도 좋은 앱을 만들 수 있습니다. 상태 관리 라이브러리가 없으면, 이전에는 글로벌 상태 관리를 하기에 조금 번거로웠는데 리액트 16.3 에서 [Context API](https://react-context.vlpt.us/03.html) 가 더욱 좋아지면서 글로벌 상태 관리 또한 별도의 라이브러리 없이 할 수 있게 되었습니다.\n\n> 글로벌 상태 관리란, 컴포넌트 간의 데이터 교류, 특히 부모-자식 관계가 아닌 컴포넌트끼리 데이터 교류를 하는것을 의미합니다.\n\n하지만, 그럼에도 불구하고 저는 상태 관리 라이브러리를 결국에는 배워보는걸 권장합니다. 모르고 안 쓰는거랑, 알고 안 쓰는거랑 다르기 때문이죠.',
+  short_description:
+    '리액트 생태계에서 사용되는 상태 관리 라이브러리는 대표적으로 Redux 와 MobX 가 있습니다. 이 둘의 특징을 배워보고 직접 사용하면서 알아가봅시다.\n\n상태 관리 라이브러리의 필요성\n\n상태 관리 라이브러리란게, 과연 필요할까요? 무조건 필요하지는 않습니다. 하지만 한가지는 확실합니다. 규모가 큰 앱에선 있는게, 확실히 편합니다. 제가 존경하는 개발자이면...',
+  thumbnail:
+    'https://redux.js.org/img/course-callout-mid.svg',
+  url_slug: 'redux-or-mobx',
+  category: {
+      id: 'adbedb50-1b2f-11e9-958c-cdbdd4063c98',
+      name: '필수 라이브러리',
+      url_slug: 'frontend-library',
+  },
+  subcategory: {
+      id: '96ffa520-1b2f-11e9-abae-cb5137f530ec',
+      name: 'Redux 또는 MobX 를 통한 상태 관리',
+      url_slug: 'redux-or-mobx',
+  },
+};
+```
+
+카테고리 목록을 불러왔을 때의 데이터는 아래와 같다.
+
+```gql
+    category {
+      id
+      name
+      url_slug
+      subcategories {
+        id
+        name
+        posts {
+          id
+          title
+          thumbnail
+          short_description
+          url_slug
+          released_at
+        }
+      }
+    }
+```
+
+### Post Scraper 프로그램 작성
+
+scraper 폴더의 index.js 파일로 작성하였다.  
+해당 파일은 velog의 https://v2cdn.velog.io/graphql 서비스를 호출하여 게시글의 정보를 가져온다.
+
+(초기에 웹 사이트를 직접 방문하여 크롤링하는 방안으로 구현하였으나, 게시글의 일부 정보가 누락되어 있어 graphql을 직접 호출하는 방안으로 선회하였음.)
+
+```js
+import fs from "fs";
+const url_slug = "Jest-Jest-작성법";
+
+async function fetchPost(url_slug) {
+  const url = "https://v2cdn.velog.io/graphql";
+
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "*/*",
+    Origin: "https://velog.io",
+    Referer: "https://velog.io/",
+  };
+
+  const body = JSON.stringify({
+    operationName: "ReadPost",
+    query: `query ReadPost($username: String, $url_slug: String) {
+      post(username: $username, url_slug: $url_slug) {
+        id
+        title
+        released_at
+        updated_at
+        tags
+...
+    }`,
+    variables: {
+      username: "bluecoolgod80",
+      url_slug,
+    },
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: body,
+    });
+
+    const data = await response.json();
+
+    fs.writeFileSync(
+      "data/" + url_slug + ".json",
+      JSON.stringify(data, null, 2)
+    );
+  } catch (error) {
+    console.error("Error fetching post:", error);
+  }
+}
+
+fetchPost(url_slug);
+```
+
+## 밀크다운 설치
+
+```
+npm install @milkdown/react
+npm install @milkdown/kit
+npm install @milkdown/theme-nord
+```
