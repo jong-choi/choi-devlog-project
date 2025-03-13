@@ -9,13 +9,16 @@ export const createClient = async () => {
   const cookieStore = await cookies();
 */
 export const createClient = async (
-  initialCookieStore?: ReadonlyRequestCookies
+  initialCookieStore?: ReadonlyRequestCookies,
+  useServiceRole?: boolean
 ) => {
   const cookieStore = initialCookieStore || (await cookies());
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    useServiceRole
+      ? process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY! // Service Role Key 사용 (업로드 시)
+      : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // 기본적으로 Anon Key 사용
     {
       cookies: {
         getAll() {

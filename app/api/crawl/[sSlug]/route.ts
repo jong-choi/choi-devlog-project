@@ -1,6 +1,7 @@
 import { VelogAPIResponse } from "@/app/api/crawl/[sSlug]/types";
 import fetchPost from "@/app/api/crawl/[sSlug]/utils/fetchPost";
 import getImageUrls from "@/app/api/crawl/[sSlug]/utils/getImageUrls";
+import uploadImageByUrl from "@/app/api/crawl/[sSlug]/utils/uploadImageByUrl";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -23,7 +24,12 @@ export async function GET(
     // regex로 게시글들에서 이미지들의 url들을 불러오는 단계이다. /post/sdfsd/image.png 와 같은 형식이다.
     const imageUrls: Array<string> = getImageUrls(postData);
 
-    const data = imageUrls;
+    // 이미지들의 url을 통해 업로드를 하는 단계이다.
+    const uploadResults = await Promise.all(
+      imageUrls.map((url) => uploadImageByUrl(url))
+    );
+
+    const data = uploadResults;
     if (!data) {
       return NextResponse.json(
         { error: "Failed to fetch data" },
