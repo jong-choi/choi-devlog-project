@@ -1,13 +1,13 @@
 import { VelogAPIResponse } from "@/app/api/crawl/[sSlug]/types";
 
-export default function getImageUrls(postData: VelogAPIResponse): string[] {
-  if (!postData?.data?.series?.series_posts) {
+export default function getImageUrls(seriesData: VelogAPIResponse): string[] {
+  if (!seriesData?.data?.series?.series_posts) {
     return [];
   }
 
   const imageUrls: string[] = [];
 
-  postData.data.series.series_posts.forEach((seriesPost) => {
+  seriesData.data.series.series_posts.forEach((seriesPost) => {
     const body = seriesPost.post.body;
 
     if (body) {

@@ -340,3 +340,33 @@ npm install @milkdown/react
 npm install @milkdown/kit
 npm install @milkdown/theme-nord
 ```
+
+## 3일차 : Post 스크랩 및 이미지 업로드 1차 구현
+
+### Post 스크랩
+
+`app/api/crawl/[sSlug]/route.ts` 폴더에서 수행한다.
+
+`fetchSeries(url_slug: string)`  
+→ 주어진 url_slug를 통해 velog의 시리즈와 해당하는 게시글들을 가져오는 함수. VelogAPIResponse라는 타입으로 반환한다.
+
+`getImageUrls(seriesData: VelogAPIResponse)`  
+→ 주어진 seriesData의 게시글들에서 imageUrl을 파싱하여 배열로 반환하는 함수
+
+`uploadImageByUrl(url: string)`  
+→ 주어진 이미지 URL을 가져와서 Supabase의 image 스토리지에 업로드하는 함수.
+
+이미지를 업로드한 이후, '시리즈'에 대한 정보를 Supabase의 subcategories 테이블에 row로 추가한다.
+
+이때,
+
+1. 특수 권한이 있는 사람만 DB에 접근할 수 있도록 'service_role key'를 이용해서 service_role로 작동하게 만들었다. 로그인하면 로그인 된 사용자의 role을 따라가기에 로그아웃을 한번하고 로직을 실행한다.
+
+2. subcategories의 id가 uuid로 자동 생성되기 때문에 velog_id라는 text 형태의 추가 아이디를 만들었다. posts 테이블과 연결할 때 유의해야 함.
+
+### 이미지 업로드
+
+`app/api/supabase/upload/route.ts`에서 수행한다.
+
+1. 현재는 velog 주소만 받아서 업로드할 수 있도록 구현 하였다.
+2. 반환값으로 public url을 주는 요청/응답을 고려하여 추후 이미지 업로드 기능과 POST 작성 기능을 연동할 때에 이 점에 유의하여 리팩토링한다.

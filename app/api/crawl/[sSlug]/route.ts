@@ -1,5 +1,5 @@
 import { VelogAPIResponse } from "@/app/api/crawl/[sSlug]/types";
-import fetchPost from "@/app/api/crawl/[sSlug]/utils/fetchPost";
+import fetchSeries from "@/app/api/crawl/[sSlug]/utils/fetchSeries";
 import getImageUrls from "@/app/api/crawl/[sSlug]/utils/getImageUrls";
 import uploadImageByUrl from "@/app/api/crawl/[sSlug]/utils/uploadImageByUrl";
 import { createClient } from "@/utils/supabase/server";
@@ -18,19 +18,19 @@ export async function GET(
   // return NextResponse.json(sSlug);
   try {
     // velog api를 이용하여 "시리즈" 게시글을을 불러오는 단계이다.
-    const postData: VelogAPIResponse = await fetchPost(
+    const seriesData: VelogAPIResponse = await fetchSeries(
       sSlug || "CS공부-디자인-패턴"
     );
 
     // regex로 게시글들에서 이미지들의 url들을 불러오는 단계이다. /post/sdfsd/image.png 와 같은 형식이다.
-    const imageUrls: Array<string> = getImageUrls(postData);
+    const imageUrls: Array<string> = getImageUrls(seriesData);
 
     // 이미지들의 url을 통해 업로드를 하는 단계이다.
     const uploadResults = await Promise.all(
       imageUrls.map((url) => uploadImageByUrl(url))
     );
     const data = uploadResults;
-    const series = postData.data?.series;
+    const series = seriesData.data?.series;
     if (series) {
       const subcategory = {
         velog_id: series?.id,

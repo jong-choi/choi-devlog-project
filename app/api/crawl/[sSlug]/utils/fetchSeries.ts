@@ -1,4 +1,4 @@
-export default async function fetchPost(url_slug: string) {
+export default async function fetchSeries(url_slug: string) {
   const url = "https://v2cdn.velog.io/graphql";
 
   const headers = {
