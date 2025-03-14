@@ -1,5 +1,5 @@
 import { VelogPost } from "@/app/api/crawl/[sSlug]/types";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/server";
 
 interface Series {
   id: string;
@@ -15,7 +15,6 @@ interface Series {
 
 export default async function createCrawledSubcategory(
   sSlug: string,
-  supabase: SupabaseClient,
   series: Series | null
 ): Promise<string> {
   let subcategoryId = "";
@@ -25,6 +24,8 @@ export default async function createCrawledSubcategory(
     name: series?.name,
     url_slug: sSlug,
   };
+
+  const supabase = await createClient();
 
   // 같은 velog_id를 가진 객체가 DB에 있는지 확인
   let isExisting = false;

@@ -5,7 +5,6 @@ import createCrawledSubcategory from "@/app/api/crawl/[sSlug]/utils/createCrawle
 import fetchSeries from "@/app/api/crawl/[sSlug]/utils/fetchSeries";
 import getImageUrls from "@/app/api/crawl/[sSlug]/utils/getImageUrls";
 import uploadImageByUrl from "@/app/api/crawl/[sSlug]/utils/uploadImageByUrl";
-import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -20,20 +19,12 @@ export async function GET(
   }
 
   try {
-    const supabase = await createClient(undefined, true);
-
     // velog api를 이용하여 "시리즈" 게시글을을 불러오는 단계이다.
-    const seriesData: VelogAPIResponse = await fetchSeries(
-      sSlug || "CS공부-디자인-패턴"
-    );
+    const seriesData: VelogAPIResponse = await fetchSeries(sSlug);
     const series = seriesData.data?.series || null;
 
     // crawling한 데이터에서 series를 subcategory로 삽입하는 단계
-    const subcategoryId = await createCrawledSubcategory(
-      sSlug,
-      supabase,
-      series
-    );
+    const subcategoryId = await createCrawledSubcategory(sSlug, series);
 
     // 게시글들을 table에 삽입하는 단계
     await createCrawledPost(series, subcategoryId);
@@ -45,6 +36,7 @@ export async function GET(
     const uploadResults = await Promise.all(
       imageUrls.map((url) => uploadImageByUrl(url))
     );
+
     const data = uploadResults;
 
     if (!data) {

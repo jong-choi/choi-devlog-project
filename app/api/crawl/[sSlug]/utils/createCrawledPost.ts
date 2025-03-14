@@ -47,7 +47,7 @@ export default async function createCrawledPost(
       subcategoryId,
     };
 
-    const resData = await createPost(payload, true);
+    const resData = await createPost(payload);
     return resData;
   });
 }
