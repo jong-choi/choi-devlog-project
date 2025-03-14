@@ -370,3 +370,58 @@ npm install @milkdown/theme-nord
 
 1. 현재는 velog 주소만 받아서 업로드할 수 있도록 구현 하였다.
 2. 반환값으로 public url을 주는 요청/응답을 고려하여 추후 이미지 업로드 기능과 POST 작성 기능을 연동할 때에 이 점에 유의하여 리팩토링한다.
+
+## 4일차 : Subcategory 및 Post 등록
+
+DB의 public.posts, public.subcategories, storage.objects 모두 아래의 정책으로 변경하였다.  
+조회 - 누구나 가능  
+생성 - 로그인 한 사용자 혹은 서비스 롤  
+수정, 삭제 - 자신이 생성한 Row 혹은 서비스 롤
+
+### 크롤링한 서브카테고리 등록
+
+`app/api/crawl/[sSlug]/utils/createCrawledSubcategory.ts`
+
+- supabase에 서브카테고리를 생성하는 함수이다.
+- velog로 부터 crawl된 series 정보를 받아와서 subcategories 테이블 양식에 맞게 반환한다.
+- subcategories에는 velog_id 라는 별도의 id를 만들었다.
+- 생성이 완료되면 생성된 subcategory의 id를 반환한다.
+
+### create post 서버액션
+
+`app/post/actions.tsx`
+에 create post 액션을 만들었다.
+조회할 때에
+
+```
+    .limit(1)
+    .single();
+```
+
+를 쿼리에 붙여주면 배열이 아닌 하나만 반환된다.
+
+### 크롤링한 포스트 등록
+
+`app/api/crawl/[sSlug]/utils/createCrawledPost.ts`
+
+- supabase에 post를 등록하는 함수이다. post를 등록할 때에는 create post 액션을 호출한다.
+- 앞서 subcategory를 등록하면서 받은 subcategoryId를 이용하여 foreign key로 subcategory 테이블과 연결한다.
+- post를 등록하기 전에 게시글 body를 살피며 supabase에 저장된 이미지의 주소로 이미지 주소를 parsing한다.
+
+### 라우트 핸들러
+
+`app/api/crawl/[sSlug]/route.ts`
+
+다음의 순서로 작동하도록 하여 구현을 마쳤다.
+
+- 시리즈 url_slug를 통해 velog api를 호출하여 해당 시리즈에 포함된 게시글 목록을 불러온다.
+- 게시글 목록에서 image들의 url을 호출하여 image를 supabase storage에 업로드한다.
+- 시리즈를 supabase DB에 subcategory로 등록한다.
+- 게시글을 supabase DB에 post로 등록하고, subcategoryId를 통해 subcategory를 참조한다.
+
+나머지 구현할 것들
+
+- 게시글 작성시에 이미지 업로드 기능
+- subcategory, category 업로드 및 수정 기능
+  - 게시글에 subcategory 참조하기 기능
+  - subcategory에 category 참조하기 기능
