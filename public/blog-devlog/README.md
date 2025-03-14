@@ -373,11 +373,9 @@ npm install @milkdown/theme-nord
 
 ## 4일차 : Subcategory 및 Post 등록
 
-DB의 public.posts, public.subcategories, storage.objects 모두 아래의 정책으로 변경하였다.  
+DB의 public.posts, public.subcategories 아래의 정책으로 변경하였다.  
 조회 - 누구나 가능  
 생성 - 로그인 한 사용자 혹은 서비스 롤
-
-public.posts, public.subcategories에는 아래의 정책을 추가하였다.
 수정, 삭제 - 자신이 생성한 Row 혹은 서비스 롤
 
 ### 크롤링한 서브카테고리 등록
@@ -434,3 +432,8 @@ Service Role와 Authenticated가 둘 다 적용되는 경우 에러가 발생한
 
 Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 서비스 롤을 적용하고,
 나머지에는 서비스롤을 모두 제거하여 로그인 상태로 글을 작성하도록 하였다.
+
+## 6일차 계획
+
+- template3 일단 레이아웃에 넣고
+- template3에 일단 맞춰서 포스트 작성기능 개발하기

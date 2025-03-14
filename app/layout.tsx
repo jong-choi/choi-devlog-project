@@ -17,10 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko-KR" className="h-full w-full">
-      <body className={`${notoSansKr.className} antialiased h-full w-full`}>
-        {children}
-      </body>
+    <html lang="ko-KR">
+      <body className={`${notoSansKr.className} antialiased`}>{children}</body>
     </html>
   );
 }
