@@ -9,24 +9,86 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      posts: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          is_private: boolean | null
+          released_at: string | null
+          short_description: string | null
+          subcategoryId: string | null
+          thumbnail: string | null
+          title: string
+          updated_at: string | null
+          url_slug: string | null
+          velog_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategoryId?: string | null
+          thumbnail?: string | null
+          title: string
+          updated_at?: string | null
+          url_slug?: string | null
+          velog_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategoryId?: string | null
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string | null
+          url_slug?: string | null
+          velog_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_subcategoryId_fkey"
+            columns: ["subcategoryId"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subcategories: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
           name: string
           url_slug: string
+          velog_id: string | null
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name?: string
           url_slug?: string
+          velog_id?: string | null
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name?: string
           url_slug?: string
+          velog_id?: string | null
         }
         Relationships: []
       }

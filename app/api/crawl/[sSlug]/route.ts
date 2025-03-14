@@ -1,4 +1,7 @@
 import { VelogAPIResponse } from "@/app/api/crawl/[sSlug]/types";
+import createCrawledPost from "@/app/api/crawl/[sSlug]/utils/createCrawledPost";
+import createCrawledSubcategory from "@/app/api/crawl/[sSlug]/utils/createCrawledSubcategory";
+
 import fetchSeries from "@/app/api/crawl/[sSlug]/utils/fetchSeries";
 import getImageUrls from "@/app/api/crawl/[sSlug]/utils/getImageUrls";
 import uploadImageByUrl from "@/app/api/crawl/[sSlug]/utils/uploadImageByUrl";
@@ -15,12 +18,25 @@ export async function GET(
   if (!sSlug) {
     return NextResponse.json({ error: "Missing sSlug" }, { status: 400 });
   }
-  // return NextResponse.json(sSlug);
+
   try {
+    const supabase = await createClient(undefined, true);
+
     // velog api를 이용하여 "시리즈" 게시글을을 불러오는 단계이다.
     const seriesData: VelogAPIResponse = await fetchSeries(
       sSlug || "CS공부-디자인-패턴"
     );
+    const series = seriesData.data?.series || null;
+
+    // crawling한 데이터에서 series를 subcategory로 삽입하는 단계
+    const subcategoryId = await createCrawledSubcategory(
+      sSlug,
+      supabase,
+      series
+    );
+
+    // 게시글들을 table에 삽입하는 단계
+    await createCrawledPost(series, subcategoryId);
 
     // regex로 게시글들에서 이미지들의 url들을 불러오는 단계이다. /post/sdfsd/image.png 와 같은 형식이다.
     const imageUrls: Array<string> = getImageUrls(seriesData);
@@ -30,24 +46,6 @@ export async function GET(
       imageUrls.map((url) => uploadImageByUrl(url))
     );
     const data = uploadResults;
-    const series = seriesData.data?.series;
-    if (series) {
-      const subcategory = {
-        velog_id: series?.id,
-        name: series?.name,
-        url_slug: sSlug,
-      };
-      // supabase의 public.subcategories 테이블에 subcategory를 추가하는 코드
-      const supabase = await createClient(undefined, true);
-      await supabase.auth.signOut(); // service-role을 수행하기 위해 로그아웃
-      const { error } = await supabase
-        .from("subcategories") // 테이블 이름
-        .insert(subcategory);
-
-      if (error) {
-        throw new Error(`Failed to insert subcategory: ${error.message}`);
-      }
-    }
 
     if (!data) {
       return NextResponse.json(
