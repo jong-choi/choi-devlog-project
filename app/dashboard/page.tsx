@@ -16,13 +16,13 @@ import { Button } from "@ui/button";
 import { PanelLeftIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import "@mdxeditor/editor/style.css";
+import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 // import dynamic from "next/dynamic";
 
 export default function Page() {
   const result: PostgrestSingleResponse<
     Database["public"]["Tables"]["posts"]["Row"]
   > = JSON.parse(postDummyDataString);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data } = result;
 
   return (
@@ -66,11 +66,7 @@ export default function Page() {
             >
               <EditableDiv defaultValue="The People of the Kingdom" />
             </h2>
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-            </div>
+            <MarkdownEditor markdown={data?.body || ""} />
             <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
           </section>
         </MainContainer>
