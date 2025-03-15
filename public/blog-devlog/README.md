@@ -445,6 +445,4 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 - "@mdxeditor/editor"로 클라이언트에서 편집 => https://github.com/mdx-editor/mdx-editor-in-next
 - "@mdxeditor/editor"를 dynamic-import하면서 ssr을 false로, loading을 react-markdown 컴포넌트로
 
-#### "@mdxeditor/editor" 사용 예시
-
-app/(example)/mdxeditor/page.tsx 에 저장해둠.
+[➡ Markdown Editor 구현내용으로 이동하기](components/markdown/README.md)

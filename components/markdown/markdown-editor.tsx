@@ -14,7 +14,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
   );
 
   return (
-    <div>
+    <div className="markdown-body new-york">
       <MdxEditorWrapper markdown={markdown} />
     </div>
   );
