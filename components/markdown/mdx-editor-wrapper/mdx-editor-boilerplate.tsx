@@ -20,6 +20,7 @@ import {
   diffSourcePlugin,
   markdownShortcutPlugin,
 } from "@mdxeditor/editor";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 export async function expressImageUploadHandler(image: File) {
   const formData = new FormData();
@@ -104,6 +105,7 @@ export const ALL_PLUGINS = [
       tsx: "TypeScript",
       "": "Unspecified",
     },
+    codeMirrorExtensions: [vscodeDark],
   }),
   directivesPlugin({
     directiveDescriptors: [
