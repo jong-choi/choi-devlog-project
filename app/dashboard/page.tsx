@@ -1,5 +1,4 @@
 "use client";
-import { postDummyDataString } from "@/app/dashboard/dummyData";
 import { cn } from "@/lib/utils";
 import { Database } from "@/types/supabase";
 import { Separator } from "@radix-ui/react-separator";
@@ -16,7 +15,8 @@ import { Button } from "@ui/button";
 import { PanelLeftIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import "@mdxeditor/editor/style.css";
-import MarkdownEditor from "@/components/markdown/MarkdownEditor";
+import { postDummyDataString } from "@/app/dashboard/dummy-data";
+import MarkdownEditor from "@/components/markdown/markdown-editor";
 // import dynamic from "next/dynamic";
 
 export default function Page() {

@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import "@/components/markdown/github-markdown-light.css";
-import "@/components/markdown/MarkdownEditor.module.css";
+import "@/components/markdown/markdown-editor.module.css";
 import ReactMarkdownWrapper from "@/components/markdown/react-markdown-wrapper/react-markdown-wrapper";
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
