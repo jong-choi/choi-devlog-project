@@ -1,6 +1,9 @@
 "use client";
+import { postDummyDataString } from "@/app/dashboard/dummyData";
 import { cn } from "@/lib/utils";
+import { Database } from "@/types/supabase";
 import { Separator } from "@radix-ui/react-separator";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -14,6 +17,12 @@ import { PanelLeftIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function Page() {
+  const result: PostgrestSingleResponse<
+    Database["public"]["Tables"]["posts"]["Row"]
+  > = JSON.parse(postDummyDataString);
+  const { data } = result;
+  console.log(data);
+
   return (
     <div className="bg-gray-200 w-full h-full">
       <main className="p-2">
