@@ -13,7 +13,7 @@ export default function ReactMarkdownWrapper({
   children,
 }: ReactMarkdownWrapperProps) {
   return (
-    <div className="markdown-body new-york p-[12px]">
+    <div className="p-[12px]">
       <div className="h-[44px] w-full tool-bar-skelton sticky top-0" />
 
       <ReactMarkdown
