@@ -437,3 +437,14 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 
 - template3 일단 레이아웃에 넣고
 - template3에 일단 맞춰서 포스트 작성기능 개발하기
+
+### MD 구현
+
+- SSR에서는 조회만, 클라이언트에서 마크다운 에디터 Dynamic import
+- "react-markdown"으로 SSR => https://github.com/remarkjs/react-markdown
+- "@mdxeditor/editor"로 클라이언트에서 편집 => https://github.com/mdx-editor/mdx-editor-in-next
+- "@mdxeditor/editor"를 dynamic-import하면서 ssr을 false로, loading을 react-markdown 컴포넌트로
+
+#### "@mdxeditor/editor" 사용 예시
+
+app/(example)/mdxeditor/page.tsx 에 저장해둠.

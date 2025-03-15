@@ -15,13 +15,15 @@ import {
 import { Button } from "@ui/button";
 import { PanelLeftIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
+import "@mdxeditor/editor/style.css";
+// import dynamic from "next/dynamic";
 
 export default function Page() {
   const result: PostgrestSingleResponse<
     Database["public"]["Tables"]["posts"]["Row"]
   > = JSON.parse(postDummyDataString);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data } = result;
-  console.log(data);
 
   return (
     <div className="bg-gray-200 w-full h-full">

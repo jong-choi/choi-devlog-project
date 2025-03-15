@@ -1,0 +1,136 @@
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.tool-bar-skelton {
+  background: linear-gradient(90deg, #e3e3e3 0%, #f0f0f0 50%, #e3e3e3 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+  border-radius: 6px;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+.markdown-body ul {
+  list-style-type: disc;
+}
+
+.new-york {
+  & h1 {
+    font-size: 2.25rem; /* text-4xl */
+    line-height: 2.5rem; /* text-4xl의 기본 line-height */
+    font-weight: 800; /* font-extrabold */
+    letter-spacing: -0.025em; /* tracking-tight */
+    scroll-margin: 5rem; /* scroll-m-20을 조금 더 일반적인 값으로 변환 */
+
+    @media (min-width: 1024px) {
+      font-size: 3rem; /* lg:text-5xl */
+      line-height: 1; /* lg:text-5xl의 기본 line-height */
+    }
+  }
+
+  & h2 {
+    padding-bottom: 0.5rem; /* pb-2 */
+    border-bottom-width: 1px; /* border-b */
+    font-size: 1.875rem; /* text-3xl */
+    line-height: 2.25rem; /* text-3xl의 기본 line-height */
+    font-weight: 600; /* font-semibold */
+    letter-spacing: -0.025em; /* tracking-tight */
+    scroll-margin: 5rem; /* scroll-m-20 변환 */
+  }
+
+  & h3 {
+    font-size: 1.5rem; /* text-2xl */
+    line-height: 2rem; /* text-2xl의 기본 line-height */
+    font-weight: 600; /* font-semibold */
+    letter-spacing: -0.025em; /* tracking-tight */
+    scroll-margin: 5rem; /* scroll-m-20 변환 */
+  }
+
+  & h4 {
+    font-size: 1.25rem; /* text-xl */
+    line-height: 1.75rem; /* text-xl의 기본 line-height */
+    font-weight: 600; /* font-semibold */
+    letter-spacing: -0.025em; /* tracking-tight */
+    scroll-margin: 5rem; /* scroll-m-20 변환 */
+  }
+
+  & p {
+    line-height: 1.75rem; /* leading-7 */
+  }
+
+  & blockquote {
+    margin-top: 1.5rem; /* mt-6 */
+    border-left-width: 2px; /* border-l-2 */
+    padding-left: 1.5rem; /* pl-6 */
+    font-style: italic; /* italic */
+  }
+
+  & table {
+    width: 100%; /* w-full */
+    border-collapse: collapse; /* 테이블 테두리 겹치기 */
+  }
+
+  & thead {
+    font-weight: bold;
+  }
+
+  & tr {
+    margin: 0; /* m-0 */
+    border-top: 1px solid #e5e7eb; /* border-t (기본적인 테두리 색 적용) */
+    padding: 0; /* p-0 */
+  }
+
+  & tr:nth-child(even) {
+    background-color: #f3f4f6; /* even:bg-muted (Tailwind의 muted 색상) */
+  }
+
+  & th,
+  & td {
+    border: 1px solid #e5e7eb; /* border */
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    text-align: left; /* 기본값 */
+  }
+
+  & th[align="center"],
+  & td[align="center"] {
+    text-align: center;
+  }
+
+  & th[align="right"],
+  & td[align="right"] {
+    text-align: right;
+  }
+
+  & ul {
+    margin-top: 1.5rem; /* my-6 */
+    margin-bottom: 1.5rem;
+    margin-left: 1.5rem; /* ml-6 */
+    list-style-type: disc; /* list-disc */
+  }
+
+  & ul > li {
+    margin-top: 0.5rem; /* mt-2 */
+  }
+
+  & code {
+    position: relative; /* relative */
+    border-radius: 0.5rem; /* rounded */
+    background-color: #f3f4f6; /* bg-muted (Tailwind의 muted 색상) */
+    padding: 0.2rem 0.3rem; /* px-[0.3rem] py-[0.2rem] */
+    font-size: 0.875rem; /* text-sm */
+  }
+
+  & small {
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    line-height: 1; /* leading-none */
+  }
+}
