@@ -1,3 +1,7 @@
+import AutosaveIndicator from "@/components/post/main/post-controller/autosave/autosave-indicator";
+import AutosaveLoader from "@/components/post/main/post-controller/autosave/autosave-loader";
+import { AutosaveProvider } from "@/providers/autosave-store-provider";
+
 export default function PostControllerWrapper() {
   return (
     <>
@@ -5,6 +9,10 @@ export default function PostControllerWrapper() {
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
         Enter your email address.
       </p>
+      <AutosaveProvider>
+        <AutosaveLoader />
+        <AutosaveIndicator />
+      </AutosaveProvider>
     </>
   );
 }
