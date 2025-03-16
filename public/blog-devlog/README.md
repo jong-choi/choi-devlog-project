@@ -446,3 +446,41 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 - "@mdxeditor/editor"를 dynamic-import하면서 ssr을 false로, loading을 react-markdown 컴포넌트로
 
 [➡ Markdown Editor 구현내용으로 이동하기](components/markdown/README.md)
+
+## 7일차 : IndexedDB를 이용한 로컬 자동저장
+
+##### IndexedDB 활용 방안
+
+- 브라우저에 마운트되면 indexedDB를 체크
+  - -> 저장된 데이터가 있으면
+    - -> indexedDB에 저장된 데이터가 최신 데이터면 : **"브라우저에 임시 저장된 데이터가 있습니다. yyyy.mm.dd hh:mm:ss"** 안내 (반영, 삭제 선택)
+- Debounce를 이용하여 입력 내용을 일정 기간마다 indexedDB에 저장 (입력 후 30초가 지나면 저장)
+  - -> 자동저장 후 : **"작성중인 내용이 임시 저장되었습니다. yyyy.mm.dd hh:mm:ss"**
+- 사용자가 서버에 데이터를 저장 후 : **"저장되었습니다. yyyy.mm.dd hh:mm:ss"**
+
+##### IndexedDB 구조
+
+- Database : "markdown-blog"
+- strage : "post"-postId
+- keys: timestamp, title, body
+
+##### IndexedDB 컨트롤러 상태 구조
+
+- isUploaded : boolean - 사용자가 이번에 업로드를 했는지 확인 (기본값 false)
+- isUploading : boolean - 서버에 저장 중인지 (기본값 false)
+- isAutoSaved : boolean - 이번 세션에 자동저장이 된 적이 있는지 확인 (기본값 false)
+- isAutoSaving : boolean - IndexedDB에 자동저장 중인지 (기본값 false)
+- recentIndexedDbData : { postId : string; data : { timestamp, title, body };} | null - indexedDb에 저장된 최신 데이터 (기본값 null)
+
+### useIndexedDB
+
+`hooks/use-indexeddb.tsx`  
+ addData,  
+ getData,  
+ getAllData,  
+ deleteData,  
+ clearStore,  
+ getDataByOpenCursor,
+
+6개의 함수를 지닌 훅을 만들었다.  
+아직 IndexedDB에 익숙하지 않아서 JSDoc을 꼼꼼하게 작성했다.
