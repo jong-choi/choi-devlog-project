@@ -472,15 +472,179 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 - isAutoSaving : boolean - IndexedDB에 자동저장 중인지 (기본값 false)
 - recentIndexedDbData : { postId : string; data : { timestamp, title, body };} | null - indexedDb에 저장된 최신 데이터 (기본값 null)
 
+### AutosaveStore
+
+초기상태
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: false,
+  isAutoSaved: false,
+  isAutoSaving: false,
+  recentAutoSavedData: null,
+}
+```
+
+#### AutosaveState 상태 변화에 따른 메시지
+
+1. **최초 마운트 시 혹은 임시저장된 게시글이 없을 시**  
+   **AutosaveIndicator:** (메시지 없음)
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: false,
+  isAutoSaved: false,
+  isAutoSaving: false,
+  recentAutoSavedData: null,
+}
+```
+
+- **설명**:
+  - **최초 마운트 시** 아무 데이터도 없는 상태.
+  - IndexedDB에 저장된 임시 데이터가 없고, 서버에서 가져온 데이터도 없을 때.
+
+---
+
+2. **서버의 데이터가 최신 데이터일 시**  
+   **AutosaveIndicator:** (메시지 없음)
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: false,
+  isAutoSaved: false,
+  isAutoSaving: false,
+  recentAutoSavedData: data,
+}
+```
+
+- **설명**:
+  - IndexedDB에 저장된 데이터가 있지만, **서버의 데이터와 동일**한 상태.
+  - 즉, **자동 저장이 실행될 필요 없음**.
+
+---
+
+3. **게시글을 수정해서 자동 저장 실행 중**  
+   **AutosaveIndicator:** `"자동 저장 중 입니다."`
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: false,
+  isAutoSaved: false,  // 아직 저장되지 않음
+  isAutoSaving: true,  // 자동 저장 실행 중
+  recentAutoSavedData: data,
+}
+```
+
+- **설명**:
+  - 사용자가 게시글을 수정했고, **디바운스 후 자동 저장이 실행됨**.
+
+---
+
+4. **자동 저장이 완료된 경우**  
+   **AutosaveIndicator:** `"자동 저장되었습니다."`
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: false,
+  isAutoSaved: true,  // 자동 저장 완료됨
+  isAutoSaving: false, // 자동 저장 진행 중 아님
+  recentAutoSavedData: data,
+}
+```
+
+- **설명**:
+  - **자동 저장이 완료됨**.
+  - **IndexedDB에 저장됨**.
+  - 하지만 **아직 서버에는 업로드되지 않음**.
+
+---
+
+5. **서버에 업로드 중인 경우**  
+   **AutosaveIndicator:** `"업로드 중입니다."`
+
+```tsx
+{
+  isUploaded: false,
+  isUploading: true,
+  isAutoSaved: true,  // 자동 저장된 상태에서 업로드
+  isAutoSaving: false,
+  recentAutoSavedData: data, // 서버로 보낼 데이터
+}
+```
+
+- **설명**:
+  - 서버로 **최신 데이터를 업로드하는 중**.
+  - 이때 `isAutoSaved: true`인 상태에서 업로드가 진행됨.
+
+---
+
+6. **서버에 업로드 완료된 경우**  
+   **AutosaveIndicator:** `"업로드 되었습니다."`
+
+```tsx
+{
+  isUploaded: true,
+  isUploading: false,
+  isAutoSaved: false,  // 서버에 저장되었으므로 초기화
+  isAutoSaving: false,
+  recentAutoSavedData: null,  // 업로드 후 IndexedDB에서 데이터 삭제
+}
+```
+
+- **설명**:
+  - **서버 업로드 완료 후 IndexedDB 데이터를 정리**.
+  - 더 이상 **자동 저장된 데이터를 유지할 필요 없음**.
+  - 이후 사용자가 다시 수정하면 `isUploaded: true → false`, `isAutoSaved: false → true`로 변경됨.
+
+---
+
 ### useIndexedDB
 
-`hooks/use-indexeddb.tsx`  
- addData,  
- getData,  
- getAllData,  
- deleteData,  
- clearStore,  
- getDataByOpenCursor,
+`hooks/use-indexeddb.tsx`
+
+- **`addData(storeName: string, data: any): Promise<IDBValidKey>`**  
+  → 데이터를 추가하고, 추가된 데이터의 `id`(key)를 반환함.
+
+- **`getData(storeName: string, id: IDBValidKey): Promise<any | undefined>`**  
+  → 주어진 `id`의 데이터를 반환하거나, 없으면 `undefined` 반환.
+
+- **`getAllData(storeName: string): Promise<any[]>`**  
+  → IndexedDB의 해당 Object Store에 있는 모든 데이터를 배열로 반환.
+
+- **`deleteData(storeName: string, id: IDBValidKey): Promise<void>`**  
+  → 특정 `id` 값을 가진 데이터를 삭제하고, 반환값 없음.
+
+- **`clearStore(storeName: string): Promise<void>`**  
+  → IndexedDB의 해당 Object Store에 있는 모든 데이터를 삭제하고, 반환값 없음.
+
+- **`getDataByOpenCursor(storeName: string, callback: (data: any) => void): Promise<void>`**  
+  → `openCursor()`를 이용해 데이터를 순회하며 `callback` 함수로 각 데이터를 처리, 반환값 없음.
 
 6개의 함수를 지닌 훅을 만들었다.  
 아직 IndexedDB에 익숙하지 않아서 JSDoc을 꼼꼼하게 작성했다.
+
+### useDebounce, useAutosaveHandler
+
+`hooks/use-debounce.tsx` : 디바운스를 구현하는 훅
+`hooks/use-autosave-handler.tsx` : body, title을 전달받아 useDebounce를 실행하고, debounced되면 autosaveStore의 상태를 변경한다.
+
+### 컴포넌트
+
+- `post-controller/autosave/autosave-indicator.tsx`
+
+  - 자동 저장 상태를 시각적으로 표시하는 컴포넌트
+  - "자동 저장 중", "자동 저장 완료" 등의 메시지 표시
+
+- `autosave/autosave-loader.tsx`
+
+  - `dynamic import`를 사용하여 `AutosaveWrapper`를 비동기 로드
+  - SSR을 비활성화하여 클라이언트에서만 실행되도록 설정
+
+- `components/post/main/post-controller/autosave/autosave-wrapper.tsx`
+  - 마운트 시 IndexedDB에서 기존 데이터를 불러와 자동 저장 상태를 복원
+  - autosaveStore의 상태에 따라 `useIndexedDB`를 이용해 자동 저장된 데이터를 IndexedDB에 저장 및 로드
