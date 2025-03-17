@@ -680,3 +680,10 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 IndexedDB의 구조를 Myblog-postId-{title, body}에서 MyBlog-MyStore-{postId, title, body} 로 변경하도록 리팩토링.  
 IndexedDB의 store를 하나로 통합해야 임시저장된 데이터 목록을 한번에 불러오거나, 해당 게시글과 관련된 내용을 전부 삭제하기에 좋다. (store는 삭제가 안된다... ㅠㅠ)
 autosave-wrapper와 use-indexeddb를 이에 맞게 수정하였고, 그 과정에서 indexedDB의 재사용성이 많이 떨어졌다.
+
+## 9일차 : 자동저장게시글 반영하기 기능
+
+- dayjs 설치하였음! lib/date.ts
+- 자동저장 게시글 반영을 위해 isLocalDBChecked 추가하였음.
+
+자동저장 indicator 전체적인 ui 개선 필요.
