@@ -9,7 +9,6 @@ import { useParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 
 export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
-  const debounceInterval = 2000;
   const [body, setBody] = useState<string>(markdown);
   const [hasChanged, setHasChanged] = useState<boolean>(false);
 
@@ -45,7 +44,7 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
       }))
     );
 
-  const debouncedBody = useDebounce(body, debounceInterval);
+  const debouncedBody = useDebounce(body);
 
   // debouncedBody가 수정되면 이를 반영하고 setIsAutoSaving을 트리거
   useEffect(() => {
@@ -64,19 +63,23 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
   ]);
 
   return (
-    <MDXEditor
-      className="mdxeditor"
-      markdown={markdown}
-      spellCheck={false}
-      ref={mdxEditorRef}
-      onChange={(md, initialMarkdownNormalize) => {
-        if (!initialMarkdownNormalize) {
-          setBody(md);
-          if (!hasChanged)
-            setTimeout(() => setHasChanged(true), debounceInterval);
-        }
-      }}
-      plugins={ALL_PLUGINS}
-    />
+    <>
+      {" "}
+      <MDXEditor
+        className="mdxeditor"
+        markdown={markdown}
+        spellCheck={false}
+        ref={mdxEditorRef}
+        onChange={(md, initialMarkdownNormalize) => {
+          if (!initialMarkdownNormalize) {
+            setBody(md);
+            if (!hasChanged) setTimeout(() => setHasChanged(true), 2000);
+          }
+        }}
+        plugins={ALL_PLUGINS}
+      />
+      {/* serverAction에서 받아올 값을 input hidden으로 */}
+      <input type="hidden" name="body" value={body} />
+    </>
   );
 }

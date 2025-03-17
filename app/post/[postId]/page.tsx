@@ -6,11 +6,11 @@ import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import "@mdxeditor/editor/style.css";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { postDummyDataString } from "@/app/post/[postId]/dummy-data";
-import { EditableDiv } from "@ui/editable-div";
 import { SidebarTrigger } from "@ui/sidebar";
 import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
+import TitleEditor from "@/components/post/main/title-editor";
 // import dynamic from "next/dynamic";
 
 export default function Page() {
@@ -53,12 +53,7 @@ export default function Page() {
               data-component-name="main-post-section"
               className="flex flex-1 flex-col gap-4 p-4 md:px-8 pt-0 overflow-auto scrollbar "
             >
-              <h2
-                data-component-name="main-post-title"
-                className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0"
-              >
-                <EditableDiv defaultValue="The People of the Kingdom" />
-              </h2>
+              <TitleEditor defaultValue={data?.title || ""} />
               <MarkdownEditor markdown={data?.body || ""} />
               <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
             </section>
