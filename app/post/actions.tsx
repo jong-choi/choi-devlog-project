@@ -38,3 +38,26 @@ export const getPostByUrlSlug = async (
 
   return result;
 };
+
+export const createAISummary = async (
+  payload: Omit<
+    Database["public"]["Tables"]["ai_summaries"]["Insert"],
+    "vector"
+  > & { vector: number[] | null }
+): Promise<
+  PostgrestSingleResponse<
+    Omit<Database["public"]["Tables"]["ai_summaries"]["Insert"], "vector"> & {
+      vector: number[] | null;
+    }
+  >
+> => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("ai_summaries")
+    .insert(payload)
+    .select()
+    .limit(1)
+    .single();
+
+  return result;
+};
