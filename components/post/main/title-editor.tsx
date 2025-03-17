@@ -55,8 +55,7 @@ export default function TitleEditor({
 
   useEffect(() => {
     if (!isLoadingDraftTitle) return;
-    if (typeof postId !== "string") return;
-    if (postId !== selectedPostId) return;
+    if (typeof postId !== "string" || postId !== selectedPostId) return;
     setValue(recentAutoSavedDataTitle || "");
     setIsLoadingDraftTitle(false);
   }, [

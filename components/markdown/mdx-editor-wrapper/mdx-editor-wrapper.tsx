@@ -26,7 +26,6 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
   // '자동저장된 파일을 반영하기'가 트리거 됐을 때 useEffect
   useEffect(() => {
     if (!isLoadingDraftBody) return;
-
     // '자동저장된 파일을 반영하기'를 적용하고 트리거를 false로
     if (recentAutoSavedBody) {
       mdxEditorRef.current?.setMarkdown(recentAutoSavedBody);

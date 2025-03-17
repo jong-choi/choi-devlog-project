@@ -2,6 +2,7 @@ import { createStore } from "zustand";
 
 export interface AutosaveState {
   selectedPostId: string | null;
+  isLocalDBChecked: boolean;
   isUploaded: boolean;
   isUploading: boolean;
   isAutoSaved: boolean;
@@ -14,6 +15,7 @@ export interface AutosaveState {
     body: string;
   } | null;
 
+  setIsLocalDBChecked: (value: boolean) => void;
   setIsUploaded: (value: boolean) => void;
   setIsUploading: (value: boolean) => void;
   setIsAutoSaved: (value: boolean) => void;
@@ -21,7 +23,7 @@ export interface AutosaveState {
   setIsLoadingDraftBody: (value: boolean) => void;
   setIsLoadingDraftTitle: (value: boolean) => void;
   setBeforeUploading: () => void;
-  setBeforeModification: (postId: string) => void;
+  setBeforeModification: (postId?: string) => void;
   setRecentAutoSavedData: (
     data: Partial<AutosaveState["recentAutoSavedData"]>
   ) => void;
@@ -30,6 +32,7 @@ export interface AutosaveState {
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
   createStore<AutosaveState>((set) => ({
     selectedPostId: null, // IndexedDB 확인한 후에만 변경됨
+    isLocalDBChecked: false, // recentAutoSavedData가 local에서 가져왔을 때만 true임
     isUploaded: false,
     isUploading: false,
     isAutoSaved: false,
@@ -38,6 +41,7 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
     isLoadingDraftTitle: false,
     recentAutoSavedData: null,
 
+    setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),
     setIsUploaded: (value) => set({ isUploaded: value }),
     setIsUploading: (value) => set({ isUploading: value }),
     setIsAutoSaved: (value) => set({ isAutoSaved: value }),
@@ -50,19 +54,22 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
         isUploading: false,
         isAutoSaved: true,
         isAutoSaving: false,
+        isLocalDBChecked: false,
       }),
     setBeforeModification: (postId) =>
-      set({
-        selectedPostId: postId,
+      set((state) => ({
+        selectedPostId: postId ?? state.selectedPostId,
         isUploaded: false,
         isUploading: false,
         isAutoSaved: false,
         isAutoSaving: false,
-      }),
+        isLocalDBChecked: false,
+      })),
     setRecentAutoSavedData: (
       data: Partial<AutosaveState["recentAutoSavedData"]> | null
     ) =>
       set((state) => ({
+        isLocalDBChecked: false,
         recentAutoSavedData: data
           ? {
               timestamp: data.timestamp ?? Date.now(),

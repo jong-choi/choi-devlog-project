@@ -14,12 +14,14 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
     setBeforeUploading,
     setRecentAutoSavedData,
     setBeforeModification,
+    setIsLocalDBChecked,
   } = useAutosave(
     useShallow((state) => ({
       selectedPostId: state.selectedPostId,
       isAutoSaving: state.isAutoSaving,
       recentAutoSavedData: state.recentAutoSavedData,
       isUploaded: state.isUploaded,
+      setIsLocalDBChecked: state.setIsLocalDBChecked,
       setBeforeUploading: state.setBeforeUploading,
       setRecentAutoSavedData: state.setRecentAutoSavedData,
       setBeforeModification: state.setBeforeModification,
@@ -44,7 +46,11 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
         setBeforeModification(postId); // selectedPostId를 설정하여 초기화 알림
 
         const latestPost = await getLatestDataByPostId(postId);
-        if (latestPost?.data) setRecentAutoSavedData(latestPost.data);
+
+        if (latestPost?.data) {
+          setRecentAutoSavedData(latestPost.data);
+          setIsLocalDBChecked(true);
+        }
       } catch (error) {
         console.error("Failed to load from IndexedDB:", error);
       }
@@ -57,6 +63,7 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
     postId,
     selectedPostId,
     setBeforeModification,
+    setIsLocalDBChecked,
     setRecentAutoSavedData,
   ]);
 
