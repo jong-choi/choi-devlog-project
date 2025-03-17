@@ -681,9 +681,86 @@ IndexedDB의 구조를 Myblog-postId-{title, body}에서 MyBlog-MyStore-{postId,
 IndexedDB의 store를 하나로 통합해야 임시저장된 데이터 목록을 한번에 불러오거나, 해당 게시글과 관련된 내용을 전부 삭제하기에 좋다. (store는 삭제가 안된다... ㅠㅠ)
 autosave-wrapper와 use-indexeddb를 이에 맞게 수정하였고, 그 과정에서 indexedDB의 재사용성이 많이 떨어졌다.
 
-## 9일차 : 자동저장게시글 반영하기 기능
+## 9일차 : 자동저장 게시글 반영, AI 요약 API
+
+### 자동저장게시글 반영하기 기능
 
 - dayjs 설치하였음! lib/date.ts
 - 자동저장 게시글 반영을 위해 isLocalDBChecked 추가하였음.
 
 자동저장 indicator 전체적인 ui 개선 필요.
+
+### AI 요약
+
+#### ai_summaries 테이블 생성
+
+1. SUPABASE에 pgvector설치 `CREATE EXTENSION IF NOT EXISTS vector;`
+2. ai_summaries 테이블 추가
+
+```sql
+CREATE TABLE ai_summaries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID NULL REFERENCES posts(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    summary TEXT NOT NULL,
+    vector VECTOR(1536),
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now(),
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+```
+
+3. RLS 활성화, REFERENCES에 cacades 등을 설정하고 테이블 생성 완료.
+4. RLS 적용
+
+```sql
+-- public.posts 테이블에 RLS 정책 적용
+create policy "Enable delete for users based on user_id"
+on "public".ai_summaries
+to public
+using (
+  (( SELECT auth.uid() AS uid) = user_id)
+);
+
+create policy "Enable insert for authenticated users only"
+on "public".ai_summaries
+to authenticated
+with check (
+  true
+);
+
+create policy "Enable update for users based on user_id"
+on "public".ai_summaries
+to public
+using (
+  (( SELECT auth.uid() AS uid) = user_id)
+)
+with check (
+  (( SELECT auth.uid() AS uid) = user_id)
+);
+
+create policy "Enable read access for all users"
+on "public".ai_summaries
+to public
+using (
+  true
+);
+```
+
+#### chatgpt api 작성하기
+
+1. openai api keys 생성 - [https://platform.openai.com/settings/organization/api-keys](https://platform.openai.com/settings/organization/api-keys)
+2. .env에 `OPENAI_API_KEY=sk-proj****`로 저장
+3. app/api/summary/route.ts 에 chatgpt api를 프롬프트와 예시를 통해 작성
+
+#### 서버에 요악된 정보를 작성하는 server action 작성
+
+`app/post/actions.tsx/createAISummary`
+이때 `VECTOR(1536)`은 `number[]` 타입이어야 하는데 supabase:gen으로는 이것이 반영이 안되어서 omit으로 덮어 씌워줬다.
+
+#### 기존 crawl 코드 수정
+
+`app/api/crawl/[sSlug]/utils/createCrawledAISummary.ts`를 통해 open ai api를 호출하여 요약정보를 받고,  
+요약된 정보를 server에 업로드하도록 하였다.
+
+해당 createCrawledAISummary 함수는 `app/api/crawl/[sSlug]/utils/createCrawledPost.ts`에서 promise.all로 감싸 실행되도록 하였다.
