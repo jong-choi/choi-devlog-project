@@ -34,7 +34,13 @@ export function useIndexedDB<T>(storeName: string) {
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(storeName)) {
-        db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+        const store = db.createObjectStore(storeName, {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        if (store && !store.indexNames.contains("timestamp")) {
+          store.createIndex("timestamp", "timestamp", { unique: false });
+        }
       }
     };
 
@@ -152,8 +158,8 @@ export function useIndexedDB<T>(storeName: string) {
    *
    * @example
    * ```tsx
-   * // "saved_at" 인덱스를 기준으로 최신순으로 데이터 가져오기
-   * const recentPosts = await getDataByOpenCursor("saved_at", "prev");
+   * // "timestamp" 인덱스를 기준으로 최신순으로 데이터 가져오기
+   * const recentPosts = await getDataByOpenCursor("timestamp", "prev");
    * console.log(recentPosts.data); // [{ id: 3, title: "Latest Post", body: "Newest content", saved_at: "2025-03-16T12:10:00Z" }]
    * ```
    */
@@ -191,6 +197,7 @@ export function useIndexedDB<T>(storeName: string) {
   };
 
   return {
+    storeName: db?.objectStoreNames || "",
     addData,
     getData,
     getAllData,

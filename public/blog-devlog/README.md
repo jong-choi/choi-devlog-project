@@ -642,9 +642,35 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
 
 - `autosave/autosave-loader.tsx`
 
-  - `dynamic import`를 사용하여 `AutosaveWrapper`를 비동기 로드
+  - `dynamic import`를 사용하여 `AutoSaveWrapper`를 비동기 로드
   - SSR을 비활성화하여 클라이언트에서만 실행되도록 설정
 
 - `components/post/main/post-controller/autosave/autosave-wrapper.tsx`
   - 마운트 시 IndexedDB에서 기존 데이터를 불러와 자동 저장 상태를 복원
   - autosaveStore의 상태에 따라 `useIndexedDB`를 이용해 자동 저장된 데이터를 IndexedDB에 저장 및 로드
+
+## 8일차 : 게시글 자동저장 및 업데이트 테스트
+
+### Trial And Error
+
+시행착오를 너무 많이 겪어서 자동저장 반영하면서 겪은 이슈만 일단정리
+
+- **MDXEditor**
+
+  - MDXEditor가 mounted될 때에는 onChange의 initialMarkdownNormalize가 true로 반환된다. 즉 initialMarkdownNormalize가 false일 때에만 상태변경 함수를 넣어야 한다. setBody를 false일 때 작동하도록 했다.
+  - 추가적으로 MDXEditor에 직접 상태를 주입할 때에는 useRef로 MDXEditor가 가진 메서드들을 반환받아 사용하도록 되어 있다. mdxEditorRef를 지정해주었다.
+
+- **MdxEditorWrapper**
+
+  - 초기에 가만히만 있어도 계속 자동저장이 실행되는 문제가 있었는데, MDXEditor의 onChage가 한 번이라도 실행됐었는지를 체크하는 플래그(hasChanged)를 넣어두었다. 문자열 비교도 넣었었는데, 문자열 비교는 제거했다. (자동 저장된 내용과 문자열이 다른 경우가 대부분이라 실사용에서 차이가 없었음.)
+
+- **zustand**
+
+  - SSR을 위해 Provider로 상태를 주입하는 instance-based state를 사용중이었는데, 멍청하게 AutuSaveProvier를 여러개 선언했다. 이런 경우에 서로 상태공유가 안된다.
+  - zustand 상태를 객체 형태로 반환하는 과정에서 무한렌더링이 발생하였다. useShallow를 기본적으로 씌우는게 좋다는 사용자들의 의견이 많아서 useShallow를 적용했더니 문제가 사라졌다.
+
+- **use-indexeddb.tsx**
+  - 'saved_at'이라는 칼럼을 만든다고 가정하고 indexedDB를 먼저 설계했었는데, zustand에서는 'timestamp'라는 키로 데이터를 관리해버렸다. 'timestamp' 칼럼을 만들도록 대체하였다.
+  - 한편 openCursor를 만들기 위해서는 인덱스를 먼저 생성해야 한다!'timestamp'로 인덱스를 생성하는 코드를 추가하였다.
+
+그 밖에 현재 초기상태값, 임시저장된 값, 새로작성한 값을 별도로 구분하지 않고 recentAutoSavedData라는 하나의 상태값으로 조작하고 있다. 이 점에 유의하여 코드를 작성할 것.

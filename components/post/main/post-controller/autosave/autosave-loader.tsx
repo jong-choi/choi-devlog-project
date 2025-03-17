@@ -1,13 +1,16 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
 
-// AutosaveWrapper를 다이나믹 임포트
-const AutosaveWrapper = dynamic(
+// AutoSaveWrapper를 다이나믹 임포트
+const AutoSaveWrapper = dynamic(
   () =>
     import("@/components/post/main/post-controller/autosave/autosave-wrapper"),
   { ssr: false, loading: () => <p>로딩중...</p> }
 );
 
 export default function AutosaveLoader() {
-  return <AutosaveWrapper />;
+  const { postId } = useParams();
+  if (typeof postId !== "string") return <></>;
+  return <AutoSaveWrapper postId={postId} />;
 }

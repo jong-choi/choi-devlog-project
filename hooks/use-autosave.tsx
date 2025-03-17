@@ -1,35 +1,76 @@
 import { createStore } from "zustand";
 
 export interface AutosaveState {
+  selectedPostId: string | null;
   isUploaded: boolean;
   isUploading: boolean;
   isAutoSaved: boolean;
   isAutoSaving: boolean;
+  isLoadingDraftBody: boolean;
+  isLoadingDraftTitle: boolean;
   recentAutoSavedData: {
-    postId: string;
-    data: { timestamp: number; title: string; body: string };
+    timestamp: number;
+    title: string;
+    body: string;
   } | null;
 
   setIsUploaded: (value: boolean) => void;
   setIsUploading: (value: boolean) => void;
   setIsAutoSaved: (value: boolean) => void;
   setIsAutoSaving: (value: boolean) => void;
-  setRecentAutoSavedData: (data: AutosaveState["recentAutoSavedData"]) => void;
+  setIsLoadingDraftBody: (value: boolean) => void;
+  setIsLoadingDraftTitle: (value: boolean) => void;
+  setBeforeUploading: () => void;
+  setBeforeModification: (postId: string) => void;
+  setRecentAutoSavedData: (
+    data: Partial<AutosaveState["recentAutoSavedData"]>
+  ) => void;
 }
 
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
   createStore<AutosaveState>((set) => ({
+    selectedPostId: null, // IndexedDB 확인한 후에만 변경됨
     isUploaded: false,
     isUploading: false,
     isAutoSaved: false,
     isAutoSaving: false,
+    isLoadingDraftBody: false,
+    isLoadingDraftTitle: false,
     recentAutoSavedData: null,
 
     setIsUploaded: (value) => set({ isUploaded: value }),
     setIsUploading: (value) => set({ isUploading: value }),
     setIsAutoSaved: (value) => set({ isAutoSaved: value }),
     setIsAutoSaving: (value) => set({ isAutoSaving: value }),
-    setRecentAutoSavedData: (data) => set({ recentAutoSavedData: data }),
+    setIsLoadingDraftBody: (value) => set({ isLoadingDraftBody: value }),
+    setIsLoadingDraftTitle: (value) => set({ isLoadingDraftTitle: value }),
+    setBeforeUploading: () =>
+      set({
+        isUploaded: false,
+        isUploading: false,
+        isAutoSaved: true,
+        isAutoSaving: false,
+      }),
+    setBeforeModification: (postId) =>
+      set({
+        selectedPostId: postId,
+        isUploaded: false,
+        isUploading: false,
+        isAutoSaved: false,
+        isAutoSaving: false,
+      }),
+    setRecentAutoSavedData: (
+      data: Partial<AutosaveState["recentAutoSavedData"]> | null
+    ) =>
+      set((state) => ({
+        recentAutoSavedData: data
+          ? {
+              timestamp: data.timestamp ?? Date.now(),
+              title: data.title ?? state.recentAutoSavedData?.title ?? "",
+              body: data.body ?? state.recentAutoSavedData?.body ?? "",
+            }
+          : null,
+      })),
 
-    ...initialState, // 초기값 덮어쓰기
+    ...initialState,
   }));
