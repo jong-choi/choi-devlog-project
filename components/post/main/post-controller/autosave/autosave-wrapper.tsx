@@ -26,24 +26,25 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
     }))
   );
 
-  // useIndexedDB 훅을 사용하여 "postId" 스토어를 조작
-  const { storeName, addData, getDataByOpenCursor, clearStore } = useIndexedDB<{
-    timestamp: number;
-    title: string;
-    body: string;
-  }>(postId);
+  // useIndexedDB 훅을 사용하여 "post" 스토어를 조작
+  const { isDb, addData, getLatestDataByPostId, deleteByPostId } =
+    useIndexedDB<{
+      postId: string;
+      timestamp: number;
+      title: string;
+      body: string;
+    }>();
 
   // 마운트 시 IndexedDB에서 데이터 불러오기
   useEffect(() => {
-    if (!storeName) return;
-    if (postId === selectedPostId) return; // 이미 초기화 되었으면 반응없음
+    if (!isDb) return;
+    if (postId === selectedPostId) return; // 이미 초기화 되었으면 반응 없음
     const loadFromIndexedDB = async () => {
       try {
-        setBeforeModification(postId); // 이곳에서 selectedPostId를 주입하여 db가 초기화되었음을 알린다.
+        setBeforeModification(postId); // selectedPostId를 설정하여 초기화 알림
 
-        const recentPosts = await getDataByOpenCursor("timestamp", "prev");
-        const savedData = recentPosts?.data?.[0];
-        if (savedData) setRecentAutoSavedData(savedData);
+        const latestPost = await getLatestDataByPostId(postId);
+        if (latestPost?.data) setRecentAutoSavedData(latestPost.data);
       } catch (error) {
         console.error("Failed to load from IndexedDB:", error);
       }
@@ -51,21 +52,21 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
 
     loadFromIndexedDB();
   }, [
-    getDataByOpenCursor,
+    isDb,
+    getLatestDataByPostId,
     postId,
     selectedPostId,
     setBeforeModification,
     setRecentAutoSavedData,
-    storeName,
   ]);
 
   // isAutoSaving이 true가 되면 IndexedDB에 저장
   useEffect(() => {
-    console.log(isAutoSaving);
     if (isAutoSaving && recentAutoSavedData) {
       const saveToIndexedDB = async () => {
         try {
           await addData({
+            postId, // postId 필드 추가
             timestamp: recentAutoSavedData.timestamp,
             title: recentAutoSavedData.title,
             body: recentAutoSavedData.body,
@@ -80,18 +81,19 @@ export default function AutoSaveWrapper({ postId }: { postId: string }) {
     }
   }, [isAutoSaving, recentAutoSavedData, postId, addData, setBeforeUploading]);
 
+  // 업로드 완료 시 해당 postId에 대한 IndexedDB 데이터 삭제
   useEffect(() => {
     if (isUploaded && postId === selectedPostId) {
       const clearIndexedDBStore = async () => {
         try {
-          await clearStore();
+          await deleteByPostId(postId); // 특정 postId만 삭제
         } catch (error) {
-          console.error("Failed to save to IndexedDB:", error);
+          console.error("Failed to delete from IndexedDB:", error);
         }
       };
       clearIndexedDBStore();
     }
-  }, [clearStore, isUploaded, postId, selectedPostId]);
+  }, [deleteByPostId, isUploaded, postId, selectedPostId]);
 
   return null;
 }
