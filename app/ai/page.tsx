@@ -1,6 +1,6 @@
 "use client";
 
-import { postDummyDataString } from "@/app/post/[postId]/dummy-data";
+import { postDummyDataString } from "@/app/post/[urlSlug]/dummy-data";
 import { Database } from "@/types/supabase";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Button } from "@ui/button";

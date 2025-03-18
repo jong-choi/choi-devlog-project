@@ -5,7 +5,7 @@ import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 import "@mdxeditor/editor/style.css";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
-import { postDummyDataString } from "@/app/post/[postId]/dummy-data";
+import { postDummyDataString } from "@/app/post/[urlSlug]/dummy-data";
 import { SidebarTrigger } from "@ui/sidebar";
 import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";

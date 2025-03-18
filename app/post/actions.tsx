@@ -1,3 +1,4 @@
+"use server";
 import { Database } from "@/types/supabase";
 import {
   CACHE_TAGS,
@@ -5,7 +6,7 @@ import {
   createWithInvalidation,
 } from "@/utils/nextCache";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
@@ -57,10 +58,13 @@ const _createAISummary = async (
   return result;
 };
 
-export const createAISummary = createWithInvalidation(_createAISummary, () => {
-  // AI 요약 캐시 무효화 로직이 필요한 경우 여기에 추가 가능
-  // 예: revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(payload.post_id));
-});
+export const createAISummary = createWithInvalidation(
+  _createAISummary,
+  async () => {
+    // AI 요약 캐시 무효화 로직이 필요한 경우 여기에 추가 가능
+    // 예: revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(payload.post_id));
+  }
+);
 
 // 대분류 CRUD
 const _getAllCategories = async (): Promise<
@@ -110,9 +114,12 @@ const _createCategory = async (
   return result;
 };
 
-export const createCategory = createWithInvalidation(_createCategory, () => {
-  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
-});
+export const createCategory = createWithInvalidation(
+  _createCategory,
+  async () => {
+    revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+  }
+);
 
 const _updateCategory = async (
   category_id: string,
@@ -132,9 +139,12 @@ const _updateCategory = async (
   return result;
 };
 
-export const updateCategory = createWithInvalidation(_updateCategory, () => {
-  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
-});
+export const updateCategory = createWithInvalidation(
+  _updateCategory,
+  async () => {
+    revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+  }
+);
 
 const _softDeleteCategory = async (
   category_id: string
@@ -156,7 +166,7 @@ const _softDeleteCategory = async (
 
 export const softDeleteCategory = createWithInvalidation(
   _softDeleteCategory,
-  () => {
+  async () => {
     revalidateTag(CACHE_TAGS.CATEGORY.ALL());
   }
 );
@@ -217,7 +227,7 @@ const _createSubcategory = async (
 
 export const createSubcategory = createWithInvalidation(
   _createSubcategory,
-  (result) => {
+  async (result) => {
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
@@ -244,7 +254,7 @@ const _updateSubcategory = async (
 
 export const updateSubcategory = createWithInvalidation(
   _updateSubcategory,
-  (result) => {
+  async (result) => {
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
@@ -271,7 +281,7 @@ const _softDeleteSubcategory = async (
 
 export const softDeleteSubcategory = createWithInvalidation(
   _softDeleteSubcategory,
-  (result) => {
+  async (result) => {
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
@@ -352,10 +362,15 @@ const _createPost = async (
   return result;
 };
 
-export const createPost = createWithInvalidation(_createPost, (result) => {
-  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
-  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
-});
+export const createPost = createWithInvalidation(
+  _createPost,
+  async (result) => {
+    revalidateTag(
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+    );
+    revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+  }
+);
 
 const _updatePost = async (
   post_id: string,
@@ -375,10 +390,15 @@ const _updatePost = async (
   return result;
 };
 
-export const updatePost = createWithInvalidation(_updatePost, (result) => {
-  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
-  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
-});
+export const updatePost = createWithInvalidation(
+  _updatePost,
+  async (result) => {
+    revalidateTag(
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+    );
+    revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+  }
+);
 
 const _softDeletePost = async (
   post_id: string
@@ -400,42 +420,10 @@ const _softDeletePost = async (
 
 export const softDeletePost = createWithInvalidation(
   _softDeletePost,
-  (result) => {
+  async (result) => {
     revalidateTag(
       CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
   }
 );
-
-export const AIActions = { createAISummary, getAISummaryByPostId };
-export const CategoryActions = {
-  getAllCategories,
-  createCategory,
-  updateCategory,
-  softDeleteCategory,
-};
-
-export const SubcategoryActions = {
-  getSubcategoriesByCategoryId,
-  createSubcategory,
-  updateSubcategory,
-  softDeleteSubcategory,
-};
-
-export const PostActions = {
-  getPostsBySubcategoryId,
-  getPostByUrlSlug,
-  createPost,
-  updatePost,
-  softDeletePost,
-};
-
-const ServerActions = {
-  AIActions,
-  CategoryActions,
-  SubcategoryActions,
-  PostActions,
-};
-
-export default ServerActions;
