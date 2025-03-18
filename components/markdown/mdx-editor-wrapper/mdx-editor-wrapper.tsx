@@ -5,7 +5,6 @@ import "@/components/markdown/mdx-editor-wrapper/mdx-editor-wrapper.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
-import { usePostId } from "@/hooks/use-postId";
 import { useShallow } from "zustand/react/shallow";
 
 export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
@@ -33,7 +32,7 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
     setIsLoadingDraftBody(false);
   }, [isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody]);
 
-  const { postId } = usePostId();
+  const postId = useAutosave((state) => state.postId);
 
   const { selectedPostId, setIsAutoSaving, setRecentAutoSavedData } =
     useAutosave(
@@ -64,7 +63,6 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
 
   return (
     <>
-      {" "}
       <MDXEditor
         className="mdxeditor"
         markdown={markdown}

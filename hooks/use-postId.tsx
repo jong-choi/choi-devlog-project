@@ -2,8 +2,10 @@ import { getPostByUrlSlug } from "@/app/post/actions";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// (deprecated)
 export function usePostId() {
   const { postId: paramPostId, urlSlug } = useParams();
+  // return { postId: "" };
   const [postId, setPostId] = useState<string | null | undefined>(null);
   const [loading, setLoading] = useState(true);
 

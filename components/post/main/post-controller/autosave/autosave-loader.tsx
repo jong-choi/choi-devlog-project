@@ -1,6 +1,6 @@
 "use client";
+import { useAutosave } from "@/providers/autosave-store-provider";
 import dynamic from "next/dynamic";
-import { usePostId } from "@/hooks/use-postId";
 
 // AutoSaveWrapper를 다이나믹 임포트
 const AutoSaveWrapper = dynamic(
@@ -10,7 +10,7 @@ const AutoSaveWrapper = dynamic(
 );
 
 export default function AutosaveLoader() {
-  const { postId } = usePostId();
+  const postId = useAutosave((state) => state.postId);
   if (typeof postId !== "string") return <></>;
   return <AutoSaveWrapper postId={postId} />;
 }

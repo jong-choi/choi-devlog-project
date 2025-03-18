@@ -1,6 +1,7 @@
 import { createStore } from "zustand";
 
 export interface AutosaveState {
+  postId: string | null;
   selectedPostId: string | null;
   isLocalDBChecked: boolean;
   isUploaded: boolean;
@@ -31,6 +32,7 @@ export interface AutosaveState {
 
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
   createStore<AutosaveState>((set) => ({
+    postId: null, // SSR로 저장되는 postId
     selectedPostId: null, // IndexedDB 확인한 후에만 변경됨
     isLocalDBChecked: false, // recentAutoSavedData가 local에서 가져왔을 때만 true임
     isUploaded: false,

@@ -24,6 +24,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <AutosaveProvider
       initialState={{
+        postId: data?.id,
         recentAutoSavedData: {
           title: data?.title || "",
           body: data?.body || "",
