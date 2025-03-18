@@ -786,10 +786,9 @@ createWithInvalidation을 리팩토링하여 타입을 선언하고 1번 인자�
 
 #### Params 리팩토링
 
-`hooks/use-postId.tsx`
-전체적인 포스트 관리를 urlSlug에서 postId로 받아오도록 변경하였다.
-이에 따라 useParams를 통해 postId를 받아오던 코드들을 usePostId라는 커스텀 훅으로 리팩토링 하였다.
-커스텀 훅을 사용하면 useEffect를 이용한 비동기 코드들이 커스텀 훅 안으로 들어가서 깔끔해진다.
+- slug에 'postId'로 담던 것을 'urlSlug'로 변경하였다.
+- 이에 따라 useParams로 postId를 가져오던 컴포넌트들은 Zustand에서 SSR된 postId를 가져오도록 하였다.
+- `hooks/use-postId.tsx` 커스텀 훅도 만들었으나, 코드가 깔끔해지는 장점은 있으나 마운트 될 때마다 서버로 요청이 가서 부적절. 초기 상태를 지정할 때에는 SSR 상태를 Zustand나 props로 저장하는 편이 효율적으로 보인다.
 
 ### Floating Order
 
@@ -801,5 +800,3 @@ DND를 구현하려고 했는데, 같은 카테고리에 있는 다른 객체들
 `보통 정수 기반 정렬(1, 2, 3, ...) 방식과 달리, 실수(100.5, 150.75 등) 또는 큰 간격의 정수(100000, 200000, ...)를 사용하여 유연한 삽입을 가능하게 만듭니다.`
 
 order사이의 간격이 촘촘해지면 `Rebalancing`을 해야하지만, 64bit 실수로 저장하고 있기 때문에 실사용에서는 발생하지 않을 것으로 판단한다.
-
-###
