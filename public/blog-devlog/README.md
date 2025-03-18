@@ -764,3 +764,28 @@ using (
 요약된 정보를 server에 업로드하도록 하였다.
 
 해당 createCrawledAISummary 함수는 `app/api/crawl/[sSlug]/utils/createCrawledPost.ts`에서 promise.all로 감싸 실행되도록 하였다.
+
+## 10일차 : 카테고리 및 요약 조회기능 + DND 구상방안
+
+### Server Action
+
+Server Action을 작성하고
+Server Action을 캐싱할 때 사용할 유틸함수들을 구현하였다.
+
+`utils/nextCache.tsx`
+
+- CACHE_TAGS : Tags를 생성하는 팩토리 함수이다. 정확히는 Tag의 앞부분인 key를 생성한다.
+- createCachedFunction : Server Action 함수를 감싸는 wrapper 함수이다. ServerAction의 args를 조회하여, 첫번째 인자를 Tag의 뒷부분에 넣어 Tag를 만든다.
+
+Wrapper 함수로 미들웨어처럼 사용해보려 했는데, 사용할 일이 많이 않았다.
+
+### Floating Order
+
+DND를 구현하려고 했는데, 같은 카테고리에 있는 다른 객체들의 order도 함께 수정해야 하는 상황이 발생하였다.  
+그래서 Floating Order라는 방식을 찾아 order를 큰 수로 지정하였다.
+
+1000, 2000 사이에 객체를 집어넣으면 order를 (1000+3000)/2인 1500으로 지정하는 방식이다.
+
+`보통 정수 기반 정렬(1, 2, 3, ...) 방식과 달리, 실수(100.5, 150.75 등) 또는 큰 간격의 정수(100000, 200000, ...)를 사용하여 유연한 삽입을 가능하게 만듭니다.`
+
+order사이의 간격이 촘촘해지면 `Rebalancing`을 해야하지만, 64bit 실수로 저장하고 있기 때문에 실사용에서는 발생하지 않을 것으로 판단한다.

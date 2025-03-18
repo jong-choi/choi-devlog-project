@@ -50,71 +50,13 @@ export type Database = {
           },
         ]
       }
-      posts: {
-        Row: {
-          body: string | null
-          created_at: string | null
-          deleted_at: string | null
-          id: string
-          is_private: boolean | null
-          released_at: string | null
-          short_description: string | null
-          subcategoryId: string | null
-          thumbnail: string | null
-          title: string
-          updated_at: string | null
-          url_slug: string | null
-          user_id: string | null
-          velog_id: string | null
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string | null
-          deleted_at?: string | null
-          id?: string
-          is_private?: boolean | null
-          released_at?: string | null
-          short_description?: string | null
-          subcategoryId?: string | null
-          thumbnail?: string | null
-          title: string
-          updated_at?: string | null
-          url_slug?: string | null
-          user_id?: string | null
-          velog_id?: string | null
-        }
-        Update: {
-          body?: string | null
-          created_at?: string | null
-          deleted_at?: string | null
-          id?: string
-          is_private?: boolean | null
-          released_at?: string | null
-          short_description?: string | null
-          subcategoryId?: string | null
-          thumbnail?: string | null
-          title?: string
-          updated_at?: string | null
-          url_slug?: string | null
-          user_id?: string | null
-          velog_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_subcategoryId_fkey"
-            columns: ["subcategoryId"]
-            isOneToOne: false
-            referencedRelation: "subcategories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      subcategories: {
+      categories: {
         Row: {
           created_at: string
           deleted_at: string | null
           id: string
           name: string
+          order: number | null
           url_slug: string
           user_id: string | null
           velog_id: string | null
@@ -124,6 +66,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           name?: string
+          order?: number | null
           url_slug?: string
           user_id?: string | null
           velog_id?: string | null
@@ -133,11 +76,118 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           name?: string
+          order?: number | null
           url_slug?: string
           user_id?: string | null
           velog_id?: string | null
         }
         Relationships: []
+      }
+      posts: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          is_private: boolean | null
+          order: number | null
+          released_at: string | null
+          short_description: string | null
+          subcategory_id: string
+          thumbnail: string | null
+          title: string
+          updated_at: string | null
+          url_slug: string
+          user_id: string | null
+          velog_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          order?: number | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id: string
+          thumbnail?: string | null
+          title: string
+          updated_at?: string | null
+          url_slug: string
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          order?: number | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id?: string
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string | null
+          url_slug?: string
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subcategories: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          order: number | null
+          url_slug: string
+          user_id: string | null
+          velog_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          order?: number | null
+          url_slug?: string
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          order?: number | null
+          url_slug?: string
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       todos_with_rls: {
         Row: {
