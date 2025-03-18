@@ -1,22 +1,24 @@
 import { cn } from "@/lib/utils";
-import { Database } from "@/types/supabase";
 import { Separator } from "@radix-ui/react-separator";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 import "@mdxeditor/editor/style.css";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
-import { postDummyDataString } from "@/app/post/[urlSlug]/dummy-data";
 import { SidebarTrigger } from "@ui/sidebar";
 import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
 import TitleEditor from "@/components/post/main/title-editor";
-// import dynamic from "next/dynamic";
+import { getPostByUrlSlug } from "@/app/post/actions";
 
-export default function Page() {
-  const result: PostgrestSingleResponse<
-    Database["public"]["Tables"]["posts"]["Row"]
-  > = JSON.parse(postDummyDataString);
+interface PageProps {
+  params: Promise<{
+    urlSlug: string;
+  }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { urlSlug } = await params;
+  const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
   const { data } = result;
 
   return (

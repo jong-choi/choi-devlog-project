@@ -21,7 +21,7 @@ export function usePostId() {
       setLoading(false);
     }
 
-    fetchPostId(urlSlug);
+    fetchPostId(decodeURIComponent(urlSlug));
   }, [paramPostId, urlSlug]);
 
   return { postId, loading };

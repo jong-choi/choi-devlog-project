@@ -6,7 +6,7 @@ import {
   createWithInvalidation,
 } from "@/utils/nextCache";
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client"; //nextCache를 사용하기 위해 client로...
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
@@ -315,6 +315,7 @@ const _getPostByUrlSlug = async (
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
   const supabase = await createClient();
+
   const result = await supabase
     .from("posts")
     .select()
@@ -323,7 +324,6 @@ const _getPostByUrlSlug = async (
     .not("released_at", "is", null) // 공개된 게시글만 조회
     .limit(1)
     .single(); // 단일 객체 반환
-
   return result;
 };
 

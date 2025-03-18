@@ -34,6 +34,7 @@ export const EditableDiv: React.FC<EditableDivProps> = ({
     <div
       ref={ref}
       contentEditable={isEditable}
+      spellCheck="false"
       suppressContentEditableWarning
       className="h-full w-full break-words whitespace-pre-wrap focus:outline-offset-8 focus:outline-dotted"
       onInput={handleInput}

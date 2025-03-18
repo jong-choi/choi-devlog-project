@@ -4,15 +4,15 @@ export const CACHE_TAGS = {
   CATEGORY: { ALL: () => "categories" },
   SUBCATEGORY: {
     ALL: () => "subcategories",
-    BY_CATEGORY_ID: (categoryId?: string) =>
+    BY_CATEGORY_ID: (categoryId: string = "") =>
       "subcategories:by_category:" + categoryId,
   },
   AI_SUMMARY: {
-    BY_POST_ID: (postId?: string) => "ai_summary:by_post:" + postId,
+    BY_POST_ID: (postId: string = "") => "ai_summary:by_post:" + postId,
   },
   POST: {
-    BY_URL_SLUG: (urlSlug?: string) => "post:by_url_slug:" + urlSlug,
-    BY_SUBCATEGORY_ID: (subcategoryId?: string) =>
+    BY_URL_SLUG: (urlSlug: string = "") => "post:by_url_slug:" + urlSlug,
+    BY_SUBCATEGORY_ID: (subcategoryId: string = "") =>
       "posts:by_subcategory_id:" + subcategoryId,
   },
 } as const;
@@ -31,7 +31,6 @@ export const createCachedFunction = <
   return ((...args: Parameters<T>) => {
     const id = args[0]; // ID (예: category_id, post_id 등)
     const cacheTag = getCacheTag(key, typeof id === "string" ? id : undefined);
-
     return unstable_cache(fn, [cacheTag], { revalidate: 60 * 60 * 24 * 30 })(
       ...args
     );
