@@ -46,10 +46,11 @@ export default async function createCrawledPost(
         short_description,
         thumbnail,
         url_slug,
-        subcategoryId,
+        subcategory_id: subcategoryId,
       };
 
       const postData = (await createPost(payload)).data;
+
       return await createCrawledAISummary({
         post_id: postData?.id,
         title: postData?.title,

@@ -2,7 +2,7 @@
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { EditableDiv } from "@ui/editable-div";
-import { useParams } from "next/navigation";
+import { usePostId } from "@/hooks/use-postId";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -11,7 +11,7 @@ export default function TitleEditor({
 }: {
   defaultValue: string;
 }) {
-  const { postId } = useParams();
+  const { postId } = usePostId();
   const [value, setValue] = useState(defaultValue);
   const [hasChanged, setHasChanged] = useState(false);
   const onInput: (value: string) => void = (value) => {

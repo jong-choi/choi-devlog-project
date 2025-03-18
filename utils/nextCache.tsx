@@ -1,4 +1,4 @@
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export const CACHE_TAGS = {
   CATEGORY: { ALL: () => "categories" },
@@ -32,32 +32,19 @@ export const createCachedFunction = <
     const id = args[0]; // ID (예: category_id, post_id 등)
     const cacheTag = getCacheTag(key, typeof id === "string" ? id : undefined);
 
-    return unstable_cache(fn, [cacheTag], { revalidate: 60 * 5 })(...args);
+    return unstable_cache(fn, [cacheTag], { revalidate: 60 * 60 * 24 * 30 })(
+      ...args
+    );
   }) as T;
 };
 
-// 특정 ID의 캐시 태그 무효화
-export const invalidateCache = (key: string, id?: string) => {
-  const cacheTag = id ? `${key}:${id}` : key;
-  revalidateTag(cacheTag);
-};
-
-export const createWithInvalidation = <
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends (...args: any[]) => Promise<any>
->(
-  key: string,
-  fn: T
-) => {
-  return (async (...args: Parameters<T>) => {
-    const result = await fn(...args); // 원래 함수 실행
-
-    if (result?.data) {
-      // ✅ 해당 키에 대한 캐시 무효화
-      const id = args[0]; // 첫 번째 인자를 ID로 가정
-      invalidateCache(key, typeof id === "string" ? id : undefined);
-    }
-
+export const createWithInvalidation = <T, A extends unknown[]>(
+  fn: (...args: A) => Promise<T>,
+  invalidateFn: (result: T) => void
+): ((...args: A) => Promise<T>) => {
+  return async (...args: A) => {
+    const result = await fn(...args);
+    invalidateFn(result);
     return result;
-  }) as T;
+  };
 };

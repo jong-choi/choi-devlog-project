@@ -1,5 +1,9 @@
 import { Database } from "@/types/supabase";
-import { CACHE_TAGS, createCachedFunction } from "@/utils/nextCache";
+import {
+  CACHE_TAGS,
+  createCachedFunction,
+  createWithInvalidation,
+} from "@/utils/nextCache";
 
 import { createClient } from "@/utils/supabase/server";
 import {
@@ -7,29 +11,6 @@ import {
   PostgrestSingleResponse,
 } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
-
-export const createAISummary = async (
-  payload: Omit<
-    Database["public"]["Tables"]["ai_summaries"]["Insert"],
-    "vector"
-  > & { vector: number[] | null }
-): Promise<
-  PostgrestSingleResponse<
-    Omit<Database["public"]["Tables"]["ai_summaries"]["Insert"], "vector"> & {
-      vector: number[] | null;
-    }
-  >
-> => {
-  const supabase = await createClient();
-  const result = await supabase
-    .from("ai_summaries")
-    .insert(payload)
-    .select()
-    .limit(1)
-    .single();
-
-  return result;
-};
 
 const _getAISummaryByPostId = async (
   post_id: string
@@ -53,6 +34,34 @@ export const getAISummaryByPostId = createCachedFunction(
   _getAISummaryByPostId
 );
 
+const _createAISummary = async (
+  payload: Omit<
+    Database["public"]["Tables"]["ai_summaries"]["Insert"],
+    "vector"
+  > & { vector: number[] | null }
+): Promise<
+  PostgrestSingleResponse<
+    Omit<Database["public"]["Tables"]["ai_summaries"]["Insert"], "vector"> & {
+      vector: number[] | null;
+    }
+  >
+> => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("ai_summaries")
+    .insert(payload)
+    .select()
+    .limit(1)
+    .single();
+
+  return result;
+};
+
+export const createAISummary = createWithInvalidation(_createAISummary, () => {
+  // AI 요약 캐시 무효화 로직이 필요한 경우 여기에 추가 가능
+  // 예: revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(payload.post_id));
+});
+
 // 대분류 CRUD
 const _getAllCategories = async (): Promise<
   PostgrestResponse<Database["public"]["Tables"]["categories"]["Row"]>
@@ -72,7 +81,7 @@ export const getAllCategories = createCachedFunction(
   _getAllCategories
 );
 
-const createCategory = async (
+const _createCategory = async (
   payload: Omit<Database["public"]["Tables"]["categories"]["Insert"], "order">
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
@@ -98,11 +107,14 @@ const createCategory = async (
     .limit(1)
     .single();
 
-  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
   return result;
 };
 
-export const updateCategory = async (
+export const createCategory = createWithInvalidation(_createCategory, () => {
+  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+});
+
+const _updateCategory = async (
   category_id: string,
   payload: Partial<Database["public"]["Tables"]["categories"]["Update"]>
 ): Promise<
@@ -117,11 +129,14 @@ export const updateCategory = async (
     .limit(1)
     .single();
 
-  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
   return result;
 };
 
-export const softDeleteCategory = async (
+export const updateCategory = createWithInvalidation(_updateCategory, () => {
+  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+});
+
+const _softDeleteCategory = async (
   category_id: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
@@ -136,9 +151,15 @@ export const softDeleteCategory = async (
     .limit(1)
     .single();
 
-  revalidateTag(CACHE_TAGS.CATEGORY.ALL());
   return result;
 };
+
+export const softDeleteCategory = createWithInvalidation(
+  _softDeleteCategory,
+  () => {
+    revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+  }
+);
 
 // 중분류 CRUD
 const _getSubcategoriesByCategoryId = async (
@@ -162,7 +183,7 @@ export const getSubcategoriesByCategoryId = createCachedFunction(
   _getSubcategoriesByCategoryId
 );
 
-export const createSubcategory = async (
+const _createSubcategory = async (
   payload: Omit<
     Database["public"]["Tables"]["subcategories"]["Insert"],
     "order"
@@ -184,22 +205,26 @@ export const createSubcategory = async (
   const newOrder = maxOrder + 100000; // 새로운 order 값
 
   // 2️⃣ 새로운 서브카테고리 생성
-  const result = (await supabase
+  const result = await supabase
     .from("subcategories")
     .insert({ ...payload, order: newOrder }) // 자동 order 값 추가
     .select()
     .limit(1)
-    .single()) as PostgrestSingleResponse<
-    Database["public"]["Tables"]["subcategories"]["Row"]
-  >;
+    .single();
 
-  revalidateTag(
-    CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
-  );
   return result;
 };
 
-export const updateSubcategory = async (
+export const createSubcategory = createWithInvalidation(
+  _createSubcategory,
+  (result) => {
+    revalidateTag(
+      CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
+    );
+  }
+);
+
+const _updateSubcategory = async (
   subcategory_id: string,
   payload: Partial<Database["public"]["Tables"]["subcategories"]["Update"]>
 ): Promise<
@@ -214,13 +239,19 @@ export const updateSubcategory = async (
     .limit(1)
     .single();
 
-  revalidateTag(
-    CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
-  );
   return result;
 };
 
-export const softDeleteSubcategory = async (
+export const updateSubcategory = createWithInvalidation(
+  _updateSubcategory,
+  (result) => {
+    revalidateTag(
+      CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
+    );
+  }
+);
+
+const _softDeleteSubcategory = async (
   subcategory_id: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
@@ -235,11 +266,17 @@ export const softDeleteSubcategory = async (
     .limit(1)
     .single();
 
-  revalidateTag(
-    CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
-  );
   return result;
 };
+
+export const softDeleteSubcategory = createWithInvalidation(
+  _softDeleteSubcategory,
+  (result) => {
+    revalidateTag(
+      CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
+    );
+  }
+);
 
 // 게시글 CRUD
 const _getPostsBySubcategoryId = async (
@@ -262,7 +299,7 @@ export const getPostsBySubcategoryId = createCachedFunction(
   _getPostsBySubcategoryId
 );
 
-export const _getPostByUrlSlug = async (
+const _getPostByUrlSlug = async (
   url_slug: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
@@ -285,7 +322,7 @@ export const getPostByUrlSlug = createCachedFunction(
   _getPostByUrlSlug
 );
 
-export const createPost = async (
+const _createPost = async (
   payload: Omit<Database["public"]["Tables"]["posts"]["Insert"], "order">
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
@@ -305,21 +342,22 @@ export const createPost = async (
   const newOrder = maxOrder + 100000; // 새로운 order 값
 
   // 새로운 게시글 생성
-  const result = (await supabase
+  const result = await supabase
     .from("posts")
     .insert({ ...payload, order: newOrder }) // 자동 order 값 추가
     .select()
     .limit(1)
-    .single()) as PostgrestSingleResponse<
-    Database["public"]["Tables"]["posts"]["Row"]
-  >;
+    .single();
 
-  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
-  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
   return result;
 };
 
-export const updatePost = async (
+export const createPost = createWithInvalidation(_createPost, (result) => {
+  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
+  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+});
+
+const _updatePost = async (
   post_id: string,
   payload: Partial<Database["public"]["Tables"]["posts"]["Update"]>
 ): Promise<
@@ -334,12 +372,15 @@ export const updatePost = async (
     .limit(1)
     .single();
 
-  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
-  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
   return result;
 };
 
-export const softDeletePost = async (
+export const updatePost = createWithInvalidation(_updatePost, (result) => {
+  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
+  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+});
+
+const _softDeletePost = async (
   post_id: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
@@ -354,10 +395,18 @@ export const softDeletePost = async (
     .limit(1)
     .single();
 
-  revalidateTag(CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id));
-  revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
   return result;
 };
+
+export const softDeletePost = createWithInvalidation(
+  _softDeletePost,
+  (result) => {
+    revalidateTag(
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+    );
+    revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+  }
+);
 
 export const AIActions = { createAISummary, getAISummaryByPostId };
 export const CategoryActions = {
