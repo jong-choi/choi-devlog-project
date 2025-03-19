@@ -809,3 +809,97 @@ order사이의 간격이 촘촘해지면 `Rebalancing`을 해야하지만, 64bit
 이후 사용자 정보를 확인하여 처리할 수 있도록 Auth Store를 만들었다.
 
 사용자 정보를 확인 후 처리할 때에는 민감하지 않은 정보만 .env에 담아 관리하도록 했다.
+
+### Sidebar 개발
+
+#### 타입 수정
+
+```ts
+export type Post = {
+  id: number;
+  title: string;
+  url_slug: string;
+  short_description: string;
+  is_priave;
+  order: number;
+};
+export type Subcategory = {
+  id: number;
+  name: string;
+  order: number;
+};
+
+export type Category = {
+  id: number;
+  name: string;
+  order: number;
+  subcategories: Subcategory[];
+};
+```
+
+필요한 필드를 더 추가하고 subcategory에 posts[]를 넣는 부분을 제외했다.
+
+#### 카테고리 정보 불러오는 쿼리
+
+postgrest를 이용해 데이터를 불러온다.
+
+카테고리 정보는 자주 바뀌지 않으니 한번에 불러온다.
+
+```
+categories : [
+  {
+    id,
+    name,
+    order,
+    subcategories : [
+      id,
+      name,
+      order
+    ]
+  }
+]
+```
+
+```tsx
+const { data, error } = await supabase
+  .from("categories")
+  .select(
+    `
+    id,
+    name,
+    order,
+    subcategories:subcategories (
+      id,
+      name,
+      order
+    )
+  `
+  )
+  .order("order", { ascending: true }) // categories 정렬
+  .order("order", { foreignTable: "subcategories", ascending: true });
+```
+
+#### 게시글 정보 불러오는 쿼리
+
+type Post = {
+id: number;
+url_slug: string;
+title: string;
+short_description: string;
+is_private: boolean
+order: number;
+};
+
+posts 테이블에서 선택한다.
+subcategoryId를 받아서 posts.subcategory_id가 일치하면 가져온다.
+order를 기준으로 오름차순 정렬한다.
+
+```ts
+const { data, error } = await supabase
+  .from("posts")
+  .select("id, url_slug, title, short_description, is_private, order")
+  .is("deleted_at", null)
+  .eq("subcategory_id", subcategoryId)
+  .or(isValid ? "" : "is_private.is.null")
+  .order("order", { ascending: true });
+```

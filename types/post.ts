@@ -1,16 +1,21 @@
 export type Post = {
   id: number;
-  name: string;
+  url_slug: string;
+  title: string;
+  short_description: string;
+  is_private: boolean | null;
+  order: number;
 };
 export type Subcategory = {
   id: number;
   name: string;
-  posts: Post[];
+  order: number;
 };
 
 export type Category = {
   id: number;
   name: string;
+  order: number;
   subcategories: Subcategory[];
 };
 

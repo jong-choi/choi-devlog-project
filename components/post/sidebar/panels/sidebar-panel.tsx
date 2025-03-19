@@ -58,7 +58,9 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       return (
         <CollapsedPanel
           icon={type}
-          title={selectedItem.name}
+          title={
+            "name" in selectedItem ? selectedItem.name : selectedItem.title
+          }
           onClick={onCollapsedPanelClick}
         />
       );
@@ -87,7 +89,7 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
           <ItemContiner key={`${type}-${item.id}`} id={item.id}>
             <PanelItem
               onClick={() => onSelect(item)}
-              description={item.name}
+              description={"name" in item ? item.name : item.title}
               isSelected={selectedItem?.id === item.id}
             />
           </ItemContiner>
