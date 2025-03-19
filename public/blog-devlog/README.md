@@ -974,3 +974,12 @@ const { data, error } = await query.maybeSingle();
   }
 }
 ```
+
+### 드래그 앤 드롭 구현
+
+components/post/sidebar/panels/dnd-sortable-list.tsx
+
+### 기타
+
+- Server Action에서 이번에 새로 작성한 sidebar 관련 태그들 invalidate하는 로직 추가할 것.
+- 포스트 선택 후 밑이 허전하니까 추천 게시글 목록 쭉 띄우기
