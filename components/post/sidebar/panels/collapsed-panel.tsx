@@ -45,7 +45,7 @@ export default function CollapsedPanel({
           <div className={iconColor}>
             <Icon size={20} />
           </div>
-          <span className="font-semibold text-sm">{title}</span>
+          <span className="text-sm">{title}</span>
         </div>
         <FiChevronDown
           size={20}
