@@ -73,8 +73,31 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   // 데이터가 없으면 빈 화면 반환
   if (!data || data.length === 0) return null;
 
+  const getTitle = () => {
+    if (!selectedItem) return "";
+    if ("name" in selectedItem) return selectedItem.name;
+    if ("title" in selectedItem) return selectedItem.title;
+    return "";
+  };
+
+  const getNextPanel = () => {
+    if (type === "category") return "subcategory";
+    if (type === "subcategory") return "post";
+    return null;
+  };
+
   return (
     <div className="w-full border-gray-200 bg-white h-[80vh] overflow-y-auto scrollbar">
+      {
+        <CollapsedPanel
+          icon={type}
+          title={getTitle()}
+          onClick={() => {
+            const nextPanel = getNextPanel();
+            if (nextPanel) setSelectedPanel(nextPanel);
+          }}
+        />
+      }
       <SortableList
         data={data}
         selectedItem={selectedItem}

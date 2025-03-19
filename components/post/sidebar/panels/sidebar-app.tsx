@@ -9,7 +9,7 @@ export default function SidebarApp({ categories }: { categories: Category[] }) {
     useSidebarStore((state) => state);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full transition-all">
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (
         <SidebarPanel
