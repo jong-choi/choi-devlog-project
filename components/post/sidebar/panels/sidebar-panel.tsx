@@ -3,6 +3,7 @@ import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import CollapsedPanel from "@/components/post/sidebar/panels/collapsed-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import Link from "next/link";
+import { getPostsBySubcategoryId } from "@/app/post/actions";
 
 interface SidebarPanelProps {
   type: Panel; // 패널의 타입
@@ -19,15 +20,18 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
     setSelectedSubcategory,
     setSelectedPost,
     setSelectedPanel,
+    setSelectedPostsData,
   } = useSidebarStore((state) => state);
 
   // 공통적으로 사용할 선택 처리 함수들
-  const onSelect = (item: Category | Subcategory | Post) => {
+  const onSelect = async (item: Category | Subcategory | Post) => {
     if (type === "category") {
       setSelectedCategory(item as Category);
       setSelectedSubcategory(null);
       setSelectedPanel("subcategory");
     } else if (type === "subcategory") {
+      const result = await getPostsBySubcategoryId(item.id);
+      setSelectedPostsData(result?.data || []);
       setSelectedSubcategory(item as Subcategory);
       setSelectedPost(null);
       setSelectedPanel("post");
@@ -70,13 +74,12 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   // 데이터가 없으면 빈 화면 반환
   if (!data || data.length === 0) return null;
 
-  const ItemContiner: React.FC<{ id: number } & React.PropsWithChildren> = ({
-    id,
-    children,
-  }) => {
+  const ItemContainer: React.FC<
+    { urlSlug: string } & React.PropsWithChildren
+  > = ({ urlSlug, children }) => {
     if (type === "post") {
       // Link 태그를 써서 pre-loading을 시도
-      return <Link href={`/post/${id}`}>{children}</Link>;
+      return <Link href={`/post/${urlSlug}`}>{children}</Link>;
     } else {
       return <div>{children}</div>;
     }
@@ -86,13 +89,16 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
     <div className="w-full p-4  border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
       {data.map((item) => {
         return (
-          <ItemContiner key={`${type}-${item.id}`} id={item.id}>
+          <ItemContainer
+            key={`${type}-${item.id}`}
+            urlSlug={(item as Post).url_slug}
+          >
             <PanelItem
               onClick={() => onSelect(item)}
               description={"name" in item ? item.name : item.title}
               isSelected={selectedItem?.id === item.id}
             />
-          </ItemContiner>
+          </ItemContainer>
         );
       })}
     </div>

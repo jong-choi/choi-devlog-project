@@ -1,5 +1,5 @@
 export type Post = {
-  id: number;
+  id: string;
   url_slug: string;
   title: string;
   short_description: string;
@@ -7,16 +7,22 @@ export type Post = {
   order: number;
 };
 export type Subcategory = {
-  id: number;
+  id: string;
   name: string;
   order: number;
 };
 
 export type Category = {
-  id: number;
+  id: string;
   name: string;
   order: number;
   subcategories: Subcategory[];
+};
+
+export type SidebarSelectedData = {
+  post: Post;
+  subcategory: Subcategory;
+  category: Category;
 };
 
 export type Panel = "category" | "subcategory" | "post";

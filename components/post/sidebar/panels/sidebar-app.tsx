@@ -2,18 +2,11 @@
 
 import SidebarPanel from "@/components/post/sidebar/panels/sidebar-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { Category, Post } from "@/types/post";
+import { Category } from "@/types/post";
 
-export default function SidebarApp({
-  categories,
-  posts,
-}: {
-  categories: Category[];
-  posts: Post[];
-}) {
-  const { selectedCategory, selectedSubcategory } = useSidebarStore(
-    (state) => state
-  );
+export default function SidebarApp({ categories }: { categories: Category[] }) {
+  const { selectedCategory, selectedSubcategory, selectedPostsData } =
+    useSidebarStore((state) => state);
 
   return (
     <div className="flex flex-col h-full">
@@ -24,7 +17,9 @@ export default function SidebarApp({
           data={selectedCategory.subcategories}
         />
       )}
-      {selectedSubcategory && <SidebarPanel type="post" data={posts} />}
+      {selectedSubcategory && (
+        <SidebarPanel type="post" data={selectedPostsData || []} />
+      )}
     </div>
   );
 }

@@ -839,7 +839,7 @@ export type Category = {
 
 필요한 필드를 더 추가하고 subcategory에 posts[]를 넣는 부분을 제외했다.
 
-#### 카테고리 정보 불러오는 쿼리
+#### 카테고리 전체 정보 불러오는 쿼리
 
 postgrest를 이용해 데이터를 불러온다.
 
@@ -879,7 +879,29 @@ const { data, error } = await supabase
   .order("order", { foreignTable: "subcategories", ascending: true });
 ```
 
-#### 게시글 정보 불러오는 쿼리
+foreignTable 이라는 기능이 없다길래 아래와 같이 일단 수정
+
+```tsx
+await supabase
+  .from("categories")
+  .select(
+    `
+  id,
+  name,
+  order,
+  subcategories (
+    id,
+    name,
+    order
+  )
+  `
+  )
+  .order("order", { ascending: true }) // categories를 order 기준으로 정렬
+  .select("id, name, order, subcategories!inner(id, name, order)")
+  .order("order", { ascending: true, referencedTable: "subcategories" });
+```
+
+#### 서브카테고리의 글 목록을 불러오는 쿼리
 
 type Post = {
 id: number;
@@ -902,4 +924,53 @@ const { data, error } = await supabase
   .eq("subcategory_id", subcategoryId)
   .or(isValid ? "" : "is_private.is.null")
   .order("order", { ascending: true });
+```
+
+#### url_slug를 기반으로 게시글을 불러오는 쿼리
+
+이번엔 urlSlug가 있을 때 데이터를 반환받는 예시이다.
+
+```tsx
+let query = supabase
+  .from("posts")
+  .select(
+    `
+    id,
+    url_slug,
+    title,
+    short_description,
+    is_private,
+    subcategories (
+      id, name, order
+      categories ( id, name, order )
+    )
+  `
+  )
+  .eq("url_slug", urlSlug)
+  .is("deleted_at", null);
+
+if (!isValid) {
+  query = query.or("is_private.is.false,is_private.is.null");
+}
+
+const { data, error } = await query.maybeSingle();
+```
+
+```
+{
+  "url_slug": "typescript-basics",
+  "id": 2,
+  "title": "TypeScript 기초",
+  "short_description": "TypeScript의 핵심 개념을 학습해 보자.",
+  "subcategories": {
+    "id": 12,
+    "name": "Frontend",
+    "order": 2,
+    "categories": {
+      "id": 100,
+      "name": "Web Development",
+      "order": 1
+    }
+  }
+}
 ```

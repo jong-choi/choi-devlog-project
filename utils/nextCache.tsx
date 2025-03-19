@@ -15,6 +15,11 @@ export const CACHE_TAGS = {
     BY_SUBCATEGORY_ID: (subcategoryId: string = "") =>
       "posts:by_subcategory_id:" + subcategoryId,
   },
+  SIDEBAR: {
+    CATEGORY: () => "sidebar:category",
+    SELECTED_BY_URL_SLUG: (urlSlug: string = "") =>
+      "sidebar:selected:" + urlSlug,
+  },
 } as const;
 
 // 캐싱 태그를 동적으로 생성하는 함수

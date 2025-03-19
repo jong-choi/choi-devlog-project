@@ -1,4 +1,5 @@
 "use server";
+import { Category, Post, SidebarSelectedData } from "@/types/post";
 import { Database } from "@/types/supabase";
 import {
   CACHE_TAGS,
@@ -64,6 +65,142 @@ export const createAISummary = createWithInvalidation(
     // AI 요약 캐시 무효화 로직이 필요한 경우 여기에 추가 가능
     // 예: revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(payload.post_id));
   }
+);
+
+// 사이드바
+const _getSidebarCategory = async (): Promise<PostgrestResponse<Category>> => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("categories")
+    .select(
+      `
+  id,
+  name,
+  order,
+  subcategories (
+    id,
+    name,
+    order
+  )
+  `
+    )
+    .order("order", { ascending: true }) // categories를 order 기준으로 정렬
+    .select("id, name, order, subcategories!inner(id, name, order)")
+    .order("order", { ascending: true, referencedTable: "subcategories" });
+
+  return result;
+};
+
+export const getSidebarCategory = createCachedFunction(
+  CACHE_TAGS.SIDEBAR.CATEGORY(),
+  _getSidebarCategory
+);
+
+const _getSelectedCategoriesByUrl = async (
+  urlSlug: string,
+  isValid: boolean = false
+): Promise<PostgrestSingleResponse<SidebarSelectedData>> => {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("posts")
+    .select(
+      `
+    id,
+    url_slug,
+    title,
+    short_description,
+    is_private,
+    order,
+    subcategories (
+      id, name, order,
+      categories ( id, name, order,
+        subcategories ( id, name, order)
+      )
+    )
+  `
+    )
+    .eq("url_slug", urlSlug)
+    .is("deleted_at", null);
+
+  if (!isValid) {
+    query = query.or("is_private.is.false,is_private.is.null");
+  }
+
+  const result = (await query.limit(1).single()) as PostgrestSingleResponse<{
+    id: unknown;
+    url_slug: unknown;
+    title: unknown;
+    short_description: unknown;
+    is_private: unknown;
+    order: unknown;
+    subcategories: {
+      id: unknown;
+      name: unknown;
+      order: unknown;
+      categories: {
+        id: unknown;
+        name: unknown;
+        order: unknown;
+        subcategories: {
+          id: unknown;
+          name: unknown;
+          order: unknown;
+        }[];
+      };
+    };
+  }>;
+  if (!result.data) return result;
+  const data = result.data;
+
+  const parsedDate = {
+    post: {
+      id: data.id,
+      url_slug: data.url_slug,
+      title: data.title,
+      short_description: data.short_description,
+      is_private: data.is_private,
+    },
+    subcategory: {
+      id: data.subcategories.id,
+      name: data.subcategories.name,
+      order: data.subcategories.order,
+    },
+    category: {
+      id: data.subcategories.categories.id,
+      name: data.subcategories.categories.name,
+      order: data.subcategories.categories.order,
+      subcategories: data.subcategories.categories.subcategories,
+    },
+  };
+  const parsedResult = { ...result, data: parsedDate as SidebarSelectedData };
+  return parsedResult;
+};
+
+const _getPostsBySubcategoryId = async (
+  subcategoryId: string,
+  isValid: boolean = false
+): Promise<PostgrestResponse<Post>> => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("posts")
+    .select("id, url_slug, title, short_description, is_private, order")
+    .is("deleted_at", null)
+    .eq("subcategory_id", subcategoryId)
+    .or(isValid ? "" : "is_private.is.null,is_private.is.false")
+    .order("order", { ascending: true });
+
+  return result;
+};
+
+export const getPostsBySubcategoryId = createCachedFunction(
+  CACHE_TAGS.POST.BY_SUBCATEGORY_ID(),
+  _getPostsBySubcategoryId
+);
+
+export const getSelectedCategoriesByUrl = createCachedFunction(
+  CACHE_TAGS.SIDEBAR.SELECTED_BY_URL_SLUG(),
+  _getSelectedCategoriesByUrl
 );
 
 // 대분류 CRUD
@@ -288,26 +425,26 @@ export const softDeleteSubcategory = createWithInvalidation(
   }
 );
 
-// 게시글 CRUD
-const _getPostsBySubcategoryId = async (
-  subcategory_id: string
-): Promise<PostgrestResponse<Database["public"]["Tables"]["posts"]["Row"]>> => {
-  const supabase = await createClient();
-  const result = await supabase
-    .from("posts")
-    .select()
-    .eq("subcategory_id", subcategory_id) // subcategory_id 일치
-    .is("deleted_at", null) // 삭제되지 않은 게시글만 조회
-    .not("released_at", "is", null) // released_at이 null이 아닌 것만 조회 (공개된 게시글)
-    .order("order", { ascending: true }); // 최신순 정렬
+// // 게시글 CRUD
+// const _getPostsBySubcategoryId = async (
+//   subcategory_id: string
+// ): Promise<PostgrestResponse<Database["public"]["Tables"]["posts"]["Row"]>> => {
+//   const supabase = await createClient();
+//   const result = await supabase
+//     .from("posts")
+//     .select()
+//     .eq("subcategory_id", subcategory_id) // subcategory_id 일치
+//     .is("deleted_at", null) // 삭제되지 않은 게시글만 조회
+//     .not("released_at", "is", null) // released_at이 null이 아닌 것만 조회 (공개된 게시글)
+//     .order("order", { ascending: true }); // 최신순 정렬
 
-  return result;
-};
+//   return result;
+// };
 
-export const getPostsBySubcategoryId = createCachedFunction(
-  CACHE_TAGS.POST.BY_SUBCATEGORY_ID(),
-  _getPostsBySubcategoryId
-);
+// export const getPostsBySubcategoryId = createCachedFunction(
+//   CACHE_TAGS.POST.BY_SUBCATEGORY_ID(),
+//   _getPostsBySubcategoryId
+// );
 
 const _getPostByUrlSlug = async (
   url_slug: string
