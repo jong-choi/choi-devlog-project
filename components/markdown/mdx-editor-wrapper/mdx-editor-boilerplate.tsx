@@ -18,17 +18,6 @@ import {
 } from "@mdxeditor/editor";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
-export async function expressImageUploadHandler(image: File) {
-  const formData = new FormData();
-  formData.append("image", image);
-  const response = await fetch("/uploads/new", {
-    method: "POST",
-    body: formData,
-  });
-  const json = (await response.json()) as { url: string };
-  return json.url;
-}
-
 export const ALL_PLUGINS = [
   toolbarPlugin({ toolbarContents: () => <KitchenSinkToolbar /> }),
   listsPlugin(),
