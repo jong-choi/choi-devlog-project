@@ -62,11 +62,11 @@ export const updateSession = async (request: NextRequest) => {
     );
 
     if (isRestricted && user.error) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (request.nextUrl.pathname === "/auth/login" && !user.error) {
-      return NextResponse.redirect(new URL("/example", request.url));
+    if (request.nextUrl.pathname === "/login" && !user.error) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     return response;

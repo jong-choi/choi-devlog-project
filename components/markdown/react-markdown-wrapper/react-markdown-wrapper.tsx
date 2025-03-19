@@ -45,7 +45,7 @@ export default function ReactMarkdownWrapper({
     if (!isMounted && !isMessage) {
       setIsMounted(true);
       setIsMessage(true);
-      setTimeout(() => setIsMessage(false), 5000);
+      setTimeout(() => setIsMessage(false), 15000);
     }
   }, [isMounted, isMessage]);
 
@@ -59,7 +59,7 @@ export default function ReactMarkdownWrapper({
       >
         <div>
           게시글을 클릭하여 수정
-          {!user ? (
+          {user ? (
             ""
           ) : (
             <span className="text-rose-600 text-xs">(게스트 모드)</span>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthProvider from "@/providers/auth-store-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko-KR">
-      <body className={`antialiased`}>{children}</body>
+      <AuthProvider>
+        <body className={`antialiased`}>{children}</body>
+      </AuthProvider>
     </html>
   );
 }
