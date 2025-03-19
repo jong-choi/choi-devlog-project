@@ -22,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities"; // CSS 변환을 위한 유틸리티
 import { Category, Post, Subcategory } from "@/types/post";
 import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import Link from "next/link";
+import { GripVertical } from "lucide-react";
 
 // 개별 정렬 가능한 항목 컴포넌트
 const SortableItem = ({
@@ -41,23 +42,29 @@ const SortableItem = ({
   const style = {
     transform: CSS.Transform.toString(transform), // 요소의 드래그 변환을 적용
     transition, // 부드러운 애니메이션 효과
-    padding: "10px",
-    marginBottom: "5px",
-    backgroundColor: "lightblue",
-    borderRadius: "5px",
     cursor: "grab", // 드래그 가능하다는 표시
   };
 
-  const Wrapper = ({ children }: { children: ReactNode }) => {
+  const Wrapper = ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => {
     if ("url_slug" in item) {
-      return <Link href={item.url_slug ?? "#"}>{children}</Link>;
+      return (
+        <Link className={className} href={item.url_slug ?? "#"}>
+          {children}
+        </Link>
+      );
     }
-    return <>{children}</>;
+    return <div className={className}>{children}</div>;
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
-      <Wrapper>
+    <div ref={setNodeRef} style={style} className="flex hover:bg-zinc-100 p-1">
+      <Wrapper className="bg-white flex-grow text-sm ">
         <PanelItem
           key={item.id}
           onClick={() => {
@@ -67,8 +74,8 @@ const SortableItem = ({
           isSelected={isSelected}
         />
       </Wrapper>
-      <div {...attributes} {...listeners}>
-        선택
+      <div {...attributes} {...listeners} className="flex w-min items-center">
+        <GripVertical className="w-5 h-7 text-zinc-300  py-1 cursor-grab active:cursor-grabbing" />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default async function PostLayout({
 }: PostLayoutProps) {
   const urlSlug = (await params)?.urlSlug || "";
   return (
-    <main className="w-full h-full flex flex-col">
+    <main className="w-screen h-screen flex flex-col">
       <PostTopBar />
       <section className="flex flex-row flex-1">
         <div className="w-64 h-full border-r">

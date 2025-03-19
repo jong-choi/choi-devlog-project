@@ -35,7 +35,7 @@ export default async function Page({ params }: PageProps) {
       <div className="bg-gray-200 w-full h-full">
         <main className="p-2">
           {/* 상단바의 크기를 4rem이라고 가정 */}
-          <MainContainer className="bg-white md:max-h-[calc(100vh-4rem)]">
+          <MainContainer className="bg-white md:h-[calc(100vh-4rem)]">
             <header
               data-component-name="main-header"
               className="flex h-16 shrink-0 items-center gap-2 justify-between"

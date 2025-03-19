@@ -14,9 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko-KR">
-      <AuthProvider>
-        <body className={`antialiased`}>{children}</body>
-      </AuthProvider>
+      <body className={`antialiased`}>
+        <AuthProvider>{children} </AuthProvider>
+      </body>
     </html>
   );
 }

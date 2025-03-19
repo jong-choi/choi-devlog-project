@@ -74,7 +74,7 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   if (!data || data.length === 0) return null;
 
   return (
-    <div className="w-full p-4  border-gray-200 bg-white max-h-[60vh] overflow-y-auto scrollbar">
+    <div className="w-full border-gray-200 bg-white h-[80vh] overflow-y-auto scrollbar">
       <SortableList
         data={data}
         selectedItem={selectedItem}
