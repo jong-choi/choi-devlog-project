@@ -23,7 +23,7 @@ export const CACHE_TAGS = {
 } as const;
 
 // 캐싱 태그를 동적으로 생성하는 함수
-const getCacheTag = (key: string, id?: string) => (id ? `${key}:${id}` : key);
+const getCacheTag = (key: string, id?: string) => (id ? `${key}${id}` : key);
 
 // 캐싱 래핑 팩토리
 export const createCachedFunction = <
