@@ -984,7 +984,7 @@ components/post/sidebar/panels/dnd-sortable-list.tsx
 - Server Action에서 이번에 새로 작성한 sidebar 관련 태그들 invalidate하는 로직 추가할 것.
 - 포스트 선택 후 밑이 허전하니까 추천 게시글 목록 쭉 띄우기
 
-## 12일차 게시글 CRUD 워크플로우
+## 12일차 게시글 CRUD 워크플로우 + 인공지능 기능 구현
 
 - 사이드바에서 카테고리 생성
 - 사이드바에서 게시글 생성
@@ -1046,8 +1046,128 @@ ai summary의 vector 값을 불러와서 코사인 유사도를 분석한다.
           subcategory_id: string
           thumbnail?: string | null
           title: string
-          updated_at?: string | null
           url_slug: string
-          user_id?: string | null
-          velog_id?: string | null
 ```
+
+recentAutoSavedData에서 body와 title을 가져올 수 있다.
+url_slug는 Params에서 가져오고, 없으면 title를 파싱한다.
+thumbnail은 body에서 발견한 이미지의 링크를 저장한다.
+
+```tsx
+function extractFirstImageFromText(postText, commonImagePath) {
+  const regex = new RegExp(
+    `!\\[.*?\\]\\(((${commonImagePath}[^\\s)]+))\\)`,
+    "i"
+  );
+  const match = postText.match(regex);
+  return match ? match[1] : "";
+}
+
+const postText = `
+지난시간까지 만들었던 페이지들의 애니메이션을 일부 수정했다.
+![](https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/post/d6ccc8aa-b191-4b6b-82ad-713151d6871e/image.gif)
+기존에는 스크롤 효과를 대체하기 위해서 만든 애니메이션이었는데...
+`;
+
+const commonImagePath =
+  "https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image";
+const firstImageUrl = extractFirstImageFromText(postText, commonImagePath);
+```
+
+released_at은 now()로 설정.
+subcategory_id는 서버에서 가져온 값을 기본으로 하되 수정이 가능하게 한다.
+short_description는 바디에서 글자룰 추츨
+is_private은 false로 둔다.
+
+이후 업로딩 다이알로그에서
+subcategory_id, short_description, is_private, url_slug를 수정하게 한다.
+
+#### 업로딩 다이알로그
+
+`components/post/main/post-controller/post-uploading-dialog.tsx`
+Shadcn에서 기본적으로 다이알로그가 다 만들어져 있어서 쉽게 구현했다.  
+AutosaveStore에 Draft라는 상태를 만들었고,
+AutosaveStore에 PostId가 없는 경우, 유효하지 않은 URL_SLUG인 점에서 착안해 Create로 작동하도록 하여 생성과 업데이트 모두 구현하였다.
+
+#### Server Action
+
+일전에 Server Action에서 unstable_cache를 사용할 수 없는 문제가 있어 클라이언트용 슈퍼베이스 클라이언트로 모두 변경하였는데, JWT 토큰을 받지 못한다.  
+이를 해결하기 위해 Create, Update, Delete는 서버 측 클라이언트로 변경하고, Read 관련된 Action만 클라이언트 용으로 변경하였다.
+
+또한 URL_SLUG에 IS_UNIQUE 설정을 반영하였는 바, URL_SLUG의 중복을 방지하는 함수도 만들었다.
+
+```ts
+// url_slug 중복 방지
+const generateUniqueSlug = async (
+  supabase: SupabaseClient,
+  baseSlug: string
+) => {
+  let slug = baseSlug;
+  let count = 1;
+
+  while (true) {
+    const { data } = await supabase
+      .from("posts")
+      .select("id")
+      .eq("url_slug", slug)
+      .limit(1);
+
+    if (!data || data.length === 0) break; // 중복되지 않으면 사용 가능
+
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+
+  return slug;
+};
+```
+
+like와 set자료형을 통해 한 번만 DB를 호출하도록 변경하였다.
+
+```ts
+export const generateUniqueSlug = async (
+  supabaseClient: SupabaseClient,
+  baseSlug: string
+) => {
+  const supabase = supabaseClient || createClientClient();
+
+  const { data, error } = await supabase
+    .from("posts")
+    .select("url_slug")
+    .like("url_slug", `${baseSlug}%`);
+
+  if (error) {
+    throw new Error("Error fetching slugs from the database");
+  }
+
+  if (!data || data.length === 0) return baseSlug;
+
+  const existingSlugs = new Set(data.map((row) => row.url_slug));
+
+  let count = 1;
+  let slug = baseSlug;
+
+  while (existingSlugs.has(slug)) {
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+
+  return slug;
+};
+```
+
+#### 글 생성 버튼
+
+`components/post/sidebar/panels/create-post-button.tsx`
+
+앞서 만든 generateUniqueSlug로 아이디어를 얻어 없는 url_slug로 보내려고 했는데,
+generateUniqueSlug를 호출하는 시간이 꽤 길었다.
+
+그래서 랜덤한 영어 단어를 만들어주는 라이브러리를 이용하여 무작위 영어단어를 두 개 넣어서 url_slug를 만들도록 했다.
+
+#### 인공지능 요약 생성
+
+`components/post/main/ai-generation.tsx`
+summary가 존재하는지 여부만 체크하면 돼서 금방 끝났다.
+
+한편 로그인 여부, 인공지능 글 생성 여부, 추천 게시글 목록 생성 여부에 따라서 보여지는 메시지가 달라질 수 있도록 하였는데, 그 과정에서 여러가지 버그들을 찾아서 고칠 수 있었다. 특히 `utils/nextCache.tsx` 이 파일에서 tags가 제대로 생성되지 않고 있는 걸 발견해서 다행이다.
