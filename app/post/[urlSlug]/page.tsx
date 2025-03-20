@@ -8,7 +8,11 @@ import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
 import TitleEditor from "@/components/post/main/title-editor";
-import { getAISummaryByPostId, getPostByUrlSlug } from "@/app/post/actions";
+import {
+  getAISummaryByPostId,
+  getPostByUrlSlug,
+  getSidebarCategory,
+} from "@/app/post/actions";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { Pencil } from "lucide-react";
 
@@ -16,15 +20,20 @@ interface PageProps {
   params: Promise<{
     urlSlug: string;
   }>;
+  searchParams: Promise<{
+    subcategory_id: string;
+  }>;
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const { urlSlug } = await params;
+  const { subcategory_id } = await searchParams; //?subcategory_id=123
   const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
   const { data } = result;
   const { data: aISummary } = data
     ? await getAISummaryByPostId(data.id)
     : { data: null };
+  const { data: categoryData } = await getSidebarCategory();
 
   return (
     <AutosaveProvider
@@ -35,6 +44,20 @@ export default async function Page({ params }: PageProps) {
           body: data?.body || "",
           timestamp: Date.now(),
         },
+        draftPostData: {
+          title: data?.title || "",
+          body: data?.body || "",
+          is_private: false,
+          released_at: new Date().toISOString(),
+          short_description: "",
+          subcategory_id:
+            data?.subcategory_id ||
+            subcategory_id ||
+            "524bdc55-932b-4ea5-b9f0-44fc05ec372f",
+          thumbnail: data?.thumbnail || "",
+          url_slug: data?.url_slug || "",
+        },
+        categoryData,
       }}
     >
       <div className="bg-gray-200 w-full h-full">

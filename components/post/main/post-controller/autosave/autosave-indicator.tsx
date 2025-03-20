@@ -5,6 +5,7 @@ import { useAutosave } from "@/providers/autosave-store-provider";
 import { Loader2, CheckCircle } from "lucide-react";
 import { formatKoreanDate } from "@/lib/date";
 import { useIndexedDB } from "@/hooks/use-indexeddb";
+import { UploadingDialogTrigger } from "@/components/post/main/post-controller/post-uploading-dialog";
 
 export default function AutosaveIndicator() {
   const deleteByPostId = useIndexedDB().deleteByPostId;
@@ -24,11 +25,13 @@ export default function AutosaveIndicator() {
   const setIsLoadingDraftTitle = useAutosave(
     (state) => state.setIsLoadingDraftTitle
   );
+  const setBeforeUploading = useAutosave((state) => state.setBeforeUploading);
 
   const onApplyTemp = () => {
     setIsLoadingDraftBody(true);
     setIsLoadingDraftTitle(true);
-    setBeforeModification();
+    setBeforeUploading();
+    // setBeforeModification();
   };
 
   const onDeleteTemp = async () => {
@@ -84,12 +87,13 @@ export default function AutosaveIndicator() {
       ) : uploadedRecently ? (
         <>
           <CheckCircle className="w-4 h-4 text-blue-500" />
-          <span>업로드됨</span>
+          <span>업로드 완료</span>
         </>
       ) : isAutoSaved ? (
         <>
           <CheckCircle className="w-4 h-4 text-green-500" />
-          <span>자동 저장됨</span>
+          <span>임시 저장됨</span>
+          <UploadingDialogTrigger />
         </>
       ) : (
         <span></span>

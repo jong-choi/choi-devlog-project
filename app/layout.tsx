@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
+import { ToastProvider } from "@/providers/toast-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,7 +16,8 @@ export default function RootLayout({
   return (
     <html lang="ko-KR">
       <body className={`antialiased`}>
-        <AuthProvider>{children} </AuthProvider>
+        <ToastProvider />
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

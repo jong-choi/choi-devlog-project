@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/server";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
+  SupabaseClient,
 } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -505,6 +506,44 @@ export const getPostByUrlSlug = createCachedFunction(
   _getPostByUrlSlug
 );
 
+// url_slug 중복 방지
+const generateUniqueSlug = async (
+  baseSlug: string,
+  supabaseClient?: SupabaseClient,
+  postId?: string
+) => {
+  const supabase = supabaseClient || createClientClient();
+
+  let query = supabase
+    .from("posts")
+    .select("url_slug")
+    .like("url_slug", `${baseSlug}%`);
+
+  if (postId) {
+    query = query.neq("id", postId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error("Error fetching slugs from the database");
+  }
+
+  if (!data || data.length === 0) return baseSlug;
+
+  const existingSlugs = new Set(data.map((row) => row.url_slug));
+
+  let count = 1;
+  let slug = baseSlug;
+
+  while (existingSlugs.has(slug)) {
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+
+  return slug;
+};
+
 const _createPost = async (
   payload: Omit<Database["public"]["Tables"]["posts"]["Insert"], "order">
 ): Promise<
@@ -524,10 +563,11 @@ const _createPost = async (
   const maxOrder = maxOrderData?.order ?? 0; // 최대 order 값이 없으면 기본값 0
   const newOrder = maxOrder + 100000; // 새로운 order 값
 
+  const uniqueSlug = await generateUniqueSlug(payload.url_slug, supabase);
   // 새로운 게시글 생성
   const result = await supabase
     .from("posts")
-    .insert({ ...payload, order: newOrder }) // 자동 order 값 추가
+    .insert({ ...payload, order: newOrder, url_slug: uniqueSlug }) // 자동 order 값 추가
     .select()
     .limit(1)
     .single();
@@ -553,9 +593,14 @@ const _updatePost = async (
 > => {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
+  const uniqueSlug = await generateUniqueSlug(
+    payload.url_slug || "",
+    supabase,
+    post_id
+  );
   const result = await supabase
     .from("posts")
-    .update(payload)
+    .update({ ...payload, url_slug: uniqueSlug })
     .eq("id", post_id)
     .select()
     .limit(1)

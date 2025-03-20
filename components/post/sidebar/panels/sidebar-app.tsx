@@ -1,5 +1,6 @@
 "use client";
 
+import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
 import SidebarPanel from "@/components/post/sidebar/panels/sidebar-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
@@ -15,6 +16,7 @@ export default function SidebarApp({ categories }: { categories: Category[] }) {
 
   return (
     <div className="flex flex-col h-full transition-all">
+      <CreatePostButton />
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (
         <SidebarPanel

@@ -1,3 +1,4 @@
+import { Category } from "@/types/post";
 import { createStore } from "zustand";
 
 export interface AutosaveState {
@@ -15,7 +16,17 @@ export interface AutosaveState {
     title: string;
     body: string;
   } | null;
-
+  draftPostData: {
+    body?: string | null;
+    is_private?: boolean | null;
+    released_at?: string | null;
+    short_description?: string | null;
+    subcategory_id: string;
+    thumbnail?: string | null;
+    title: string;
+    url_slug: string;
+  };
+  categoryData: Category[] | null;
   setIsLocalDBChecked: (value: boolean) => void;
   setIsUploaded: (value: boolean) => void;
   setIsUploading: (value: boolean) => void;
@@ -28,6 +39,8 @@ export interface AutosaveState {
   setRecentAutoSavedData: (
     data: Partial<AutosaveState["recentAutoSavedData"]>
   ) => void;
+  setDraftPostData: (data: Partial<AutosaveState["draftPostData"]>) => void;
+  setCategoryData: (data: Category[]) => void;
 }
 
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
@@ -42,7 +55,17 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
     isLoadingDraftBody: false,
     isLoadingDraftTitle: false,
     recentAutoSavedData: null,
-
+    draftPostData: {
+      body: null,
+      is_private: false,
+      released_at: new Date().toISOString(),
+      short_description: null,
+      subcategory_id: "524bdc55-932b-4ea5-b9f0-44fc05ec372f",
+      thumbnail: null,
+      title: "",
+      url_slug: "",
+    },
+    categoryData: null,
     setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),
     setIsUploaded: (value) => set({ isUploaded: value }),
     setIsUploading: (value) => set({ isUploading: value }),
@@ -80,6 +103,14 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
             }
           : null,
       })),
+    setDraftPostData: (data) =>
+      set((state) => ({
+        draftPostData: {
+          ...state.draftPostData, // 기존 상태 유지
+          ...(data ?? {}), // ✅ null이면 빈 객체로 대체
+        },
+      })),
+    setCategoryData: (data) => set({ categoryData: data }),
 
     ...initialState,
   }));
