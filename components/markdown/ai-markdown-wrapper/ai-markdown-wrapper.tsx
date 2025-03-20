@@ -19,7 +19,10 @@ export default function AiMarkdownWrapper({
 }: ReactMarkdownWrapperProps) {
   return (
     <div
-      className={cn("p-[12px] markdown-body new-york-small", className || "")}
+      className={cn(
+        "p-[12px] markdown-body new-york-small ai-fadein",
+        className || ""
+      )}
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkParse, remarkBreaks]}
