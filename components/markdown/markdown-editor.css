@@ -22,10 +22,6 @@
   list-style-type: disc;
 }
 
-.markdown-body {
-  font-size: 14px;
-}
-
 .new-york {
   & h1,
   & h2,
@@ -33,42 +29,52 @@
   & h4,
   & h5,
   & h6 {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.7rem;
   }
 
   & h1 {
-    font-size: 2.25rem; /* text-4xl */
-    line-height: 2.5rem; /* text-4xl의 기본 line-height */
-    font-weight: 800; /* font-extrabold */ /* tracking-tight */
-    scroll-margin: 5rem; /* scroll-m-20을 조금 더 일반적인 값으로 변환 */
-
-    @media (min-width: 1024px) {
-      font-size: 3rem; /* lg:text-5xl */
-      line-height: 1; /* lg:text-5xl의 기본 line-height */
-    }
+    font-size: 1.875rem;
+    line-height: 2.3rem;
+    font-weight: 700;
+    scroll-margin: 5rem;
   }
 
   & h2 {
-    padding-bottom: 0.5rem; /* pb-2 */
-    border-bottom-width: 1px; /* border-b */
-    font-size: 1.875rem; /* text-3xl */
-    line-height: 2.25rem; /* text-3xl의 기본 line-height */
-    font-weight: 600; /* font-semibold */ /* tracking-tight */
-    scroll-margin: 5rem; /* scroll-m-20 변환 */
+    padding-bottom: 0.5rem;
+    border-bottom-width: 1px;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    scroll-margin: 5rem;
   }
 
   & h3 {
-    font-size: 1.5rem; /* text-2xl */
-    line-height: 2rem; /* text-2xl의 기본 line-height */
-    font-weight: 600; /* font-semibold */ /* tracking-tight */
-    scroll-margin: 5rem; /* scroll-m-20 변환 */
+    font-size: 1.25rem;
+    line-height: 1.8rem;
+    font-weight: 600;
+    scroll-margin: 5rem;
   }
 
   & h4 {
-    font-size: 1.25rem; /* text-xl */
-    line-height: 1.75rem; /* text-xl의 기본 line-height */
-    font-weight: 600; /* font-semibold */ /* tracking-tight */
-    scroll-margin: 5rem; /* scroll-m-20 변환 */
+    font-size: 1.15rem;
+    line-height: 1.6rem;
+    font-weight: 600;
+    scroll-margin: 5rem;
+  }
+
+  & h5 {
+    font-size: 1.05rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    scroll-margin: 5rem;
+  }
+
+  & h6 {
+    font-size: 1rem;
+    line-height: 1.4rem;
+    font-weight: 600;
+    scroll-margin: 5rem;
   }
 
   & p {
@@ -149,23 +155,39 @@
 }
 
 .new-york-small {
+  font-size: 14px;
+
+  & p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  & li {
+    padding-left: 0.3rem;
+  }
+
+  & ul > li {
+    margin-left: -0.5rem; /* ml-6 */
+    padding-left: 0rem;
+  }
+
   & h1 {
     font-size: 1.2rem; /* 기본 크기 줄임 */
-    line-height: 1.4rem;
+    line-height: 1.2rem;
   }
 
   & h2 {
-    font-size: 1.1rem; /* 크기 감소 */
+    font-size: 1.05rem; /* 크기 감소 */
     line-height: 1.3rem;
   }
 
   & h3 {
-    font-size: 1.05rem; /* 더 컴팩트하게 */
+    font-size: 1rem; /* 더 컴팩트하게 */
     line-height: 1.2rem;
   }
 
   & h4 {
-    font-size: 1rem;
+    font-size: 15px;
     line-height: 1.2rem;
   }
 }

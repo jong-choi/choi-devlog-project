@@ -1003,4 +1003,51 @@ components/post/sidebar/panels/dnd-sortable-list.tsx
 ai summary의 vector 값을 불러와서 코사인 유사도를 분석한다.
 새로운 게시글을 수정 완료했을 때에만 실행한다.
 
-### 추천 게시글 보기
+### 추천 게시글 보기 및 인공지능 요약 보기
+
+미뤄뒀던 게시글 보기 및 인공지능 요약 보기를 연동하였다.  
+사이드바 패널에 "recommended" 패널 타입을 추가하고, recommended 상태일 때 추천 게시글을 보도록 하였다.  
+인공지능 요약은 `app/post/[urlSlug]/page.tsx`의 우측에 새로운 inset 패널을 추가하였다. 기존 react-markdown-wrapper를 재사용하려 했지만 여의치 않아서 새로운 ai-markdown-wrapper륾 만들고 스타일을 새로 적용하였다.
+
+### 게시글 업데이트
+
+게시글 생성 방안에 대해 고민하다가, 업데이트 된 게시글을 서버에 반영하는 것부터 시작하는 것으로!  
+게시글 생성은 url_slug가 유효하지 않을 때 초기 state가 null인 것을 이용하도록 한다. 따라서 게시글 업데이트부터 완성시키는 것이 필요.
+
+현재 supabase의 posts 테이블은 아래와 같은 타입을 지닌다.
+
+```tsx
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          order?: number | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id: string
+          thumbnail?: string | null
+          title: string
+          updated_at?: string | null
+          url_slug: string
+          user_id?: string | null
+          velog_id?: string | null
+        }
+```
+
+이 중 사용자가 직접 입력할 데이터들은 아래와 같다.
+
+```tsx
+          body?: string | null
+          is_private?: boolean | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id: string
+          thumbnail?: string | null
+          title: string
+          updated_at?: string | null
+          url_slug: string
+          user_id?: string | null
+          velog_id?: string | null
+```

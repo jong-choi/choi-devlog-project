@@ -472,7 +472,8 @@ export const softDeleteSubcategory = createWithInvalidation(
 // );
 
 const _getPostByUrlSlug = async (
-  url_slug: string
+  url_slug: string,
+  isValid: boolean = false
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
@@ -483,7 +484,7 @@ const _getPostByUrlSlug = async (
     .select()
     .eq("url_slug", url_slug) // URL 슬러그 일치
     .is("deleted_at", null) // 삭제되지 않은 게시글만 조회
-    .not("released_at", "is", null) // 공개된 게시글만 조회
+    .or(isValid ? "" : "is_private.is.null,is_private.is.false") // 공개된 게시글만 조회
     .limit(1)
     .single(); // 단일 객체 반환
   return result;
