@@ -33,6 +33,16 @@ pre {
   .scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(200, 184, 168, 0.85); /* 더 어두운 베이지 + 투명도 85% */
   }
+
+  /* 모든 스크롤바 숨기기 */
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox에서도 스크롤바 숨기기 */
+  .scrollbar-hidden {
+    scrollbar-width: none;
+  }
 }
 
 .spinner {

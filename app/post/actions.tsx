@@ -15,7 +15,7 @@ import {
 import { revalidateTag } from "next/cache";
 
 const _getAISummaryByPostId = async (
-  post_id: string
+  post_id?: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["ai_summaries"]["Row"]>
 > => {

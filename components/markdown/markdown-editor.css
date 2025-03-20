@@ -147,3 +147,25 @@
     cursor: pointer;
   }
 }
+
+.new-york-small {
+  & h1 {
+    font-size: 1.2rem; /* 기본 크기 줄임 */
+    line-height: 1.4rem;
+  }
+
+  & h2 {
+    font-size: 1.1rem; /* 크기 감소 */
+    line-height: 1.3rem;
+  }
+
+  & h3 {
+    font-size: 1.05rem; /* 더 컴팩트하게 */
+    line-height: 1.2rem;
+  }
+
+  & h4 {
+    font-size: 1rem;
+    line-height: 1.2rem;
+  }
+}

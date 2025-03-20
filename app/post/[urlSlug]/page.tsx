@@ -8,7 +8,9 @@ import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
 import TitleEditor from "@/components/post/main/title-editor";
-import { getPostByUrlSlug } from "@/app/post/actions";
+import { getAISummaryByPostId, getPostByUrlSlug } from "@/app/post/actions";
+import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
+import { Pencil } from "lucide-react";
 
 interface PageProps {
   params: Promise<{
@@ -20,6 +22,9 @@ export default async function Page({ params }: PageProps) {
   const { urlSlug } = await params;
   const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
   const { data } = result;
+  const { data: aISummary } = data
+    ? await getAISummaryByPostId(data.id)
+    : { data: null };
 
   return (
     <AutosaveProvider
@@ -33,7 +38,7 @@ export default async function Page({ params }: PageProps) {
       }}
     >
       <div className="bg-gray-200 w-full h-full">
-        <main className="p-2">
+        <main className="p-2 flex gap-2">
           {/* 상단바의 크기를 4rem이라고 가정 */}
           <MainContainer className="bg-white md:h-[calc(100vh-4rem)]">
             <header
@@ -59,6 +64,18 @@ export default async function Page({ params }: PageProps) {
               <TitleEditor defaultValue={data?.title || ""} />
               <MarkdownEditor markdown={data?.body || ""} />
               <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+            </section>
+          </MainContainer>
+          <MainContainer className="bg-white md:h-[calc(100vh-4rem)] max-w-[20vw] p-3 rounded-xl shadow-sm">
+            <div className="pl-4 tracking-wide flex items-center text-sm">
+              <Pencil className="w-4 h-4 text-gray-500" />
+              AI 멘토의 요약
+            </div>
+            <section
+              data-component-name="main-post-section"
+              className="flex flex-1 overflow-auto scrollbar-hidden"
+            >
+              <AiMarkdownWrapper>{aISummary?.summary || ""}</AiMarkdownWrapper>
             </section>
           </MainContainer>
         </main>
