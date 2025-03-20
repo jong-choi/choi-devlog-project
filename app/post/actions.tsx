@@ -7,19 +7,21 @@ import {
   createWithInvalidation,
 } from "@/utils/nextCache";
 
-import { createClient } from "@/utils/supabase/client"; //nextCache를 사용하기 위해 client로...
+import { createClient as createClientClient } from "@/utils/supabase/client"; //nextCache를 사용하기 위해 client로...
+import { createClient } from "@/utils/supabase/server";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
 } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 const _getAISummaryByPostId = async (
   post_id?: string
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["ai_summaries"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("ai_summaries")
     .select()
@@ -48,7 +50,8 @@ const _createAISummary = async (
     }
   >
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("ai_summaries")
     .insert(payload)
@@ -72,7 +75,7 @@ const _getRecommendedByPostId = async (
 ): Promise<
   PostgrestResponse<Database["public"]["Tables"]["post_similarities"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("post_similarities")
     .select()
@@ -89,7 +92,7 @@ export const getRecommendedByPostId = createCachedFunction(
 
 // 사이드바
 const _getSidebarCategory = async (): Promise<PostgrestResponse<Category>> => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("categories")
     .select(
@@ -121,7 +124,7 @@ const _getSelectedCategoriesByUrl = async (
   urlSlug: string,
   isValid: boolean = false
 ): Promise<PostgrestSingleResponse<SidebarSelectedData>> => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
 
   let query = supabase
     .from("posts")
@@ -202,7 +205,7 @@ const _getPostsBySubcategoryId = async (
   subcategoryId: string,
   isValid: boolean = false
 ): Promise<PostgrestResponse<Post>> => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("posts")
     .select("id, url_slug, title, short_description, is_private, order")
@@ -229,7 +232,7 @@ export const getSelectedCategoriesByUrl = createCachedFunction(
 const _getAllCategories = async (): Promise<
   PostgrestResponse<Database["public"]["Tables"]["categories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("categories")
     .select()
@@ -249,7 +252,8 @@ const _createCategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
 
   // 현재 가장 큰 order 값을 조회
   const { data: maxOrderData } = await supabase
@@ -286,7 +290,8 @@ const _updateCategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("categories")
     .update(payload)
@@ -310,7 +315,8 @@ const _softDeleteCategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("categories")
     .update({ deleted_at: new Date().toISOString() }) // Soft Delete
@@ -336,7 +342,7 @@ const _getSubcategoriesByCategoryId = async (
 ): Promise<
   PostgrestResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
   const result = await supabase
     .from("subcategories")
     .select()
@@ -360,7 +366,8 @@ const _createSubcategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
 
   // 1️⃣ 현재 subcategories 테이블에서 가장 큰 order 값을 조회
   const { data: maxOrderData } = await supabase
@@ -400,7 +407,8 @@ const _updateSubcategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("subcategories")
     .update(payload)
@@ -427,7 +435,8 @@ const _softDeleteSubcategory = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("subcategories")
     .update({ deleted_at: new Date().toISOString() }) // Soft Delete
@@ -454,7 +463,8 @@ export const softDeleteSubcategory = createWithInvalidation(
 // const _getPostsBySubcategoryId = async (
 //   subcategory_id: string
 // ): Promise<PostgrestResponse<Database["public"]["Tables"]["posts"]["Row"]>> => {
-//   const supabase = await createClient();
+//     const cookieStore = await cookies()
+// const supabase = await createClient(cookieStore);
 //   const result = await supabase
 //     .from("posts")
 //     .select()
@@ -477,7 +487,7 @@ const _getPostByUrlSlug = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const supabase = createClientClient();
 
   const result = await supabase
     .from("posts")
@@ -500,8 +510,8 @@ const _createPost = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
-  const supabase = await createClient();
-
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   // 해당 subcategory_id 내에서 가장 큰 order 값을 조회
   const { data: maxOrderData } = await supabase
     .from("posts")
@@ -541,7 +551,8 @@ const _updatePost = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("posts")
     .update(payload)
@@ -568,7 +579,8 @@ const _softDeletePost = async (
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("posts")
     .update({ deleted_at: new Date().toISOString() }) // Soft Delete
