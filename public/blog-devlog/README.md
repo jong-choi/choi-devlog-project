@@ -983,3 +983,22 @@ components/post/sidebar/panels/dnd-sortable-list.tsx
 
 - Server Action에서 이번에 새로 작성한 sidebar 관련 태그들 invalidate하는 로직 추가할 것.
 - 포스트 선택 후 밑이 허전하니까 추천 게시글 목록 쭉 띄우기
+
+## 12일차 게시글 CRUD 워크플로우
+
+- 사이드바에서 카테고리 생성
+- 사이드바에서 게시글 생성
+- 새 게시글이 생성되면 해당 페이지로 이동
+- 게시글 상단 breadcomb에서 카테고리, 게시글 url-slug 변경 가능
+- 게시글 우측 ai 요약 단에서 ai 요약 생성 가능
+
+생성 기능
+
+- 새 카테고리를 누르면 이름을 입력하는 dialog가 생성되고, 생성한다.
+- 새 글을 누르면, post/new로 이동되고, 카테고리 정보는 불러오고, url_slug와 기타 내용은 직접 입력한다.
+
+### 추천 게시글 API 작성
+
+`app/api/summary/recommended/route.ts` 작성.  
+ai summary의 vector 값을 불러와서 코사인 유사도를 분석한다.
+새로운 게시글을 수정 완료했을 때에만 실행한다.

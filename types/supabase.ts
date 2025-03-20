@@ -83,6 +83,54 @@ export type Database = {
         }
         Relationships: []
       }
+      post_similarities: {
+        Row: {
+          id: string
+          similarity: number
+          source_post_id: string
+          source_title: string
+          source_url_slug: string
+          target_post_id: string
+          target_title: string
+          target_url_slug: string
+        }
+        Insert: {
+          id?: string
+          similarity: number
+          source_post_id: string
+          source_title: string
+          source_url_slug: string
+          target_post_id: string
+          target_title: string
+          target_url_slug: string
+        }
+        Update: {
+          id?: string
+          similarity?: number
+          source_post_id?: string
+          source_title?: string
+          source_url_slug?: string
+          target_post_id?: string
+          target_title?: string
+          target_url_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           body: string | null

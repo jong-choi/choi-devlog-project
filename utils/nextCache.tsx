@@ -31,14 +31,15 @@ export const createCachedFunction = <
   T extends (...args: any[]) => Promise<any>
 >(
   key: string,
-  fn: T
+  fn: T,
+  tags: string[] = []
 ) => {
   return ((...args: Parameters<T>) => {
     const id = args[0]; // ID (예: category_id, post_id 등)
     const cacheTag = getCacheTag(key, typeof id === "string" ? id : undefined);
-    return unstable_cache(fn, [cacheTag], { revalidate: 60 * 60 * 24 * 30 })(
-      ...args
-    );
+    return unstable_cache(fn, [cacheTag, ...tags], {
+      revalidate: 60 * 60 * 24 * 30,
+    })(...args);
   }) as T;
 };
 

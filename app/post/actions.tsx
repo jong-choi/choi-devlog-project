@@ -67,6 +67,26 @@ export const createAISummary = createWithInvalidation(
   }
 );
 
+const _getRecommendedByPostId = async (
+  post_id: string
+): Promise<
+  PostgrestResponse<Database["public"]["Tables"]["post_similarities"]["Row"]>
+> => {
+  const supabase = await createClient();
+  const result = await supabase
+    .from("post_similarities")
+    .select()
+    .eq("source_post_id", post_id) // 특정 게시글에 대한 요약만 조회
+    .order("similarity", { ascending: false }); // 최신 요약이 가장 위로 오도록 정렬
+
+  return result;
+};
+
+export const getRecommendedByPostId = createCachedFunction(
+  CACHE_TAGS.AI_SUMMARY.BY_POST_ID(),
+  _getRecommendedByPostId
+);
+
 // 사이드바
 const _getSidebarCategory = async (): Promise<PostgrestResponse<Category>> => {
   const supabase = await createClient();
@@ -93,7 +113,8 @@ const _getSidebarCategory = async (): Promise<PostgrestResponse<Category>> => {
 
 export const getSidebarCategory = createCachedFunction(
   CACHE_TAGS.SIDEBAR.CATEGORY(),
-  _getSidebarCategory
+  _getSidebarCategory,
+  [CACHE_TAGS.CATEGORY.ALL(), CACHE_TAGS.SUBCATEGORY.ALL()]
 );
 
 const _getSelectedCategoriesByUrl = async (
@@ -200,7 +221,8 @@ export const getPostsBySubcategoryId = createCachedFunction(
 
 export const getSelectedCategoriesByUrl = createCachedFunction(
   CACHE_TAGS.SIDEBAR.SELECTED_BY_URL_SLUG(),
-  _getSelectedCategoriesByUrl
+  _getSelectedCategoriesByUrl,
+  [CACHE_TAGS.CATEGORY.ALL(), CACHE_TAGS.SUBCATEGORY.ALL()]
 );
 
 // 대분류 CRUD
@@ -368,6 +390,7 @@ export const createSubcategory = createWithInvalidation(
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.ALL());
   }
 );
 
@@ -395,6 +418,7 @@ export const updateSubcategory = createWithInvalidation(
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.ALL());
   }
 );
 
@@ -422,6 +446,7 @@ export const softDeleteSubcategory = createWithInvalidation(
     revalidateTag(
       CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(result.data?.category_id || "")
     );
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.ALL());
   }
 );
 
