@@ -28,6 +28,7 @@ const _getAISummaryByPostId = async (
     .select()
     .eq("post_id", post_id) // 특정 게시글에 대한 요약만 조회
     .order("created_at", { ascending: false }) // 최신 요약이 가장 위로 오도록 정렬
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single(); // 가장 최신 요약 하나만 가져옴
 
@@ -57,6 +58,7 @@ const _createAISummary = async (
     .from("ai_summaries")
     .insert(payload)
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -122,10 +124,10 @@ export const getSidebarCategory = createCachedFunction(
 
 const _getSelectedCategoriesByUrl = async (
   urlSlug: string,
-  isValid: boolean = false
+  ...arg: boolean[]
 ): Promise<PostgrestSingleResponse<SidebarSelectedData>> => {
   const supabase = createClientClient();
-
+  const isValid = typeof arg.at(-1) === "boolean" && arg.at(-1);
   let query = supabase
     .from("posts")
     .select(
@@ -203,15 +205,20 @@ const _getSelectedCategoriesByUrl = async (
 
 const _getPostsBySubcategoryId = async (
   subcategoryId: string,
-  isValid: boolean = false
+  ...arg: boolean[]
 ): Promise<PostgrestResponse<Post>> => {
   const supabase = createClientClient();
+  const isValid = typeof arg.at(-1) === "boolean" && arg.at(-1);
   const result = await supabase
     .from("posts")
     .select("id, url_slug, title, short_description, is_private, order")
     .is("deleted_at", null)
     .eq("subcategory_id", subcategoryId)
-    .or(isValid ? "" : "is_private.is.null,is_private.is.false")
+    .or(
+      isValid
+        ? "is_private.is.null,is_private.is.false,is_private.is.true"
+        : "is_private.is.null,is_private.is.false"
+    )
     .order("order", { ascending: true });
 
   return result;
@@ -259,6 +266,7 @@ const _createCategory = async (
   const { data: maxOrderData } = await supabase
     .from("categories")
     .select("order")
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false })
     .limit(1)
     .single();
@@ -271,6 +279,7 @@ const _createCategory = async (
     .from("categories")
     .insert({ ...payload, order: newOrder })
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -297,6 +306,7 @@ const _updateCategory = async (
     .update(payload)
     .eq("id", category_id)
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -323,6 +333,7 @@ const _softDeleteCategory = async (
     .eq("id", category_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -373,6 +384,7 @@ const _createSubcategory = async (
   const { data: maxOrderData } = await supabase
     .from("subcategories")
     .select("order")
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false })
     .limit(1)
     .single();
@@ -385,6 +397,7 @@ const _createSubcategory = async (
     .from("subcategories")
     .insert({ ...payload, order: newOrder }) // 자동 order 값 추가
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -414,6 +427,7 @@ const _updateSubcategory = async (
     .update(payload)
     .eq("id", subcategory_id)
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -443,6 +457,7 @@ const _softDeleteSubcategory = async (
     .eq("id", subcategory_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -483,20 +498,26 @@ export const softDeleteSubcategory = createWithInvalidation(
 
 const _getPostByUrlSlug = async (
   url_slug: string,
-  isValid: boolean = false
+  ...arg: boolean[]
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
   const supabase = createClientClient();
-
+  const isValid = typeof arg.at(-1) === "boolean" && arg.at(-1);
   const result = await supabase
     .from("posts")
     .select()
     .eq("url_slug", url_slug) // URL 슬러그 일치
     .is("deleted_at", null) // 삭제되지 않은 게시글만 조회
-    .or(isValid ? "" : "is_private.is.null,is_private.is.false") // 공개된 게시글만 조회
+    .or(
+      isValid
+        ? "is_private.is.null,is_private.is.false,is_private.is.true"
+        : "is_private.is.null,is_private.is.false"
+    ) // 공개된 게시글만 조회
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single(); // 단일 객체 반환
+
   return result;
 };
 
@@ -555,6 +576,7 @@ const _createPost = async (
     .from("posts")
     .select("order")
     .eq("subcategory_id", payload.subcategory_id) // 같은 subcategory_id 내에서 조회
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false }) // order 기준 내림차순 정렬
     .limit(1)
     .single();
@@ -568,6 +590,7 @@ const _createPost = async (
     .from("posts")
     .insert({ ...payload, order: newOrder, url_slug: uniqueSlug }) // 자동 order 값 추가
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -597,11 +620,13 @@ const _updatePost = async (
     supabase,
     post_id
   );
+
   const result = await supabase
     .from("posts")
     .update({ ...payload, url_slug: uniqueSlug })
     .eq("id", post_id)
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 
@@ -631,6 +656,7 @@ const _softDeletePost = async (
     .eq("id", post_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
+    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
 

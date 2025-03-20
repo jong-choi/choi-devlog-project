@@ -12,6 +12,10 @@ export default function PostUploadingForm() {
   const [isPrivate, setIsPrivate] = useState<boolean>(
     draftPostData.is_private || false
   );
+  useEffect(() => {
+    setDraftPostData({ is_private: isPrivate });
+  }, [setDraftPostData, isPrivate]);
+
   const [urlSlug, setUrlSlug] = useState<string>(draftPostData.url_slug);
   useEffect(() => {
     setDraftPostData({ url_slug: urlSlug });
@@ -20,7 +24,6 @@ export default function PostUploadingForm() {
   const [shortDesc, setShortDesc] = useState<string>(
     draftPostData.short_description || ""
   );
-
   useEffect(() => {
     setDraftPostData({ short_description: shortDesc });
   }, [setDraftPostData, shortDesc]);
@@ -55,7 +58,7 @@ export default function PostUploadingForm() {
         <Switch
           id="is-praivate"
           checked={!isPrivate}
-          onCheckedChange={setIsPrivate}
+          onCheckedChange={(checked) => setIsPrivate(!checked)}
         />
         <Label htmlFor="is-praivate-mode">
           {isPrivate ? "비공개" : "공개"}

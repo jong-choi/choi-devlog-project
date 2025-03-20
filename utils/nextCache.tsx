@@ -1,4 +1,6 @@
+import { createClient } from "@/utils/supabase/server";
 import { unstable_cache } from "next/cache";
+import { cookies } from "next/headers";
 
 export const CACHE_TAGS = {
   CATEGORY: { ALL: () => "categories" },
@@ -34,12 +36,17 @@ export const createCachedFunction = <
   fn: T,
   tags: string[] = []
 ) => {
-  return ((...args: Parameters<T>) => {
+  return (async (...args: Parameters<T>) => {
+    const cookieStore = await cookies();
+    const supabase = await createClient(cookieStore);
+    const userCreatedAt = (await supabase.auth.getUser()).data.user?.created_at;
+    const isValid = process.env.VALID_USER_CREATED_AT === userCreatedAt;
+    if (isValid) return fn(...args, isValid);
     const id = args[0]; // ID (예: category_id, post_id 등)
     const cacheTag = getCacheTag(key, typeof id === "string" ? id : undefined);
     return unstable_cache(fn, [cacheTag, ...tags], {
       revalidate: 60 * 60 * 24 * 30,
-    })(...args);
+    })(...args, isValid);
   }) as T;
 };
 

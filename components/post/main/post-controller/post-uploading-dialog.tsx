@@ -55,6 +55,7 @@ export function UploadingDialogTrigger() {
     setIsUploading(true);
     if (!postId) {
       const { data } = await createPost(draftPostData);
+
       if (data?.url_slug) {
         router.push(`/post/${data.url_slug}`);
         setIsUploaded(true);
@@ -68,7 +69,7 @@ export function UploadingDialogTrigger() {
         toast.success("게시글을 업로드하였습니다.");
         setIsUploaded(true);
       } else {
-        toast.error("게시글이 업로드되지 않았습니다.");
+        toast.error("게시글이 업데이트되지 않았습니다.");
       }
     }
     setIsUploading(false);
