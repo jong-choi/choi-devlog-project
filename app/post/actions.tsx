@@ -65,9 +65,8 @@ const _createAISummary = async (
 
 export const createAISummary = createWithInvalidation(
   _createAISummary,
-  async () => {
-    // AI 요약 캐시 무효화 로직이 필요한 경우 여기에 추가 가능
-    // 예: revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(payload.post_id));
+  async (result) => {
+    revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.post_id || ""));
   }
 );
 

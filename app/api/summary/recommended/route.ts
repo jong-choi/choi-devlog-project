@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       .select("*")
       .eq("source_post_id", postId);
 
-    if (recommendedData) {
+    if (recommendedData && recommendedData.length) {
       return NextResponse.json({
         message: "이미 추천 게시글 데이터가 있습니다",
         data: recommendedData,
