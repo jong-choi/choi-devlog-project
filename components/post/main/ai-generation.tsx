@@ -1,7 +1,7 @@
 "use client";
 import { createAISummary } from "@/app/post/actions";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
-import { useAuthStore } from "@/hooks/use-auth-store";
+import { useAuthStore } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useSummary } from "@/providers/summary-store-provider";

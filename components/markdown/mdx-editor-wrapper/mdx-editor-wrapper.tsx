@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useShallow } from "zustand/react/shallow";
-import { useAuthStore } from "@/hooks/use-auth-store";
+import { useAuthStore } from "@/providers/auth-provider";
 
 export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);

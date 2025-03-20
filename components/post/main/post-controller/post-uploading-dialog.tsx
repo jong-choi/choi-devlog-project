@@ -16,7 +16,7 @@ import {
   slugify,
 } from "@/utils/uploadingUtils";
 import PostUploadingForm from "@/components/post/main/post-controller/post-uploading-form";
-import { useAuthStore } from "@/hooks/use-auth-store";
+import { useAuthStore } from "@/providers/auth-provider";
 import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";

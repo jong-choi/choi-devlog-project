@@ -1,10 +1,10 @@
 "use client";
 import { useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useAuthStore } from "@/hooks/use-auth-store";
+import { useAuthStore } from "@/providers/auth-provider";
 const supabase = createClient();
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {

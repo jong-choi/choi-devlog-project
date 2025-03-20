@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
 import { ToastProvider } from "@/providers/toast-provider";
+import { AuthStoreProvider } from "@/providers/auth-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +18,10 @@ export default function RootLayout({
     <html lang="ko-KR">
       <body className={`antialiased`}>
         <ToastProvider />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthStoreProvider>
+          <AuthProvider />
+          {children}
+        </AuthStoreProvider>
       </body>
     </html>
   );

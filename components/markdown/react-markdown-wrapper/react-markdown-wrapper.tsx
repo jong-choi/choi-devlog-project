@@ -6,7 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css"; // rehype-highlight 스타일 추가
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/hooks/use-auth-store";
+import { useAuthStore } from "@/providers/auth-provider";
 
 interface ReactMarkdownWrapperProps {
   children?: string;
