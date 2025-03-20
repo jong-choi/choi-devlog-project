@@ -1,3 +1,5 @@
+import { Database } from "@/types/supabase";
+
 export type Post = {
   id: string;
   url_slug: string;
@@ -25,4 +27,7 @@ export type SidebarSelectedData = {
   category: Category;
 };
 
-export type Panel = "category" | "subcategory" | "post";
+export type RecommendedPost =
+  Database["public"]["Tables"]["post_similarities"]["Row"];
+
+export type Panel = "category" | "subcategory" | "post" | "recommended";

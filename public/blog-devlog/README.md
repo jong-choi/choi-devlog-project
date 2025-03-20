@@ -1002,3 +1002,5 @@ components/post/sidebar/panels/dnd-sortable-list.tsx
 `app/api/summary/recommended/route.ts` 작성.  
 ai summary의 vector 값을 불러와서 코사인 유사도를 분석한다.
 새로운 게시글을 수정 완료했을 때에만 실행한다.
+
+### 추천 게시글 보기

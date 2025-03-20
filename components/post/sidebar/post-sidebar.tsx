@@ -1,5 +1,6 @@
 import {
   getPostsBySubcategoryId,
+  getRecommendedByPostId,
   getSelectedCategoriesByUrl,
   getSidebarCategory,
 } from "@/app/post/actions";
@@ -19,6 +20,7 @@ export default async function PostSidebar({ urlSlug }: PostSidebarProps) {
     selectedSubcategory: null,
     selectedPostsData: null,
     selectedPost: null,
+    selectedRecommendedPosts: null,
     selectedPanel: "category",
   };
   if (urlSlug) {
@@ -39,6 +41,13 @@ export default async function PostSidebar({ urlSlug }: PostSidebarProps) {
     );
     if (result) {
       initialState.selectedPostsData = result.data;
+    }
+  }
+  if (initialState.selectedPost?.id) {
+    const result = await getRecommendedByPostId(initialState.selectedPost?.id);
+    if (result) {
+      initialState.selectedRecommendedPosts = result.data;
+      initialState.selectedPanel = "recommended";
     }
   }
 

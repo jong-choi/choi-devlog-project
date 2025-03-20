@@ -1,15 +1,27 @@
-import { Category, Subcategory, Post, Panel } from "@/types/post";
+import {
+  Category,
+  Subcategory,
+  Post,
+  Panel,
+  RecommendedPost,
+} from "@/types/post";
 import CollapsedPanel from "@/components/post/sidebar/panels/collapsed-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { getPostsBySubcategoryId } from "@/app/post/actions";
+import {
+  getPostsBySubcategoryId,
+  getRecommendedByPostId,
+} from "@/app/post/actions";
 import SortableList from "@/components/post/sidebar/panels/dnd-sortable-list";
+import { useRouter } from "next/navigation";
 
 interface SidebarPanelProps {
   type: Panel; // 패널의 타입
-  data: Category[] | Subcategory[] | Post[]; // 해당 타입에 맞는 데이터
+  data: Category[] | Subcategory[] | Post[] | RecommendedPost[]; // 해당 타입에 맞는 데이터
 }
 
 export default function SidebarPanel({ type, data }: SidebarPanelProps) {
+  const router = useRouter();
+
   const {
     selectedCategory,
     selectedSubcategory,
@@ -20,10 +32,13 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
     setSelectedPost,
     setSelectedPanel,
     setSelectedPostsData,
+    setSelectedRecommendedPosts,
   } = useSidebarStore((state) => state);
 
   // 공통적으로 사용할 선택 처리 함수들
-  const onSelect = async (item: Category | Subcategory | Post) => {
+  const onSelect = async (
+    item: Category | Subcategory | Post | RecommendedPost
+  ) => {
     if (type === "category") {
       setSelectedCategory(item as Category);
       setSelectedSubcategory(null);
@@ -35,7 +50,14 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       setSelectedPost(null);
       setSelectedPanel("post");
     } else if (type === "post") {
+      const result = await getRecommendedByPostId(item.id);
       setSelectedPost(item as Post);
+      setSelectedPanel("recommended");
+      setSelectedRecommendedPosts(result?.data || []);
+    } else if (type === "recommended") {
+      router.push(
+        "/post/" + decodeURIComponent((item as RecommendedPost).target_url_slug)
+      );
     }
   };
 
@@ -53,7 +75,7 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       : selectedPost;
 
   if (selectedPanel !== type) {
-    if (!selectedItem) {
+    if (!selectedItem || type === "recommended") {
       return <></>;
     }
 
@@ -83,12 +105,32 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   const getNextPanel = () => {
     if (type === "category") return "subcategory";
     if (type === "subcategory") return "post";
+    if (type === "post") return "recommended";
     return null;
   };
 
+  const parsedData =
+    type === "recommended"
+      ? ((data as RecommendedPost[]).map((item, index) => {
+          const newItem: Post = {
+            id: "",
+            title: "",
+            url_slug: "",
+            short_description: "",
+            is_private: false,
+            order: 0,
+          };
+          newItem.id = item.target_post_id;
+          newItem.title = item.target_title;
+          newItem.url_slug = item.target_url_slug;
+          newItem.order = 100000 + 100000 * index;
+          return newItem;
+        }) as Post[])
+      : (data as Subcategory[] | Category[] | Post[]);
+
   return (
     <div className="w-full border-gray-200 bg-white h-[80vh] overflow-y-auto scrollbar">
-      {
+      {type !== "recommended" ? (
         <CollapsedPanel
           icon={type}
           title={getTitle()}
@@ -97,9 +139,13 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
             if (nextPanel) setSelectedPanel(nextPanel);
           }}
         />
-      }
+      ) : (
+        <div className="flex justify-center p-4 bg-zinc-50">
+          함께 보면 좋은 게시글
+        </div>
+      )}
       <SortableList
-        data={data}
+        data={parsedData}
         selectedItem={selectedItem}
         onSelect={onSelect}
       />
