@@ -70,7 +70,7 @@ export default function TitleEditor({
       <h2
         data-component-name="main-post-title"
         // className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0"
-        className="scroll-m-20 border-b pb-2 font-semibold tracking-tight first:mt-0"
+        className="scroll-m-20 pb-2 font-semibold tracking-tight first:mt-0"
       >
         <EditableDiv value={value} onInput={onInput} />
         {/* serverAction에서 받아올 값을 input hidden으로 */}

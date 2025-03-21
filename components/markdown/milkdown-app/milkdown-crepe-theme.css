@@ -30,7 +30,7 @@
   }
 
   .ProseMirror {
-    padding: 0px 120px;
+    padding: 0px 60px;
 
     *::selection {
       background: var(--crepe-color-selected);
@@ -115,7 +115,7 @@
       margin-top: 28px; */
       font-size: 24px;
       line-height: 32px;
-      margin-top: 24px;
+      margin-top: 28px;
       font-weight: 700;
     }
 
@@ -125,7 +125,7 @@
       margin-top: 24px; */
       font-size: 21px;
       line-height: 32px;
-      margin-top: 22px;
+      margin-top: 24px;
       font-weight: 700;
     }
 
@@ -135,7 +135,7 @@
       margin-top: 20px; */
       font-size: 18px;
       line-height: 28px;
-      margin-top: 20px;
+      margin-top: 22px;
     }
 
     h5 {
@@ -144,7 +144,7 @@
       margin-top: 16px; */
       font-size: 18px;
       line-height: 28px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     h6 {
@@ -154,7 +154,7 @@
       margin-top: 16px; */
       font-size: 16px;
       line-height: 24px;
-      margin-top: 14px;
+      margin-top: 16px;
     }
 
     p {
@@ -170,7 +170,7 @@
         var(--crepe-color-inline-area),
         transparent 40%
       );
-      font-family: var(--crepe-font-code);
+      font-family: var(--crepe-font-code) !important;
       padding: 0 10px;
       border-radius: 4px;
       font-size: 87.5%;
@@ -286,15 +286,28 @@
   --crepe-color-inline-area: #cacaca;
 
   /* --crepe-font-title: Rubik, Cambria, "Times New Roman", Times, serif; */
-  --crepe-font-title: Inter, Arial, Helvetica, sans-serif;
-  --crepe-font-default: Inter, Arial, Helvetica, sans-serif;
-  --crepe-font-code: "JetBrains Mono", Menlo, Monaco, "Courier New", Courier,
-    monospace;
+  --crepe-font-title: ui-sans-serif, -apple-system, system-ui, Segoe UI,
+    Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji,
+    Segoe UI Symbol;
+  --crepe-font-default: ui-sans-serif, -apple-system, system-ui, Segoe UI,
+    Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji,
+    Segoe UI Symbol;
+  --crepe-font-code: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 
   --crepe-shadow-1: 0px 1px 2px 0px rgba(255, 255, 255, 0.3),
     0px 1px 3px 1px rgba(255, 255, 255, 0.15);
   --crepe-shadow-2: 0px 1px 2px 0px rgba(255, 255, 255, 0.3),
     0px 2px 6px 2px rgba(255, 255, 255, 0.15);
+}
+.cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace !important;
+  font-size: 14px;
+  font-weight: 500;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  line-height: 1.5;
 }
 
 .milkdown milkdown-code-block {

@@ -87,7 +87,7 @@ export default async function Page({ params, searchParams }: PageProps) {
             </header>
             <section
               data-component-name="main-post-section"
-              className="flex flex-1 flex-col gap-4 p-4 md:px-8 pt-0 overflow-auto scrollbar "
+              className="flex flex-1 flex-col p-4 md:px-8 pt-0 overflow-auto scrollbar "
             >
               <TitleEditor defaultValue={data?.title || ""} />
               <MarkdownEditor markdown={data?.body || ""} />
