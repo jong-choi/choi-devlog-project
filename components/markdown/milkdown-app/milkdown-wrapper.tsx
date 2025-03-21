@@ -52,7 +52,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     }
   }, [debouncedBody, snapshot, markdown]);
 
-  // debouncedBody가 수정되면 이를 반영하고 setIsAutoSaving을 트리거
+  // (초기로딩 제외한) 업데이트가 발생하여 debouncedBody가 수정되면 이를 반영하고 setIsAutoSaving을 트리거
   useEffect(() => {
     if (!snapshot) return;
     if (debouncedBody === snapshot) return;

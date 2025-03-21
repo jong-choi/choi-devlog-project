@@ -65,7 +65,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         categoryData,
       }}
     >
-      <div className="bg-gray-200 w-full h-full">
+      <div className="bg-gray-200 w-full h-full" spellCheck="false">
         <main className="p-2 flex gap-2">
           {/* 상단바의 크기를 4rem이라고 가정 */}
           <MainContainer className="bg-white md:h-[calc(100vh-4rem)]">
