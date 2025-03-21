@@ -17,12 +17,14 @@ import {
   // arrayMove, // 배열 내 요소의 순서를 변경하는 함수
   useSortable, // 개별 항목을 정렬 가능하도록 만드는 훅
 } from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 import { CSS } from "@dnd-kit/utilities"; // CSS 변환을 위한 유틸리티
 import { Category, Post, Subcategory } from "@/types/post";
 import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import Link from "next/link";
 import { GripVertical } from "lucide-react";
+import { useOrderUpdateQueue } from "@/hooks/use-order-update-queue";
 
 // 개별 정렬 가능한 항목 컴포넌트
 const SortableItem = ({
@@ -63,8 +65,14 @@ const SortableItem = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex hover:bg-zinc-100 p-1">
-      <Wrapper className="bg-white flex-grow text-sm ">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex hover:bg-zinc-100 p-1"
+      {...attributes}
+      {...listeners}
+    >
+      <Wrapper className="flex-grow text-sm">
         <PanelItem
           key={item.id}
           onClick={() => {
@@ -74,7 +82,7 @@ const SortableItem = ({
           isSelected={isSelected}
         />
       </Wrapper>
-      <div {...attributes} {...listeners} className="flex w-min items-center">
+      <div className="flex w-min items-center">
         <GripVertical className="w-5 h-7 text-zinc-300  py-1 cursor-grab active:cursor-grabbing" />
       </div>
     </div>
@@ -93,19 +101,18 @@ export default function SortableList({
 }) {
   const [items, setItems] = useState<Category[] | Post[] | Subcategory[]>([]); // 정렬할 아이템 리스트 상태
   useEffect(() => {
-    console.log(data);
     if (data) {
       setItems(data);
     }
   }, [data]);
 
-  useEffect(() => {
-    console.log(JSON.stringify(items));
-  }, [items]);
-
   // 사용 센서 정의: 마우스 및 키보드 센서를 동시에 사용
   const sensors = useSensors(
-    useSensor(PointerSensor), // 마우스, 터치 감지
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 20, // 마우스 움직임 20px 이후부터 drag 시작
+      },
+    }), // 마우스, 터치 감지
     useSensor(KeyboardSensor) // 키보드로 드래그 가능
   );
 
@@ -114,6 +121,8 @@ export default function SortableList({
     if (nextOrder === null) return prevOrder + 100; // 맨 뒤에 삽입
     return (prevOrder + nextOrder) / 2; // 두 요소 사이에 삽입
   };
+
+  const { addToQueue } = useOrderUpdateQueue();
   // 드래그 종료 시 실행되는 이벤트 핸들러
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event; // 드래그된 항목(active)과 놓인 위치(over) 가져오기
@@ -140,8 +149,19 @@ export default function SortableList({
         );
 
         // 새로운 위치에 요소 삽입
-        newList.splice(newIndex, 0, { ...movingItem, order: newOrder });
+        // newList.splice(newIndex, 0, { ...movingItem, order: newOrder });
 
+        // return newList as typeof prev;
+
+        if (movingItem.order !== newOrder) {
+          const updatedItem = { ...movingItem, order: newOrder };
+          newList.splice(newIndex, 0, updatedItem);
+          addToQueue(updatedItem); // ✅ 변경된 항목만 큐에 넣음
+          return newList as typeof prev;
+        }
+
+        // 순서 변경은 있었지만 order는 그대로인 경우
+        newList.splice(newIndex, 0, movingItem);
         return newList as typeof prev;
       });
     }
@@ -152,6 +172,7 @@ export default function SortableList({
       sensors={sensors} // 센서 적용
       collisionDetection={closestCenter} // 가장 가까운 요소를 감지하는 알고리즘 적용
       onDragEnd={handleDragEnd} // 드래그 종료 이벤트 핸들러
+      modifiers={[restrictToVerticalAxis]} // 세로 스크롤만 허용
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         {items?.map((item) => (
