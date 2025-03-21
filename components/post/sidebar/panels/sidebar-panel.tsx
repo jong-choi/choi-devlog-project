@@ -13,6 +13,7 @@ import {
 } from "@/app/post/actions";
 import SortableList from "@/components/post/sidebar/panels/dnd-sortable-list";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface SidebarPanelProps {
   type: Panel; // 패널의 타입
@@ -74,41 +75,6 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       ? selectedSubcategory
       : selectedPost;
 
-  if (selectedPanel !== type) {
-    if (!selectedItem || type === "recommended") {
-      return <></>;
-    }
-
-    if (selectedItem) {
-      return (
-        <CollapsedPanel
-          icon={type}
-          title={
-            "name" in selectedItem ? selectedItem.name : selectedItem.title
-          }
-          onClick={onCollapsedPanelClick}
-        />
-      );
-    }
-  }
-
-  // 데이터가 없으면 빈 화면 반환
-  if (!data || data.length === 0) return null;
-
-  const getTitle = () => {
-    if (!selectedItem) return "";
-    if ("name" in selectedItem) return selectedItem.name;
-    if ("title" in selectedItem) return selectedItem.title;
-    return "";
-  };
-
-  const getNextPanel = () => {
-    if (type === "category") return "subcategory";
-    if (type === "subcategory") return "post";
-    if (type === "post") return "recommended";
-    return null;
-  };
-
   const parsedData =
     type === "recommended"
       ? ((data as RecommendedPost[]).map((item, index) => {
@@ -129,26 +95,43 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       : (data as Subcategory[] | Category[] | Post[]);
 
   return (
-    <div className="w-full border-gray-200 bg-white h-[80vh] overflow-y-auto scrollbar">
-      {type !== "recommended" ? (
-        <CollapsedPanel
-          icon={type}
-          title={getTitle()}
-          onClick={() => {
-            const nextPanel = getNextPanel();
-            if (nextPanel) setSelectedPanel(nextPanel);
-          }}
-        />
+    <div
+      className={cn(
+        "w-full relative transition-all duration-300 ease-out overflow-auto scrollbar-hidden border-collapse ",
+        selectedPanel !== type
+          ? type === "recommended"
+            ? "h-0px"
+            : "h-[50px] border-t"
+          : "h-full border-t"
+      )}
+    >
+      {selectedPanel !== type ? (
+        selectedItem &&
+        type !== "recommended" && (
+          <CollapsedPanel
+            icon={type}
+            title={
+              "name" in selectedItem ? selectedItem.name : selectedItem.title
+            }
+            onClick={onCollapsedPanelClick}
+          />
+        )
       ) : (
-        <div className="flex justify-center p-4 bg-zinc-50">
-          함께 보면 좋은 게시글
+        <div className="w-full h-full border-gray-200 bg-white scrollbar-hidden">
+          <div className={cn(type === "category" && "bg-zinc-50")}>
+            {type === "recommended" && (
+              <div className="w-full text-center mt-2 p-2 underline underline-offset-4 text-sm font-semibold select-none">
+                추천 게시글
+              </div>
+            )}
+            <SortableList
+              data={parsedData}
+              selectedItem={selectedItem}
+              onSelect={onSelect}
+            />
+          </div>
         </div>
       )}
-      <SortableList
-        data={parsedData}
-        selectedItem={selectedItem}
-        onSelect={onSelect}
-      />
     </div>
   );
 }

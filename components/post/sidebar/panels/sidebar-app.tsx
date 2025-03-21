@@ -15,7 +15,7 @@ export default function SidebarApp({ categories }: { categories: Category[] }) {
   } = useSidebarStore((state) => state);
 
   return (
-    <div className="flex flex-col h-full transition-all">
+    <div className="flex flex-col h-[calc(100vh-2rem)] w-full ">
       <CreatePostButton />
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (

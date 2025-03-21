@@ -37,18 +37,18 @@ export default function CollapsedPanel({
 
   return (
     <div
-      className=" p-2 border-r border-b border-gray-200 bg-white flex flex-col hover:bg-slate-50 group cursor-pointer"
+      className="p-2 border-gray-200 bg-white w-full flex flex-col hover:bg-slate-50 group cursor-pointer h-[40px] justify-center"
       onClick={onClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className={iconColor}>
-            <Icon size={20} />
+            <Icon size={19} />
           </div>
           <span className="text-sm">{title}</span>
         </div>
         <FiChevronDown
-          size={20}
+          size={19}
           className="text-gray-400 group-hover:text-gray-500"
         />
       </div>
