@@ -1,18 +1,14 @@
-import { imagePlugin, MDXEditor, MDXEditorMethods } from "@mdxeditor/editor";
-import { ALL_PLUGINS } from "@/components/markdown/mdx-editor-wrapper/mdx-editor-boilerplate";
-import "@mdxeditor/editor/style.css";
-import "@/components/markdown/mdx-editor-wrapper/mdx-editor-wrapper.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/providers/auth-provider";
+import MilkdownEditor from "@/components/markdown/milkdown-app/milkdown-app";
+import { MilkdownProvider } from "@milkdown/react";
 
-export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
+export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);
-  const [hasChanged, setHasChanged] = useState<boolean>(false);
-
-  const mdxEditorRef = useRef<MDXEditorMethods | null>(null);
+  const [snapshot, setSnapshot] = useState("");
 
   const { isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody } =
     useAutosave(
@@ -28,7 +24,7 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
     if (!isLoadingDraftBody) return;
     // '자동저장된 파일을 반영하기'를 적용하고 트리거를 false로
     if (recentAutoSavedBody) {
-      mdxEditorRef.current?.setMarkdown(recentAutoSavedBody);
+      setBody(recentAutoSavedBody);
     }
     setIsLoadingDraftBody(false);
   }, [isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody]);
@@ -46,20 +42,32 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
 
   const debouncedBody = useDebounce(body);
 
+  // 최초 로딩시에 milkdown이 markdown을 자동으로 파싱하면서 업데이트가 발생하는 문제.
+  // 디바운스의 원리를 이용하여 파싱이 끝난 직후의 debouncedbody를 snapshot으로 남겨둠
+  useEffect(() => {
+    if (snapshot) return;
+    if (!debouncedBody) return;
+    if (debouncedBody !== markdown) {
+      setSnapshot(debouncedBody);
+    }
+  }, [debouncedBody, snapshot, markdown]);
+
   // debouncedBody가 수정되면 이를 반영하고 setIsAutoSaving을 트리거
   useEffect(() => {
-    if (!hasChanged) return;
+    if (!snapshot) return;
+    if (debouncedBody === snapshot) return;
     if (postId === selectedPostId) {
       setRecentAutoSavedData({ body: debouncedBody });
       setIsAutoSaving(true);
     }
   }, [
     debouncedBody,
-    hasChanged,
+    body,
     postId,
     selectedPostId,
     setIsAutoSaving,
     setRecentAutoSavedData,
+    snapshot,
   ]);
 
   const isValid = useAuthStore((state) => state.isValid);
@@ -94,19 +102,13 @@ export default function MdxEditorWrapper({ markdown }: { markdown: string }) {
 
   return (
     <>
-      <MDXEditor
-        className="mdxeditor"
-        markdown={markdown}
-        spellCheck={false}
-        ref={mdxEditorRef}
-        onChange={(md, initialMarkdownNormalize) => {
-          if (!initialMarkdownNormalize) {
-            setBody(md);
-            if (!hasChanged) setTimeout(() => setHasChanged(true), 2000);
-          }
-        }}
-        plugins={[...ALL_PLUGINS, imagePlugin({ imageUploadHandler })]}
-      />
+      <MilkdownProvider>
+        <MilkdownEditor
+          setMarkdown={setBody}
+          markdown={body}
+          onImageUpload={imageUploadHandler}
+        />
+      </MilkdownProvider>
       {/* serverAction에서 받아올 값을 input hidden으로 */}
       <input type="hidden" name="body" value={body} />
     </>
