@@ -6,6 +6,7 @@ interface PostLayoutProps {
   params: Promise<{
     urlSlug?: string;
   }>;
+
   children: React.ReactNode;
 }
 
@@ -17,12 +18,10 @@ export default async function PostLayout({
   const { data } = await getSidebarCategory();
   const categories = data || [];
   return (
-    <>
-      <PostSidebarWrapper categories={categories} urlSlug={urlSlug}>
-        <LeftSidebar />
-      </PostSidebarWrapper>
+    <PostSidebarWrapper categories={categories} urlSlug={urlSlug}>
+      <LeftSidebar />
       {children}
-    </>
+    </PostSidebarWrapper>
   );
 }
 

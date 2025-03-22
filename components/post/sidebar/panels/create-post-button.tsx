@@ -1,21 +1,18 @@
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
+"use client";
 import { Button } from "@ui/button";
-import { Loader2, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import { generate } from "random-words";
+import Link from "next/link";
 
-export default function CreatePostButton() {
-  const subcategoryId = useSidebarStore(
-    (state) => state.selectedSubcategory?.id
-  );
+export default function CreatePostButton({
+  subcategoryId,
+}: {
+  subcategoryId?: string;
+}) {
+  const [url, setUrl] = useState("");
 
-  const router = useRouter();
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onClick = async () => {
-    setIsLoading(true);
+  useEffect(() => {
     const randomWords = ["create", ...(generate(2) as string[])];
     const urlSlug = randomWords.join("-");
     const params = new URLSearchParams(
@@ -24,19 +21,16 @@ export default function CreatePostButton() {
     const url = `/post/${urlSlug}${
       params.toString() ? `?${params.toString()}` : ""
     }`;
-    router.push(url);
-    setIsLoading(false);
-  };
+    setUrl(url);
+  }, [subcategoryId]);
 
   return (
-    <Button variant="secondary" onClick={onClick}>
-      {isLoading ? (
-        <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
-      ) : (
+    <Link href={url}>
+      <Button variant="secondary" size={"sm"}>
         <span className="flex items-center gap-1">
-          <Plus className="w-7 h-7 text-gray-500" />새 글 작성
+          <Plus className="w-4 h-4 text-gray-500" />새 글 작성
         </span>
-      )}
-    </Button>
+      </Button>
+    </Link>
   );
 }

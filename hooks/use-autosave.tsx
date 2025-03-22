@@ -107,7 +107,7 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
       set((state) => ({
         draftPostData: {
           ...state.draftPostData, // 기존 상태 유지
-          ...(data ?? {}), // ✅ null이면 빈 객체로 대체
+          ...(data ?? {}), // null이면 빈 객체로 대체
         },
       })),
     setCategoryData: (data) => set({ categoryData: data }),

@@ -1,19 +1,20 @@
-import { getSidebarCategory } from "@/app/post/actions";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
+import { Category } from "@/types/post";
 import { Database } from "@/types/supabase";
 
 interface PostMainWrapperProps {
   data: Database["public"]["Tables"]["posts"]["Row"] | null;
   subcategoryId: string;
+  categoryData: Category[] | null;
   children?: React.ReactNode;
 }
 
 export default async function PostMainWrapper({
   data,
   subcategoryId,
+  categoryData,
   children,
 }: PostMainWrapperProps) {
-  const { data: categoryData } = await getSidebarCategory();
   return (
     <AutosaveProvider
       initialState={{

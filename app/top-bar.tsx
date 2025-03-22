@@ -24,6 +24,7 @@ export function TopBar({ topBarHeightRem }: { topBarHeightRem: string }) {
           onClick={() => setLeftOpen(!leftOpen)}
           label="카테고리"
         />
+
         <ToggleButton
           open={rightOpen}
           onClick={() => setRightOpen(!rightOpen)}
