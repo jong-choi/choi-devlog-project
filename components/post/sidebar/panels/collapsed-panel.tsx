@@ -37,7 +37,7 @@ export default function CollapsedPanel({
 
   return (
     <div
-      className="p-2 border-gray-200 bg-white w-full flex flex-col hover:bg-slate-50 group cursor-pointer h-[40px] justify-center"
+      className="p-2 border-gray-200 w-full flex flex-col  hover:bg-slate-50 group cursor-pointer h-[40px] justify-center"
       onClick={onClick}
     >
       <div className="flex items-center justify-between">

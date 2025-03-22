@@ -13,8 +13,8 @@ export default function PanelItem({
 }: PanelItemProps) {
   return (
     <button
-      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 ${
-        isSelected ? "font-semibold" : ""
+      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-200 hover:dark:bg-[#3a3a3a] ${
+        isSelected ? "font-semibold dark:font-bold" : ""
       } ${className}`}
       onClick={onClick}
     >
@@ -22,3 +22,4 @@ export default function PanelItem({
     </button>
   );
 }
+// bg-gray-200 dark:bg-[#3a3a3a]

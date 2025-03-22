@@ -117,8 +117,8 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
           />
         )
       ) : (
-        <div className="w-full h-full border-gray-200 bg-white scrollbar-hidden">
-          <div className={cn(type === "category" && "bg-zinc-50")}>
+        <div className="w-full h-full border-gray-200 scrollbar-hidden ">
+          <div className={cn(type === "category" && "")}>
             {type === "recommended" && (
               <div className="w-full text-center mt-2 p-2 underline underline-offset-4 text-sm font-semibold select-none">
                 추천 게시글
