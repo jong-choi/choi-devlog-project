@@ -1,6 +1,5 @@
 "use client";
 
-import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
 import SidebarPanel from "@/components/post/sidebar/panels/sidebar-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 
@@ -15,8 +14,7 @@ export default function SidebarApp() {
   } = useSidebarStore((state) => state);
 
   return (
-    <div className="flex flex-col flex-1 bg-white dark:bg-[#1b1b1b] text-gray-700 dark:text-gray-300">
-      <CreatePostButton />
+    <div className="flex flex-col flex-1 text-gray-700 dark:text-gray-300">
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (
         <SidebarPanel

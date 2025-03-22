@@ -4,7 +4,6 @@ import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@ui/breadcrumb";
@@ -21,18 +20,14 @@ export default function PostBreadcrumb({
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="#">
-            {category?.name || "카테고리명"}
-          </BreadcrumbLink>
+        <BreadcrumbItem className="hidden md:block cursor-default">
+          {category?.name || "카테고리명"}
         </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block" />
+        <BreadcrumbSeparator className="hidden md:block cursor-default" />
         <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="#">
-            {subcategory?.name || "서브카테고리명"}
-          </BreadcrumbLink>
+          {subcategory?.name || "서브카테고리명"}
         </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block" />
+        <BreadcrumbSeparator className="hidden md:block cursor-default" />
         <BreadcrumbItem>
           <BreadcrumbPage>{title || "새 글"}</BreadcrumbPage>
         </BreadcrumbItem>

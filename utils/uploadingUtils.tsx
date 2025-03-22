@@ -1,3 +1,5 @@
+import { Category, Subcategory } from "@/types/post";
+
 /**
  * 문자열을 URL-friendly한 슬러그(slug)로 변환합니다.
  *
@@ -82,4 +84,24 @@ export function extractTextFromMarkdown(
     .trim(); // 앞뒤 공백 제거
 
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+}
+
+export function findCategoryAndSubcategoryById(
+  categories: Category[] | null,
+  subcategoryId: string
+): { category: Category | null; subcategory: Subcategory | null } {
+  if (!categories) {
+    return { category: null, subcategory: null };
+  }
+
+  for (const category of categories) {
+    const subcategory = category.subcategories.find(
+      (s) => s.id === subcategoryId
+    );
+    if (subcategory) {
+      return { category, subcategory };
+    }
+  }
+
+  return { category: null, subcategory: null };
 }

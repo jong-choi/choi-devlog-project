@@ -214,7 +214,7 @@ export function MainContent() {
 
 function MainHeader() {
   return (
-    <header className="h-[48px] border-b border-border flex items-center px-6 bg-gradient-to-r from-indigo-50 to-white dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400">
+    <header className="h-[48px] border-b border-border flex items-center px-6 bg-gradient-to-t from-indigo-50 to-white dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400">
       매일 한 걸음씩 성장하는 개발자의 흔적 🪶
     </header>
   );

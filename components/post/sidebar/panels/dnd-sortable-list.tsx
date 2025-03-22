@@ -68,7 +68,7 @@ const SortableItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex hover:bg-gray-100 dark:hover:bg-[#2a2a2a] p-1"
+      className="flex hover:bg-indigo-50 dark:hover:bg-[#2a2a2a] p-1"
       {...attributes}
       {...listeners}
     >

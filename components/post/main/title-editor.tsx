@@ -69,7 +69,7 @@ export default function TitleEditor({
     <div className="m-2 items-center">
       <h2
         data-component-name="main-post-title"
-        className="p-1 tracking-tight font-normal text-zinc-950 dark:text-zinc-50"
+        className="p-1 tracking-tight font-bold text-zinc-950 dark:text-zinc-50"
       >
         <EditableDiv value={value} onInput={onInput} />
       </h2>

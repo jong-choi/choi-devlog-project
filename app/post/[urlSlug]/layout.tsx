@@ -19,8 +19,10 @@ export default async function PostLayout({
   const categories = data || [];
   return (
     <PostSidebarWrapper categories={categories} urlSlug={urlSlug}>
-      <LeftSidebar />
-      {children}
+      <div className="flex flex-1">
+        <LeftSidebar />
+        {children}
+      </div>
     </PostSidebarWrapper>
   );
 }
