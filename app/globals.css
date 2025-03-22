@@ -13,7 +13,32 @@ body {
   width: 100vw;
 }
 
-/* 너비 커스텀 */
+*,
+:before,
+:after {
+  border-color: #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+  *,
+  :before,
+  :after {
+    border-color: #52525b;
+  }
+}
+
+/* 글씨 가독성 향상용 그림자 */
+.text-shadow {
+  text-shadow: 0 0px 1px rgba(0, 0, 0, 0.3); /* 라이트 모드 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .text-shadow {
+    text-shadow: 0 0px 1px rgba(255, 255, 255, 0.5); /* 다크 모드 */
+  }
+}
+
+/* 마크다운 너비 커스텀 */
 @media (min-width: 768px) {
   .main-post-section {
     margin: 0 auto;
