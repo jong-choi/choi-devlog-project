@@ -1,19 +1,19 @@
 "use client";
 
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { Category, Post, Subcategory } from "@/types/post";
-import { useEffect } from "react";
+import { Category, Subcategory } from "@/types/post";
+import { useEffect, useRef } from "react";
 
 // 사이드바 상태를 주입
 export default function SidebarHydrator({
   category,
   subcategory,
-  posts,
 }: {
   category: Category | null;
   subcategory: Subcategory | null;
-  posts: Post[] | null;
 }) {
+  const hasMountedRef = useRef(false);
+
   const selectedCategory = useSidebarStore((state) => state.selectedCategory);
   const setSelectedCategory = useSidebarStore(
     (state) => state.setSelectedCategory
@@ -26,24 +26,19 @@ export default function SidebarHydrator({
   );
   const setSelectedPanel = useSidebarStore((state) => state.setSelectedPanel);
   useEffect(() => {
+    if (hasMountedRef.current) return;
     if (!category || !subcategory) return;
-    if (selectedCategory?.id === category.id) return;
+    hasMountedRef.current = true;
     setSelectedCategory(category);
     setSelectedSubcategory(subcategory);
-    setSelectedPostsData(posts);
-    if (posts?.length) {
-      setSelectedPanel("post");
-    } else {
-      setSelectedPanel("subcategory");
-    }
   }, [
+    hasMountedRef,
     category,
     subcategory,
     selectedCategory,
     setSelectedCategory,
     setSelectedSubcategory,
     setSelectedPostsData,
-    posts,
     setSelectedPanel,
   ]);
 

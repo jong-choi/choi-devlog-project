@@ -5,11 +5,7 @@ import { SidebarTrigger } from "@ui/sidebar";
 import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import TitleEditor from "@/components/post/main/title-editor";
-import {
-  getPostByUrlSlug,
-  getPostsBySubcategoryId,
-  getSidebarCategory,
-} from "@/app/post/actions";
+import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
 import AIGeneration from "@/components/post/main/ai-generation";
 import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
@@ -40,9 +36,6 @@ export default async function Page({ params, searchParams }: PageProps) {
     categoryData,
     data?.subcategory_id || subcategory_id
   );
-  const { data: postsData } = subcategory?.id
-    ? await getPostsBySubcategoryId(subcategory_id)
-    : { data: [] };
 
   return (
     <PostMainWrapper
@@ -50,11 +43,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       subcategoryId={subcategory_id}
       categoryData={categoryData}
     >
-      <SidebarHydrator
-        category={category}
-        subcategory={subcategory}
-        posts={postsData}
-      />
+      <SidebarHydrator category={category} subcategory={subcategory} />
       <main
         id="메인레퍼"
         className="flex flex-1 flex-col h-full bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-white"
