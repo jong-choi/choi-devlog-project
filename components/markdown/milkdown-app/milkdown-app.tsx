@@ -1,6 +1,7 @@
 import React from "react";
 import { Crepe } from "@milkdown/crepe";
 import { Milkdown, useEditor } from "@milkdown/react";
+import { EditorView } from "@codemirror/view";
 import "@milkdown/crepe/theme/common/style.css";
 // https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
 import "@/components/markdown/milkdown-app/milkdown-crepe-theme.css";
@@ -33,6 +34,9 @@ const MilkdownEditor = ({
             const imageUrl = await onImageUpload(file);
             return imageUrl;
           },
+        },
+        [Crepe.Feature.CodeMirror]: {
+          extensions: [EditorView.lineWrapping],
         },
       },
     });
