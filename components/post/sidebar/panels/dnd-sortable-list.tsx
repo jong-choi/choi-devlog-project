@@ -68,7 +68,7 @@ const SortableItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="scroll-m-2 flex hover:bg-gray-100 dark:hover:bg-[#2a2a2a] p-1"
+      className="flex hover:bg-gray-100 dark:hover:bg-[#2a2a2a] p-1"
       {...attributes}
       {...listeners}
     >
@@ -185,6 +185,7 @@ export default function SortableList({
           />
         ))}
       </SortableContext>
+      <div className="p-4" />
     </DndContext>
   );
 }

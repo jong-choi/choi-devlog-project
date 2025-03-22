@@ -97,11 +97,9 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   return (
     <div
       className={cn(
-        "w-full relative transition-all duration-300 ease-out overflow-auto scrollbar-hidden border-collapse ",
-        selectedPanel !== type
-          ? type === "recommended"
-            ? "h-0px"
-            : "h-[50px] border-t"
+        "w-full relative overflow-auto scrollbar-hidden border-collapse flex items-center",
+        selectedPanel !== type && type === "recommended"
+          ? "h-0px"
           : "h-full border-t"
       )}
     >
@@ -117,19 +115,17 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
           />
         )
       ) : (
-        <div className="w-full h-full border-gray-200 scrollbar-hidden ">
-          <div className={cn(type === "category" && "")}>
-            {type === "recommended" && (
-              <div className="w-full text-center mt-2 p-2 underline underline-offset-4 text-sm font-semibold select-none">
-                추천 게시글
-              </div>
-            )}
-            <SortableList
-              data={parsedData}
-              selectedItem={selectedItem}
-              onSelect={onSelect}
-            />
-          </div>
+        <div className="w-full h-full border-gray-200 scrollbar-hidden pb-10">
+          {type === "recommended" && (
+            <div className="w-full text-center pt-4 pb-2 underline underline-offset-4 text-sm font-semibold select-none">
+              추천 게시글
+            </div>
+          )}
+          <SortableList
+            data={parsedData}
+            selectedItem={selectedItem}
+            onSelect={onSelect}
+          />
         </div>
       )}
     </div>

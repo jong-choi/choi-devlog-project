@@ -34,7 +34,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       >
         <header
           data-component-name="main-header"
-          className="h-[48px] border-b border-border flex justify-between items-center px-6 bg-gradient-to-r from-indigo-50 to-white dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400"
+          className="h-[48px] border-b border-border flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400"
         >
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -49,11 +49,12 @@ export default async function Page({ params, searchParams }: PageProps) {
         <PostControllerWrapper />
         <section
           data-component-name="main-post-section"
-          className="flex flex-1 flex-col p-4 md:px-8 pt-0 overflow-auto scrollbar"
+          className="flex flex-1 overflow-auto scrollbar"
         >
-          <TitleEditor defaultValue={data?.title || ""} />
-          <MarkdownEditor markdown={data?.body || ""} />
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          <div className="main-post-section">
+            <TitleEditor defaultValue={data?.title || ""} />
+            <MarkdownEditor markdown={data?.body || ""} />
+          </div>
         </section>
       </main>
       <AIPanelWrapper data={data}>

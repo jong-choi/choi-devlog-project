@@ -95,7 +95,7 @@ export default function AIGeneration() {
 
   if (!postId) return <></>;
   return (
-    <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden ">
+    <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden px-2">
       <button
         onClick={() => setRightOpen(!rightOpen)}
         className="absolute top-2 left-2 z-10 text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"

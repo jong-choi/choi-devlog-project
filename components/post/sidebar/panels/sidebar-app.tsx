@@ -15,7 +15,7 @@ export default function SidebarApp() {
   } = useSidebarStore((state) => state);
 
   return (
-    <div className="flex flex-col h-full w-full bg-white dark:bg-[#1b1b1b] text-gray-700 dark:text-gray-300">
+    <div className="flex flex-col flex-1 bg-white dark:bg-[#1b1b1b] text-gray-700 dark:text-gray-300 ">
       <CreatePostButton />
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (

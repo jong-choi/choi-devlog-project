@@ -1,4 +1,5 @@
 "use client";
+import { Logo } from "@/app/top-bar";
 import SidebarApp from "@/components/post/sidebar/panels/sidebar-app";
 import { cn } from "@/lib/utils";
 import { useLayoutStore } from "@/providers/layout-store-provider";
@@ -8,11 +9,16 @@ export function LeftSidebar() {
   return (
     <aside
       className={cn(
-        "transition-all duration-300 h-full hidden lg:flex flex-col flex-shrink-0 bg-white dark:bg-[#1b1b1b] border-r border-border shadow-sm",
-        leftOpen ? "w-64" : "w-0"
+        "transition-all duration-300 h-full flex flex-col flex-shrink-0 overflow-hidden bg-white dark:bg-[#1b1b1b] border-r border-border shadow-sm",
+        leftOpen ? "w-0 lg:w-64" : "w-[calc(100vw-50px)] md:w-64 lg:w-0"
       )}
     >
-      {leftOpen && <SidebarApp />}
+      <div className="w-[calc(100vw-50px)] md:w-64 flex-shrink-0 h-full">
+        <div className="flex md:hidden h-10 p-2 items-center">
+          <Logo />
+        </div>
+        <SidebarApp />
+      </div>
     </aside>
   );
 }
