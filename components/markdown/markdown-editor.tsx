@@ -5,7 +5,7 @@ import MilkdownWrapper from "@/components/markdown/milkdown-app/milkdown-wrapper
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
   return (
-    <div className="markdown-body new-york">
+    <div className="markdown-body new-york w-full">
       <MilkdownWrapper markdown={markdown} />
     </div>
   );

@@ -195,7 +195,7 @@ function SidebarBlock({ title, children }) {
 import TitleEditor from "@/components/post/main/title-editor";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
-function MainContent() {
+export function MainContent() {
   return (
     <main className="flex flex-1 flex-col h-full bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-white">
       <MainHeader />

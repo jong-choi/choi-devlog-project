@@ -25,7 +25,3 @@ export default async function PostLayout({
     </>
   );
 }
-
-{
-  /* <PostSidebar urlSlug={urlSlug} /> */
-}

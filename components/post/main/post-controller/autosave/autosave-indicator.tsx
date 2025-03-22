@@ -50,49 +50,64 @@ export default function AutosaveIndicator() {
     }
   }, [isUploaded]);
 
+  if (
+    !isLocalDBChecked &&
+    !isAutoSaving &&
+    !isUploading &&
+    !uploadedRecently &&
+    !isAutoSaved
+  ) {
+    return <></>;
+  }
+
   return (
-    <div className="flex items-start gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-      <>{JSON.stringify(recentAutoSavedData?.timestamp)}</>
+    <div className="bg-indigo-50 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-100 text-sm px-6 py-3 border-b border-border flex justify-between items-center">
       {isLocalDBChecked ? (
-        <div className="group underline-offset-4 cursor-pointer opacity-75 hover:opacity-100 justify-items-end">
-          <span>임시 저장된 데이터가 있습니다</span>
+        <>
           <div className="flex gap-2">
-            <span className="group-hover:hidden text-blue-300">
+            <span>임시 저장된 데이터가 있습니다.</span>
+            <span className="text-blue-300">
               ({formatKoreanDate(recentAutoSavedData?.timestamp)})
             </span>
-            <span
-              className="hidden group-hover:inline-block text-gray-300 hover:text-gray-500 hover:underline decoration-sky-300 transition"
+          </div>
+          <div className="flex gap-4">
+            <div
+              role="button"
+              className="text-gray-600 dark:text-indigo-300 px-2 rounded-md transition-colors duration-200 hover:bg-sky-300/30"
               onClick={onApplyTemp}
             >
               불러오기
-            </span>
-            <span
-              className="hidden group-hover:inline-block text-gray-300 hover:text-gray-500 hover:underline decoration-rose-200 transition"
+            </div>
+            <div
+              role="button"
+              className="text-gray-600 dark:text-indigo-300 px-2 rounded-md transition-colors duration-200 hover:bg-rose-200/30"
               onClick={onDeleteTemp}
             >
               삭제하기
-            </span>
+            </div>
           </div>
-        </div>
+        </>
       ) : isAutoSaving ? (
-        <>
+        <div className="flex gap-2">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>자동 저장 중...</span>
-        </>
+        </div>
       ) : isUploading ? (
-        <>
+        <div className="flex gap-2">
           <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
           <span>업로드 중...</span>
-        </>
+        </div>
       ) : uploadedRecently ? (
-        <>
+        <div className="flex gap-2">
           <CheckCircle className="w-4 h-4 text-blue-500" />
           <span>업로드 완료</span>
-        </>
+        </div>
       ) : isAutoSaved ? (
         <>
-          <CheckCircle className="w-4 h-4 text-green-500" />
-          <span>임시 저장됨</span>
+          <div className="flex gap-2">
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span>임시 저장됨</span>
+          </div>
           <UploadingDialogTrigger />
         </>
       ) : (

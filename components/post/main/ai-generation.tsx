@@ -9,6 +9,7 @@ import { Button } from "@ui/button";
 import { MainContainer } from "@ui/main-container";
 import { Loader2, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function AIGeneration() {
   const summary = useSummary((state) => state.summary);
@@ -89,23 +90,32 @@ export default function AIGeneration() {
     return setIsLoading(false);
   };
 
+  const rightOpen = useLayoutStore((state) => state.rightOpen);
+  const setRightOpen = useLayoutStore((state) => state.setRightOpen);
+
   if (!postId) return <></>;
   return (
-    <MainContainer className="bg-white md:h-[calc(100vh-4rem)] max-w-[20vw] p-3 rounded-xl shadow-sm">
-      <div className="px-4 flex justify-between">
-        <div className="pl-4 py-1 tracking-wide flex items-center text-sm">
+    <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden ">
+      <button
+        onClick={() => setRightOpen(!rightOpen)}
+        className="absolute top-2 left-2 z-10 text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
+      >
+        {!rightOpen ? "<" : ">"}
+      </button>
+      <div className="px-4 py-3 flex justify-center">
+        <div className="flex gap-1 items-center text-gray-800 dark:text-white font-semibold">
           <Pencil className="w-4 h-4 text-gray-500" />
           AI 멘토의 요약
         </div>
-        <Button
-          onClick={onClick}
-          variant="outline"
-          size="sm"
-          className={cn(summaryId || isLoading ? "hidden" : "h-fit py-0.5")}
-        >
-          AI 요약 생성하기
-        </Button>
       </div>
+      <Button
+        onClick={onClick}
+        variant="outline"
+        size="sm"
+        className={cn(summaryId || isLoading ? "hidden" : "h-fit py-0.5")}
+      >
+        AI 요약 생성하기
+      </Button>
       <section
         data-component-name="main-post-section"
         className="flex flex-1 overflow-auto scrollbar-hidden"

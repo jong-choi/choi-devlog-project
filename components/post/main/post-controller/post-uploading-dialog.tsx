@@ -74,12 +74,19 @@ export function UploadingDialogTrigger() {
     }
     setIsUploading(false);
   };
+  // "bg-indigo-50 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-100 text-sm px-6 py-3 border-b border-border flex justify-between items-center"
+
   return (
     <Dialog>
       <DialogTrigger onClick={onClick} asChild>
-        <Button variant="outline">업로드</Button>
+        <div
+          role="button"
+          className="text-gray-600 dark:text-indigo-300 px-2 rounded-md transition-colors duration-200 hover:bg-sky-300/30"
+        >
+          업로드
+        </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-indigo-50 dark:bg-[#1a1a1a] text-indigo-800 dark:text-indigo-100">
         <DialogHeader>
           <DialogTitle>업로드</DialogTitle>
           <DialogDescription>수정할 정보를 입력하세요.</DialogDescription>

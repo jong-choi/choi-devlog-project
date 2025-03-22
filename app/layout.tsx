@@ -3,6 +3,10 @@ import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import { AuthStoreProvider } from "@/providers/auth-provider";
+import { LayoutStoreProvider } from "@/providers/layout-store-provider";
+import { TopBar } from "@/app/top-bar";
+import { cn } from "@/lib/utils";
+import { TOP_BAR_HEIGHT_REM } from "@/lib/constants/layout";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +24,19 @@ export default function RootLayout({
         <ToastProvider />
         <AuthStoreProvider>
           <AuthProvider />
-          {children}
+          <LayoutStoreProvider>
+            <div className="h-screen flex flex-col bg-background text-foreground font-sans overflow-hidden">
+              <TopBar topBarHeightRem={TOP_BAR_HEIGHT_REM} />
+              <div
+                className={cn(
+                  "flex flex-1",
+                  `h-[calc(100vh-${TOP_BAR_HEIGHT_REM})]`
+                )}
+              >
+                {children}
+              </div>
+            </div>
+          </LayoutStoreProvider>
         </AuthStoreProvider>
       </body>
     </html>

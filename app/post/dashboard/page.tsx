@@ -49,7 +49,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         <PostControllerWrapper />
         <section
           data-component-name="main-post-section"
-          className="flex flex-1 flex-col p-4 md:px-8 pt-0 overflow-auto scrollbar"
+          className="flex flex-col p-4 md:px-8 pt-0 overflow-auto scrollbar"
         >
           <TitleEditor defaultValue={data?.title || ""} />
           <MarkdownEditor markdown={data?.body || ""} />

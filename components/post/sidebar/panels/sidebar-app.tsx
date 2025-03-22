@@ -3,10 +3,10 @@
 import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
 import SidebarPanel from "@/components/post/sidebar/panels/sidebar-panel";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { Category } from "@/types/post";
 
-export default function SidebarApp({ categories }: { categories: Category[] }) {
+export default function SidebarApp() {
   const {
+    categories,
     selectedCategory,
     selectedSubcategory,
     selectedPostsData,

@@ -3,6 +3,7 @@ import { Database } from "@/types/supabase";
 import { createStore } from "zustand";
 
 export interface SidebarState {
+  categories: Category[];
   selectedCategory: Category | null;
   selectedSubcategory: Subcategory | null;
   selectedPostsData: Post[] | null;
@@ -25,6 +26,7 @@ export interface SidebarState {
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
   createStore<SidebarState>((set) => ({
+    categories: [],
     selectedCategory: null,
     selectedSubcategory: null,
     selectedPostsData: null,
