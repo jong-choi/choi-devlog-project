@@ -5,8 +5,8 @@ import remarkBreaks from "remark-breaks";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css"; // rehype-highlight 스타일 추가
 import { cn } from "@/lib/utils";
-import "@/components/markdown/github-markdown-light.css";
-import "@/components/markdown/markdown-editor.css";
+import "@/components/markdown/github-markdown.css";
+import "@/components/markdown/ai-markdown-wrapper/small-header-markdown.css";
 
 interface ReactMarkdownWrapperProps {
   className?: string;

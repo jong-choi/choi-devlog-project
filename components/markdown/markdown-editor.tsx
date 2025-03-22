@@ -1,5 +1,5 @@
 "use client";
-import "@/components/markdown/github-markdown-light.css";
+import "@/components/markdown/github-markdown.css";
 import "@/components/markdown/markdown-editor.css";
 import MilkdownWrapper from "@/components/markdown/milkdown-app/milkdown-wrapper";
 
