@@ -61,7 +61,7 @@ export default function AutosaveIndicator() {
   }
 
   return (
-    <div className="bg-indigo-50 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-100 text-sm px-6 py-3 border-b border-border flex justify-between items-center">
+    <div className="bg-indigo-50 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-100 text-sm px-6 py-3 border-b border-border justify-between items-center hidden md:flex">
       {isLocalDBChecked ? (
         <>
           <div className="flex gap-2">

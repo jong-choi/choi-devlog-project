@@ -14,7 +14,7 @@ export default function SidebarApp() {
   } = useSidebarStore((state) => state);
 
   return (
-    <div className="flex flex-col flex-1 text-gray-700 dark:text-gray-300">
+    <div className="flex flex-col flex-1 text-gray-700 dark:text-gray-300 text-xs text-shadow">
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (
         <SidebarPanel

@@ -35,7 +35,7 @@ export default function CollapsedPanel({
   return (
     <div
       className={cn(
-        "p-2 border-gray-200 w-full flex flex-col hover:bg-indigo-50 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] flex-shrink-0 justify-center border-t"
+        "p-2 w-full flex flex-col hover:bg-indigo-50 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] flex-shrink-0 justify-center border-t"
       )}
       onClick={onClick}
     >
@@ -44,7 +44,7 @@ export default function CollapsedPanel({
           <div className={iconColor}>
             <Icon size={15} />
           </div>
-          <span className="text-sm truncate" title={title}>
+          <span className="truncate" title={title}>
             {title}
           </span>
         </div>

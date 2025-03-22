@@ -11,13 +11,14 @@ import {
   getSidebarCategory,
 } from "@/app/post/actions";
 import AIGeneration from "@/components/post/main/ai-generation";
-import PostMainWrapper from "@/app/post/dashboard/post-main-wrapper";
-import AIPanelWrapper from "@/app/post/dashboard/ai-panel-wrapper";
-import { RightPanelWrapper } from "@/app/post/right-panel-wrapper";
 import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
+import AIPanelWrapper from "@/components/post/main/right-panel/ai-panel-wrapper";
+import PostMainWrapper from "@/components/post/main/right-panel/post-main-wrapper";
+import { RightPanelWrapper } from "@/components/post/main/right-panel/right-panel-wrapper";
 
+// app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
   params: Promise<{
     urlSlug: string;

@@ -1,4 +1,4 @@
-import { TopBar } from "@/app/top-bar";
+import { TopBar } from "@/components/post/topBar/post-top-bar";
 import { TOP_BAR_HEIGHT_REM } from "@/lib/constants/layout";
 import { cn } from "@/lib/utils";
 

@@ -1,3 +1,27 @@
-export default function PostTopBar() {
-  return <div>PostTopBar</div>;
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+
+export function TopBar({ topBarHeightRem }: { topBarHeightRem: string }) {
+  return (
+    <nav
+      className={cn(
+        "hidden md:flex sticky top-0 left-0 w-full bg-white/90 dark:bg-[#1f1f1f]/90 backdrop-blur border-b border-border z-10  items-center px-6 justify-between",
+        `h-[${topBarHeightRem}]`
+      )}
+    >
+      <Logo />
+    </nav>
+  );
+}
+
+export function Logo() {
+  return (
+    <Link href="/post">
+      <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+        scribbly<span className="text-indigo-500">.</span>
+      </h1>
+    </Link>
+  );
 }

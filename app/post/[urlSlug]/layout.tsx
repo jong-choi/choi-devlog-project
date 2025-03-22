@@ -1,6 +1,7 @@
 import { getSidebarCategory } from "@/app/post/actions";
-import { LeftSidebar } from "@/app/post/left-sidebar";
-import PostSidebarWrapper from "@/app/post/post-sidebar";
+import { LeftSidebar } from "@/components/post/sidebar/left-sidebar";
+
+import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar";
 
 interface PostLayoutProps {
   params: Promise<{
@@ -25,8 +26,4 @@ export default async function PostLayout({
       </div>
     </PostSidebarWrapper>
   );
-}
-
-{
-  /* <PostSidebar urlSlug={urlSlug} /> */
 }

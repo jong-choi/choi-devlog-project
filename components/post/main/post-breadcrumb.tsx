@@ -20,15 +20,15 @@ export default function PostBreadcrumb({
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem className="hidden md:block cursor-default">
+        <BreadcrumbItem className="hidden md:block cursor-default select-none">
           {category?.name || "카테고리명"}
         </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block cursor-default" />
-        <BreadcrumbItem className="hidden md:block">
+        <BreadcrumbSeparator className="hidden md:block" />
+        <BreadcrumbItem className="hidden md:block cursor-default select-none">
           {subcategory?.name || "서브카테고리명"}
         </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block cursor-default" />
-        <BreadcrumbItem>
+        <BreadcrumbSeparator className="hidden md:block" />
+        <BreadcrumbItem className="cursor-default select-none">
           <BreadcrumbPage>{title || "새 글"}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>

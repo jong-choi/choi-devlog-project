@@ -130,12 +130,12 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       {selectedPanel === type && (
         <div
           className={cn(
-            "flex-1 overflow-y-auto border-gray-200 scrollbar-hidden",
+            "flex-1 overflow-y-auto scrollbar-hidden",
             type === "recommended" && "border-t"
           )}
         >
           {type === "recommended" && (
-            <div className="w-full flex-shrink-0 text-center pt-4 pb-2 underline underline-offset-4  text-sm font-semibold select-none">
+            <div className="w-full flex-shrink-0 text-center pt-4 pb-2 underline underline-offset-4  font-semibold select-none">
               추천 게시글
             </div>
           )}

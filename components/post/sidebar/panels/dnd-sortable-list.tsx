@@ -72,7 +72,7 @@ const SortableItem = ({
       {...attributes}
       {...listeners}
     >
-      <Wrapper className="flex-grow text-sm">
+      <Wrapper className="flex-grow">
         <PanelItem
           key={item.id}
           onClick={() => {

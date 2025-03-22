@@ -41,22 +41,7 @@ export const updateSession = async (request: NextRequest) => {
     // https://supabase.com/docs/guides/auth/server-side/nextjs
     const user = await supabase.auth.getUser();
 
-    // protected routes
-    // if (request.nextUrl.pathname.startsWith("/protected") && user.error) {
-    //   return NextResponse.redirect(new URL("/sign-in", request.url));
-    // }
-    //
-    // if (request.nextUrl.pathname === "/" && !user.error) {
-    //   return NextResponse.redirect(new URL("/protected", request.url));
-    // }
-
-    // example에 접근하지 못하게 하는 샘플코드
-    // if (request.nextUrl.pathname.startsWith("/example") && user.error) {
-    //   return NextResponse.redirect(new URL("/auth/login", request.url));
-    // }
-
-    // restrictedPaths에 포함된 경로들에 접근하지 못하도록 하는 코드
-    const restrictedPaths = ["/example", "/todo"];
+    const restrictedPaths = ["/admin"];
     const isRestricted = restrictedPaths.some((path) =>
       request.nextUrl.pathname.startsWith(path)
     );

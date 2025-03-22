@@ -1,7 +1,8 @@
 "use client";
-import { SidebarToggle } from "@/app/post/sidebar-togle";
+
 import { cn } from "@/lib/utils";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { SidebarToggle } from "@ui/sidebar-toggle";
 import { ReactNode } from "react";
 
 export function RightPanelWrapper({ children }: { children: ReactNode }) {

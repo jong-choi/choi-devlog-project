@@ -2,20 +2,24 @@ import {
   getPostsBySubcategoryId,
   getRecommendedByPostId,
   getSelectedCategoriesByUrl,
-  getSidebarCategory,
 } from "@/app/post/actions";
-import SidebarApp from "@/components/post/sidebar/panels/sidebar-app";
 import { SidebarState } from "@/hooks/use-sidebar";
 import { SidebarStoreProvider } from "@/providers/sidebar-store-provider";
+import { Category } from "@/types/post";
 
 interface PostSidebarProps {
-  urlSlug?: string;
+  urlSlug: string;
+  categories: Category[];
+  children: React.ReactNode;
 }
 
-export default async function PostSidebar({ urlSlug }: PostSidebarProps) {
-  const { data } = await getSidebarCategory();
-  const categories = data || [];
+export default async function PostSidebarWrapper({
+  urlSlug = "",
+  categories,
+  children,
+}: PostSidebarProps) {
   const initialState: Partial<SidebarState> = {
+    categories: categories,
     selectedCategory: null,
     selectedSubcategory: null,
     selectedPostsData: null,
@@ -53,7 +57,7 @@ export default async function PostSidebar({ urlSlug }: PostSidebarProps) {
 
   return (
     <SidebarStoreProvider initialState={initialState}>
-      <SidebarApp categories={categories} />
+      {children}
     </SidebarStoreProvider>
   );
 }

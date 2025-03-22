@@ -102,7 +102,7 @@ export default function AIGeneration() {
       >
         {!rightOpen ? "<" : ">"}
       </button>
-      <div className="px-4 py-3 flex bg-gradient-to-b from-gray-100">
+      <div className="px-4 py-3 flex bg-gradient-to-b from-gray-100 dark:from-black">
         <div className="flex gap-1 items-center text-gray-800 dark:text-white font-semibold text-sm tracking-tight font-mono">
           <PenLine className="w-4 h-4 text-gray-700 dark:text-gray-400 " />
           AI 멘토의 요약
