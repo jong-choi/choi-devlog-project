@@ -2,6 +2,7 @@ import { FiBookOpen, FiChevronDown } from "react-icons/fi";
 import { FiBook } from "react-icons/fi";
 import { PiBooks } from "react-icons/pi";
 import { Panel } from "@/types/post";
+import { cn } from "@/lib/utils";
 
 interface CollapsedPanelProps {
   icon: Panel;
@@ -37,19 +38,23 @@ export default function CollapsedPanel({
 
   return (
     <div
-      className="p-2 border-gray-200 w-full flex flex-col  hover:bg-gray-100 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] justify-center border-t"
+      className={cn(
+        "p-2 border-gray-200 w-full flex flex-col hover:bg-gray-100 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] flex-shrink-0 justify-center border-t"
+      )}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center space-x-2 max-w-[calc(100%-24px)] overflow-hidden">
           <div className={iconColor}>
             <Icon size={19} />
           </div>
-          <span className="text-sm">{title}</span>
+          <span className="text-sm truncate" title={title}>
+            {title}
+          </span>
         </div>
         <FiChevronDown
           size={19}
-          className="text-gray-400 group-hover:text-gray-500"
+          className="text-gray-400 group-hover:text-gray-500 flex-shrink-0"
         />
       </div>
     </div>

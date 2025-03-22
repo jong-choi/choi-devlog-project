@@ -52,9 +52,9 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       setSelectedPanel("post");
     } else if (type === "post") {
       const result = await getRecommendedByPostId(item.id);
+      setSelectedRecommendedPosts(result?.data || []);
       setSelectedPost(item as Post);
       setSelectedPanel("recommended");
-      setSelectedRecommendedPosts(result?.data || []);
     } else if (type === "recommended") {
       router.push(
         "/post/" + decodeURIComponent((item as RecommendedPost).target_url_slug)
@@ -64,7 +64,19 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
 
   // 공통된 collapsed 패널 클릭 처리
   const onCollapsedPanelClick = () => {
-    setSelectedPanel(type);
+    if (type !== selectedPanel) {
+      setSelectedPanel(type);
+    } else {
+      if (type === "category") {
+        setSelectedPanel("subcategory");
+      }
+      if (type === "subcategory") {
+        setSelectedPanel("post");
+      }
+      if (type === "post") {
+        setSelectedPanel("recommended");
+      }
+    }
   };
 
   // 선택된 패널에 맞는 collapsed 패널을 보여주는 부분
@@ -97,33 +109,45 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
   return (
     <div
       className={cn(
-        "w-full relative overflow-auto scrollbar-hidden border-collapse flex items-center",
-        selectedPanel !== type && type === "recommended" ? "h-0px" : "h-full"
+        "w-full min-h-0 max-h-[70vh] relative overflow-hidden border-collapse flex flex-col"
       )}
     >
-      {selectedPanel !== type ? (
-        selectedItem &&
-        type !== "recommended" && (
-          <CollapsedPanel
-            icon={type}
-            title={
-              "name" in selectedItem ? selectedItem.name : selectedItem.title
-            }
-            onClick={onCollapsedPanelClick}
-          />
-        )
-      ) : (
-        <div className="w-full h-full border-gray-200 scrollbar-hidden pb-10">
+      {/* 항상 보이는 CollapsedPanel */}
+      {type !== "recommended" && (
+        <CollapsedPanel
+          icon={type}
+          title={
+            !selectedItem
+              ? "-"
+              : "name" in selectedItem
+              ? selectedItem.name
+              : selectedItem.title
+          }
+          onClick={onCollapsedPanelClick}
+        />
+      )}
+      {/* 조건부로 보여줄 콘텐츠 영역 */}
+      {selectedPanel === type && (
+        <div
+          className={cn(
+            "flex-1 overflow-y-auto border-gray-200 scrollbar-hidden",
+            type === "recommended" && "border-t"
+          )}
+        >
           {type === "recommended" && (
-            <div className="w-full text-center pt-4 pb-2 underline underline-offset-4 text-sm font-semibold select-none border-t">
+            <div className="w-full flex-shrink-0 text-center pt-4 pb-2 underline underline-offset-4  text-sm font-semibold select-none">
               추천 게시글
             </div>
           )}
-          <SortableList
-            data={parsedData}
-            selectedItem={selectedItem}
-            onSelect={onSelect}
-          />
+          {!parsedData.length ? (
+            <div className="text-center text-xs">게시글이 없습니다.</div>
+          ) : (
+            <SortableList
+              data={parsedData}
+              selectedItem={selectedItem}
+              onSelect={onSelect}
+            />
+          )}
         </div>
       )}
     </div>
