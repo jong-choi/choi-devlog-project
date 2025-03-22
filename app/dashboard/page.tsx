@@ -2,29 +2,18 @@
 // @ts-nocheck
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Moon, Sun } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function BlogLayout() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDark]);
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground font-sans transition-colors duration-500">
+    <div className="h-screen flex flex-col bg-background text-foreground font-sans transition-colors duration-500 overflow-hidden">
       <TopBar
         {...{
-          isDark,
-          setIsDark,
           leftOpen,
           setLeftOpen,
           rightOpen,
@@ -40,19 +29,11 @@ export default function BlogLayout() {
   );
 }
 
-function TopBar({
-  isDark,
-  setIsDark,
-  leftOpen,
-  setLeftOpen,
-  rightOpen,
-  setRightOpen,
-}) {
+function TopBar({ leftOpen, setLeftOpen, rightOpen, setRightOpen }) {
   return (
     <nav className="fixed top-0 left-0 w-full bg-white/90 dark:bg-[#1f1f1f]/90 backdrop-blur border-b border-border h-14 z-10 flex items-center px-6 justify-between">
       <Logo />
       <div className="flex gap-2 items-center">
-        <ToggleThemeButton isDark={isDark} setIsDark={setIsDark} />
         <ToggleButton
           open={leftOpen}
           onClick={() => setLeftOpen(!leftOpen)}
@@ -73,17 +54,6 @@ function Logo() {
     <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
       scribbly<span className="text-indigo-500">.</span>
     </h1>
-  );
-}
-
-function ToggleThemeButton({ isDark, setIsDark }) {
-  return (
-    <button
-      onClick={() => setIsDark((prev) => !prev)}
-      className="p-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-700"
-    >
-      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-    </button>
   );
 }
 
@@ -128,10 +98,8 @@ function RightSidebar({ rightOpen, setRightOpen }) {
   return (
     <aside
       className={cn(
-        "transition-all duration-500 ease-in-out h-full hidden lg:flex flex-col bg-white dark:bg-[#1b1b1b] border-l border-border relative shadow-sm",
-        rightOpen
-          ? "w-72 p-4 opacity-100 scale-100 translate-y-0"
-          : "w-10 p-0 opacity-0 scale-90 translate-y-8 pointer-events-none"
+        "transition-all duration-300 h-full hidden lg:flex flex-col bg-white dark:bg-[#1b1b1b] border-l border-border shadow-sm",
+        rightOpen ? "w-64" : "w-10"
       )}
     >
       {!rightOpen && (
@@ -144,7 +112,7 @@ function RightSidebar({ rightOpen, setRightOpen }) {
 
 function SidebarToggle({ onClick, reverse = false }) {
   return (
-    <div className="absolute top-1/2 left-0 -translate-y-1/2 w-10 h-10 flex items-center justify-center">
+    <div className="h-10 flex items-center justify-center">
       <button
         onClick={onClick}
         className="text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
@@ -220,18 +188,23 @@ function SidebarBlock({ title, children }) {
     </div>
   );
 }
+
+// --bgColor-default: #0d1117;
+// --bgColor-muted: #151b23;
+// --bgColor-neutral-muted: #656c7633;
 import TitleEditor from "@/components/post/main/title-editor";
+import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
 function MainContent() {
   return (
-    <main className="flex flex-1 flex-col h-full">
+    <main className="flex flex-1 flex-col h-full bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-white">
       <MainHeader />
       <ContinueReadingBanner />
       <ContentContainer>
         <AutosaveProvider>
           <TitleEditor defaultValue={"안녕이란 말 헬로헬로" || ""} />
+          <MarkdownEditor markdown={"이젠 굿바이 굿바이" || ""} />
         </AutosaveProvider>
-        {/* <MarkdownEditor markdown={"이젠 굿바이 굿바이" || ""} /> */}
         <FeaturedPost />
         <ArticleList />
       </ContentContainer>
