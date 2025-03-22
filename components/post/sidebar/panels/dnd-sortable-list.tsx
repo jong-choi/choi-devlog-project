@@ -167,6 +167,7 @@ export default function SortableList({
     }
   };
 
+  if (!data.length) return <></>;
   return (
     <DndContext
       sensors={sensors} // 센서 적용

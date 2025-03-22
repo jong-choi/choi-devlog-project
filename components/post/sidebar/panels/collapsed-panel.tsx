@@ -35,7 +35,8 @@ export default function CollapsedPanel({
   return (
     <div
       className={cn(
-        "p-2 w-full flex flex-col hover:bg-indigo-50 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] flex-shrink-0 justify-center border-t"
+        "p-2 w-full flex flex-col hover:bg-indigo-50 dark:hover:bg-[#2a2a2a] group cursor-pointer h-[40px] flex-shrink-0 justify-center border-t",
+        icon === "recommended" && "hidden"
       )}
       onClick={onClick}
     >

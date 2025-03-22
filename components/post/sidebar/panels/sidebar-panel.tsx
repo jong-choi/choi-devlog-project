@@ -14,6 +14,7 @@ import {
 import SortableList from "@/components/post/sidebar/panels/dnd-sortable-list";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 
 interface SidebarPanelProps {
   type: Panel; // 패널의 타입
@@ -34,7 +35,20 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
     setSelectedPanel,
     setSelectedPostsData,
     setSelectedRecommendedPosts,
-  } = useSidebarStore((state) => state);
+  } = useSidebarStore(
+    useShallow((state) => ({
+      selectedCategory: state.selectedCategory,
+      selectedSubcategory: state.selectedSubcategory,
+      selectedPost: state.selectedPost,
+      selectedPanel: state.selectedPanel,
+      setSelectedCategory: state.setSelectedCategory,
+      setSelectedSubcategory: state.setSelectedSubcategory,
+      setSelectedPost: state.setSelectedPost,
+      setSelectedPanel: state.setSelectedPanel,
+      setSelectedPostsData: state.setSelectedPostsData,
+      setSelectedRecommendedPosts: state.setSelectedRecommendedPosts,
+    }))
+  );
 
   // 공통적으로 사용할 선택 처리 함수들
   const onSelect = async (
@@ -112,44 +126,43 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
         "w-full min-h-0 max-h-[70vh] relative overflow-hidden border-collapse flex flex-col"
       )}
     >
-      {/* 항상 보이는 CollapsedPanel */}
-      {type !== "recommended" && (
-        <CollapsedPanel
-          icon={type}
-          title={
-            !selectedItem
-              ? "-"
-              : "name" in selectedItem
-              ? selectedItem.name
-              : selectedItem.title
-          }
-          onClick={onCollapsedPanelClick}
-        />
-      )}
-      {/* 조건부로 보여줄 콘텐츠 영역 */}
-      {selectedPanel === type && (
+      <CollapsedPanel
+        icon={type}
+        title={
+          !selectedItem
+            ? "-"
+            : "name" in selectedItem
+            ? selectedItem.name
+            : selectedItem.title
+        }
+        onClick={onCollapsedPanelClick}
+      />
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto scrollbar-hidden transition-all duration-200",
+          type === "recommended" && "border-t",
+          selectedPanel !== type && "hidden"
+        )}
+      >
         <div
           className={cn(
-            "flex-1 overflow-y-auto scrollbar-hidden",
-            type === "recommended" && "border-t"
+            "w-full flex-shrink-0 text-center pt-4 pb-2 underline underline-offset-4 font-semibold select-none",
+            type !== "recommended" && "hidden"
           )}
         >
-          {type === "recommended" && (
-            <div className="w-full flex-shrink-0 text-center pt-4 pb-2 underline underline-offset-4  font-semibold select-none">
-              추천 게시글
-            </div>
-          )}
-          {!parsedData.length ? (
-            <div className="text-center text-xs">게시글이 없습니다.</div>
-          ) : (
-            <SortableList
-              data={parsedData}
-              selectedItem={selectedItem}
-              onSelect={onSelect}
-            />
-          )}
+          추천 게시글
         </div>
-      )}
+        <div
+          className={cn("text-center text-xs", parsedData.length && "hidden")}
+        >
+          게시글이 없습니다.
+        </div>
+        <SortableList
+          data={parsedData}
+          selectedItem={selectedItem}
+          onSelect={onSelect}
+        />
+      </div>
     </div>
   );
 }
