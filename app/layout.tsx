@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="ko-KR">
       <body
-        className={`antialiased h-screen flex flex-col bg-background text-foreground font-sans overflow-hidden `}
+        className={`antialiased h-screen flex flex-col bg-background text-foreground font-sans`}
       >
         <ToastProvider />
         <AuthStoreProvider>

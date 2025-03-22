@@ -20,7 +20,7 @@ export default async function PostLayout({
   const categories = data || [];
   return (
     <PostSidebarWrapper categories={categories} urlSlug={urlSlug}>
-      <div className="flex flex-1">
+      <div className="flex h-screen">
         <LeftSidebar />
         {children}
       </div>

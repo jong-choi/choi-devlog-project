@@ -31,6 +31,4 @@ export default {
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
-  // 동적으로 만들어진 스타일을 포함시킬 때 사용
-  safelist: ["h-[3.5rem]", "h-[calc(100vh-3.5rem)]"],
 } satisfies Config;

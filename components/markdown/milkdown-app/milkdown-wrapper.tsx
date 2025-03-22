@@ -109,8 +109,6 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
           onImageUpload={imageUploadHandler}
         />
       </MilkdownProvider>
-      {/* serverAction에서 받아올 값을 input hidden으로 */}
-      <input type="hidden" name="body" value={body} />
     </>
   );
 }

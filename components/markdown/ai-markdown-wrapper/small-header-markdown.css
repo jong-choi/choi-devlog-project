@@ -6,13 +6,25 @@
     margin-bottom: 0.5rem;
   }
 
-  & li {
-    padding-left: 0.3rem;
+  & ul {
+    margin-left: 0.3rem;
+    padding: 0.2rem 0;
   }
 
   & ul > li {
-    margin-left: -0.5rem; /* ml-6 */
-    padding-left: 0rem;
+    margin-left: 0.3rem;
+    padding: 0.2rem 0;
+  }
+
+  & ol {
+    margin-left: 0.3rem;
+    padding: 0.2rem 0;
+    list-style-type: decimal;
+  }
+
+  & ol > li {
+    margin-left: 0.7rem;
+    padding: 0.2rem 0;
   }
 
   & h1 {
