@@ -9,7 +9,7 @@ export interface SidebarState {
   selectedPostsData: Post[] | null;
   selectedPost: Post | null;
   selectedRecommendedPosts:
-    | Database["public"]["Tables"]["post_similarities"]["Row"][]
+    | Database["public"]["Views"]["post_similarities_with_target_info"]["Row"][]
     | null;
   selectedPanel: Panel;
   setSelectedCategory: (category: Category | null) => void;
@@ -17,7 +17,7 @@ export interface SidebarState {
   setSelectedPostsData: (posts: Post[] | null) => void;
   setSelectedRecommendedPosts: (
     recommendedPosts:
-      | Database["public"]["Tables"]["post_similarities"]["Row"][]
+      | Database["public"]["Views"]["post_similarities_with_target_info"]["Row"][]
       | null
   ) => void;
   setSelectedPost: (post: Post | null) => void;

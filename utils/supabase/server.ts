@@ -1,5 +1,6 @@
 "use server";
 
+import { Database } from "@/types/supabase";
 import { createServerClient } from "@supabase/ssr";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
@@ -14,7 +15,7 @@ export const createClient = async (
 ) => {
   const cookieStore = initialCookieStore || (await cookies());
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     useServiceRole
       ? process.env.SUPABASE_SERVICE_ROLE_KEY! // Service Role Key 사용 (업로드 시)

@@ -98,7 +98,7 @@ export default function AIGeneration() {
     <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden">
       <button
         onClick={() => setRightOpen(!rightOpen)}
-        className="absolute top-2 left-2 z-10 text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
+        className="absolute top-2 left-2 z-10 text-sm bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
       >
         {!rightOpen ? "<" : ">"}
       </button>

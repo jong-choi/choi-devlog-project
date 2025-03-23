@@ -59,19 +59,20 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
       setSelectedSubcategory(null);
       setSelectedPanel("subcategory");
     } else if (type === "subcategory") {
-      const result = await getPostsBySubcategoryId(item.id);
+      const result = await getPostsBySubcategoryId((item as Subcategory).id);
       setSelectedPostsData(result?.data || []);
       setSelectedSubcategory(item as Subcategory);
       setSelectedPost(null);
       setSelectedPanel("post");
     } else if (type === "post") {
-      const result = await getRecommendedByPostId(item.id);
+      const result = await getRecommendedByPostId((item as Post).id);
       setSelectedRecommendedPosts(result?.data || []);
       setSelectedPost(item as Post);
       setSelectedPanel("recommended");
     } else if (type === "recommended") {
       router.push(
-        "/post/" + decodeURIComponent((item as RecommendedPost).target_url_slug)
+        "/post/" +
+          decodeURIComponent((item as RecommendedPost).target_url_slug || "")
       );
     }
   };
@@ -112,9 +113,9 @@ export default function SidebarPanel({ type, data }: SidebarPanelProps) {
             is_private: false,
             order: 0,
           };
-          newItem.id = item.target_post_id;
-          newItem.title = item.target_title;
-          newItem.url_slug = item.target_url_slug;
+          newItem.id = item.target_post_id || "";
+          newItem.title = item.target_title || "";
+          newItem.url_slug = item.target_url_slug || "";
           newItem.order = 100000 + 100000 * index;
           return newItem;
         }) as Post[])

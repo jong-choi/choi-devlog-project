@@ -26,7 +26,7 @@ const _getAISummaryByPostId = async (
   const result = await supabase
     .from("ai_summaries")
     .select()
-    .eq("post_id", post_id) // 특정 게시글에 대한 요약만 조회
+    .eq("post_id", post_id || "") // 특정 게시글에 대한 요약만 조회
     .order("created_at", { ascending: false }) // 최신 요약이 가장 위로 오도록 정렬
     .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
@@ -75,7 +75,9 @@ export const createAISummary = createWithInvalidation(
 const _getRecommendedByPostId = async (
   post_id: string
 ): Promise<
-  PostgrestResponse<Database["public"]["Tables"]["post_similarities"]["Row"]>
+  PostgrestResponse<
+    Database["public"]["Views"]["post_similarities_with_target_info"]["Row"]
+  >
 > => {
   const supabase = createClientClient();
   const result = await supabase

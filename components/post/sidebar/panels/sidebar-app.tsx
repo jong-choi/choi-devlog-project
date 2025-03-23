@@ -23,7 +23,7 @@ export default function SidebarApp() {
     }))
   );
   return (
-    <div className="flex flex-col flex-1 text-gray-700 dark:text-gray-300 text-xs text-shadow">
+    <div className="flex flex-col flex-1 text-gray-700 dark:text-gray-300 text-sm text-shadow">
       <SidebarPanel type="category" data={categories} />
       {selectedCategory && (
         <SidebarPanel
