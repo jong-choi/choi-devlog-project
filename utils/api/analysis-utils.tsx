@@ -6,7 +6,10 @@
  * @returns {string} summary의 '한 눈에 보는 요약' 부분
  */
 export function summaryParser(summary: string): string {
-  return summary.split("---")[0]?.replace(/##[\s\S]*?요약\s*\n?/m, "");
+  return summary
+    .split("---")[0]
+    ?.replace(/##[\s\S]*?요약\s*\n?/m, "")
+    .trim();
 }
 
 /**
@@ -26,65 +29,3 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 
   return magnitudeA && magnitudeB ? dotProduct / (magnitudeA * magnitudeB) : 0;
 }
-
-// dbscan
-
-// export function dbScanclustering(data);
-
-// export async function POST() {
-//   const eps = 0.3; // cosine distance = 1 - sim(0.7)
-//   const minPts = 3;
-
-//   // 1. 벡터 불러오기
-//   const { data, error } = await supabase
-//     .from("post_embeddings")
-//     .select("post_id, embedding");
-
-//   if (error) {
-//     return NextResponse.json({ error: error.message }, { status: 500 });
-//   }
-
-//   const vectors = data.map((d) => d.embedding);
-//   const postIds = data.map((d) => d.post_id);
-
-//   // 2. distance matrix 생성
-//   const distanceMatrix = vectors.map((a) =>
-//     vectors.map((b) => cosineDistance(a, b))
-//   );
-
-//   // 3. DBSCAN 실행
-//   const dbscan = new DBSCAN();
-//   const clusters = dbscan.run(distanceMatrix, eps, minPts, true); // true = distanceMatrix 모드
-//   const noise = dbscan.noise; // 군집되지 않은 글들
-
-//   // 4. 결과 정리
-//   const clusterResults = clusters.flatMap((cluster, clusterId) =>
-//     cluster.map((vectorIndex) => ({
-//       post_id: postIds[vectorIndex],
-//       cluster_id: clusterId,
-//     }))
-//   );
-
-//   const noiseResults = noise.map((vectorIndex) => ({
-//     post_id: postIds[vectorIndex],
-//     cluster_id: null, // 노이즈는 클러스터 없음
-//   }));
-
-//   const resultToSave = [...clusterResults, ...noiseResults];
-
-//   // 5. Supabase에 저장
-//   const { error: insertError } = await supabase
-//     .from("post_clusters")
-//     .upsert(resultToSave);
-
-//   if (insertError) {
-//     return NextResponse.json({ error: insertError.message }, { status: 500 });
-//   }
-
-//   return NextResponse.json({
-//     message: "DBSCAN clustering complete",
-//     total: resultToSave.length,
-//     clusters: clusters.length,
-//     noise: noise.length,
-//   });
-// }

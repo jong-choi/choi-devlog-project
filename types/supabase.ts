@@ -83,6 +83,81 @@ export type Database = {
         }
         Relationships: []
       }
+      clustered_posts_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          keywords: string[] | null
+          post_ids: string[] | null
+          quality: number | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+          vector: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          post_ids?: string[] | null
+          quality?: number | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vector?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          post_ids?: string[] | null
+          quality?: number | null
+          summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vector?: string | null
+        }
+        Relationships: []
+      }
+      clustered_posts_groups_similarities: {
+        Row: {
+          created_at: string | null
+          id: string
+          similarity: number
+          source_id: string | null
+          target_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          similarity: number
+          source_id?: string | null
+          target_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          similarity?: number
+          source_id?: string | null
+          target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clustered_posts_groups_similarities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "clustered_posts_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clustered_posts_groups_similarities_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "clustered_posts_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_similarities: {
         Row: {
           created_at: string | null

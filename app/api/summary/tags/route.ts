@@ -14,7 +14,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { id, summary, post_id } = await req.json();
+    const { id, summary, post_id } = (await req.json()) ?? {};
     const failedPosts: string[] = [];
     const skippedPosts: string[] = [];
     let successCount = 0;
@@ -69,10 +69,10 @@ export async function POST(req: Request) {
         - 문장이나 설명, 제목 형태 ❌
         
         요약:
-        ${summaryParser(s.summary).trim()}
+        ${summaryParser(s.summary)}
         `;
         const completion = await openai.chat.completions.create({
-          model: "gpt-4",
+          model: "chatgpt-4o-latest",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.4,
         });

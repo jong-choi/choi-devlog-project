@@ -28,7 +28,7 @@ export async function POST() {
 
     // 2. 각 summary를 embedding 처리 - promise.all을 쓰면 더 빠르긴 한데 일단 이렇게 유지.
     for (const summary of summaries) {
-      summary.summary = summaryParser(summary.summary).trim();
+      summary.summary = summaryParser(summary.summary);
       const response = await openai.embeddings.create({
         input: summaryParser(summary.summary),
         model: "text-embedding-3-small",
