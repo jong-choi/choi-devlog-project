@@ -6,7 +6,9 @@ import dynamic from "next/dynamic";
 const AutoSaveWrapper = dynamic(
   () =>
     import("@/components/post/main/post-controller/autosave/autosave-wrapper"),
-  { ssr: false, loading: () => <p>로딩중...</p> }
+  {
+    ssr: false,
+  }
 );
 
 export default function AutosaveLoader() {

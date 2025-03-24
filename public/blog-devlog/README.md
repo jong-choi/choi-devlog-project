@@ -1244,3 +1244,49 @@ text-shadow를 적용하면 얇은 폰트, 작은 폰트가 미묘하게 두꺼�
 
 1. next.js의 layout에서는 searchParams를 받아올 수 없다. page에서만 가능하다.
 2. searchParams는 받더라도 어짜피 SSG가 아닌 SSR로만 작동한다. searchParams를 통한 성능 최적화에는 한계가 있다.... 그래서 searchParams를 받아서 사이드바 초기 상태를 설정하기 구현을 포기하고 그냥 useEffect로 처리했는데, 잘 작동한다.
+
+## 16일차 - 게시글 데이터 분석
+
+애초에 블로그를 포크하기로 한 이유가 게시글들을 정확히 분류하고 분석하기 위함이었기 때문에...
+
+### 데이터 분석 초안
+
+내가 원하는 것은 게시글을 분류하고, 분류들 간의 관계성을 나타내는 것이다.
+
+직접 수작접으로 할 수 있지만, 123개를 직접 하는게 어렵기도 하거니와 기준도 명확하게 떨어지지 않는다.
+
+gpt-4o, text-embedding-3-large를 이용해서 간단한 코사인 분석 및 군집화를 하기로 한다.
+
+복잡하게 생각할 것 없이 간단하게 접근하기로 했다.
+
+1. 게시글 요약 생성 (구현 완료) - **summaries**
+2. 요약된 게시글에 대한 embedding vector 생성 (현재 text-embedding-2를 쓰고 있는데 3-small 모델로 변경할 것) **summary-vectors**
+   1. text-embedding-3-large가 가격도 저렴하고 날 것 그대로를 임베딩하여 군집화하기 좋다고 함.
+3. summary-vectors를 코사인 유사도 분석하여 유사도 0.8 이상인 관계들을 DB에 저장. **summary-similarities**
+   1. 유사도 기준치를 무엇으로 하냐에 따라서 edges 수가 달라짐
+   2. 적정 edges는 최대 edges의 7%~20%가 적정 edges
+   3. 따라서 글 120개 기준, `(120*120)/2` = 7200
+   4. `500개(7200 * 0.07)`~`1500개(7200*0.2)` 사이가 되도록 유사도 기준치를 정할 것. (edges가 너무 많으면 게시글이 뭉태기로 뭉쳐짐)
+4. Louvain 알고리즘을 이용하여 군집화를 하고, 각 군집의 vector 평균들을 db에 저장 **clusters**, **cluster-vectors**
+   1. threshold에 따라서 군집의 갯수가 달라지니 테스트 해보면서 threshhold를 찾아보고, 확정되면 constants로 저장해둘 것!
+5. cluster-vectors를 코사인 유사도 분석하여 db에 저장. **cluster-similarities**
+6. (마무리) clusters별로 summaries를 불러와 chatgpt한테 적절한 culster 이름을 지어달라고 함. **clusters.name**
+
+```
+[post1]  \
+[post2]   -> cluster 1  -> mean vector → similarity with cluster 2: 0.81
+[post3]  /
+
+[post4]  \
+[post5]   -> cluster 2  -> mean vector → similarity with cluster 1: 0.81
+```
+
+....이 이야기를 chatgpt한테 들려줬더니 주제 추론 파이프라인 방식이라는데 나는 그게 뭔지 모른다.
+
+cluster-sims를 화면에서 그래프 형태로하여 보여주면 된다.
+
+### 데이터 분석 구현
+
+#### 인증 확인
+
+`utils/api/supa-utils/supaValidCheck` : 현재 사용자가 확인된 사용자면 true를 반환하도록 한다.

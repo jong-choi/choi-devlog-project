@@ -1,4 +1,5 @@
 // app/api/summary/route.ts (서버 전용 API Route)
+import { summaryParser } from "@/utils/api/analysis-utils";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -44,8 +45,8 @@ export async function POST(req: Request) {
 
     // 📌 2️⃣ 벡터 생성 (text-embedding-ada-002)
     const embeddingResponse = await openai.embeddings.create({
-      model: "text-embedding-ada-002",
-      input: summary, // 서머리를 벡터화
+      model: "text-embedding-3-small",
+      input: summaryParser(summary), // 서머리를 벡터화
     });
 
     const vector = embeddingResponse.data[0]?.embedding || [];
