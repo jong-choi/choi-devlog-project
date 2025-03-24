@@ -1396,3 +1396,25 @@ FROM (
 ) sub
 WHERE rn <= 10;
 ```
+
+#### 태그 테이블 생성
+
+```sql
+CREATE TABLE tags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+CREATE TABLE post_tags (
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  tag_id UUID REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)
+);
+```
+
+태그와 post가 N:M 관계로 만나도록 했다.
+
+태그를 생성하는 API Route Handlers는 app/api/summary/tags/route.ts에 작성하였다. 128개의 게시글에서 384개의 태그에 대해 658개의 조회가 일어났으니 중복된 태그는 많이 사라진듯? 일단 이 상태로 그대로 써보고 불필요한 태그가 너무 많으면 view 태이블에서 참조가 1번 밖에 없는 태그들은 제거하는 방향으로 가야겠다.

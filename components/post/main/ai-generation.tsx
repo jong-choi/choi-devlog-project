@@ -1,5 +1,5 @@
 "use client";
-import { createAISummary } from "@/app/post/actions";
+import { createAISummary, createTagsByPostId } from "@/app/post/actions";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { useAuthStore } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
@@ -73,7 +73,17 @@ export default function AIGeneration() {
 
     const { data: AIData } = await createAISummary(payload);
     if (!AIData || !AIData.id) {
-      toast.error("요약을 DB에 등록하지 못 하였습니다.");
+      toast.error("요약을 DB에 등록하지 못하였습니다.");
+      return setIsLoading(false);
+    }
+
+    const TagsData = await createTagsByPostId({
+      post_id: AIData.post_id || "",
+      id: AIData.id,
+      summary: AIData.summary,
+    });
+    if (!TagsData || TagsData.post_id) {
+      toast.error("태그를 생성하지 못하였습니다.");
       return setIsLoading(false);
     }
 

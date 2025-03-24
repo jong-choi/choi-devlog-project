@@ -11,7 +11,7 @@ async function generateSummary(
   body: string
 ): Promise<SummaryResponse> {
   try {
-    const response = await fetch("http://localhost:3000/api/summary", {
+    const response = await fetch("/api/summary", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

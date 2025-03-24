@@ -56,8 +56,8 @@ const _createAISummary = async (
   const supabase = await createClient(cookieStore);
   const result = await supabase
     .from("ai_summaries")
+    //@ts-expect-error : vector값이 불일치
     .insert(payload)
-    .select()
     .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .limit(1)
     .single();
@@ -69,6 +69,48 @@ export const createAISummary = createWithInvalidation(
   _createAISummary,
   async (result) => {
     revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.post_id || ""));
+  }
+);
+
+const _createTagsByPostId = async (payload: {
+  id: string;
+  summary: string;
+  post_id: string;
+}): Promise<{
+  post_id: string;
+  message: string;
+  success: number;
+  failed: number;
+  skipped: number;
+  failedPosts: string[];
+  skippedPosts: string[];
+}> => {
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
+  if (!(await supabase.auth.getSession()).data.session?.user) {
+    throw new Error("태그 생성 실패: 인증되지 않은 사용자");
+  }
+  const { id, summary, post_id } = payload;
+  const tagResponse = await fetch("/api/summary/tags", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, summary, post_id }),
+  });
+
+  const tagResult = await tagResponse.json();
+  if (!tagResponse.ok) {
+    const errorData = tagResult as { error: string };
+    throw new Error(errorData.error || "태그 생성 실패");
+  }
+  tagResult.post_id = post_id;
+
+  return tagResult;
+};
+
+export const createTagsByPostId = createWithInvalidation(
+  _createTagsByPostId,
+  async (result) => {
+    revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.post_id || ""));
   }
 );
 
