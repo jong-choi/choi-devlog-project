@@ -1245,7 +1245,7 @@ text-shadow를 적용하면 얇은 폰트, 작은 폰트가 미묘하게 두꺼�
 1. next.js의 layout에서는 searchParams를 받아올 수 없다. page에서만 가능하다.
 2. searchParams는 받더라도 어짜피 SSG가 아닌 SSR로만 작동한다. searchParams를 통한 성능 최적화에는 한계가 있다.... 그래서 searchParams를 받아서 사이드바 초기 상태를 설정하기 구현을 포기하고 그냥 useEffect로 처리했는데, 잘 작동한다.
 
-## 16일차 - 게시글 데이터 분석
+## 16, 17일차 - 게시글 데이터 분석
 
 애초에 블로그를 포크하기로 한 이유가 게시글들을 정확히 분류하고 분석하기 위함이었기 때문에...
 
@@ -1262,7 +1262,7 @@ gpt-4o, text-embedding-3-large를 이용해서 간단한 코사인 분석 및 �
 1. 게시글 요약 생성 (구현 완료) - **summaries**
 2. 요약된 게시글에 대한 embedding vector 생성 (현재 text-embedding-2를 쓰고 있는데 3-small 모델로 변경할 것) **summary-vectors**
    1. text-embedding-3-large가 가격도 저렴하고 날 것 그대로를 임베딩하여 군집화하기 좋다고 함.
-3. summary-vectors를 코사인 유사도 분석하여 유사도 0.8 이상인 관계들을 DB에 저장. **summary-similarities**
+3. summary-vectors를 코사인 유사도 분석하여 유사도 0.n 이상인 관계들을 DB에 저장. **post-similarities**
    1. 유사도 기준치를 무엇으로 하냐에 따라서 edges 수가 달라짐
    2. 적정 edges는 최대 edges의 7%~20%가 적정 edges
    3. 따라서 글 120개 기준, `(120*120)/2` = 7200
@@ -1290,3 +1290,109 @@ cluster-sims를 화면에서 그래프 형태로하여 보여주면 된다.
 #### 인증 확인
 
 `utils/api/supa-utils/supaValidCheck` : 현재 사용자가 확인된 사용자면 true를 반환하도록 한다.
+
+#### view테이블 리팩토링
+
+`post_similarities` 테이블이 양방향으로 데이터가 저장되며, 나머지 정보들도 비정규화되어 들어가 있다. 단방향으로 저장하되, 똑같은 출력값이 나오도록 `post_similarities_with_target_info` 뷰를 만들었다.
+
+```sql
+DROP VIEW IF EXISTS post_similarities_with_target_info;
+
+CREATE VIEW post_similarities_with_target_info AS
+SELECT
+  ps.source_post_id AS source_post_id,
+  ps.target_post_id AS target_post_id,
+  p_target.title AS target_title,
+  p_target.url_slug AS target_url_slug,
+  p_target.thumbnail AS target_thumbnail,
+  ps.similarity AS similarity
+FROM post_similarities ps
+JOIN posts p_target ON ps.target_post_id = p_target.id
+WHERE p_target.deleted_at IS NULL
+  AND (p_target.is_private IS DISTINCT FROM true)
+
+UNION
+
+SELECT
+  ps.target_post_id AS source_post_id,
+  ps.source_post_id AS target_post_id,
+  p_source.title AS target_title,
+  p_source.url_slug AS target_url_slug,
+  p_source.thumbnail AS target_thumbnail,
+  ps.similarity AS similarity
+FROM post_similarities ps
+JOIN posts p_source ON ps.source_post_id = p_source.id
+WHERE p_source.deleted_at IS NULL
+  AND (p_source.is_private IS DISTINCT FROM true);
+```
+
+그 다음 post_sims 테이블에는 source_post_id < target_post_id 이도록 제약조건을 걸어준다.
+
+```sql
+DELETE FROM post_similarities;
+
+CREATE UNIQUE INDEX unique_similarity_pair
+ON post_similarities (source_post_id, target_post_id);
+
+ALTER TABLE post_similarities
+ADD CONSTRAINT enforce_sorted_pair
+CHECK (source_post_id < target_post_id);
+```
+
+#### 코사인 유사도 업데이트
+
+`app/api/similarity/generate/route.ts`
+코사인 유사도를 삽입하는 route hanlders를 만들었다.
+
+유사도를 삽입하니 기존 text-embedding-2에 비해 확실히 넓게 분포하는 것을 확인할 수 있었다.
+
+view 테이블에는 유사한 게시글 10개만 조회되도록 변경하고 마무리
+
+```sql
+DROP VIEW IF EXISTS post_similarities_with_target_info;
+
+CREATE VIEW post_similarities_with_target_info AS
+SELECT
+  source_post_id,
+  target_post_id,
+  target_title,
+  target_url_slug,
+  target_thumbnail,
+  similarity
+FROM (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY source_post_id
+      ORDER BY similarity DESC
+    ) AS rn
+  FROM (
+    SELECT
+      ps.source_post_id AS source_post_id,
+      ps.target_post_id AS target_post_id,
+      p_target.title AS target_title,
+      p_target.url_slug AS target_url_slug,
+      p_target.thumbnail AS target_thumbnail,
+      ps.similarity AS similarity
+    FROM post_similarities ps
+    JOIN posts p_target ON ps.target_post_id = p_target.id
+    WHERE p_target.deleted_at IS NULL
+      AND (p_target.is_private IS DISTINCT FROM true)
+
+    UNION
+
+    SELECT
+      ps.target_post_id AS source_post_id,
+      ps.source_post_id AS target_post_id,
+      p_source.title AS target_title,
+      p_source.url_slug AS target_url_slug,
+      p_source.thumbnail AS target_thumbnail,
+      ps.similarity AS similarity
+    FROM post_similarities ps
+    JOIN posts p_source ON ps.source_post_id = p_source.id
+    WHERE p_source.deleted_at IS NULL
+      AND (p_source.is_private IS DISTINCT FROM true)
+  ) unioned
+) sub
+WHERE rn <= 10;
+```

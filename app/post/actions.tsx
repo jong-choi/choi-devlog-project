@@ -48,7 +48,7 @@ const _createAISummary = async (
 ): Promise<
   PostgrestSingleResponse<
     Omit<Database["public"]["Tables"]["ai_summaries"]["Insert"], "vector"> & {
-      vector: number[] | null;
+      vector: string | null;
     }
   >
 > => {
@@ -81,7 +81,7 @@ const _getRecommendedByPostId = async (
 > => {
   const supabase = createClientClient();
   const result = await supabase
-    .from("post_similarities")
+    .from("post_similarities_with_target_info")
     .select()
     .eq("source_post_id", post_id) // 특정 게시글에 대한 요약만 조회
     .order("similarity", { ascending: false }); // 최신 요약이 가장 위로 오도록 정렬

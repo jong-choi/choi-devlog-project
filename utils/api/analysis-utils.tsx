@@ -20,9 +20,6 @@ export function summaryParser(summary: string): string {
  * @returns {number} 두 벡터의 코사인 유사도 (0~1 사이의 값, 예외 시 0 반환)
  */
 export function cosineSimilarity(a: number[], b: number[]): number {
-  if (!Array.isArray(a) || !Array.isArray(b)) return 0;
-  if (a.length !== b.length || a.length === 0) return 0;
-
   const dotProduct = a.reduce((sum, val, i) => sum + val * (b[i] || 0), 0);
   const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
   const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));

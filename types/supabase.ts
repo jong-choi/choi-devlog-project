@@ -18,7 +18,7 @@ export type Database = {
           summary: string;
           updated_at: string | null;
           user_id: string | null;
-          vector: number[] | null;
+          vector: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -28,7 +28,7 @@ export type Database = {
           summary: string;
           updated_at?: string | null;
           user_id?: string | null;
-          vector?: number[] | null;
+          vector?: string | number[] | null;
         };
         Update: {
           created_at?: string | null;
@@ -38,7 +38,7 @@ export type Database = {
           summary?: string;
           updated_at?: string | null;
           user_id?: string | null;
-          vector?: number[] | null;
+          vector?: string | number[] | null;
         };
         Relationships: [
           {
@@ -89,33 +89,21 @@ export type Database = {
           id: string;
           similarity: number;
           source_post_id: string;
-          source_title: string;
-          source_url_slug: string;
           target_post_id: string;
-          target_title: string;
-          target_url_slug: string;
         };
         Insert: {
           created_at?: string | null;
           id?: string;
           similarity: number;
           source_post_id: string;
-          source_title: string;
-          source_url_slug: string;
           target_post_id: string;
-          target_title: string;
-          target_url_slug: string;
         };
         Update: {
           created_at?: string | null;
           id?: string;
           similarity?: number;
           source_post_id?: string;
-          source_title?: string;
-          source_url_slug?: string;
           target_post_id?: string;
-          target_title?: string;
-          target_url_slug?: string;
         };
         Relationships: [
           {
@@ -127,45 +115,6 @@ export type Database = {
           },
           {
             foreignKeyName: "post_similarities_target_post_id_fkey";
-            columns: ["target_post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      post_similarity_edges: {
-        Row: {
-          created_at: string;
-          id: number;
-          similarity: number | null;
-          source_post_id: string | null;
-          target_post_id: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: number;
-          similarity?: number | null;
-          source_post_id?: string | null;
-          target_post_id?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: number;
-          similarity?: number | null;
-          source_post_id?: string | null;
-          target_post_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "post_similarity_edges_source_post_id_fkey";
-            columns: ["source_post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "post_similarity_edges_target_post_id_fkey";
             columns: ["target_post_id"];
             isOneToOne: false;
             referencedRelation: "posts";
@@ -313,25 +262,11 @@ export type Database = {
           similarity: number | null;
           source_post_id: string | null;
           target_post_id: string | null;
+          target_thumbnail: string | null;
           target_title: string | null;
           target_url_slug: string | null;
         };
-        Relationships: [
-          {
-            foreignKeyName: "post_similarities_source_post_id_fkey";
-            columns: ["source_post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "post_similarities_target_post_id_fkey";
-            columns: ["target_post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: [];
       };
     };
     Functions: {
