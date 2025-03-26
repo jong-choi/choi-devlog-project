@@ -28,8 +28,8 @@ export default async function ClusterGraphSVG({
   nodes: ClusteredPostGroup[];
   links: GraphLink[];
 }) {
-  const HEIGHT = 800;
-  const WIDTH = 1000;
+  const WIDTH = 1600; // 넉넉히
+  const HEIGHT = 1000;
   const simNodes: SimNode[] = structuredClone(nodes);
   const simLinks: SimLink[] = structuredClone(links);
 
@@ -56,9 +56,9 @@ export default async function ClusterGraphSVG({
   const body = select(document.body);
   const svg = body
     .append("svg")
-    .attr("viewBox", `0 0 ${HEIGHT} ${WIDTH}`)
+    .attr("viewBox", `0 0 ${WIDTH} ${HEIGHT}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
-    .attr("class", "graph-svg");
+    .attr("class", "graph-svg w-full h-full"); // Tailwind에서 꽉 채움
 
   const g = svg.append("g");
 
@@ -132,8 +132,10 @@ export default async function ClusterGraphSVG({
 
   // 시뮬레이션 된 결과를 SSR
   return (
+    // max-w-[800px] h-[600px]
     <div
-      className="w-full max-w-[800px] h-[600px] overflow-hidden border rounded-xl cursor-grabbing"
+      className="w-full h-full max-h-full min-h-0
+      overflow-hidden cursor-grabbing"
       dangerouslySetInnerHTML={{ __html: body.html() }}
     />
   );

@@ -104,15 +104,18 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
       parseFloat(foreignObject.getAttribute("y") || "0") +
       parseFloat(foreignObject.getAttribute("height") || "0") / 2;
 
-    const centerX = 400;
-    const centerY = 300;
+    const offsetX = window.innerWidth / 2 - 500; // 가운데 기준에서 왼쪽으로 150px
+    const offsetY = window.innerHeight / 2;
+    const scale = 3;
 
     svg
       .transition()
       .duration(500)
       .call(
         zoomRef.current.transform,
-        zoomIdentity.translate(centerX - x * 1.5, centerY - y * 1.5).scale(1.5)
+        zoomIdentity
+          .translate(offsetX - x * scale, offsetY - y * scale)
+          .scale(scale)
       );
   }, [selectedId]);
 
