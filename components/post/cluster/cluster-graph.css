@@ -1,0 +1,108 @@
+.graph-svg {
+  background-color: #f9fafb; /* Tailwind bg-gray-50 */
+  border-radius: 0.75rem; /* Tailwind rounded-xl */
+}
+
+.graph-node {
+  fill: #b9bdc5; /* Tailwind blue-600 */
+  stroke: #c5c7ce; /* Tailwind blue-900 */
+  stroke-width: 1.5;
+  rx: 12;
+  ry: 12;
+  /* opacity: 0.95; */
+}
+
+.graph-text {
+  fill: rgb(54, 54, 54);
+  font-size: 14px;
+  font-family: sans-serif;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central; /* ✅ 텍스트 중앙 정렬 안정적 */
+}
+
+.graph-link {
+  stroke: #cbd5e1; /* Tailwind slate-300 */
+}
+
+.graph-button {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  background-color: #2563eb;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* ✅ 핵심 */
+  white-space: nowrap;
+  max-width: 200px;
+  min-width: 60px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.graph-button .count {
+  font-size: 10px;
+  margin-top: 2px;
+  color: #fcd34d; /* Tailwind yellow-400 */
+}
+
+/* --- Quality 투명도 --- */
+.graph-button.quality-excellent {
+  opacity: 0.95;
+}
+.graph-button.quality-good {
+  opacity: 0.9;
+}
+.graph-button.quality-average {
+  opacity: 0.8;
+}
+.graph-button.quality-poor {
+  opacity: 0.7;
+}
+.graph-button.quality-bloody-awful {
+  opacity: 0.6;
+}
+.graph-button.quality-unknown {
+  opacity: 0.3;
+}
+
+.graph-button:hover {
+  opacity: 1 !important; /* 기존 투명도 무시하고 100% */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); /* 부드러운 그림자 */
+}
+
+.graph-button.selected {
+  border: 2px solid #003d88;
+  opacity: 1 !important; /* 기존 투명도 무시하고 100% */
+}
+
+/* --- Count에 따른 텍스트 크기 / 두께 --- */
+.graph-button.font-size-xs {
+  font-size: 10px;
+  font-weight: 400;
+}
+.graph-button.font-size-sm {
+  font-size: 12px;
+  font-weight: 500;
+}
+.graph-button.font-size-md {
+  font-size: 13px;
+  font-weight: 600;
+}
+.graph-button.font-size-lg {
+  font-size: 14px;
+  font-weight: 700;
+}
+.graph-button.font-size-xl {
+  font-size: 15px;
+  font-weight: 800;
+}

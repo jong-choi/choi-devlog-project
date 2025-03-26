@@ -22,6 +22,9 @@ export const CACHE_TAGS = {
     SELECTED_BY_URL_SLUG: (urlSlug: string = "") =>
       "sidebar:selected:" + urlSlug,
   },
+  CLUSTER: {
+    ALL: () => "cluster",
+  },
 } as const;
 
 // 캐싱 태그를 동적으로 생성하는 함수
