@@ -1601,3 +1601,89 @@ CHECK (source_id < target_id);
 text-model-embedding-3-small로 했음에도 불구하고 가격이 많이 나왔다...
 
 3달러에 테스트 완료.
+
+## 18, 19일차 - D3, SSR, JSDOM
+
+### D3 서버사이드 렌더링하기
+
+https://brunch.co.kr/@993679fb217e4e4/1
+해당 브런치에 JSDOM을 이용해서 SSR을 하는 패턴이 잘 요약되어 있다.
+
+기본적으로 React에서 D3를 이용하는 패턴은 아래와 같다.
+
+```tsx
+"use client"
+export default function D3App({data}) {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
+
+  useEffect(()=>{
+    if(!ref.current) return
+    const svg = d3.select(ref.current).appent('svg';)
+    ....
+    const rects = svg.querySelectorAll("rect");
+
+    rects.forEach((rect, i) => {
+      // 클릭 이벤트 추가
+      rect.addEventListener("click", () => {
+        router.push(`/tags/${label}`);
+      });
+    });
+  },[]);
+
+  return <div ref={ref}/>
+}
+```
+
+이를 JSDOM을 이용해 html 형태로 반환하면 SSR이 작동한다
+
+```tsx
+export default function D3App({ data }) {
+  const document = new JSDOM(`<html><body></body></html>`).window.document;
+  const body = select(document.body);
+  const svg = body.append("svg");
+
+  return <div dangerouslySetInnerHTML={{ __html: body.html() }} />;
+}
+```
+
+단, 이렇게 하는 경우 onClick과 같은 자바스크립트 기반의 상호작용은 작동하지 않는다.
+
+이에 자바스크립트를 hydration하는 코드를 별도록 클라이언트 컴포넌트에서 작동하게 한다.
+
+```tsx
+"use client";
+
+export default function D3AppHydrator() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // 서버에서 렌더된 SVG 요소
+    const svg = document.querySelector("svg");
+    if (!svg) return;
+
+    const rects = svg.querySelectorAll("rect");
+
+    rects.forEach((rect, i) => {
+      // 클릭 이벤트 추가
+      rect.addEventListener("click", () => {
+        router.push(`/tags/${label}`);
+      });
+    });
+  }, [router]);
+
+  return null;
+}
+```
+
+이렇게 하면 빌드타임에서 D3App를 Static한 파일로 만들기 때문에 배포 후에는 D3App이 즉시 로딩되는 것을 볼 수 있다.
+
+### 군집 그래프 작성하기
+
+`components/post/cluster/cluster-graph-svg.tsx` 클러스터 그래프를 ssr한다. 최초 로딩시에는 그래프를 시뮬레이션하느라 오래 걸리지만, 빌드를 하고 나면 그대로 고정된다.
+
+`components/post/cluster/cluster-graph-hydrator.tsx` csr을 통해 생성된 SVG에 이벤트를 삽입시킨다. 버튼을 누르면 선택된 버튼이 변경되는 등.
+
+`components/post/cluster/cluster-graph.css` 클래스명을 기반으로 디자인 한다. 선택되는 등의 경우에 클래스명이 변경된다.
+
+`components/post/cluster/actions.tsx` 군집의 데이터, 군집간 유사도를 가져오는 서버 액션. 자주 바뀌는 데이터가 아니라서 cluster라는 별도의 태그로 분리하고, 로그인을 하던 하지 않던 cache가 되어 있도록 한다.
