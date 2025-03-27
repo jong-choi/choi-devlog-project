@@ -1,35 +1,46 @@
 // "use client";
-import ClusterApp from "@/components/post/cluster/cluster-app";
+import {
+  getClusterData,
+  getClusterSimData,
+} from "@/components/post/cluster/actions";
+import ClusterGraphApp from "@/components/post/cluster/cluster-graph-app";
 import { TopBar } from "@/components/post/topBar/post-top-bar";
+import { PostsProvider } from "@/providers/posts-store-provider";
 // import { useState } from "react";
 
 // 게시글 목록을 보는 페이지 -> 작성일 순으로
-const Page: React.FC = () => {
-  // const [selectedId, setSelectedId] = useState("cluster-a");
+
+export default async function Page() {
+  const { data: clusterData } = await getClusterData();
+  const { data: clusterSimData } = await getClusterSimData();
 
   return (
     <div className="h-screen flex flex-col bg-background text-foreground font-sans">
       <TopBar />
-      <aside className="absolute inset-0 w-full z-0">
-        <ClusterApp />
-      </aside>
-      <div className="relative flex-1 flex w-1/2 min-h-0 self-end xl:mr-52">
-        <div className="relative  select-none flex-1 flex py-4">
-          <div className="relative z-10 flex-1 h-full overflow-y-scroll scrollbar-hidden  bg-white/60 backdrop-blur-sm rounded-xl shadow-lg">
-            <ClusterHeaderBar clusters={clusters} />
-            <main className="flex flex-col items-center gap-8 py-4">
-              <ClusterSection clusterId="cluster-a" />
-              <ClusterSection clusterId="cluster-b" />
-              <ClusterSection clusterId="cluster-c" />
-            </main>
+      <PostsProvider initialState={{ selectedCluster: clusterData?.[0] }}>
+        <aside className="absolute inset-0 w-full z-0">
+          <ClusterGraphApp
+            nodes={clusterData || []}
+            rawLinks={clusterSimData || []}
+          />
+        </aside>
+        <div className="relative flex-1 flex w-1/2 min-h-0 self-end xl:mr-52">
+          <div className="relative  select-none flex-1 flex py-4">
+            <div className="relative z-10 flex-1 h-full overflow-y-scroll scrollbar-hidden  bg-white/60 backdrop-blur-sm rounded-xl shadow-lg">
+              <ClusterHeaderBar clusters={clusters} />
+              <main className="flex flex-col items-center gap-8 py-4">
+                <ClusterSection clusterId="cluster-a" />
+                <ClusterSection clusterId="cluster-b" />
+                <ClusterSection clusterId="cluster-c" />
+              </main>
+            </div>
           </div>
         </div>
-      </div>
+      </PostsProvider>
     </div>
   );
-};
+}
 
-export default Page;
 const clusters = [
   { id: "cluster-a", name: "클러스터 A", count: 12 },
   { id: "cluster-b", name: "클러스터 B", count: 8 },

@@ -1,24 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { select, zoom, ZoomBehavior, zoomIdentity } from "d3";
 import "@/components/post/cluster/cluster-graph.css";
-
-type ClusteredPostGroup = {
-  id: string;
-  title: string | null;
-  quality: number | null;
-  post_ids: string[] | null;
-};
+import { ClusteredPostGroup } from "@/types/graph";
+import { usePosts } from "@/providers/posts-store-provider";
 
 type Props = {
   nodes: ClusteredPostGroup[];
 };
 
 export default function ClusterGraphHydrator({ nodes }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(
-    () => nodes[0].id
-  );
+  const selectedId = usePosts((state) => state.selectedCluster?.id);
+  const setSelectedCluster = usePosts((state) => state.setSelectedCluster);
+
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
   useEffect(() => {
@@ -48,32 +43,27 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
       .call(zoomBehavior.transform, zoomIdentity.translate(100, 0).scale(1.2));
 
     // 각 노드에 이벤트 달아주기
-    const buttons = svgEl.querySelectorAll("button.graph-button");
+    const groups = svgEl.querySelectorAll("g.node-button");
 
-    buttons.forEach((button) => {
-      const id = button.getAttribute("data-id");
+    groups.forEach((group) => {
+      const id = group.getAttribute("data-id");
       if (!id) return;
 
       const matchedNode = nodes.find((n) => n.id === id);
       if (!matchedNode) return;
 
-      button.addEventListener("click", () => {
-        setSelectedId(id);
-        console.log(
-          "📦 post_ids for",
-          matchedNode.id,
-          ":",
-          matchedNode.post_ids
-        );
+      group.addEventListener("click", () => {
+        setSelectedCluster(matchedNode);
+        console.log("✅ selected cluster:", matchedNode);
       });
     });
 
     return () => {
-      buttons.forEach((button) => {
-        button.replaceWith(button.cloneNode(true));
+      groups.forEach((group) => {
+        group.replaceWith(group.cloneNode(true));
       });
     };
-  }, [nodes]);
+  }, [nodes, setSelectedCluster]);
 
   // 선택된 노드가 변경될 때 발생될 이벤트
   useEffect(() => {
@@ -84,27 +74,30 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
 
     const svg = select<SVGSVGElement, unknown>(svgEl);
 
-    const allButtons = svgEl.querySelectorAll("button.graph-button");
-    allButtons.forEach((btn) => btn.classList.remove("selected"));
+    const allGroups = svgEl.querySelectorAll("g.node-button");
+    allGroups.forEach((g) => g.classList.remove("selected"));
 
-    const button = Array.from(allButtons).find(
-      (btn) => btn.getAttribute("data-id") === selectedId
+    const group = Array.from(allGroups).find(
+      (g) => g.getAttribute("data-id") === selectedId
     );
+    if (!group) return;
 
-    if (!button) return;
+    group.classList.add("selected");
 
-    button.classList.add("selected");
-    const foreignObject = button.closest("foreignObject");
-    if (!foreignObject) return;
+    // 1. getBBox로 내부 상대 좌표
+    const bbox = (group as SVGGElement).getBBox();
 
-    const x =
-      parseFloat(foreignObject.getAttribute("x") || "0") +
-      parseFloat(foreignObject.getAttribute("width") || "0") / 2;
-    const y =
-      parseFloat(foreignObject.getAttribute("y") || "0") +
-      parseFloat(foreignObject.getAttribute("height") || "0") / 2;
+    // 2. transform 속성에서 x, y 추출
+    const transform = group.getAttribute("transform"); // 예: "translate(345.23, 211.94)"
+    const match = transform?.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+    const tx = match ? parseFloat(match[1]) : 0;
+    const ty = match ? parseFloat(match[2]) : 0;
 
-    const offsetX = window.innerWidth / 2 - 500; // 가운데 기준에서 왼쪽으로 150px
+    // 3. 중심점 계산 (transform + bbox 중심)
+    const cx = tx + bbox.x + bbox.width / 2;
+    const cy = ty + bbox.y + bbox.height / 2;
+
+    const offsetX = window.innerWidth / 2 - window.innerWidth / 3; // 왼쪽으로 500px 떨어진 위치
     const offsetY = window.innerHeight / 2;
     const scale = 3;
 
@@ -114,7 +107,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
       .call(
         zoomRef.current.transform,
         zoomIdentity
-          .translate(offsetX - x * scale, offsetY - y * scale)
+          .translate(offsetX - cx * scale, offsetY - cy * scale)
           .scale(scale)
       );
   }, [selectedId]);

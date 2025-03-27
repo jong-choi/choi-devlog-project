@@ -1,108 +1,103 @@
+/* === 전체 SVG === */
 .graph-svg {
   background-color: #f9fafb; /* Tailwind bg-gray-50 */
   border-radius: 0.75rem; /* Tailwind rounded-xl */
 }
 
-.graph-node {
-  fill: #b9bdc5; /* Tailwind blue-600 */
-  stroke: #c5c7ce; /* Tailwind blue-900 */
-  stroke-width: 1.5;
-  rx: 12;
-  ry: 12;
-  /* opacity: 0.95; */
-}
-
-.graph-text {
-  fill: rgb(54, 54, 54);
-  font-size: 14px;
-  font-family: sans-serif;
-  font-weight: 500;
-  text-anchor: middle;
-  dominant-baseline: central; /* ✅ 텍스트 중앙 정렬 안정적 */
-}
-
+/* === 링크 라인 === */
 .graph-link {
   stroke: #cbd5e1; /* Tailwind slate-300 */
 }
 
-.graph-button {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 10px;
-  background-color: #2563eb;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  border: none;
+/* === 노드 버튼 그룹 === */
+.node-button {
   cursor: pointer;
   transition: all 0.2s ease;
-
-  /* ✅ 핵심 */
-  white-space: nowrap;
-  max-width: 200px;
-  min-width: 60px;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
-.graph-button .count {
+/* === 사각형 배경 === */
+.graph-node {
+  fill: #2563eb; /* Tailwind blue-600 */
+  stroke: #003d88; /* Tailwind blue-900 */
+  stroke-width: 1.5;
+  rx: 12;
+  ry: 12;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+}
+
+/* === 텍스트 공통 === */
+.graph-text {
+  fill: white;
+  font-family: sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* === 제목 텍스트 === */
+.graph-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* === 게시글 수 텍스트 === */
+.graph-count {
   font-size: 10px;
-  margin-top: 2px;
-  color: #fcd34d; /* Tailwind yellow-400 */
+  fill: #fcd34d; /* Tailwind yellow-400 */
 }
 
-/* --- Quality 투명도 --- */
-.graph-button.quality-excellent {
+/* === Quality 등급별 투명도 === */
+.node-button.quality-excellent .graph-node {
   opacity: 0.95;
 }
-.graph-button.quality-good {
+.node-button.quality-good .graph-node {
   opacity: 0.9;
 }
-.graph-button.quality-average {
+.node-button.quality-average .graph-node {
   opacity: 0.8;
 }
-.graph-button.quality-poor {
+.node-button.quality-poor .graph-node {
   opacity: 0.7;
 }
-.graph-button.quality-bloody-awful {
+.node-button.quality-bloody-awful .graph-node {
   opacity: 0.6;
 }
-.graph-button.quality-unknown {
+.node-button.quality-unknown .graph-node {
   opacity: 0.3;
 }
 
-.graph-button:hover {
-  opacity: 1 !important; /* 기존 투명도 무시하고 100% */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); /* 부드러운 그림자 */
-}
-
-.graph-button.selected {
-  border: 2px solid #003d88;
-  opacity: 1 !important; /* 기존 투명도 무시하고 100% */
-}
-
-/* --- Count에 따른 텍스트 크기 / 두께 --- */
-.graph-button.font-size-xs {
+/* === font-size에 따른 텍스트 크기 조절 === */
+.node-button.font-size-xs .graph-title {
   font-size: 10px;
   font-weight: 400;
 }
-.graph-button.font-size-sm {
+.node-button.font-size-sm .graph-title {
   font-size: 12px;
   font-weight: 500;
 }
-.graph-button.font-size-md {
+.node-button.font-size-md .graph-title {
   font-size: 13px;
   font-weight: 600;
 }
-.graph-button.font-size-lg {
+.node-button.font-size-lg .graph-title {
   font-size: 14px;
   font-weight: 700;
 }
-.graph-button.font-size-xl {
+.node-button.font-size-xl .graph-title {
   font-size: 15px;
   font-weight: 800;
+}
+
+/* === Hover 상태 === */
+.node-button:hover .graph-node {
+  opacity: 1 !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* === 선택된 상태 === */
+.node-button.selected .graph-node {
+  stroke: #003d88;
+  stroke-width: 2.5;
+  opacity: 1 !important;
 }

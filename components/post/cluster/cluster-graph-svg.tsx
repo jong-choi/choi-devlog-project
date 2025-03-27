@@ -109,25 +109,37 @@ export default async function ClusterGraphSVG({
   };
 
   nodeGroups
-    .append("foreignObject")
-    .attr("x", (d) => d.x! - 50)
-    .attr("y", (d) => d.y! - 20)
-    .attr("width", 200)
-    .attr("height", 40)
-    .append("xhtml:div")
-    .html((d) => {
+    .append("g")
+    .attr("class", (d) => {
+      const quality = getQualityClass(d.quality); // ex: "quality-good"
+      const fontSize = getFontSizeClass(d.post_ids?.length ?? 0); // ex: "font-size-sm"
+      return `node-button ${quality} ${fontSize}`;
+    })
+    .attr("data-id", (d) => d.id)
+    .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+    .each(function (d) {
+      const g = select(this);
       const count = d.post_ids?.length ?? 0;
-      const qualityClass = getQualityClass(d.quality);
-      const fontClass = getFontSizeClass(count);
+      const title = d.title || d.id;
 
-      return `
-          <button class="graph-button ${qualityClass} ${fontClass}" data-id="${
-        d.id
-      }">
-            <span class="title">${d.title || d.id}</span>
-            <span class="count">${count}</span>
-          </button>
-      `;
+      g.append("rect")
+        .attr("x", -80)
+        .attr("y", -20)
+        .attr("width", 160)
+        .attr("height", 40)
+        .attr("rx", 12)
+        .attr("ry", 12)
+        .attr("class", "graph-node");
+
+      g.append("text")
+        .attr("x", 0)
+        .attr("y", 4)
+        .attr("class", "graph-text graph-title")
+        .call((text) => {
+          text.append("tspan").text(title).attr("class", "graph-title");
+
+          text.append("tspan").text(` (${count})`).attr("class", "graph-count");
+        });
     });
 
   // 시뮬레이션 된 결과를 SSR

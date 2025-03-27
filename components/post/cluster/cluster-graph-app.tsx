@@ -3,18 +3,16 @@ import ClusterGraphSVG from "@/components/post/cluster/cluster-graph-svg";
 import ClusterGraphHydrator from "@/components/post/cluster/cluster-graph-hydrator";
 
 import "@/components/post/cluster/cluster-graph.css";
-import {
-  getClusterData,
-  getClusterSimData,
-} from "@/components/post/cluster/actions";
 
-export default async function ClusterApp() {
-  const { data: ClusterData } = await getClusterData();
-  const { data: ClusterSimData } = await getClusterSimData();
+interface ClusterGraphAppProps {
+  nodes: ClusteredPostGroup[];
+  rawLinks: ClusteredPostSimilarity[];
+}
 
-  const nodes: ClusteredPostGroup[] = ClusterData || [];
-  const rawLinks: ClusteredPostSimilarity[] = ClusterSimData || [];
-
+export default function ClusterGraphApp({
+  nodes,
+  rawLinks,
+}: ClusterGraphAppProps) {
   // D3에서 요구하는 source/target 포맷으로 변환
   const links = rawLinks.map(({ source_id, target_id, similarity }) => ({
     source: source_id || "",
