@@ -1687,3 +1687,27 @@ export default function D3AppHydrator() {
 `components/post/cluster/cluster-graph.css` 클래스명을 기반으로 디자인 한다. 선택되는 등의 경우에 클래스명이 변경된다.
 
 `components/post/cluster/actions.tsx` 군집의 데이터, 군집간 유사도를 가져오는 서버 액션. 자주 바뀌는 데이터가 아니라서 cluster라는 별도의 태그로 분리하고, 로그인을 하던 하지 않던 cache가 되어 있도록 한다.
+
+## 20, 21일차 - 게시글 목록
+
+주제별(cluster 별) 게시글 보기 페이지 작성함.
+
+구현하고자 했던 내용은
+
+- graph에서 노드를 클릭하면 해당 주제로 게시글 목록이 스크롤됨
+- 게시글 목록 상단에 주제들이 나와있음
+- 게시글 목록에서 스크롤을 하면 스크롤된 주제에 맞게 graph와 상단바가 변화함.
+
+`getClusterFeed` 액션 => cluster 게시글 정보는 매우 드물게 업데이트 된다. 따라서 별도의 view 테이블을 작성하지 않고, join의 join을 거듭하면서 객체 하나를 내놓도록 서버 액션을 작성하였다.
+
+`cluster-post-list` 게시글을 스크롤하면 intersectionObserver를 통해 선택된 cluster가 무엇인지 바꾼다. 이때 'isManualScrolling'을 true로 하면서 바꾼다.
+
+`cluster-section` 게시글 목록보다 상위에 있는 컴포넌트로, 선택된 cluster가 무엇인지에 따라 postList를 스크롤링 한다. 이때 isManualScrolling이 true이면 자동 스크롤링을 하지 않는다.
+
+그 밖에
+
+- SVG 배경에 button을 넣었더니 safari에서 작동하지 않는 문제가 있어서 button을 제거하고 순수 svg로 변경하였다.
+- 게시글 목록 상단에 cluster 목록을 보여주는 header에 스크롤 상하를 스크롤 좌우로 바꿔주는 이벤트를 넣어두었다.
+
+추가적으로 이번 디자인은 Frosted Glass 컨셉으로 잡아보았다.  
+의외로 디자인이 괜찮은 것 같아서 이쪽 디자인으로 밀고가면 좋을듯.
