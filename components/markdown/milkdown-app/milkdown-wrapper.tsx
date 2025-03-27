@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -101,14 +102,12 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   }
 
   return (
-    <>
-      <MilkdownProvider>
-        <MilkdownEditor
-          setMarkdown={setBody}
-          markdown={body}
-          onImageUpload={imageUploadHandler}
-        />
-      </MilkdownProvider>
-    </>
+    <MilkdownProvider>
+      <MilkdownEditor
+        setMarkdown={setBody}
+        markdown={body}
+        onImageUpload={imageUploadHandler}
+      />
+    </MilkdownProvider>
   );
 }
