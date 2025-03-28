@@ -1,7 +1,7 @@
 import { Separator } from "@radix-ui/react-separator";
 import "@mdxeditor/editor/style.css";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
-import { SidebarTrigger } from "@ui/sidebar";
+import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
 import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
 import TitleEditor from "@/components/post/main/title-editor";
