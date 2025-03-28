@@ -1714,9 +1714,25 @@ export default function D3AppHydrator() {
 
 ## 22일차 - 사이드바 재 디자인
 
+### 사이드바 재디자인
+
+기존 사이드바를 폐기하고
+`components/post/sidebar/post-sidebar-wrapper.tsx`
+`components/post/sidebar/post-sidebar.tsx`
+여기에 재설정.
+
+게시글 목록 전체를 불러온 이후 필터를 걸도록 하여 성능 향상이 있었고,
+왼쪽은 카테고리를 선택하고, 오른쪽은 게시글 목록을 선택하는 방식으로 나누었다.
+
+모바일일때의 로직은 별도로 분리하였다.
+
+추천게시글을 보여주는 부분이 사라졌는데 어디서 보여줄지 고민해봐야 할듯.
+
 ### 테일윈드 테마 설정
 
-### 🔧 `tailwind.config.ts`
+기초적인 색상 및 glassmorphism 구현에 필요한 테마들 설정
+
+#### 🔧 `tailwind.config.ts`
 
 ```ts
 export default {
@@ -1762,7 +1778,7 @@ export default {
 
 ---
 
-### `globals.css`
+#### `globals.css`
 
 ```css
 :root {
@@ -1820,7 +1836,7 @@ export default {
 
 ---
 
-### Tailwind 토큰 요약표
+#### Tailwind 토큰 요약표
 
 | 색상 이름 (`--color-*`) | Tailwind 클래스 예시       | 역할 설명          |
 | ----------------------- | -------------------------- | ------------------ |
