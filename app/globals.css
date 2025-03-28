@@ -121,3 +121,70 @@ pre {
     transform: rotate(360deg);
   }
 }
+
+:root {
+  --color-base: #374151;
+  --color-muted: #9ca3af;
+  --color-bg: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-hover: #f3f4f6;
+  --color-selected-bg: #e5e7eb;
+  --color-selected-text: #111827;
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08),
+    0px 1px 2px rgba(0, 0, 0, 0.12);
+  --glass-blur: blur(12px);
+
+  --glass-primary-text: #1e3a8a;
+  --glass-success-text: #14532d;
+  --glass-warning-text: #78350f;
+  --glass-danger-text: #7f1d1d;
+  --glass-neutral-text: #1f2937;
+
+  --glass-primary-bg: rgba(59, 130, 246, 0.2);
+  --glass-success-bg: rgba(34, 197, 94, 0.2);
+  --glass-warning-bg: rgba(251, 191, 36, 0.25);
+  --glass-danger-bg: rgba(239, 68, 68, 0.25);
+  --glass-neutral-bg: rgba(107, 114, 128, 0.2);
+
+  --glass-selected-primary-bg: rgba(59, 130, 246, 0.6);
+  --glass-selected-success-bg: rgba(34, 197, 94, 0.6);
+  --glass-selected-warning-bg: rgba(251, 191, 36, 0.6);
+  --glass-selected-danger-bg: rgba(239, 68, 68, 0.6);
+  --glass-selected-neutral-bg: rgba(107, 114, 128, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-base: #d1d5db;
+    --color-muted: #6b7280;
+    --color-bg: #030712;
+    --color-border: #374151;
+    --color-hover: #1f2937;
+    --color-selected-bg: #374151;
+    --color-selected-text: #ffffff;
+
+    --glass-bg: rgba(17, 24, 39, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+
+    --glass-primary-text: #93c5fd;
+    --glass-success-text: #6ee7b7;
+    --glass-warning-text: #fde68a;
+    --glass-danger-text: #fca5a5;
+    --glass-neutral-text: #d1d5db;
+
+    --glass-primary-bg: rgba(59, 130, 246, 0.1);
+    --glass-success-bg: rgba(34, 197, 94, 0.1);
+    --glass-warning-bg: rgba(251, 191, 36, 0.15);
+    --glass-danger-bg: rgba(239, 68, 68, 0.15);
+    --glass-neutral-bg: rgba(107, 114, 128, 0.1);
+
+    --glass-selected-primary-bg: rgba(59, 130, 246, 0.5);
+    --glass-selected-success-bg: rgba(34, 197, 94, 0.5);
+    --glass-selected-warning-bg: rgba(251, 191, 36, 0.5);
+    --glass-selected-danger-bg: rgba(239, 68, 68, 0.5);
+    --glass-selected-neutral-bg: rgba(107, 114, 128, 0.5);
+  }
+}

@@ -22,11 +22,48 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // 텍스트 & 배경 토큰
+        "color-base": "var(--color-base)",
+        "color-muted": "var(--color-muted)",
+        "color-bg": "var(--color-bg)",
+        "color-border": "var(--color-border)",
+        "color-hover": "var(--color-hover)",
+        "color-selected-bg": "var(--color-selected-bg)",
+        "color-selected-text": "var(--color-selected-text)",
+
+        // 기본 Glass
+        "glass-bg": "var(--glass-bg)",
+        "glass-border": "var(--glass-border)",
+
+        // 색상별 Glass 배경 & 텍스트
+        "glass-primary": "var(--glass-primary-bg)",
+        "glass-success": "var(--glass-success-bg)",
+        "glass-warning": "var(--glass-warning-bg)",
+        "glass-danger": "var(--glass-danger-bg)",
+        "glass-neutral": "var(--glass-neutral-bg)",
+
+        "glass-text-primary": "var(--glass-primary-text)",
+        "glass-text-success": "var(--glass-success-text)",
+        "glass-text-warning": "var(--glass-warning-text)",
+        "glass-text-danger": "var(--glass-danger-text)",
+        "glass-text-neutral": "var(--glass-neutral-text)",
+
+        "glass-selected-primary": "var(--glass-selected-primary-bg)",
+        "glass-selected-success": "var(--glass-selected-success-bg)",
+        "glass-selected-warning": "var(--glass-selected-warning-bg)",
+        "glass-selected-danger": "var(--glass-selected-danger-bg)",
+        "glass-selected-neutral": "var(--glass-selected-neutral-bg)",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        glass: "var(--glass-shadow)",
+      },
+      backdropBlur: {
+        glass: "12px",
       },
     },
   },

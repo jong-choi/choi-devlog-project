@@ -1711,3 +1711,140 @@ export default function D3AppHydrator() {
 
 추가적으로 이번 디자인은 Frosted Glass 컨셉으로 잡아보았다.  
 의외로 디자인이 괜찮은 것 같아서 이쪽 디자인으로 밀고가면 좋을듯.
+
+## 22일차 - 사이드바 재 디자인
+
+### 테일윈드 테마 설정
+
+### 🔧 `tailwind.config.ts`
+
+```ts
+export default {
+  theme: {
+    extend: {
+      colors: {
+        // 텍스트 & 배경 토큰
+        "color-base": "var(--color-base)",
+        "color-muted": "var(--color-muted)",
+        "color-bg": "var(--color-bg)",
+        "color-border": "var(--color-border)",
+        "color-hover": "var(--color-hover)",
+        "color-selected-bg": "var(--color-selected-bg)",
+        "color-selected-text": "var(--color-selected-text)",
+
+        // 기본 Glass
+        "glass-bg": "var(--glass-bg)",
+        "glass-border": "var(--glass-border)",
+
+        // 색상별 Glass 배경 & 텍스트
+        "glass-primary": "var(--glass-primary-bg)",
+        "glass-success": "var(--glass-success-bg)",
+        "glass-warning": "var(--glass-warning-bg)",
+        "glass-danger": "var(--glass-danger-bg)",
+        "glass-neutral": "var(--glass-neutral-bg)",
+
+        "glass-text-primary": "var(--glass-primary-text)",
+        "glass-text-success": "var(--glass-success-text)",
+        "glass-text-warning": "var(--glass-warning-text)",
+        "glass-text-danger": "var(--glass-danger-text)",
+        "glass-text-neutral": "var(--glass-neutral-text)",
+      },
+      boxShadow: {
+        glass: "var(--glass-shadow)",
+      },
+      backdropBlur: {
+        glass: "12px",
+      },
+    },
+  },
+};
+```
+
+---
+
+### `globals.css`
+
+```css
+:root {
+  --color-base: #374151;
+  --color-muted: #9ca3af;
+  --color-bg: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-hover: #f3f4f6;
+  --color-selected-bg: #e5e7eb;
+  --color-selected-text: #111827;
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --glass-blur: blur(12px);
+
+  --glass-primary-bg: rgba(59, 130, 246, 0.2);
+  --glass-success-bg: rgba(34, 197, 94, 0.2);
+  --glass-warning-bg: rgba(251, 191, 36, 0.25);
+  --glass-danger-bg: rgba(239, 68, 68, 0.25);
+  --glass-neutral-bg: rgba(107, 114, 128, 0.2);
+
+  --glass-primary-text: #1e3a8a;
+  --glass-success-text: #14532d;
+  --glass-warning-text: #78350f;
+  --glass-danger-text: #7f1d1d;
+  --glass-neutral-text: #1f2937;
+}
+
+.dark {
+  --color-base: #d1d5db;
+  --color-muted: #6b7280;
+  --color-bg: #030712;
+  --color-border: #374151;
+  --color-hover: #1f2937;
+  --color-selected-bg: #374151;
+  --color-selected-text: #ffffff;
+
+  --glass-bg: rgba(17, 24, 39, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  --glass-primary-bg: rgba(59, 130, 246, 0.1);
+  --glass-success-bg: rgba(34, 197, 94, 0.1);
+  --glass-warning-bg: rgba(251, 191, 36, 0.15);
+  --glass-danger-bg: rgba(239, 68, 68, 0.15);
+  --glass-neutral-bg: rgba(107, 114, 128, 0.1);
+
+  --glass-primary-text: #93c5fd;
+  --glass-success-text: #6ee7b7;
+  --glass-warning-text: #fde68a;
+  --glass-danger-text: #fca5a5;
+  --glass-neutral-text: #d1d5db;
+}
+```
+
+---
+
+### Tailwind 토큰 요약표
+
+| 색상 이름 (`--color-*`) | Tailwind 클래스 예시       | 역할 설명          |
+| ----------------------- | -------------------------- | ------------------ |
+| `--color-base`          | `text-color-base`          | 본문 텍스트        |
+| `--color-muted`         | `text-color-muted`         | 설명 텍스트        |
+| `--color-bg`            | `bg-color-bg`              | 배경 색상          |
+| `--color-border`        | `border-color-border`      | 테두리 색상        |
+| `--color-hover`         | `hover:bg-color-hover`     | hover 상태         |
+| `--color-selected-bg`   | `bg-color-selected-bg`     | 선택된 항목 배경   |
+| `--color-selected-text` | `text-color-selected-text` | 선택된 항목 텍스트 |
+
+| Glass 토큰             | 클래스 예시               | 설명                             |
+| ---------------------- | ------------------------- | -------------------------------- |
+| `--glass-bg`           | `bg-glass-bg`             | 기본 글라스 배경                 |
+| `--glass-border`       | `border-glass-border`     | 글라스 경계선                    |
+| `--glass-shadow`       | `shadow-glass`            | 글라스 전용 그림자               |
+| `--glass-blur`         | `backdrop-blur-glass`     | blur 효과                        |
+| `--glass-primary-bg`   | `bg-glass-primary`        | 파란색 계열 Glass 배경           |
+| `--glass-primary-text` | `text-glass-text-primary` | 파란색 계열 Glass 텍스트 색상    |
+| `--glass-success-bg`   | `bg-glass-success`        | 초록색 계열 Glass 배경           |
+| `--glass-success-text` | `text-glass-text-success` | 초록색 계열 Glass 텍스트 색상    |
+| `--glass-warning-bg`   | `bg-glass-warning`        | 주황색 계열 Glass 배경           |
+| `--glass-warning-text` | `text-glass-text-warning` | 주황색 계열 Glass 텍스트 색상    |
+| `--glass-danger-bg`    | `bg-glass-danger`         | 빨간색 계열 Glass 배경           |
+| `--glass-danger-text`  | `text-glass-text-danger`  | 빨간색 계열 Glass 텍스트 색상    |
+| `--glass-neutral-bg`   | `bg-glass-neutral`        | 중성 회색 계열 Glass 배경        |
+| `--glass-neutral-text` | `text-glass-text-neutral` | 중성 회색 계열 Glass 텍스트 색상 |
