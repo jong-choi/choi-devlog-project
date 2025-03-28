@@ -255,7 +255,9 @@ const _getPostsBySubcategoryId = async (
   const isValid = typeof arg.at(-1) === "boolean" && arg.at(-1);
   const result = await supabase
     .from("posts")
-    .select("id, url_slug, title, short_description, is_private, order")
+    .select(
+      "id, url_slug, title, short_description, is_private, order, subcategory_id"
+    )
     .is("deleted_at", null)
     .eq("subcategory_id", subcategoryId)
     .or(
@@ -648,6 +650,7 @@ export const createPost = createWithInvalidation(
       CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+    revalidateTag(CACHE_TAGS.POST.ALL());
   }
 );
 
@@ -684,6 +687,7 @@ export const updatePost = createWithInvalidation(
       CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+    revalidateTag(CACHE_TAGS.POST.ALL());
   }
 );
 
@@ -714,5 +718,32 @@ export const softDeletePost = createWithInvalidation(
       CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
+    revalidateTag(CACHE_TAGS.POST.ALL());
   }
+);
+
+const _getSidebarPosts = async (
+  ...arg: boolean[]
+): Promise<PostgrestResponse<Post>> => {
+  const supabase = createClientClient();
+  const isValid = typeof arg.at(-1) === "boolean" && arg.at(-1);
+  const result = await supabase
+    .from("posts")
+    .select(
+      "id, url_slug, title, short_description, is_private, order, subcategory_id"
+    )
+    .is("deleted_at", null)
+    .or(
+      isValid
+        ? "is_private.is.null,is_private.is.false,is_private.is.true"
+        : "is_private.is.null,is_private.is.false"
+    )
+    .order("order", { ascending: true });
+
+  return result;
+};
+
+export const getSidebarPosts = createCachedFunction(
+  CACHE_TAGS.POST.ALL(),
+  _getSidebarPosts
 );

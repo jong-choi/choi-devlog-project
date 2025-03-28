@@ -1,0 +1,48 @@
+import { createStore } from "zustand";
+
+export interface SidebarState {
+  selectedCategoryId: string | null;
+  selectedSubcategoryId: string | null;
+  selectedPostId: string | null;
+  leftCollapsed: boolean;
+  rightCollapsed: boolean;
+  openedCategories: Record<string, boolean>;
+  setCategory: (id: string | null) => void;
+  setSubcategory: (id: string | null) => void;
+  setPost: (id: string | null) => void;
+  setLeftCollapsed: (state: boolean) => void;
+  setRightCollapsed: (state: boolean) => void;
+  setOpenCategory: (categoryId: string, open: boolean) => void;
+  toggleCategory: (categoryId: string) => void;
+}
+
+export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
+  createStore<SidebarState>((set) => ({
+    selectedCategoryId: null,
+    selectedSubcategoryId: null,
+    selectedPostId: null,
+    leftCollapsed: false,
+    rightCollapsed: false,
+    openedCategories: {},
+    setCategory: (id) =>
+      set({ selectedCategoryId: id, selectedSubcategoryId: null }),
+    setSubcategory: (id) => set({ selectedSubcategoryId: id }),
+    setPost: (id) => set({ selectedPostId: id }),
+    setLeftCollapsed: (state) => set({ leftCollapsed: state }),
+    setRightCollapsed: (state) => set({ rightCollapsed: state }),
+    setOpenCategory: (categoryId, open) =>
+      set((state) => ({
+        openedCategories: {
+          ...state.openedCategories,
+          [categoryId]: open,
+        },
+      })),
+    toggleCategory: (categoryId) =>
+      set((state) => ({
+        openedCategories: {
+          ...state.openedCategories,
+          [categoryId]: !state.openedCategories[categoryId],
+        },
+      })),
+    ...initialState, // 초기값 덮어쓰기
+  }));

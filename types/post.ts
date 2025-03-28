@@ -7,6 +7,7 @@ export type Post = {
   short_description: string | null;
   is_private: boolean | null;
   order: number | null;
+  subcategory_id: string | null;
 };
 export type Subcategory = {
   id: string;

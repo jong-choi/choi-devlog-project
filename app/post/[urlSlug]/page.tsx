@@ -43,7 +43,11 @@ export default async function Page({ params, searchParams }: PageProps) {
       subcategoryId={subcategory_id}
       categoryData={categoryData}
     >
-      <SidebarHydrator category={category} subcategory={subcategory} />
+      <SidebarHydrator
+        category={category}
+        subcategory={subcategory}
+        postId={data!.id}
+      />
       <main
         id="메인레퍼"
         className="flex flex-1 flex-col h-full bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-white"

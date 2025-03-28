@@ -13,6 +13,7 @@ export const CACHE_TAGS = {
     BY_POST_ID: (postId: string = "") => "ai_summary:by_post:" + postId,
   },
   POST: {
+    ALL: () => "posts",
     BY_URL_SLUG: (urlSlug: string = "") => "post:by_url_slug:" + urlSlug,
     BY_SUBCATEGORY_ID: (subcategoryId: string = "") =>
       "posts:by_subcategory_id:" + subcategoryId,

@@ -1,7 +1,8 @@
-import { getSidebarCategory } from "@/app/post/actions";
-import { LeftSidebar } from "@/components/post/sidebar/left-sidebar";
+import { getSidebarCategory, getSidebarPosts } from "@/app/post/actions";
+import { Sidebar } from "@/components/post/sidebar/post-sidebar";
+// import { LeftSidebar } from "@/components/post/sidebar/left-sidebar";
 
-import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar";
+import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 
 interface PostLayoutProps {
   params: Promise<{
@@ -18,10 +19,14 @@ export default async function PostLayout({
   const urlSlug = (await params).urlSlug || "";
   const { data } = await getSidebarCategory();
   const categories = data || [];
+  const { data: PostsData } = await getSidebarPosts();
+  const posts = PostsData || [];
+
   return (
-    <PostSidebarWrapper categories={categories} urlSlug={urlSlug}>
+    <PostSidebarWrapper categories={categories} urlSlug={urlSlug} posts={posts}>
       <div className="flex h-screen">
-        <LeftSidebar />
+        {/* <LeftSidebar /> */}
+        <Sidebar categories={categories} posts={posts} />
         {children}
       </div>
     </PostSidebarWrapper>
