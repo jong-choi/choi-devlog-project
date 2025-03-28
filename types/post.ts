@@ -1,3 +1,4 @@
+import { GraphPost, PostTags } from "@/types/graph";
 import { Database } from "@/types/supabase";
 
 export type Post = {
@@ -21,6 +22,8 @@ export interface Category {
   order: number | null;
   subcategories: Subcategory[];
 }
+
+export type CardPost = GraphPost & { tags: PostTags[] };
 
 export type SidebarSelectedData = {
   post: Post;

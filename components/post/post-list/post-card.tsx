@@ -1,21 +1,21 @@
 import { Logo } from "@/components/post/topBar/post-top-bar";
 import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
-import { GraphPost, PostTags } from "@/types/graph";
+import { CardPost } from "@/types/post";
 import Image from "next/image";
 
 export function PostCard({
   post,
   isFeatured = false,
 }: {
-  post: GraphPost & { tags: PostTags[] };
+  post: CardPost;
   isFeatured?: boolean;
 }) {
   return (
     <div
       className={cn(
         "w-full bg-glass-bg text-base backdrop-blur-sm rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-glass-border",
-        isFeatured ? "lg:w-1/2 flex flex-col lg:flex-row" : ""
+        isFeatured ? "flex flex-col lg:flex-row" : ""
       )}
     >
       {/* 이미지 영역 */}
@@ -57,7 +57,7 @@ export function PostCard({
           <div className="flex-1">
             <h3
               className={cn(
-                "font-bold",
+                "font-bold line-clamp-2",
                 isFeatured ? "text-2xl lg:text-3xl" : "text-lg"
               )}
             >
