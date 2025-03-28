@@ -132,7 +132,7 @@ pre {
   --color-selected-text: #111827;
 
   --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(220, 220, 220, 0.3);
   --glass-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08),
     0px 1px 2px rgba(0, 0, 0, 0.12);
   --glass-blur: blur(12px);
@@ -167,7 +167,7 @@ pre {
     --color-selected-text: #ffffff;
 
     --glass-bg: rgba(17, 24, 39, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(17, 24, 39, 0.8);
 
     --glass-primary-text: #93c5fd;
     --glass-success-text: #6ee7b7;
