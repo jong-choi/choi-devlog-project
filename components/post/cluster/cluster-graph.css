@@ -1,22 +1,22 @@
 /* === 전체 SVG === */
 .graph-svg {
-  background-color: #f1f5f9;
+  background-color: #f1f5f9; /* slate-100 */
 }
 
 @media (prefers-color-scheme: dark) {
   .graph-svg {
-    background-color: #1f2937; /* Tailwind bg-gray-800 */
+    background-color: #27272a; /* Tailwind bg-zinc-800 */
   }
 }
 
 /* === 링크 라인 === */
 .graph-link {
-  stroke: #cbd5e1; /* 기본값: slate-300 */
+  stroke: #e2e8f0; /* 기본값: slate-200 */
 }
 
 @media (prefers-color-scheme: dark) {
   .graph-link {
-    stroke: #475569; /* 다크모드: slate-600 */
+    stroke: #3f3f46; /* 다크모드: zinc-700 */
   }
 }
 
@@ -28,8 +28,8 @@
 
 /* === 사각형 배경 === */
 .graph-node {
-  fill: #2563eb; /* Tailwind blue-600 */
-  stroke: #003d88; /* Tailwind blue-900 */
+  fill: #e0f2fe; /* Tailwind sky-100 */
+  stroke: #f0f9ff; /* Tailwind sky-50 */
   stroke-width: 1.5;
   rx: 12;
   ry: 12;
@@ -39,15 +39,14 @@
 
 @media (prefers-color-scheme: dark) {
   .graph-node {
-    fill: #1e40af; /* blue-800 */
-    stroke: #172554; /* blue-950 */
+    fill: #44403c; /* stone-700 */
+    stroke: #57534e; /* stone-600 */
   }
 }
 
 /* === 텍스트 공통 === */
 .graph-text {
-  fill: white;
-  font-family: sans-serif;
+  fill: #0f172a; /* slate-800 */
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
@@ -115,7 +114,13 @@
 
 /* === 선택된 상태 === */
 .node-button.selected .graph-node {
-  stroke: #003d88;
+  stroke: #93c5fd; /* blue-300 */
   stroke-width: 2.5;
   opacity: 1 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .node-button.selected .graph-node {
+    stroke: #292524; /* stone-800 */
+  }
 }

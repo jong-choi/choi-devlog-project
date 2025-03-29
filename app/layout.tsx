@@ -20,6 +20,17 @@ export default function RootLayout({
       <body
         className={`antialiased h-screen flex flex-col bg-background text-foreground font-sans`}
       >
+        <div className="css-background">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         <ToastProvider />
         <AuthStoreProvider>
           <AuthProvider />

@@ -134,7 +134,7 @@ export default async function ClusterGraphSVG({
 
       g.append("text")
         .attr("x", 0)
-        .attr("y", 1)
+        .attr("y", 0)
         .attr("class", "graph-text graph-title")
         .call((text) => {
           text.append("tspan").text(title).attr("class", "graph-title");
