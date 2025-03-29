@@ -10,7 +10,7 @@ export default async function Page() {
   const recentPosts = await getRecentFeed();
   const { data: subcategories } = await getSubcategories();
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground font-sans overflow-hidden">
+    <div className="flex flex-col bg-background text-foreground font-sans">
       <TopBar />
       <div className="flex flex-1 flex-col overflow-auto bg-slate-100 dark:bg-slate-800">
         {/* 메인 섹션 */}
