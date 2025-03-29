@@ -166,8 +166,10 @@ pre {
     --color-selected-bg: #374151;
     --color-selected-text: #ffffff;
 
-    --glass-bg: rgba(17, 24, 39, 0.4);
-    --glass-border: rgba(59, 130, 246, 0.2);
+    /* --glass-bg: rgba(17, 24, 39, 0.4); */
+    --glass-bg: rgba(28, 28, 30, 0.6);
+    --glass-border: rgba(126, 126, 126, 0.08);
+    /* --glass-border: rgba(59, 130, 246, 0.2); */
     /* --glass-border: rgba(17, 24, 39, 0.8); */
 
     --glass-primary-text: #93c5fd;

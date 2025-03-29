@@ -47,7 +47,7 @@ export default async function Page() {
           {/* 리스트 섹션 */}
           <GlassBox className="w-full flex flex-col gap-3">
             <h2 className="text-xl font-bold">지식의 여정</h2>
-            <GlassBox className="w-full flex h-[600px] md:h-[400px] flex-col text-foreground font-sans">
+            <GlassBox className="w-full flex h-[600px] flex-col text-foreground font-sans">
               <ClusterGraphSection />
             </GlassBox>
             <div className="self-end">더 보러 가기</div>

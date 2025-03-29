@@ -1,7 +1,6 @@
 /* === 전체 SVG === */
 .graph-svg {
   background-color: white;
-  border-radius: 0.75rem; /* Tailwind rounded-xl */
 }
 
 @media (prefers-color-scheme: dark) {

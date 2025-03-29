@@ -41,7 +41,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
   };
 
   return (
-    <div className="sticky top-0 z-20 bg-glass-bg border-b border-glass-border py-3 px-2">
+    <div className="sticky top-0 z-20 bg-glass-bg backdrop-blur-glass border-b border-glass-border py-3 px-2">
       <div
         ref={scrollContainerRef}
         onWheel={handleWheel}

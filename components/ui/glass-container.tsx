@@ -10,7 +10,7 @@ export function GlassBox({ className, children, ...props }: GlassBoxProps) {
     <div
       {...props}
       className={cn(
-        "bg-glass-bg border  border-glass-border shadow-glass backdrop-blur-glass rounded-2xl p-6 text-color-base",
+        "bg-glass-bg border border-glass-border shadow-glass backdrop-blur-glass p-6 text-color-base",
         className
       )}
     >
