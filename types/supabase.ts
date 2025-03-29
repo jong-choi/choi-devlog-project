@@ -297,6 +297,7 @@ export type Database = {
           id: string
           name: string
           order: number | null
+          thumbnail: string | null
           url_slug: string
           user_id: string | null
           velog_id: string | null
@@ -308,6 +309,7 @@ export type Database = {
           id?: string
           name?: string
           order?: number | null
+          thumbnail?: string | null
           url_slug?: string
           user_id?: string | null
           velog_id?: string | null
@@ -319,6 +321,7 @@ export type Database = {
           id?: string
           name?: string
           order?: number | null
+          thumbnail?: string | null
           url_slug?: string
           user_id?: string | null
           velog_id?: string | null

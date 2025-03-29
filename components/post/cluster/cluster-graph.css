@@ -1,12 +1,24 @@
 /* === 전체 SVG === */
 .graph-svg {
-  background-color: #f9fafb; /* Tailwind bg-gray-50 */
+  background-color: white;
   border-radius: 0.75rem; /* Tailwind rounded-xl */
+}
+
+@media (prefers-color-scheme: dark) {
+  .graph-svg {
+    background-color: #1f2937; /* Tailwind bg-gray-800 */
+  }
 }
 
 /* === 링크 라인 === */
 .graph-link {
-  stroke: #cbd5e1; /* Tailwind slate-300 */
+  stroke: #cbd5e1; /* 기본값: slate-300 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .graph-link {
+    stroke: #475569; /* 다크모드: slate-600 */
+  }
 }
 
 /* === 노드 버튼 그룹 === */
@@ -24,6 +36,13 @@
   ry: 12;
   opacity: 0.85;
   transition: all 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .graph-node {
+    fill: #1e40af; /* blue-800 */
+    stroke: #172554; /* blue-950 */
+  }
 }
 
 /* === 텍스트 공통 === */

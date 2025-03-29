@@ -43,10 +43,13 @@ export function PostCard({
         )}
       >
         {/* 태그 */}
-        <div className="text-sm mb-2 hidden md:flex gap-2 flex-wrap">
+        <div className="text-sm mb-2 hidden md:flex gap-2 flex-wrap items-center">
           <span>📎</span>
-          {post.tags.slice(0, 5).map((tag) => (
-            <span key={tag.id} className="bg-glass-primary px-2 rounded-full">
+          {post.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag.id}
+              className="bg-glass-primary py-1 px-2 rounded-full"
+            >
               {tag.name}
             </span>
           ))}

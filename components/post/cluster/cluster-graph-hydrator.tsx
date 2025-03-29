@@ -17,7 +17,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
   useEffect(() => {
-    const svgEl = document.querySelector("svg");
+    const svgEl = document.querySelector("#cluster-graph") as SVGSVGElement;
     if (!svgEl) return;
 
     const svg = select<SVGSVGElement, unknown>(svgEl);
@@ -25,7 +25,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
 
     // 줌 기능
     const zoomBehavior = zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1.2, 3])
+      .scaleExtent([1.2, 5])
       .translateExtent([
         [0, 0],
         [2000, 2000],
@@ -54,7 +54,6 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
 
       group.addEventListener("click", () => {
         setSelectedCluster(matchedNode);
-        console.log("✅ selected cluster:", matchedNode);
       });
     });
 
@@ -69,7 +68,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
   useEffect(() => {
     if (!selectedId || !zoomRef.current) return;
 
-    const svgEl = document.querySelector("svg");
+    const svgEl = document.querySelector("#cluster-graph") as SVGSVGElement;
     if (!svgEl) return;
 
     const svg = select<SVGSVGElement, unknown>(svgEl);
@@ -97,9 +96,12 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
     const cx = tx + bbox.x + bbox.width / 2;
     const cy = ty + bbox.y + bbox.height / 2;
 
-    const offsetX = window.innerWidth / 2 - window.innerWidth / 3; // 왼쪽으로 500px 떨어진 위치
-    const offsetY = window.innerHeight / 2;
-    const scale = 3;
+    const isMobile = window.innerWidth < 1024;
+    const offsetX = isMobile
+      ? window.innerWidth * 2
+      : window.innerWidth / 2 - window.innerWidth / 3;
+    const offsetY = isMobile ? -window.innerHeight / 4 : window.innerHeight / 2;
+    const scale = 5;
 
     svg
       .transition()

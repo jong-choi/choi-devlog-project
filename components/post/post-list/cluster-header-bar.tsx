@@ -1,4 +1,5 @@
 "use client";
+import { useDebounce } from "@/hooks/use-debounce";
 import { usePosts } from "@/providers/posts-store-provider";
 import { ClusteredPostGroup } from "@/types/graph";
 import { useRef, useEffect } from "react";
@@ -12,11 +13,14 @@ type Props = {
 export function ClusterHeaderBar({ clusters }: Props) {
   const selectedClusterId = usePosts((state) => state.selectedCluster?.id);
   const setSelectedCluster = usePosts((state) => state.setSelectedCluster);
+  const debouncedSelectedClusterId = useDebounce(selectedClusterId, 100);
 
   // 선택된 카테고리가 바뀌면 가운데로 이동
   const clusterRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   useEffect(() => {
-    const el = selectedClusterId && clusterRefs.current[selectedClusterId];
+    const el =
+      debouncedSelectedClusterId &&
+      clusterRefs.current[debouncedSelectedClusterId];
     if (el) {
       el.scrollIntoView({
         behavior: "smooth",
@@ -24,7 +28,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
         block: "nearest",
       });
     }
-  }, [selectedClusterId]);
+  }, [debouncedSelectedClusterId]);
 
   // 상하 스크롤 시 좌우 스크롤로
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -37,7 +41,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
   };
 
   return (
-    <div className="sticky top-0 z-20 backdrop-blur-sm bg-slate-200/40 border-b border-white/20 py-3 px-2">
+    <div className="sticky top-0 z-20 bg-glass-bg border-b border-glass-border py-3 px-2">
       <div
         ref={scrollContainerRef}
         onWheel={handleWheel}
@@ -51,7 +55,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
             }}
             onClick={() => setSelectedCluster(c)}
             className={`px-2 py-1 rounded transition-all ${
-              c.id === selectedClusterId
+              c.id === debouncedSelectedClusterId
                 ? "font-bold text-primary underline"
                 : "text-muted-foreground hover:text-foreground"
             }`}

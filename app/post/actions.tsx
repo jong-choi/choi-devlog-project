@@ -415,6 +415,25 @@ export const getSubcategoriesByCategoryId = createCachedFunction(
   _getSubcategoriesByCategoryId
 );
 
+// 중분류 CRUD
+const _getSubcategories = async (): Promise<
+  PostgrestResponse<Database["public"]["Tables"]["subcategories"]["Row"]>
+> => {
+  const supabase = createClientClient();
+  const result = await supabase
+    .from("subcategories")
+    .select()
+    .is("deleted_at", null) // 삭제되지 않은 항목만 조회
+    .order("order", { ascending: true }); // order 기준 오름차순 정렬
+
+  return result;
+};
+
+export const getSubcategories = createCachedFunction(
+  CACHE_TAGS.SUBCATEGORY.ALL(),
+  _getSubcategories
+);
+
 const _createSubcategory = async (
   payload: Omit<
     Database["public"]["Tables"]["subcategories"]["Insert"],

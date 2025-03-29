@@ -1864,3 +1864,5 @@ export default {
 | `--glass-danger-text`  | `text-glass-text-danger`  | 빨간색 계열 Glass 텍스트 색상    |
 | `--glass-neutral-bg`   | `bg-glass-neutral`        | 중성 회색 계열 Glass 배경        |
 | `--glass-neutral-text` | `text-glass-text-neutral` | 중성 회색 계열 Glass 텍스트 색상 |
+
+## 23일차 메인화면 디자인

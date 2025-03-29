@@ -167,7 +167,8 @@ pre {
     --color-selected-text: #ffffff;
 
     --glass-bg: rgba(17, 24, 39, 0.4);
-    --glass-border: rgba(17, 24, 39, 0.8);
+    --glass-border: rgba(59, 130, 246, 0.2);
+    /* --glass-border: rgba(17, 24, 39, 0.8); */
 
     --glass-primary-text: #93c5fd;
     --glass-success-text: #6ee7b7;

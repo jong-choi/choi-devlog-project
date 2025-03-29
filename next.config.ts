@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "wknphwqwtywjrfclmhjd.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "loremflickr.com",
+      },
     ],
   },
 };

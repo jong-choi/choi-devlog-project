@@ -56,6 +56,7 @@ export default async function ClusterGraphSVG({
   const body = select(document.body);
   const svg = body
     .append("svg")
+    .attr("id", "cluster-graph") // ← 여기!
     .attr("viewBox", `0 0 ${WIDTH} ${HEIGHT}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
     .attr("class", "graph-svg w-full h-full"); // Tailwind에서 꽉 채움

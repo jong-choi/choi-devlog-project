@@ -21,11 +21,10 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
         }
       },
       {
-        rootMargin: "-40% 0px -40% 0px",
-        threshold: 0.1,
+        rootMargin: "-0% 0px -0% 0px",
+        threshold: 0.05,
       }
     );
-
     observer.observe(el);
     return () => {
       observer.disconnect();
@@ -35,7 +34,7 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   return (
     <section
       ref={ref}
-      className="w-full max-w-3xl px-4 py-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
+      className="w-full max-w-3xl px-4 py-8 bg-glass-bg backdrop-blur-sm rounded-2xl shadow-lg"
     >
       <h2 className="text-xl font-bold mb-6">{cluster.title}</h2>
       <div className="flex flex-col gap-6">
