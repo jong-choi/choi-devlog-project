@@ -19,7 +19,7 @@ export default async function Page() {
         {/* 메인 섹션 */}
         <main className="w-full lg:max-w-screen-xl mx-auto flex flex-col gap-8 py-4 md:py-8">
           {/* 상단 블로그 소개 */}
-          <GlassBox className="w-full">
+          <GlassBox className="w-full" mobileTransperency>
             <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
               소개
             </h2>
@@ -54,7 +54,7 @@ export default async function Page() {
             <SectionLinkText href="/post">더 보기</SectionLinkText>
           </GlassBox>
           {/* 리스트 섹션 */}
-          <GlassBox className="w-full flex flex-col gap-3">
+          <GlassBox className="w-full flex flex-col gap-3" mobileTransperency>
             <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
               지식의 여정
             </h2>
