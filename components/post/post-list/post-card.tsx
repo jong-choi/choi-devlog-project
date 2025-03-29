@@ -2,6 +2,7 @@ import { Logo } from "@/components/post/topBar/post-top-bar";
 import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { CardPost } from "@/types/post";
+import { Calendar, Paperclip } from "lucide-react";
 import Image from "next/image";
 
 export function PostCard({
@@ -36,19 +37,16 @@ export function PostCard({
           )}
         </div>
       )}
-      <div
-        className={cn(
-          "p-6 flex flex-col justify-between",
-          isFeatured && "lg:w-1/2"
-        )}
-      >
+      <div className={cn("p-6 flex flex-col gap-1", isFeatured && "lg:w-1/2")}>
         {/* 태그 */}
         <div className="text-sm mb-2 hidden md:flex gap-2 flex-wrap items-center">
-          <span>📎</span>
+          <span className="text-xs text-color-muted">
+            <Paperclip className="w-4 h-4 -scale-x-100" />
+          </span>
           {post.tags.slice(0, 3).map((tag) => (
             <span
               key={tag.id}
-              className="bg-glass-primary py-1 px-2 rounded-full"
+              className="bg-glass-primary px-2 text-xs rounded-full"
             >
               {tag.name}
             </span>
@@ -56,12 +54,12 @@ export function PostCard({
         </div>
 
         {/* 제목 + 설명 + 날짜 */}
-        <div className={cn("flex flex-col", !isFeatured && "flex-row")}>
-          <div className="flex-1">
+        <div className={cn("flex flex-col flex-1", !isFeatured && "flex-row")}>
+          <div className="flex-1 flex flex-col justify-between gap-2">
             <h3
               className={cn(
                 "font-bold line-clamp-2",
-                isFeatured ? "text-2xl lg:text-3xl" : "text-lg"
+                isFeatured ? "text-xl lg:text-2xl" : "text-lg"
               )}
             >
               {post.title}
@@ -69,15 +67,18 @@ export function PostCard({
             <p
               className={cn(
                 "whitespace-pre-line",
-                isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-3"
+                isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
               )}
             >
               {post.short_description
                 ?.replaceAll("&#x3A;", ":")
                 .replaceAll("https", "\nhttps")}
             </p>
-            <div className="mt-4 text-sm text-gray-500">
-              🗓️ {formatKoreanDate(post.released_at || "")}
+            <div className="text-sm text-gray-500 flex gap-1 items-center">
+              <span className="text-xs text-color-muted">
+                <Calendar className="w-4 h-4" />
+              </span>
+              <span>{formatKoreanDate(post.released_at || "")}</span>
             </div>
           </div>
           {/* 일반 카드의 썸네일 */}

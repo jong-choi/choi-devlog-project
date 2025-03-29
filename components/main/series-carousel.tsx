@@ -7,7 +7,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@ui/carousel";
-import { GlassBox } from "@ui/glass-container";
 import Image from "next/image";
 
 export default function SeriesCarousel({
@@ -42,7 +41,7 @@ export const SeriesCard = ({
   series: Database["public"]["Tables"]["subcategories"]["Row"];
   index: number;
 }) => (
-  <GlassBox className="relative h-48 w-48 flex-shrink-0 overflow-hidden">
+  <div className="relative h-48 w-48 flex-shrink-0 overflow-hidden shadow-glass">
     {series.thumbnail && (
       <Image
         src={series.thumbnail}
@@ -55,11 +54,11 @@ export const SeriesCard = ({
     )}
     <div
       className={cn(
-        "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-transparent to-black/70  p-4 text-white",
+        "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-transparent to-black/90  p-4 text-white break-keep",
         !series.thumbnail && "bg-slate-300 dark:bg-slate-700 text-foreground"
       )}
     >
       <h3 className="font-bold text-lg line-clamp-2 mb-auto">{series.name}</h3>
     </div>
-  </GlassBox>
+  </div>
 );

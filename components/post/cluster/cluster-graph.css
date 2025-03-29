@@ -28,19 +28,17 @@
 
 /* === 사각형 배경 === */
 .graph-node {
-  fill: #e0f2fe; /* Tailwind sky-100 */
+  fill: #ffffff;
   stroke: #f0f9ff; /* Tailwind sky-50 */
   stroke-width: 1.5;
-  rx: 12;
-  ry: 12;
   opacity: 0.85;
   transition: all 0.2s ease;
 }
 
 @media (prefers-color-scheme: dark) {
   .graph-node {
-    fill: #44403c; /* stone-700 */
-    stroke: #57534e; /* stone-600 */
+    fill: #171717;
+    stroke: #262626;
   }
 }
 
@@ -70,6 +68,23 @@
   fill: #fcd34d; /* Tailwind yellow-400 */
 }
 
+/* === font-size에 따른 텍스트 크기 조절 === */
+.node-button.font-size-xs .graph-title {
+  font-size: 10px;
+}
+.node-button.font-size-sm .graph-title {
+  font-size: 11px;
+}
+.node-button.font-size-md .graph-title {
+  font-size: 12px;
+}
+.node-button.font-size-lg .graph-title {
+  font-size: 14px;
+}
+.node-button.font-size-xl .graph-title {
+  font-size: 15px;
+}
+
 /* === Quality 등급별 투명도 === */
 .node-button.quality-excellent .graph-node {
   opacity: 0.95;
@@ -91,37 +106,35 @@
 }
 
 /* === font-size에 따른 텍스트 크기 조절 === */
-.node-button.font-size-xs .graph-title {
-  font-size: 10px;
-  font-weight: 400;
+.node-button.quality-excellent .graph-title {
+  font-weight: 900;
 }
-.node-button.font-size-sm .graph-title {
-  font-size: 12px;
-  font-weight: 500;
-}
-.node-button.font-size-md .graph-title {
-  font-size: 13px;
-  font-weight: 600;
-}
-.node-button.font-size-lg .graph-title {
-  font-size: 14px;
+.node-button.quality-good .graph-title {
   font-weight: 700;
 }
-.node-button.font-size-xl .graph-title {
-  font-size: 15px;
-  font-weight: 800;
+.node-button.quality-average .graph-title {
+  font-weight: 500;
+}
+.node-button.quality-poor .graph-title {
+  font-weight: 400;
+}
+.node-button.quality-bloody-awful .graph-title {
+  font-weight: 300;
+}
+.node-button.quality-unknown .graph-title {
+  font-weight: 300;
 }
 
 /* === Hover 상태 === */
 .node-button:hover .graph-node {
   opacity: 1 !important;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
 }
 
 /* === 선택된 상태 === */
 .node-button.selected .graph-node {
-  stroke: #93c5fd; /* blue-300 */
-  stroke-width: 2.5;
+  stroke: #f0f9ff; /* sky-50 */
+  stroke-width: 0.5;
   opacity: 1 !important;
 }
 

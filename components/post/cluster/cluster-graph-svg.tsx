@@ -128,8 +128,6 @@ export default async function ClusterGraphSVG({
         .attr("y", -20)
         .attr("width", 160)
         .attr("height", 40)
-        .attr("rx", 12)
-        .attr("ry", 12)
         .attr("class", "graph-node");
 
       g.append("text")
