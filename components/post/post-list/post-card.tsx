@@ -27,6 +27,7 @@ export function PostCard({
               alt={post.title}
               fill
               className="object-cover"
+              sizes="(min-width: 1024px) 50vw, 200px"
             />
           ) : (
             <div className=" bg-glass-neutral w-full h-full flex justify-center items-center">
@@ -87,6 +88,7 @@ export function PostCard({
                 alt={post.title}
                 fill
                 className="object-cover"
+                sizes="150px"
               />
             </div>
           )}

@@ -19,12 +19,12 @@ export default function SeriesCarousel({
     <Carousel className="w-full relative">
       {/* ✅ 캐러셀 컨텐츠 */}
       <CarouselContent className="md:pl-[3vw] lg:ml-3 xl:ml-1">
-        {seriesList.map((series) => (
+        {seriesList.map((series, index) => (
           <CarouselItem
             key={series.id}
             className="basis-1/3 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
           >
-            <SeriesCard series={series} />
+            <SeriesCard series={series} index={index} />
           </CarouselItem>
         ))}
       </CarouselContent>
@@ -37,16 +37,20 @@ export default function SeriesCarousel({
 // 2. 시리즈 카드 컴포넌트 (캐러셀용)
 export const SeriesCard = ({
   series,
+  index,
 }: {
   series: Database["public"]["Tables"]["subcategories"]["Row"];
+  index: number;
 }) => (
   <GlassBox className="relative h-48 w-48 flex-shrink-0 overflow-hidden">
     {series.thumbnail && (
       <Image
         src={series.thumbnail}
         alt={series.name}
+        sizes="192px"
         fill
         className="object-cover"
+        priority={index <= 5}
       />
     )}
     <div
