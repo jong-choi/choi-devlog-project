@@ -5,6 +5,7 @@ import { select, zoom, ZoomBehavior, zoomIdentity } from "d3";
 import "@/components/post/cluster/cluster-graph.css";
 import { ClusteredPostGroup } from "@/types/graph";
 import { usePosts } from "@/providers/posts-store-provider";
+import { useDebounce } from "@/hooks/use-debounce";
 
 type Props = {
   nodes: ClusteredPostGroup[];
@@ -64,9 +65,10 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
     };
   }, [nodes, setSelectedCluster]);
 
+  const debouncedSelectedClusterId = useDebounce(selectedId, 100);
   // 선택된 노드가 변경될 때 발생될 이벤트
   useEffect(() => {
-    if (!selectedId || !zoomRef.current) return;
+    if (!debouncedSelectedClusterId || !zoomRef.current) return;
 
     const svgEl = document.querySelector("#cluster-graph") as SVGSVGElement;
     if (!svgEl) return;
@@ -77,7 +79,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
     allGroups.forEach((g) => g.classList.remove("selected"));
 
     const group = Array.from(allGroups).find(
-      (g) => g.getAttribute("data-id") === selectedId
+      (g) => g.getAttribute("data-id") === debouncedSelectedClusterId
     );
     if (!group) return;
 
@@ -112,7 +114,7 @@ export default function ClusterGraphHydrator({ nodes }: Props) {
           .translate(offsetX - cx * scale, offsetY - cy * scale)
           .scale(scale)
       );
-  }, [selectedId]);
+  }, [debouncedSelectedClusterId]);
 
   return null;
 }

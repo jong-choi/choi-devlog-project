@@ -34,7 +34,7 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   return (
     <section
       ref={ref}
-      className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm shadow-lg"
+      className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm py-5"
     >
       <h2 className="text-xl font-bold py-4">{cluster.title}</h2>
       <div className="flex flex-col gap-6">

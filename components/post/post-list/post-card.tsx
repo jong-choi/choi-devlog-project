@@ -14,13 +14,13 @@ export function PostCard({
   return (
     <div
       className={cn(
-        "w-full bg-glass-bg text-base rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-glass-border",
+        "w-full bg-glass-bg text-base rounded-2xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
         isFeatured ? "flex lg:flex-1" : ""
       )}
     >
       {/* 이미지 영역 */}
       {isFeatured && (
-        <div className="aspect-[3/2] w-[200px] lg:w-1/2 mt-0  relative overflow-hidden shadow-md flex-shrink-0">
+        <div className="aspect-[3/2] w-[200px] lg:w-1/2 mt-0  relative overflow-hidden shadow-glass flex-shrink-0">
           {post.thumbnail ? (
             <Image
               src={post.thumbnail}
@@ -82,7 +82,7 @@ export function PostCard({
           </div>
           {/* 일반 카드의 썸네일 */}
           {!isFeatured && post.thumbnail && (
-            <div className="aspect-[3/2] w-[150px] mt-0 ml-4 relative overflow-hidden rounded-xl shadow-md flex-shrink-0">
+            <div className="aspect-[3/2] w-[150px] mt-0 ml-4 relative overflow-hidden border border-glass-border flex-shrink-0">
               <Image
                 src={post.thumbnail}
                 alt={post.title}

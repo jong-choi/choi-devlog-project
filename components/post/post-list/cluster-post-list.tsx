@@ -44,7 +44,7 @@ export default function ClusterPostList({
       <ClusterHeaderBar clusters={clusterPostList} />
       <main
         ref={mainRef} // 👈 여기다 ref 추가!
-        className="flex flex-1 overflow-auto scrollbar flex-col items-center gap-8"
+        className="flex flex-1 overflow-auto scrollbar flex-col items-center"
       >
         {clusterPostList.map((cluster) => (
           <div
