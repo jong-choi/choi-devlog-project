@@ -6,7 +6,7 @@ export function LatestPostsSection({ posts }: { posts: CardPost[] }) {
   const [firstPost, secondPost, ...restPosts] = posts;
 
   return (
-    <GlassBox className="w-full flex flex-col lg:flex-row gap-4 p-4">
+    <GlassBox className="w-full flex flex-col lg:flex-row gap-4 p-4 bg-glass-border">
       {/* 첫번째 큰 카드 */}
       <div className="w-full lg:w-1/2 flex flex-col gap-4">
         <PostCard post={firstPost} isFeatured />

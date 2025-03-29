@@ -33,13 +33,13 @@ export default async function Page() {
           {/* 캐러셀 */}
           <GlassBox className="w-full flex flex-col gap-3">
             <h2 className="text-xl font-bold">시리즈</h2>
-            <GlassBox className="w-full">
+            <GlassBox className="w-full bg-glass-border">
               <SeriesCarousel seriesList={subcategories || []} />
             </GlassBox>
             <div className="self-end">더 보러 가기</div>
           </GlassBox>
           {/* 최신글 */}
-          <GlassBox className="w-full flex flex-col gap-3">
+          <GlassBox className="w-full flex flex-col gap-3 ">
             <h2 className="text-xl font-bold">최신글</h2>
             <LatestPostsSection posts={recentPosts} />
             <div className="self-end">더 보러 가기</div>
