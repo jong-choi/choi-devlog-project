@@ -17,21 +17,35 @@ export default function ClusterPostList({
   const isManualScrolling = usePosts((state) => state.isManualScrolling);
   const setManualScrolling = usePosts((state) => state.setManualScrolling);
 
+  const mainRef = useRef<HTMLElement | null>(null); // 👈 main 요소를 감지할 ref
+
   useEffect(() => {
     if (isManualScrolling) return;
-    if (selectedClusterId && sectionRefs.current[selectedClusterId]) {
-      sectionRefs.current[selectedClusterId]?.scrollIntoView({
+
+    const container = mainRef.current;
+    const target = selectedClusterId
+      ? sectionRefs.current[selectedClusterId]
+      : null;
+
+    if (container && target) {
+      // offsetTop은 부모 기준으로 상대 위치임
+      const scrollTop = target.offsetTop - container.offsetTop; // 보정해도 되고 안 해도 되고
+
+      container.scrollTo({
+        top: scrollTop,
         behavior: "smooth",
-        block: "start",
       });
+
       setTimeout(() => setManualScrolling(true), 600);
     }
   }, [isManualScrolling, selectedClusterId, setManualScrolling]);
-
   return (
     <>
       <ClusterHeaderBar clusters={clusterPostList} />
-      <main className="flex flex-1 overflow-auto scrollbar flex-col items-center gap-8">
+      <main
+        ref={mainRef} // 👈 여기다 ref 추가!
+        className="flex flex-1 overflow-auto scrollbar flex-col items-center gap-8"
+      >
         {clusterPostList.map((cluster) => (
           <div
             key={cluster.id}

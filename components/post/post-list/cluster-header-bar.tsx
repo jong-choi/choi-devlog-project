@@ -18,14 +18,21 @@ export function ClusterHeaderBar({ clusters }: Props) {
   // 선택된 카테고리가 바뀌면 가운데로 이동
   const clusterRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   useEffect(() => {
+    const container = scrollContainerRef.current;
     const el =
       debouncedSelectedClusterId &&
       clusterRefs.current[debouncedSelectedClusterId];
-    if (el) {
-      el.scrollIntoView({
+
+    if (container && el) {
+      const elLeft = el.offsetLeft;
+      const elWidth = el.offsetWidth;
+      const containerWidth = container.clientWidth;
+
+      const scrollLeft = elLeft - containerWidth / 2 + elWidth / 2;
+
+      container.scrollTo({
+        left: scrollLeft,
         behavior: "smooth",
-        inline: "center",
-        block: "nearest",
       });
     }
   }, [debouncedSelectedClusterId]);
