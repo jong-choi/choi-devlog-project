@@ -5,14 +5,17 @@ import { getRecentFeed } from "@/components/post/cluster/actions";
 import { getSubcategories } from "@/app/post/actions";
 import SeriesCarousel from "@/components/main/series-carousel";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
+import { ReactNode } from "react";
+import Link from "next/link";
+import { GlassButton } from "@ui/glass-button";
 
 export default async function Page() {
   const recentPosts = await getRecentFeed();
   const { data: subcategories } = await getSubcategories();
   return (
-    <div className="flex flex-col bg-background text-foreground font-sans">
+    <div className="flex flex-col text-foreground font-sans">
       <TopBar />
-      <div className="flex flex-1 flex-col overflow-auto bg-slate-100 dark:bg-slate-800">
+      <div className="flex flex-1 flex-col overflow-auto">
         {/* 메인 섹션 */}
         <main className="w-full lg:max-w-screen-xl mx-auto flex flex-col gap-8 py-4 md:py-8">
           {/* 상단 블로그 소개 */}
@@ -40,7 +43,7 @@ export default async function Page() {
             <GlassBox className="w-full bg-glass-border">
               <SeriesCarousel seriesList={subcategories || []} />
             </GlassBox>
-            <div className="self-end">더 보러 가기</div>
+            <SectionLinkText href="/series">더 보기</SectionLinkText>
           </GlassBox>
           {/* 최신글 */}
           <GlassBox className="w-full flex flex-col gap-3">
@@ -48,13 +51,10 @@ export default async function Page() {
               최신글
             </h2>
             <LatestPostsSection posts={recentPosts} />
-            <div className="self-end">더 보러 가기</div>
+            <SectionLinkText href="/post">더 보기</SectionLinkText>
           </GlassBox>
           {/* 리스트 섹션 */}
           <GlassBox className="w-full flex flex-col gap-3">
-            {/* <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
-              지식의 여정
-            </h2> */}
             <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
               지식의 여정
             </h2>
@@ -64,11 +64,24 @@ export default async function Page() {
             <GlassBox className="w-full flex h-[600px] flex-col text-foreground font-sans">
               <ClusterGraphSection />
             </GlassBox>
-
-            <div className="self-end">더 보러 가기</div>
+            <SectionLinkText href="/map">더 크게 보기</SectionLinkText>
           </GlassBox>
         </main>
       </div>
     </div>
+  );
+}
+
+export function SectionLinkText({
+  children,
+  href,
+}: {
+  children: ReactNode;
+  href: string;
+}) {
+  return (
+    <Link href={href} className="self-end">
+      <GlassButton className="text-shadow">{children}</GlassButton>
+    </Link>
   );
 }

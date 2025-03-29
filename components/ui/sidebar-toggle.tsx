@@ -11,7 +11,7 @@ export function SidebarToggle({
     <div className="h-10 flex items-center justify-center text-gray-700 dark:text-gray-300">
       <button
         onClick={onClick}
-        className="text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
+        className="text-xs bg-transparent backdrop-blur-3xl border border-color-muted px-2 py-1 rounded"
       >
         {reverse ? "<" : ">"}
       </button>

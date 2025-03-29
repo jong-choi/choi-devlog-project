@@ -319,7 +319,7 @@
 @media (prefers-color-scheme: dark) {
   .milkdown,
   [data-theme="dark"] {
-    --crepe-color-background: #1a1a1a;
+    --crepe-color-background: #171717;
     --crepe-color-on-background: #e6e6e6;
     --crepe-color-surface: #121212;
     --crepe-color-surface-low: #1c1c1c;

@@ -36,14 +36,14 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "inline-flex h-full bg-gray-50 dark:bg-gray-950 transition-colors flex-col md:flex-row",
+        "inline-flex h-full bg-transparent backdrop-blur-3xl transition-colors flex-col md:flex-row z-50",
         inset ?? "gap-4 p-4"
       )}
     >
       {/* 왼쪽 사이드바 */}
       <div
         className={cn(
-          "hidden md:flex flex-col bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
+          "hidden md:flex flex-col border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
           leftCollapsed ? "w-6 cursor-pointer" : "w-64",
           inset ??
             "rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700"
@@ -55,7 +55,7 @@ export function Sidebar({
         }}
       >
         <button
-          className="absolute top-2 right-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 bg-transparent rounded-md p-1 transition"
+          className="absolute top-2 right-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-md p-1 transition"
           onClick={() => {
             setLeftCollapsed(!leftCollapsed);
           }}
@@ -84,13 +84,13 @@ export function Sidebar({
       {/* 오른쪽 사이드바 */}
       <div
         className={cn(
-          "hidden md:flex flex-col bg-white dark:bg-gray-900 border-x border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
+          "hidden md:flex flex-col border-x border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
           inset ?? "rounded-2xl shadow-sm border",
           rightCollapsed ? (inset ? "w-0 -ml-4" : "w-0 opacity-20") : "w-64"
         )}
       >
         {!rightCollapsed && (
-          <div className="p-4 w-64 overflow-auto space-y-1">
+          <div className="p-4 w-64 overflow-auto space-y-1 scrollbar">
             {selectedSubcategoryId ? (
               posts
                 .filter((post) => post.subcategory_id === selectedSubcategoryId)
@@ -99,10 +99,10 @@ export function Sidebar({
                     key={post.id}
                     href={`/post/${post.url_slug}`}
                     className={cn(
-                      "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition",
+                      "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300  transition",
                       selectedPostId === post.id
-                        ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        ? " text-gray-900 dark:text-white font-semibold bg-glass-bg"
+                        : "text-gray-700 dark:text-gray-300 "
                     )}
                   >
                     {post.title}
@@ -120,9 +120,9 @@ export function Sidebar({
       {/* 🌟 모바일 사이드바 (왼쪽, 오른쪽 공통 컨테이너) */}
       <div
         className={cn(
-          "fixed md:hidden inset-y-0 left-0 bg-white dark:bg-gray-900 transition-transform duration-300 z-50 shadow-xl overflow-auto",
+          "fixed md:hidden inset-y-0 left-0 bg-white dark:bg-gray-900 transition-transform duration-300 z-40 shadow-xl overflow-auto",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
-          "w-full pt-12 p-4" // padding-top 추가
+          "w-screen pt-12 p-4" // padding-top 추가
         )}
       >
         {/* 🌟 닫기 버튼 한 번만 추가, 항상 우측상단에 고정 */}
@@ -152,8 +152,8 @@ export function Sidebar({
                   className={cn(
                     "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition",
                     selectedPostId === post.id
-                      ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold bg-glass-bg"
+                      : "text-gray-700 dark:text-gray-300"
                   )}
                 >
                   {post.title}
@@ -190,6 +190,7 @@ export function SidebarContent({
   const { isOpened, toggleCategory } = useSidebarStore(
     useShallow((state) => ({
       isOpened: state.openedCategories[catagory.id] || false,
+      mobileOpen: state.mobileOpen,
       toggleCategory: state.toggleCategory,
     }))
   );
@@ -198,7 +199,7 @@ export function SidebarContent({
     <div key={catagory.id}>
       <button
         onClick={() => toggleCategory(catagory.id)}
-        className="w-full text-left text-sm font-medium px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 transition"
+        className="w-full text-left text-sm font-medium px-3 py-2 rounded-lg  text-gray-800 dark:text-gray-200 transition"
       >
         {catagory.name}
       </button>
@@ -214,8 +215,8 @@ export function SidebarContent({
               className={cn(
                 "block w-full text-left px-4 py-1.5 text-sm rounded-md transition",
                 selectedSubcategoryId === sub.id
-                  ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "text-gray-900 dark:text-white font-semibold bg-glass-bg "
+                  : "text-gray-700 dark:text-gray-300"
               )}
             >
               {sub.name}

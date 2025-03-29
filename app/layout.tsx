@@ -20,7 +20,7 @@ export default function RootLayout({
       <body
         className={`antialiased h-screen flex flex-col bg-background text-foreground font-sans`}
       >
-        <div className="css-background">
+        <div className="css-background z-0">
           <span></span>
           <span></span>
           <span></span>
@@ -34,7 +34,9 @@ export default function RootLayout({
         <ToastProvider />
         <AuthStoreProvider>
           <AuthProvider />
-          <LayoutStoreProvider>{children}</LayoutStoreProvider>
+          <LayoutStoreProvider>
+            <div className="z-10">{children}</div>
+          </LayoutStoreProvider>
         </AuthStoreProvider>
       </body>
     </html>

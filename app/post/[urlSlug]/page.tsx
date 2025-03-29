@@ -46,11 +46,11 @@ export default async function Page({ params, searchParams }: PageProps) {
       <SidebarHydrator
         category={category}
         subcategory={subcategory}
-        postId={data!.id}
+        postId={data?.id || ""}
       />
       <main
         id="메인레퍼"
-        className="flex flex-1 flex-col h-full bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-white"
+        className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-sm text-gray-800 dark:text-white"
       >
         <header
           data-component-name="main-header"
@@ -75,9 +75,9 @@ export default async function Page({ params, searchParams }: PageProps) {
         <PostControllerWrapper />
         <section
           data-component-name="main-post-section"
-          className="flex flex-1 overflow-auto scrollbar"
+          className="flex flex-1 overflow-auto scrollbar py-6"
         >
-          <div className="main-post-section">
+          <div className="main-post-section bg-white dark:bg-neutral-900">
             <TitleEditor defaultValue={data?.title || ""} />
             <MarkdownEditor markdown={data?.body || ""} />
           </div>

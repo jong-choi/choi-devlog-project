@@ -7,7 +7,7 @@ import { useAutosave } from "@/providers/autosave-store-provider";
 import { useSummary } from "@/providers/summary-store-provider";
 import { Button } from "@ui/button";
 import { MainContainer } from "@ui/main-container";
-import { Loader2, PenLine } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
@@ -105,16 +105,15 @@ export default function AIGeneration() {
 
   if (!postId) return <></>;
   return (
-    <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden">
-      <button
-        onClick={() => setRightOpen(!rightOpen)}
-        className="absolute top-2 left-2 z-10 text-sm bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded"
-      >
-        {!rightOpen ? "<" : ">"}
-      </button>
-      <div className="px-4 py-3 flex bg-gradient-to-b from-gray-100 dark:from-black">
+    <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden text-shadow">
+      <div className="px-4 py-2 flex flex-col gap-2">
+        <button
+          onClick={() => setRightOpen(!rightOpen)}
+          className="z-10 text-sm border border-color-muted px-2 py-1 rounded self-start"
+        >
+          {!rightOpen ? "<" : ">"}
+        </button>
         <div className="flex gap-1 items-center text-gray-800 dark:text-white font-semibold text-sm tracking-tight font-mono">
-          <PenLine className="w-4 h-4 text-gray-700 dark:text-gray-400 " />
           AI 멘토의 요약
         </div>
       </div>
