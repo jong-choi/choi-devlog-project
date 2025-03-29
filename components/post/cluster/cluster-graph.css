@@ -52,6 +52,12 @@
   pointer-events: none;
 }
 
+@media (prefers-color-scheme: dark) {
+  .graph-text {
+    fill: #e7e5e4; /* stone-200 */
+  }
+}
+
 /* === 제목 텍스트 === */
 .graph-title {
   font-size: 14px;
