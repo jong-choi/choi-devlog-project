@@ -20,7 +20,7 @@ export default function RootLayout({
       <body
         className={`antialiased h-screen flex flex-col bg-background text-foreground font-sans`}
       >
-        <div className="css-background z-0">
+        <div className="css-background z-0 hidden md:flex">
           <span></span>
           <span></span>
           <span></span>

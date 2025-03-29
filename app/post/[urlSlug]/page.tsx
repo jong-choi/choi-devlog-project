@@ -75,9 +75,9 @@ export default async function Page({ params, searchParams }: PageProps) {
         <PostControllerWrapper />
         <section
           data-component-name="main-post-section"
-          className="flex flex-1 overflow-auto scrollbar py-6"
+          className="flex flex-1 overflow-auto scrollbar py-6 bg-white dark:bg-neutral-900"
         >
-          <div className="main-post-section bg-white dark:bg-neutral-900">
+          <div className="main-post-section ">
             <TitleEditor defaultValue={data?.title || ""} />
             <MarkdownEditor markdown={data?.body || ""} />
           </div>
