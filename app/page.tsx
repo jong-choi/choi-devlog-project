@@ -17,7 +17,9 @@ export default async function Page() {
         <main className="w-full lg:max-w-screen-xl mx-auto flex flex-col gap-8 py-4 md:py-8">
           {/* 상단 블로그 소개 */}
           <GlassBox className="w-full">
-            <h2 className="text-xl font-bold">소개</h2>
+            <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
+              소개
+            </h2>
             <div className="">
               <p className="">
                 Next.js 좋아하는 프론트엔드 개발자입니다.{" "}
@@ -32,24 +34,37 @@ export default async function Page() {
           </GlassBox>
           {/* 캐러셀 */}
           <GlassBox className="w-full flex flex-col gap-3">
-            <h2 className="text-xl font-bold">시리즈</h2>
+            <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
+              시리즈
+            </h2>
             <GlassBox className="w-full bg-glass-border">
               <SeriesCarousel seriesList={subcategories || []} />
             </GlassBox>
             <div className="self-end">더 보러 가기</div>
           </GlassBox>
           {/* 최신글 */}
-          <GlassBox className="w-full flex flex-col gap-3 ">
-            <h2 className="text-xl font-bold">최신글</h2>
+          <GlassBox className="w-full flex flex-col gap-3">
+            <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
+              최신글
+            </h2>
             <LatestPostsSection posts={recentPosts} />
             <div className="self-end">더 보러 가기</div>
           </GlassBox>
           {/* 리스트 섹션 */}
           <GlassBox className="w-full flex flex-col gap-3">
-            <h2 className="text-xl font-bold">지식의 여정</h2>
+            {/* <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
+              지식의 여정
+            </h2> */}
+            <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
+              지식의 여정
+            </h2>
+            <span className="text-sm text-shadow -mt-2">
+              유사한 게시글을 인공지능으로 분류한 지도입니다
+            </span>
             <GlassBox className="w-full flex h-[600px] flex-col text-foreground font-sans">
               <ClusterGraphSection />
             </GlassBox>
+
             <div className="self-end">더 보러 가기</div>
           </GlassBox>
         </main>

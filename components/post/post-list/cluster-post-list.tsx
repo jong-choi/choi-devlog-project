@@ -17,7 +17,7 @@ export default function ClusterPostList({
   const isManualScrolling = usePosts((state) => state.isManualScrolling);
   const setManualScrolling = usePosts((state) => state.setManualScrolling);
 
-  const mainRef = useRef<HTMLElement | null>(null); // 👈 main 요소를 감지할 ref
+  const mainRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isManualScrolling) return;
@@ -43,7 +43,7 @@ export default function ClusterPostList({
     <>
       <ClusterHeaderBar clusters={clusterPostList} />
       <main
-        ref={mainRef} // 👈 여기다 ref 추가!
+        ref={mainRef}
         className="flex flex-1 overflow-auto scrollbar flex-col items-center"
       >
         {clusterPostList.map((cluster) => (

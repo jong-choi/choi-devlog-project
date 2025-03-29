@@ -34,9 +34,14 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   return (
     <section
       ref={ref}
-      className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm py-5"
+      className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm pb-4"
     >
-      <h2 className="text-xl font-bold py-4">{cluster.title}</h2>
+      <div className="flex flex-col gap-1 py-4 px-4">
+        <h2 className="text-xl font-bold text-shadow">{cluster.title}</h2>
+        <span className="text-sm text-shadow">
+          {cluster.summary?.replaceAll("이 군집은", "").trim()}
+        </span>
+      </div>
       <div className="flex flex-col gap-6">
         {cluster.posts.map((post) => (
           <PostCard key={post.id} post={post} />
