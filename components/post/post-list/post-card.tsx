@@ -14,7 +14,7 @@ export function PostCard({
   return (
     <div
       className={cn(
-        "w-full bg-glass-bg text-base backdrop-blur-sm rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-glass-border",
+        "w-full bg-glass-bg text-base rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-glass-border",
         isFeatured ? "flex lg:flex-1" : ""
       )}
     >
