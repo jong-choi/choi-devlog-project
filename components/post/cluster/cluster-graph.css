@@ -1,6 +1,6 @@
 /* === 전체 SVG === */
 .graph-svg {
-  background-color: white;
+  background-color: #f1f5f9;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -31,7 +31,7 @@ export default function ClusterPostList({
   return (
     <>
       <ClusterHeaderBar clusters={clusterPostList} />
-      <main className="flex flex-1 overflow-auto flex-col items-center gap-8">
+      <main className="flex flex-1 overflow-auto scrollbar flex-col items-center gap-8">
         {clusterPostList.map((cluster) => (
           <div
             key={cluster.id}

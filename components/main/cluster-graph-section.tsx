@@ -21,7 +21,7 @@ export default async function ClusterGraphSection() {
       </aside>
       <div className="relative flex-1 flex w-full pt-40 md:pt-0 md:w-1/2 min-h-0 self-end">
         <div className="w-full flex md:py-4 ">
-          <div className="flex flex-col flex-1 h-full overflow-y-scroll scrollbar-hidden bg-glass-bg rounded-xl shadow-lg">
+          <div className="flex flex-col flex-1 h-full overflow-y-scroll scrollbar-hidden bg-glass-bg shadow-lg">
             <ClusterPostList clusterPostList={postListData} />
           </div>
         </div>

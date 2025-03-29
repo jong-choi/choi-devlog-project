@@ -15,12 +15,12 @@ export function PostCard({
     <div
       className={cn(
         "w-full bg-glass-bg text-base backdrop-blur-sm rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-glass-border",
-        isFeatured ? "flex flex-col lg:flex-row" : ""
+        isFeatured ? "flex lg:flex-1" : ""
       )}
     >
       {/* 이미지 영역 */}
       {isFeatured && (
-        <div className="relative w-full lg:w-1/2 aspect-video lg:aspect-auto lg:h-auto">
+        <div className="aspect-[3/2] w-[200px] lg:w-1/2 mt-0  relative overflow-hidden shadow-md flex-shrink-0">
           {post.thumbnail ? (
             <Image
               src={post.thumbnail}
@@ -35,7 +35,6 @@ export function PostCard({
           )}
         </div>
       )}
-
       <div
         className={cn(
           "p-6 flex flex-col justify-between",
