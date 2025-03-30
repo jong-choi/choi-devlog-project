@@ -1865,8 +1865,422 @@ export default {
 | `--glass-neutral-bg`   | `bg-glass-neutral`        | 중성 회색 계열 Glass 배경        |
 | `--glass-neutral-text` | `text-glass-text-neutral` | 중성 회색 계열 Glass 텍스트 색상 |
 
-## 23일차, 24일차 메인화면 디자인
+## 23일차 메인화면 디자인
 
-## 25일차.
+### 메인화면
 
-server action 캐싱하고 재사용하기 고민 다시...
+메인화면을 글라스모피즘으로 디자인했다.
+글라스모피즘이 두드러질 수 있도록 배경화면에는 움직이는 CSS 배경을 적용하고,
+투명하고 blur효과가 강한 박스들을 화면에 배치하였다.
+
+반투명 배경 + 블러 + rounded 효과까지 더해지니 너무 과한 것 같아서 rounded는 기본 테마에서 제외.
+
+메인화면에서 보여줄 기능은
+카테고리별 보기, 최신글 순, 지식지도 - 세가지로 하고, 나머지 3가지 페이지를 다시 한 번 리팩토링하며 구현하도록 한다.
+
+### 지도 페이지
+
+군집 그래프를 보는 페이지이다.
+전체적으로 디자인만 살짝 가다듬었고,
+기능적으로는 군집그래프의 버튼들을 rect와 text로 변경하였다. 버튼을 넣으면 safari에서 작동이 되지 않는다.
+
+그 밖에 색상들을 글래스모피즘과 어울리는 색상들로 변경하였다.
+
+또한 scrollIntoView를 하니 홈 화면 전체가 이동하는 문제가 있어 scrollTo로 변경하였다.
+
+- 지도 페이지 할 일
+  - 우측 게시글 목록 열고 기능
+  - 캐싱 전략 다시 검토
+
+## 24일차 : 검색 원격 프로시져, cache wrapper함수 버전2
+
+### 메인페이지 지도
+
+isMain이라는 플래그를 만들어서 메인화면에서는 120개의 글 전체를 렌더링하지 않도록 수정하였다.
+
+### 검색 쿼리 (supabase full text search)
+
+#### tsv 벡터 생성
+
+postgreSQL의 full text search를 이용하여 검색기능을 구현하도록 한다.
+
+```sql
+-- Supabase SQL Editor에서 실행
+alter table posts add column if not exists tsv tsvector;
+
+-- 기존 데이터의 tsv 초기화
+update posts set tsv =
+  setweight(to_tsvector(coalesce(title, '')), 'A') ||
+  setweight(to_tsvector(coalesce(body, '')), 'B');
+
+-- tsvector 자동 업데이트 트리거 생성
+create function posts_tsv_trigger() returns trigger as $$
+begin
+  new.tsv :=
+    setweight(to_tsvector(coalesce(new.title, '')), 'A') ||
+    setweight(to_tsvector(coalesce(new.body, '')), 'B');
+  return new;
+end
+$$ language plpgsql;
+
+create trigger tsv_update before insert or update
+on posts for each row execute procedure posts_tsv_trigger();
+```
+
+위의 명령어를 실행하면 tsv 벡터가 생성된다.
+
+#### view 테이블 생성
+
+앞서 cluster 기능 만들면서 널부러뜨려놨던 postCart 타입을 별도의 view 테이블로 분리한다.
+
+```sql
+CREATE OR REPLACE VIEW posts_with_tags_summaries AS
+SELECT
+  p.id,
+  p.title,
+  COALESCE(p.short_description, ais.summary) AS short_description,
+  p.thumbnail,
+  p.released_at,
+  p.url_slug,
+  -- 명확히 JSON 배열로 변환해서 반환
+  COALESCE(
+    ARRAY_AGG(
+      DISTINCT jsonb_build_object(
+        'id', t.id,
+        'name', t.name
+      )
+    ) FILTER (WHERE t.id IS NOT NULL), ARRAY[]::jsonb[]
+  ) AS tags,
+  p.tsv,
+  p.body,
+  p.is_private
+FROM posts p
+LEFT JOIN post_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+LEFT JOIN ai_summaries ais ON ais.post_id = p.id
+GROUP BY p.id, ais.summary;
+```
+
+이때 text search 기능을 위한 스니펫도 함께 포함해준다.
+
+#### RPC를 통한 검색 수행
+
+```sql
+CREATE OR REPLACE FUNCTION search_posts_with_snippet(
+  search_text text,
+  page int,
+  page_size int
+)
+RETURNS TABLE (
+  id uuid,
+  title text,
+  short_description text,
+  thumbnail text,
+  released_at timestamptz, --  여기 timestamptz로 변경!
+  url_slug text,
+  tags jsonb[], -- 여기 json → jsonb[]로 명확히 수정!
+  snippet text
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    v.id,
+    v.title,
+    v.short_description,
+    v.thumbnail,
+    v.released_at,
+    v.url_slug,
+    v.tags, -- 이미 배열 형태로 정의됨
+    -- 검색어 없으면 snippet을 null로, 있으면 실제 snippet을 생성!
+    CASE
+      WHEN search_text = '' THEN NULL
+      ELSE ts_headline(
+        v.body,
+        plainto_tsquery(search_text),
+        'StartSel=<mark>,StopSel=</mark>,MaxFragments=2,FragmentDelimiter=...,MaxWords=20,MinWords=5'
+      )
+    END AS snippet
+  FROM posts_with_tags_summaries v
+  WHERE (v.is_private IS NULL OR v.is_private IS FALSE)
+    AND (search_text = '' OR v.tsv @@ plainto_tsquery(search_text))
+  ORDER BY v.released_at DESC
+  OFFSET (page * page_size)
+  LIMIT page_size;
+END;
+$$;
+```
+
+#### server action과 캐싱
+
+```tsx
+export const _getPosts = async ({
+  page,
+  limit = 10,
+  search = "",
+}: GetPostsParams) => {
+  const supabase = await createClient();
+
+  const { data: posts, error } = await supabase.rpc(
+    "search_posts_with_snippet",
+    {
+      search_text: search,
+      page,
+      page_size: limit,
+    }
+  );
+
+  if (error || !posts) {
+    console.error(error);
+    throw new Error("데이터를 불러오는데 실패했습니다.");
+  }
+
+  return posts.map((post) => ({
+    ...post,
+    tags: post.tags as unknown as PostTags[], // Json[]의 타입을 명확히 지정
+  }));
+};
+```
+
+이제 이렇게만 작성하면 아래와 같은 타입으로 튀어나온다
+
+```tsx
+const getPosts: ({ page, limit, search }: GetPostsParams) => Promise<
+  {
+    tags: PostTags[];
+    id: string;
+    title: string;
+    short_description: string;
+    thumbnail: string;
+    released_at: string;
+    url_slug: string;
+    snippet: string;
+  }[]
+>;
+```
+
+`    snippet: string;`는 supabase cli에서 nullable인지 파악을 못한다.
+
+캐시키에 사용할 수 있도록 캐시키 팩토리에 by page를 추가해주고
+
+```tsx
+export const CACHE_TAGS = {
+  POST: {
+    ALL: () => "posts",
+    BY_PAGE: (page: number) => "posts:by_page:" + page.toLocaleString(),
+  },
+} as const;
+```
+
+캐싱을 하는 함수는 아래와 같이 작성한다.
+
+```tsx
+export const getPosts = ({ page, limit, search }: GetPostsParams) =>
+  unstable_cache(
+    () => _getPosts({ page, limit, search }),
+    [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(page)],
+    { revalidate: 60 * 60 * 24 * 7, tags: [CACHE_TAGS.POST.ALL()] }
+  )();
+```
+
+여기서 search가 있는 경우에는 아에 캐싱이 되지 않도록 분기를 넣어준다.
+
+```tsx
+export const getPosts = async (params: GetPostsParams) => {
+  const { search, page } = params;
+
+  if (search) return _getPosts(params);
+
+  const cached = unstable_cache(
+    () => _getPosts(params),
+    [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(page)],
+    {
+      revalidate: 60 * 60 * 24 * 7,
+      tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(page)],
+    }
+  );
+
+  return cached();
+};
+```
+
+여기에 추가적으로,
+supabase 클라이언트를 요청단에서 호출해서 server action으로 넘겨주는 패턴도 이 녀석에 실험적으로 적용시켜 본다.
+
+이런 패턴을 사용할 때에는 필수요소인 supabase 클라이언트를 첫번째 인자로 넘겨야 한다.
+
+```tsx
+"use server";
+
+import { PostTags } from "@/types/graph";
+import { Database } from "@/types/supabase";
+import { CACHE_TAGS } from "@/utils/nextCache";
+import { createClient } from "@/utils/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { unstable_cache } from "next/cache";
+
+interface GetPostsParams {
+  page: number;
+  limit?: number;
+  search?: string;
+}
+
+export const _getPosts = async (
+  supabase: SupabaseClient<Database>,
+  { page, limit = 10, search = "" }: GetPostsParams
+) => {
+  const { data: posts, error } = await supabase.rpc(
+    "search_posts_with_snippet",
+    {
+      search_text: search,
+      page,
+      page_size: limit,
+    }
+  );
+
+  if (error || !posts) {
+    console.error(error);
+    throw new Error("데이터를 불러오는데 실패했습니다.");
+  }
+
+  return posts.map((post) => ({
+    ...post,
+    tags: post.tags as unknown as PostTags[], // Json[]의 타입을 명확히 지정
+  }));
+};
+
+export const getPosts = async (params: GetPostsParams) => {
+  const supabase = await createClient();
+  const { search, page } = params;
+
+  if (search) return _getPosts(supabase, params);
+
+  const cached = unstable_cache(
+    () => _getPosts(supabase, params),
+    [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(page)],
+    {
+      revalidate: 60,
+      tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(page)],
+    }
+  );
+
+  return cached();
+};
+```
+
+#### 캐시 래퍼함수 new 버전
+
+검색 기능을 구현하다가 캐시 래퍼함수의 추상화 방안이 생각나서 실행.
+
+```tsx
+export const withSupabaseCache = async <P, T, Single extends boolean = false>(
+  params: P,
+  options: WithCacheParams<P, T, Single>
+): Promise<WithSupabaseReturn<T, Single>> => {
+  const supabase = await createClient(await cookies());
+
+  if (options.skipCache?.(params)) {
+    return options.handler(supabase, params);
+  }
+
+  const cached = unstable_cache(
+    () => options.handler(supabase, params),
+    options.key,
+    {
+      revalidate: options.revalidate ?? 60,
+      tags: options.tags,
+    }
+  );
+
+  return cached();
+};
+```
+
+params는 서버 액션을 실행할 때 넘겨주는 params이고,
+option는 서버 액션을 작성할 때에 기재하는 options이다.
+
+완성된 패턴은 아래와 같다.
+
+```tsx
+interface GetPostsParams {
+  page: number;
+  limit?: number;
+  search?: string;
+}
+
+export const _getPosts = async (
+  supabase: SupabaseClient<Database>,
+  { page, limit = 10, search = "" }: GetPostsParams
+): Promise<PostgrestResponse<CardPost>> => {
+  const result = await supabase.rpc("search_posts_with_snippet", {
+    search_text: search,
+    page,
+    page_size: limit,
+  });
+
+  return result;
+};
+
+export const getPosts = (params: GetPostsParams) =>
+  withSupabaseCache<GetPostsParams, CardPost>(params, {
+    handler: _getPosts,
+    key: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
+    tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
+    skipCache: ({ search }) => !!search, // 검색어 있으면 캐싱하지 않음
+    revalidate: 60 * 60 * 24 * 7, // 1주일 캐싱
+  });
+```
+
+withSupabaseCache에서 options를 통해서 캐싱을 하는 조건(skipCache)과 태그 등을 입력하게 된다.
+
+이렇게 getPosts로 불러오는 경우 검색어가 있으면 snippet이 붙는데, innerHTML로 넘겨주면 된다.
+
+```tsx
+{
+  post.snippet ? (
+    <p
+      className={cn(
+        "whitespace-pre-line",
+        isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
+      )}
+      dangerouslySetInnerHTML={{ __html: post.snippet }}
+    />
+  ) : (
+    <p
+      className={cn(
+        "whitespace-pre-line",
+        isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
+      )}
+    >
+      {post.short_description
+        ?.replaceAll("&#x3A;", ":")
+        .replaceAll("https", "\nhttps")}
+    </p>
+  );
+}
+```
+
+snippet에는 검색결과가 일치하는 부분이 `<mark>` 태그로 감싸져 있다.
+
+globals.css에 mark태그의 스타일을 넣어주었다.
+
+````css
+/* 검색 시 강조 */
+mark {
+  background-color: rgba(254, 240, 138, 0.5); /* yellow-100 + 50% 투명도 */
+  color: inherit;
+  padding: 0rem 0.15rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+/* 다크모드 대응 */
+@media (prefers-color-scheme: dark) {
+  mark {
+    background-color: rgba(253, 224, 71, 0.25); /* amber-400/25 */
+    color: inherit;
+  }
+}```
+````
