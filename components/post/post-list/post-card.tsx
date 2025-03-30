@@ -19,7 +19,7 @@ export function PostCard({
       href={`/post/${post.url_slug}`}
       className={cn(
         "w-full bg-glass-bg text-color-base  rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
-        isFeatured ? "flex lg:flex-1" : ""
+        isFeatured ? "flex lg:flex-1 h-full" : ""
       )}
     >
       {/* 이미지 영역 */}
