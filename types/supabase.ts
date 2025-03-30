@@ -318,6 +318,13 @@ export type Database = {
             referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories_with_meta"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subcategories: {
@@ -325,9 +332,11 @@ export type Database = {
           category_id: string | null
           created_at: string
           deleted_at: string | null
+          description: string | null
           id: string
           name: string
           order: number | null
+          recommended: boolean | null
           thumbnail: string | null
           url_slug: string
           user_id: string | null
@@ -337,9 +346,11 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           id?: string
           name?: string
           order?: number | null
+          recommended?: boolean | null
           thumbnail?: string | null
           url_slug?: string
           user_id?: string | null
@@ -349,9 +360,11 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           id?: string
           name?: string
           order?: number | null
+          recommended?: boolean | null
           thumbnail?: string | null
           url_slug?: string
           user_id?: string | null
@@ -436,15 +449,56 @@ export type Database = {
           body: string | null
           id: string | null
           is_private: boolean | null
+          order: number | null
           released_at: string | null
           short_description: string | null
+          subcategory_id: string | null
           tags: Json[] | null
           thumbnail: string | null
           title: string | null
           tsv: unknown | null
           url_slug: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories_with_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subcategories_with_meta: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          latest_post_date: string | null
+          name: string | null
+          order: number | null
+          post_count: number | null
+          recommended: boolean | null
+          thumbnail: string | null
+          url_slug: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

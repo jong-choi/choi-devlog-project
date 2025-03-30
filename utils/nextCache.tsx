@@ -14,6 +14,7 @@ export const CACHE_TAGS = {
     ALL: () => "subcategories",
     BY_CATEGORY_ID: (categoryId: string = "") =>
       "subcategories:by_category:" + categoryId,
+    BY_RECOMMENDED: () => "subcategories:by_recommended",
   },
   AI_SUMMARY: {
     BY_POST_ID: (postId: string = "") => "ai_summary:by_post:" + postId,

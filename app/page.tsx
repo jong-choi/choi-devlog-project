@@ -1,17 +1,17 @@
 import { TopBar } from "@/components/post/topBar/post-top-bar";
 import { GlassBox } from "@ui/glass-container";
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
-import { getSubcategories } from "@/app/post/actions";
-import SeriesCarousel from "@/components/main/series-carousel";
+import SeriesCarousel from "@/components/series/series-carousel";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
 import { ReactNode } from "react";
 import Link from "next/link";
 import { GlassButton } from "@ui/glass-button";
 import { getPosts } from "@/components/post/infinite-scroll/actions";
+import { getSeriesList } from "@/components/series/actions";
 
 export default async function Page() {
   const { data: recentPosts } = await getPosts({ page: 0 });
-  const { data: subcategories } = await getSubcategories();
+  const { data: subcategories } = await getSeriesList();
   return (
     <div className="flex flex-col text-foreground font-sans">
       <TopBar />
