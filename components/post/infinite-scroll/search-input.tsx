@@ -4,13 +4,17 @@ import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SearchInput() {
   const router = useRouter();
   const params = useSearchParams();
   const initialSearch = params.get("search") || "";
   const [input, setInput] = useState(initialSearch);
+
+  useEffect(() => {
+    setInput(initialSearch);
+  }, [initialSearch]);
 
   const handleSearch = () => {
     const newParams = new URLSearchParams(params);

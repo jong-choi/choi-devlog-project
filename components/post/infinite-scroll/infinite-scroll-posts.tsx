@@ -32,8 +32,10 @@ export default function InfiniteScrollPosts() {
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
-      {loading && <div className="text-center">Loading...</div>}
-      {!hasMore && <div className="text-center">No more posts</div>}
+      {loading && <div className="text-center text-color-base">Loading...</div>}
+      {!hasMore && (
+        <div className="text-center text-color-base">No more posts</div>
+      )}
       <div ref={observerRef} className="h-10" />
     </>
   );
