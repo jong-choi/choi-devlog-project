@@ -1865,4 +1865,8 @@ export default {
 | `--glass-neutral-bg`   | `bg-glass-neutral`        | 중성 회색 계열 Glass 배경        |
 | `--glass-neutral-text` | `text-glass-text-neutral` | 중성 회색 계열 Glass 텍스트 색상 |
 
-## 23일차 메인화면 디자인
+## 23일차, 24일차 메인화면 디자인
+
+## 25일차.
+
+server action 캐싱하고 재사용하기 고민 다시...

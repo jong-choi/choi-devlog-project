@@ -4,15 +4,17 @@ import Link from "next/link";
 
 export function TopBar() {
   return (
-    <nav className="h-14 flex md:sticky top-0 left-0 w-full bg-white/90 dark:bg-[#1f1f1f]/90 backdrop-blur border-b border-border z-10  items-center px-6 justify-between">
-      <Logo />
+    <nav className="h-14 flex flex-shrink-0 md:sticky top-0 left-0 w-full bg-glass-bg backdrop-blur-3xl border-b border-border z-10 justify-center px-6">
+      <div className="w-full h-full lg:max-w-screen-xl flex items-center ">
+        <Logo />
+      </div>
     </nav>
   );
 }
 
 export function Logo() {
   return (
-    <Link href="/post">
+    <Link href="/">
       <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
         scribbly<span className="text-indigo-500">.</span>
       </h1>

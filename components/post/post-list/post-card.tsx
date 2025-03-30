@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { CardPost } from "@/types/post";
 import { Calendar, Paperclip } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export function PostCard({
   post,
@@ -13,9 +14,10 @@ export function PostCard({
   isFeatured?: boolean;
 }) {
   return (
-    <div
+    <Link
+      href={`/post/${post.url_slug}`}
       className={cn(
-        "w-full bg-glass-bg text-base rounded-2xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
+        "w-full bg-glass-bg text-color-base  rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
         isFeatured ? "flex lg:flex-1" : ""
       )}
     >
@@ -95,6 +97,6 @@ export function PostCard({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

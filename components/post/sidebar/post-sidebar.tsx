@@ -11,6 +11,7 @@ import {
   ChevronLeftIcon,
   X,
 } from "lucide-react";
+import { Logo } from "@/components/post/topBar/post-top-bar";
 
 export function Sidebar({
   inset = false,
@@ -69,6 +70,7 @@ export function Sidebar({
 
         {!leftCollapsed && (
           <div className="p-4 w-64 overflow-auto space-y-2">
+            <Logo />
             {categories.map((cat) => (
               <SidebarContent
                 key={cat.id}
