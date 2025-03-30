@@ -13,6 +13,7 @@ export default function ClusterPostList({
   clusterPostList: ClusterWithPosts[];
 }) {
   const selectedClusterId = usePosts((state) => state.selectedCluster?.id);
+  const isMain = usePosts((state) => state.isMain);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const isManualScrolling = usePosts((state) => state.isManualScrolling);
   const setManualScrolling = usePosts((state) => state.setManualScrolling);
@@ -46,17 +47,22 @@ export default function ClusterPostList({
         ref={mainRef}
         className="flex flex-1 overflow-auto scrollbar flex-col items-center"
       >
-        {clusterPostList.map((cluster) => (
-          <div
-            key={cluster.id}
-            ref={(el) => {
-              sectionRefs.current[cluster.id] = el;
-            }}
-            className="w-full flex justify-center"
-          >
-            <ClusterSection cluster={cluster} />
-          </div>
-        ))}
+        {clusterPostList
+          .filter((cluster) => {
+            if (!isMain) return true;
+            return cluster.id === selectedClusterId;
+          })
+          .map((cluster) => (
+            <div
+              key={cluster.id}
+              ref={(el) => {
+                sectionRefs.current[cluster.id] = el;
+              }}
+              className="w-full flex justify-center"
+            >
+              <ClusterSection cluster={cluster} />
+            </div>
+          ))}
       </main>
     </>
   );

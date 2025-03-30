@@ -62,7 +62,7 @@ export default async function Page() {
               유사한 게시글을 인공지능으로 분류한 지도입니다
             </span>
             <GlassBox className="w-full flex h-[600px] flex-col text-foreground font-sans">
-              <ClusterGraphSection />
+              <ClusterGraphSection isMain />
             </GlassBox>
             <SectionLinkText href="/map">더 크게 보기</SectionLinkText>
           </GlassBox>

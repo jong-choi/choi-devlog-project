@@ -7,12 +7,16 @@ import ClusterGraphApp from "@/components/post/cluster/cluster-graph-app";
 import ClusterPostList from "@/components/post/post-list/cluster-post-list";
 import { PostsProvider } from "@/providers/posts-store-provider";
 
-export default async function ClusterGraphSection() {
+export default async function ClusterGraphSection({
+  isMain = false,
+}: {
+  isMain?: boolean;
+}) {
   const { data: clusterData } = await getClusterData();
   const { data: clusterSimData } = await getClusterSimData();
   const postListData = await getClusterFeed();
   return (
-    <PostsProvider initialState={{ selectedCluster: clusterData?.[0] }}>
+    <PostsProvider initialState={{ selectedCluster: clusterData?.[0], isMain }}>
       <aside className="absolute inset-0 w-full z-0">
         <ClusterGraphApp
           nodes={clusterData || []}
