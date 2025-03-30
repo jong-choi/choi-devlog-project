@@ -43,7 +43,7 @@ export function GlassButton({
     <button
       {...props}
       className={cn(
-        "px-4 py-2 text-sm font-medium rounded backdrop-blur-glass transition shadow-glass hover:brightness-105 dark:hover:brightness-125",
+        "px-4 py-2 text-sm font-medium rounded backdrop-blur-glass transition shadow-glass hover:brightness-105 dark:hover:brightness-125 whitespace-nowrap",
         selected ? style.selected : style.base,
         className
       )}

@@ -1,0 +1,40 @@
+"use client";
+
+import { useInfinitePostsStore } from "@/components/post/infinite-scroll/infinite-posts-provider";
+import { PostCard } from "@/components/post/post-list/post-card";
+import { useEffect, useRef } from "react";
+
+export default function InfiniteScrollPosts() {
+  const { posts, fetchNextPage, loading, hasMore } = useInfinitePostsStore(
+    (store) => store
+  );
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !loading && hasMore) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, loading, hasMore]);
+
+  return (
+    <>
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+      {loading && <div className="text-center">Loading...</div>}
+      {!hasMore && <div className="text-center">No more posts</div>}
+      <div ref={observerRef} className="h-10" />
+    </>
+  );
+}
