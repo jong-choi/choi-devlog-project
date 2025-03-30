@@ -19,16 +19,16 @@ export function PostCard({
       href={`/post/${post.url_slug}`}
       className={cn(
         "w-full bg-glass-bg text-color-base  rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
-        isFeatured ? "flex lg:flex-1 h-full" : ""
+        isFeatured ? "flex flex-col lg:flex-row lg:flex-1 h-full" : "flex"
       )}
     >
       {/* 이미지 영역 */}
       {isFeatured && (
-        <div className="aspect-[3/2] w-[200px] lg:w-1/2 mt-0  relative overflow-hidden shadow-glass flex-shrink-0">
+        <div className="aspect-[3/2] w-full lg:w-1/2 mt-0  relative overflow-hidden shadow-glass flex-shrink-0">
           {post.thumbnail ? (
             <Image
               src={post.thumbnail}
-              alt={post.title}
+              alt={post.title || ""}
               fill
               className="object-cover"
               sizes="(min-width: 1024px) 50vw, 200px"
@@ -40,7 +40,12 @@ export function PostCard({
           )}
         </div>
       )}
-      <div className={cn("p-6 flex flex-col gap-1", isFeatured && "lg:w-1/2")}>
+      <div
+        className={cn(
+          "p-6 flex flex-col gap-1 w-full",
+          isFeatured && "lg:w-1/2"
+        )}
+      >
         {/* 태그 */}
         <div className="text-sm mb-2 hidden md:flex gap-2 flex-wrap items-center">
           <span className="text-xs text-color-muted">
@@ -102,7 +107,7 @@ export function PostCard({
             <div className="aspect-[3/2] w-[150px] mt-0 ml-4 relative overflow-hidden border border-glass-border flex-shrink-0">
               <Image
                 src={post.thumbnail}
-                alt={post.title}
+                alt={post.title || ""}
                 fill
                 className="object-cover"
                 sizes="150px"

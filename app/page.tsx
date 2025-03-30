@@ -1,13 +1,13 @@
 import { TopBar } from "@/components/post/topBar/post-top-bar";
 import { GlassBox } from "@ui/glass-container";
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
-import SeriesCarousel from "@/components/series/series-carousel";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
 import { ReactNode } from "react";
 import Link from "next/link";
 import { GlassButton } from "@ui/glass-button";
 import { getPosts } from "@/components/post/infinite-scroll/actions";
 import { getSeriesList } from "@/components/series/actions";
+import SeriesApp from "@/components/series/series-app";
 
 export default async function Page() {
   const { data: recentPosts } = await getPosts({ page: 0 });
@@ -40,9 +40,7 @@ export default async function Page() {
             <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
               시리즈
             </h2>
-            <GlassBox className="w-full bg-glass-border">
-              <SeriesCarousel seriesList={subcategories || []} />
-            </GlassBox>
+            <SeriesApp seriesList={subcategories || []} />
             <SectionLinkText href="/series">더 보기</SectionLinkText>
           </GlassBox>
           {/* 최신글 */}

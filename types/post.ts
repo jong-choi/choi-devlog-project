@@ -23,7 +23,7 @@ export interface Category {
   subcategories: Subcategory[];
 }
 
-export type CardPost = GraphPost & { tags: PostTags[] | Json[] };
+export type CardPost = GraphPost & { tags: PostTags[] | Json[] | null };
 
 export type SidebarSelectedData = {
   post: Post;

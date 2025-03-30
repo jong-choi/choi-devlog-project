@@ -1,7 +1,6 @@
 "use client";
-import { Series } from "@/components/series/series-app";
 import { cn } from "@/lib/utils";
-import { Database } from "@/types/supabase";
+import { Series } from "@/types/series";
 import {
   Carousel,
   CarouselContent,
@@ -26,7 +25,7 @@ export default function SeriesCarousel({
           {seriesList.map((series, index) => (
             <CarouselItem
               key={series.id}
-              className="basis-1/3 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+              className="basis-1/1 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
             >
               <div
                 className="cursor-pointer"
@@ -49,14 +48,14 @@ export const SeriesCard = ({
   series,
   index,
 }: {
-  series: Database["public"]["Tables"]["subcategories"]["Row"];
+  series: Series;
   index: number;
 }) => (
   <div className="relative h-48 w-48 flex-shrink-0 overflow-hidden shadow-glass">
     {series.thumbnail && (
       <Image
         src={series.thumbnail}
-        alt={series.name}
+        alt={series.name!}
         sizes="192px"
         fill
         className="object-cover"

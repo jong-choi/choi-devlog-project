@@ -32,12 +32,12 @@ type Cluster = {
 };
 
 export type GraphPost = {
-  id: string;
-  title: string;
+  id: string | null;
+  title: string | null;
   short_description: string | null;
   thumbnail: string | null;
   released_at: string | null;
-  url_slug: string;
+  url_slug: string | null;
   snippet?: string | null;
 };
 
