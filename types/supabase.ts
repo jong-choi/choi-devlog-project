@@ -48,6 +48,13 @@ export type Database = {
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
         ]
       }
       categories: {
@@ -189,10 +196,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "post_similarities_target_post_id_fkey"
             columns: ["target_post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_tags_summaries"
             referencedColumns: ["id"]
           },
         ]
@@ -219,6 +240,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "post_tags_tag_id_fkey"
             columns: ["tag_id"]
             isOneToOne: false
@@ -240,6 +268,7 @@ export type Database = {
           subcategory_id: string
           thumbnail: string | null
           title: string
+          tsv: unknown | null
           updated_at: string | null
           url_slug: string
           user_id: string
@@ -257,6 +286,7 @@ export type Database = {
           subcategory_id: string
           thumbnail?: string | null
           title: string
+          tsv?: unknown | null
           updated_at?: string | null
           url_slug: string
           user_id?: string
@@ -274,6 +304,7 @@ export type Database = {
           subcategory_id?: string
           thumbnail?: string | null
           title?: string
+          tsv?: unknown | null
           updated_at?: string | null
           url_slug?: string
           user_id?: string
@@ -400,6 +431,21 @@ export type Database = {
         }
         Relationships: []
       }
+      posts_with_tags_summaries: {
+        Row: {
+          body: string | null
+          id: string | null
+          is_private: boolean | null
+          released_at: string | null
+          short_description: string | null
+          tags: Json[] | null
+          thumbnail: string | null
+          title: string | null
+          tsv: unknown | null
+          url_slug: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       binary_quantize:
@@ -513,6 +559,23 @@ export type Database = {
             }
             Returns: unknown
           }
+      search_posts_with_snippet: {
+        Args: {
+          search_text: string
+          page: number
+          page_size: number
+        }
+        Returns: {
+          id: string
+          title: string
+          short_description: string
+          thumbnail: string
+          released_at: string
+          url_slug: string
+          tags: Json[]
+          snippet: string
+        }[]
+      }
       sparsevec_out: {
         Args: {
           "": unknown

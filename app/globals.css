@@ -72,6 +72,25 @@ pre {
     Liberation Mono, monospace;
 }
 
+/* 검색 시 강조 */
+mark {
+  background-color: rgba(254, 240, 138, 0.5); /* yellow-100 + 50% 투명도 */
+  color: inherit;
+  padding: 0rem 0.15rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+/* 다크모드 대응 */
+@media (prefers-color-scheme: dark) {
+  mark {
+    background-color: rgba(253, 224, 71, 0.25); /* amber-400/25 */
+    color: inherit;
+  }
+}
+
 /* 스크롤바 추가 https://stackoverflow.com/questions/69400560/how-to-change-scrollbar-when-using-tailwind-next-js-react */
 @layer utilities {
   .scrollbar::-webkit-scrollbar {

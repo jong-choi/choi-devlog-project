@@ -1,6 +1,7 @@
 import { Logo } from "@/components/post/topBar/post-top-bar";
 import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
+import { PostTags } from "@/types/graph";
 import { CardPost } from "@/types/post";
 import { Calendar, Paperclip } from "lucide-react";
 import Image from "next/image";
@@ -45,14 +46,17 @@ export function PostCard({
           <span className="text-xs text-color-muted">
             <Paperclip className="w-4 h-4 -scale-x-100" />
           </span>
-          {post.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag.id}
-              className="bg-glass-primary px-2 text-xs rounded-full"
-            >
-              {tag.name}
-            </span>
-          ))}
+          {post.tags?.slice(0, 3).map((tag) => {
+            const safeTag = tag as PostTags;
+            return (
+              <span
+                key={safeTag.id}
+                className="bg-glass-primary px-2 text-xs rounded-full"
+              >
+                {safeTag.name}
+              </span>
+            );
+          })}
         </div>
 
         {/* 제목 + 설명 + 날짜 */}
@@ -66,16 +70,26 @@ export function PostCard({
             >
               {post.title}
             </h3>
-            <p
-              className={cn(
-                "whitespace-pre-line",
-                isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
-              )}
-            >
-              {post.short_description
-                ?.replaceAll("&#x3A;", ":")
-                .replaceAll("https", "\nhttps")}
-            </p>
+            {post.snippet ? (
+              <p
+                className={cn(
+                  "whitespace-pre-line",
+                  isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
+                )}
+                dangerouslySetInnerHTML={{ __html: post.snippet }}
+              />
+            ) : (
+              <p
+                className={cn(
+                  "whitespace-pre-line",
+                  isFeatured ? "text-base line-clamp-6" : "text-sm line-clamp-2"
+                )}
+              >
+                {post.short_description
+                  ?.replaceAll("&#x3A;", ":")
+                  .replaceAll("https", "\nhttps")}
+              </p>
+            )}
             <div className="text-sm text-gray-500 flex gap-1 items-center">
               <span className="text-xs text-color-muted">
                 <Calendar className="w-4 h-4" />

@@ -38,6 +38,7 @@ export type GraphPost = {
   thumbnail: string | null;
   released_at: string | null;
   url_slug: string;
+  snippet?: string | null;
 };
 
 export type PostTags = {

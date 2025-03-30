@@ -1,5 +1,5 @@
 import { GraphPost, PostTags } from "@/types/graph";
-import { Database } from "@/types/supabase";
+import { Database, Json } from "@/types/supabase";
 
 export type Post = {
   id: string;
@@ -23,7 +23,7 @@ export interface Category {
   subcategories: Subcategory[];
 }
 
-export type CardPost = GraphPost & { tags: PostTags[] };
+export type CardPost = GraphPost & { tags: PostTags[] | Json[] };
 
 export type SidebarSelectedData = {
   post: Post;

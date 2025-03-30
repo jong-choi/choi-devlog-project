@@ -13,7 +13,7 @@ interface PageProps {
 export default async function Page({ searchParams }: PageProps) {
   const { search } = await searchParams;
   const isSearching = !!search && typeof search === "string";
-  const initialPosts = await getPosts({ page: 0, search });
+  const { data: postLists } = await getPosts({ page: 0, search });
 
   return (
     <div className="md:h-screen flex flex-col bg-background text-foreground font-sans">
@@ -34,10 +34,10 @@ export default async function Page({ searchParams }: PageProps) {
           )}
           <InfinitePostsStoreProvider
             initialState={{
-              posts: initialPosts,
+              posts: postLists || [],
               search: search,
               page: 1,
-              hasMore: initialPosts.length > 0,
+              hasMore: !!postLists && postLists.length > 0,
             }}
           >
             <InfiniteScrollPosts />

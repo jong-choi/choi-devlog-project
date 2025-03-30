@@ -28,7 +28,8 @@ export const createInfinitePostsStore = (
       const { page, posts, search, loading, hasMore } = get();
       if (loading || !hasMore) return;
       set({ loading: true });
-      const nextPosts = await getPosts({ page, search });
+      const { data } = await getPosts({ page, search });
+      const nextPosts = data || [];
       set({
         posts: [...posts, ...nextPosts],
         page: page + 1,
