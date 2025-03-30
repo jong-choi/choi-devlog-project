@@ -1961,8 +1961,6 @@ LEFT JOIN ai_summaries ais ON ais.post_id = p.id
 GROUP BY p.id, ais.summary;
 ```
 
-이때 text search 기능을 위한 스니펫도 함께 포함해준다.
-
 #### RPC를 통한 검색 수행
 
 ```sql
@@ -2284,3 +2282,191 @@ mark {
   }
 }```
 ````
+
+## 24일차 + 25일차 : 시리즈 보기 화면
+
+시리즈는 복잡하게 생각할 것 없이 UX, UI 적인 측면으로 풀어내면 된다고 생각한다.
+
+이렇게 섹션별로 시리즈를 디스플레이 하다가
+
+```
+----
+추천 시리즈
+| 시리즈 1| 시리즈 3| 시리즈 5|
+----
+CS 공부
+| 시리즈 1| 시리즈 2| 시리즈 3|
+----
+리액트
+| 시리즈 7| 시리즈 8| 시리즈 10|
+----
+```
+
+시리즈를 하나 클릭했을 때 설명이 섹션 하단부에 나오고
+
+```
+----
+추천 시리즈
+| 시리즈 1| 시리즈 3| 시리즈 5|
+--
+시리즈 3 소개
+시리즈 3은 개쩌는 CS 공부입니다.
+[더 보기]
+----
+CS 공부
+| 시리즈 1| 시리즈 2| 시리즈 3|
+----
+리액트
+| 시리즈 7| 시리즈 8| 시리즈 10|
+----
+```
+
+더 보기를 누르면 게시글 목록을 보여주어야 하는데
+shadcn의 drawer를 이용하면 간단하게 해결될 문제로 보인다.
+
+```
+--drawer--
+시리즈 2
+시리즈 2은 최고의 CS 공부입니다.
+
+- 게시글 1
+- 게시글 2
+- 게시글 3
+- 게시글 4
+-----
+```
+
+#### 카테고리 view
+
+카테고리의 최신 게시글 날짜 및 총 게시글 수를 함께 볼 수 있는 view를 만들고자 한다.
+
+먼저 기존에 post카드 용으로 만들었던 posts_with_tags_summaries 테이블에 subcategory_id를 추가해준다.
+
+또한 비공개된 게시글은 view 테이블에 잡히지 않도록 명확하게 만들어 준다.
+
+```sql
+CREATE OR REPLACE VIEW posts_with_tags_summaries AS
+SELECT
+  p.id,
+  p.title,
+  COALESCE(p.short_description, ais.summary) AS short_description,
+  p.thumbnail,
+  p.released_at,
+  p.url_slug,
+  -- 명확히 JSON 배열로 변환해서 반환
+  COALESCE(
+    ARRAY_AGG(
+      DISTINCT jsonb_build_object(
+        'id', t.id,
+        'name', t.name
+      )
+    ) FILTER (WHERE t.id IS NOT NULL), ARRAY[]::jsonb[]
+  ) AS tags,
+  p.tsv,
+  p.body,
+  p.is_private,
+  p.subcategory_id, -- 여기 추가
+  p."order" -- 여기도 추가
+FROM posts p
+LEFT JOIN post_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+LEFT JOIN ai_summaries ais ON ais.post_id = p.id
+where (p.deleted_at is null)
+  and (p.is_private is null or p.is_private = false) -- 공개된 게시글만 보도록
+GROUP BY p.id, ais.summary, p.subcategory_id; -- 여기도 추가
+```
+
+이제 이 테이블과 연동하여 subcategory에 포함된 게시글 갯수를 노출시키는 view를 만든다.
+
+```sql
+create or replace view subcategories_with_meta as
+select
+  s.category_id,
+  s.created_at,
+  s.description,
+  s.id,
+  s.name,
+  s.url_slug,
+  s."order",
+  s.recommended,
+  s.thumbnail,
+  count(p.id) as post_count,
+  max(p.released_at) as latest_post_date
+from subcategories s
+left join posts_with_tags_summaries p on p.subcategory_id = s.id
+where s.deleted_at is null
+group by
+  s.category_id,
+  s.created_at,
+  s.description,
+  s.id,
+  s.name,
+  s."order",
+  s.recommended,
+  s.thumbnail;
+```
+
+#### 카테고리 조회 server action
+
+components/series/actions.ts 에 새로 작성한 server action은 아래와 같다.
+
+```tsx
+export const _getSeriesList = async (
+  supabase: SupabaseClient<Database>,
+  { categoryId, recommended = false }: GetSeriesListParams
+): Promise<PostgrestResponse<Series>> => {
+  const query = supabase
+    .from("subcategories_with_meta")
+    .select("*")
+    .not("latest_post_date", "is", null)
+    .order("latest_post_date", { ascending: false }); // 전체 조회시 최신이 가장 위로
+
+  if (categoryId) {
+    query.eq("category_id", categoryId).order("order", { ascending: true });
+  }
+
+  if (recommended) {
+    query.is("recommended", recommended).order("order", { ascending: true });
+  }
+
+  const result = await query;
+
+  return result;
+};
+
+export const getSeriesList = async (params?: GetSeriesListParams) => {
+  const tags = ["subcategories_with_meta", CACHE_TAGS.SUBCATEGORY.ALL()];
+  if (params?.categoryId) {
+    tags.push(CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(params.categoryId));
+  }
+  if (params?.recommended) {
+    tags.push(CACHE_TAGS.SUBCATEGORY.BY_RECOMMENDED());
+  }
+
+  return withSupabaseCache<GetSeriesListParams, Series>(params || {}, {
+    handler: _getSeriesList,
+    key: [...tags],
+    tags: [...tags],
+    revalidate: 60 * 60 * 24 * 30, // 30일 캐싱
+  });
+};
+```
+
+params에 categoryId가 있으면 categoryId를 기준으로 불러오고, 이를 cache tags에 추가한다.
+
+마찬가지로 recommended가 있으면 이를 기준으로 불러오고 cache tags에 추가한다.
+
+둘 다 없는 경우에는 전체 서브카테고리를 가장 최신에 업데이트된 순으로 불러온다.
+
+사실 categoryId와 recommended는 상호 배타적이라 따로 분리하는 것이 좋지만.
+
+#### 페이지 구현
+
+`/series` 페이지 : 캐러셀의 버튼을 누르면 series가 선택된다. 선택된 series에 관한 정보가 drawer로 하단에서부터 노출된다.
+`/series/[url_sulg]` 페이지 : series의 게시글 목록이다.
+
+처음에는 하단의 drawer에서 게시글 목록을 모두 다 띄우려고 했는데, drawer에 게시글이 10개 20개씩 노출되는게 ui/ux 적으로 부적절하기도 하고, 게시글을 봤다가 게시글 목록을 보는 유저들의 사용 패턴과도 맞지 않는다고 생각하였다. 이에 따라 series/url_slug 페이지를 분리하였고, url_slug 페이지는 static하기 때문에 오히려 서버의 요청 수가 줄어드는 부수적인 장점이 있다.
+
+한편 series/url_slug를 분리하였으니 서랍이 필요가 없지 않나 생각하였으나, '탐색'을 한다는 사용자 경험을 위해서 series 페이지에는 그대로 drawer를 유지하였다. 특히 series 카드를 클릭했는데 다짜고짜 페이지 이동이 일어나기 보다는 drawer를 통해서 내용을 한 번 더 확인하고 이동하는 것이 바람직해 보였다.
+
+url_slug를 쓰는 페이지는 post/url_slug 페이지 밖에 없을 줄 알았는데....아무튼 그렇게 됐다.
