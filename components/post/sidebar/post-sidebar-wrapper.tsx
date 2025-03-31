@@ -1,4 +1,4 @@
-import { SidebarState } from "@/hooks/use-sidebar-store";
+import { SidebarState } from "@/hooks/zustand/use-sidebar-store";
 import { SidebarStoreProvider } from "@/providers/sidebar-store-provider";
 import { Category, Post } from "@/types/post";
 
