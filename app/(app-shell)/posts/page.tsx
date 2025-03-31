@@ -1,0 +1,44 @@
+import { getPosts } from "@/components/post/infinite-scroll/actions";
+import { InfinitePostsStoreProvider } from "@/components/post/infinite-scroll/infinite-posts-provider";
+import InfiniteScrollPosts from "@/components/post/infinite-scroll/infinite-scroll-posts";
+import SearchHydrator from "@/components/post/infinite-scroll/search-hydrator";
+import SearchInput from "@/components/post/infinite-scroll/search-input";
+import Link from "next/link";
+
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const { search } = await searchParams;
+  const isSearching = !!search && typeof search === "string";
+  const { data: postLists } = await getPosts({ page: 0, search });
+
+  return (
+    <>
+      <SearchInput />
+      {isSearching && (
+        <p className="flex gap-2">
+          <span className="text-sm text-color-base">{`"${search}"로 검색한 결과입니다.`}</span>
+          <Link
+            className="text-sm text-color-muted hover:text-color-base"
+            href="/post"
+          >
+            전체 게시글 보기
+          </Link>
+        </p>
+      )}
+      <InfinitePostsStoreProvider
+        initialState={{
+          posts: postLists || [],
+          search: search,
+          page: 1,
+          hasMore: !!postLists && postLists.length > 0,
+        }}
+      >
+        <InfiniteScrollPosts />
+        <SearchHydrator />
+      </InfinitePostsStoreProvider>
+    </>
+  );
+}
