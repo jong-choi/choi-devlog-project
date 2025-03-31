@@ -1,6 +1,6 @@
 import { PostCard } from "@/components/post/post-list/post-card";
 import { CardPost } from "@/types/post";
-import { GlassBox } from "@ui/glass-container";
+import { SectionInnerContainer } from "@ui/glass-container";
 
 export function LatestPostsSection({
   posts,
@@ -15,7 +15,7 @@ export function LatestPostsSection({
   const [first, ...rest] = sliced;
 
   return (
-    <GlassBox className="w-full p-4 bg-glass-border">
+    <SectionInnerContainer>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 첫 번째 카드: 세로 2칸 차지 */}
         {first && (
@@ -28,6 +28,6 @@ export function LatestPostsSection({
           <PostCard key={post.id} post={post} />
         ))}
       </div>
-    </GlassBox>
+    </SectionInnerContainer>
   );
 }

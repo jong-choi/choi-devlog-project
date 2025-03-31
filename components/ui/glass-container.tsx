@@ -26,3 +26,54 @@ export function GlassBox({
     </div>
   );
 }
+
+export function SectionContainer({
+  children,
+  title,
+  titleSize = "2xl",
+  description,
+  mobileTransperency = false,
+}: {
+  children?: ReactNode;
+  title: string;
+  titleSize?: "2xl" | "xl";
+  description?: string;
+  mobileTransperency?: boolean;
+}) {
+  return (
+    <GlassBox
+      className="w-full flex flex-col gap-3"
+      mobileTransperency={mobileTransperency}
+    >
+      <h2
+        className={cn(
+          "font-extrabold tracking-tighter text-shadow pb-2",
+          titleSize === "2xl" && "text-2xl",
+          titleSize === "xl" && "text-xl"
+        )}
+      >
+        {title}
+      </h2>
+      <span
+        className={cn("text-sm text-shadow -mt-2", !description && "hidden")}
+      >
+        {description}
+      </span>
+      {children}
+    </GlassBox>
+  );
+}
+
+export function SectionInnerContainer({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <GlassBox className={cn("w-full bg-glass-border", className)}>
+      {children}
+    </GlassBox>
+  );
+}

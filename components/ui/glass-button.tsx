@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { ButtonHTMLAttributes } from "react";
+import Link from "next/link";
+import { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "success" | "warning" | "danger" | "neutral";
@@ -50,5 +51,19 @@ export function GlassButton({
     >
       {children}
     </button>
+  );
+}
+
+export function SectionLinkText({
+  children,
+  href,
+}: {
+  children: ReactNode;
+  href: string;
+}) {
+  return (
+    <Link href={href} className="self-end">
+      <GlassButton className="text-shadow">{children}</GlassButton>
+    </Link>
   );
 }

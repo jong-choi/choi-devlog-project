@@ -1,12 +1,14 @@
-import { GlassBox } from "@ui/glass-container";
+import {
+  GlassBox,
+  SectionContainer,
+  SectionInnerContainer,
+} from "@ui/glass-container";
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
-import { ReactNode } from "react";
-import Link from "next/link";
-import { GlassButton } from "@ui/glass-button";
 import { getPosts } from "@/components/post/infinite-scroll/actions";
 import { getSeriesList } from "@/components/series/actions";
 import SeriesApp from "@/components/series/series-app";
+import { SectionLinkText } from "@ui/glass-button";
 
 export default async function Page() {
   const { data: recentPosts } = await getPosts({ page: 0 });
@@ -31,48 +33,25 @@ export default async function Page() {
         </div>
       </GlassBox>
       {/* 캐러셀 */}
-      <GlassBox className="w-full flex flex-col gap-3">
-        <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
-          시리즈
-        </h2>
+      <SectionContainer title={"시리즈"}>
         <SeriesApp seriesList={subcategories || []} />
         <SectionLinkText href="/series">더 보기</SectionLinkText>
-      </GlassBox>
+      </SectionContainer>
       {/* 최신글 */}
-      <GlassBox className="w-full flex flex-col gap-3">
-        <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
-          최신글
-        </h2>
+      <SectionContainer title={"최신글"}>
         <LatestPostsSection posts={recentPosts || []} limit={5} />
-        <SectionLinkText href="/post">더 보기</SectionLinkText>
-      </GlassBox>
+        <SectionLinkText href="/posts">더 보기</SectionLinkText>
+      </SectionContainer>
       {/* 리스트 섹션 */}
-      <GlassBox className="w-full flex flex-col gap-3" mobileTransperency>
-        <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
-          지식의 여정
-        </h2>
-        <span className="text-sm text-shadow -mt-2">
-          유사한 게시글을 인공지능으로 분류한 지도입니다
-        </span>
-        <GlassBox className="w-full flex h-[600px] flex-col text-foreground font-sans">
+      <SectionContainer
+        title={"지식의 여정"}
+        description={"유사한 게시글을 인공지능으로 분류한 지도입니다"}
+      >
+        <SectionInnerContainer className="flex h-[600px] flex-col">
           <ClusterGraphSection isMain />
-        </GlassBox>
+        </SectionInnerContainer>
         <SectionLinkText href="/map">더 크게 보기</SectionLinkText>
-      </GlassBox>
+      </SectionContainer>
     </>
-  );
-}
-
-export function SectionLinkText({
-  children,
-  href,
-}: {
-  children: ReactNode;
-  href: string;
-}) {
-  return (
-    <Link href={href} className="self-end">
-      <GlassButton className="text-shadow">{children}</GlassButton>
-    </Link>
   );
 }

@@ -5,7 +5,7 @@ import { Series } from "@/types/series";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Drawer, DrawerContent } from "@ui/drawer";
 import { GlassButton } from "@ui/glass-button";
-import { GlassBox } from "@ui/glass-container";
+import { SectionInnerContainer } from "@ui/glass-container";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,14 +15,12 @@ export default function SeriesApp({ seriesList }: { seriesList: Series[] }) {
 
   return (
     <>
-      <div className="w-full">
-        <GlassBox className="w-full bg-glass-border">
-          <SeriesCarousel
-            seriesList={seriesList || []}
-            setSeries={setSelectedSeries}
-          />
-        </GlassBox>
-      </div>
+      <SectionInnerContainer>
+        <SeriesCarousel
+          seriesList={seriesList || []}
+          setSeries={setSelectedSeries}
+        />
+      </SectionInnerContainer>
       {selectedSeries && (
         <Drawer
           open={!!selectedSeries}
