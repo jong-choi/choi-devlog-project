@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const prompt = `제목: ${title}\n\n본문: ${body}`;
 
     const summaryResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "chatgpt-4o-latest",
       messages: [
         {
           role: "system",
