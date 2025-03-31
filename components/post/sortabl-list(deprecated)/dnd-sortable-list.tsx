@@ -21,10 +21,10 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 import { CSS } from "@dnd-kit/utilities"; // CSS 변환을 위한 유틸리티
 import { Category, Post, Subcategory } from "@/types/post";
-import PanelItem from "@/components/post/sidebar/panels/panel-item";
 import Link from "next/link";
 import { GripVertical } from "lucide-react";
 import { useOrderUpdateQueue } from "@/hooks/use-order-update-queue";
+import PanelItem from "@/components/post/sortabl-list(deprecated)/panel-item";
 
 // 개별 정렬 가능한 항목 컴포넌트
 const SortableItem = ({

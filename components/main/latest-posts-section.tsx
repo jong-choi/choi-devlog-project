@@ -1,4 +1,4 @@
-import { PostCard } from "@/components/post/post-list/post-card";
+import { PostCard } from "@/components/posts/post-card";
 import { CardPost } from "@/types/post";
 import { SectionInnerContainer } from "@ui/glass-container";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useInfinitePostsStore } from "@/components/post/infinite-scroll/infinite-posts-provider";
-import { PostCard } from "@/components/post/post-list/post-card";
+import { useInfinitePostsStore } from "@/components/posts/infinite-scroll/infinite-posts-provider";
+import { PostCard } from "@/components/posts/post-card";
 import { useEffect, useRef } from "react";
 
 export default function InfiniteScrollPosts() {

@@ -3,7 +3,7 @@
 import {
   createInfinitePostsStore,
   InfinitePostsState,
-} from "@/components/post/infinite-scroll/use-infinite-posts-store";
+} from "@/hooks/zustand/use-infinite-posts-store";
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
 

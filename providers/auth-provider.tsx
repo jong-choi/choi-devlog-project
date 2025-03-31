@@ -2,7 +2,7 @@
 
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
-import { createAuthStore, AuthState } from "@/hooks/use-auth-store";
+import { createAuthStore, AuthState } from "@/hooks/zustand/use-auth-store";
 
 export type AuthStoreApi = ReturnType<typeof createAuthStore>;
 

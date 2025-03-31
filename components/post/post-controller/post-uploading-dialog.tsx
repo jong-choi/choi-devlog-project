@@ -15,7 +15,7 @@ import {
   extractTextFromMarkdown,
   slugify,
 } from "@/utils/uploadingUtils";
-import PostUploadingForm from "@/components/post/main/post-controller/post-uploading-form";
+import PostUploadingForm from "@/components/post/post-controller/post-uploading-form";
 import { useAuthStore } from "@/providers/auth-provider";
 import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";

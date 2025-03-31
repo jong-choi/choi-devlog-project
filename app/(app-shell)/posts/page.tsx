@@ -1,8 +1,8 @@
-import { getPosts } from "@/components/post/infinite-scroll/actions";
-import { InfinitePostsStoreProvider } from "@/components/post/infinite-scroll/infinite-posts-provider";
-import InfiniteScrollPosts from "@/components/post/infinite-scroll/infinite-scroll-posts";
-import SearchHydrator from "@/components/post/infinite-scroll/search-hydrator";
-import SearchInput from "@/components/post/infinite-scroll/search-input";
+import { getPosts } from "@/components/posts/infinite-scroll/actions";
+import { InfinitePostsStoreProvider } from "@/providers/infinite-posts-provider";
+import InfiniteScrollPosts from "@/components/posts/infinite-scroll/infinite-scroll-posts";
+import SearchHydrator from "@/components/posts/infinite-scroll/search-hydrator";
+import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import Link from "next/link";
 
 interface PageProps {

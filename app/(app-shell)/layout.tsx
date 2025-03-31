@@ -1,4 +1,4 @@
-import { TopBar } from "@/components/post/topBar/post-top-bar";
+import { TopBar } from "@/components/ui/post-top-bar";
 
 interface LayoutProps {
   children: React.ReactNode;

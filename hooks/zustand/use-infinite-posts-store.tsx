@@ -1,4 +1,4 @@
-import { getPosts } from "@/components/post/infinite-scroll/actions";
+import { getPosts } from "@/components/posts/infinite-scroll/actions";
 import { CardPost } from "@/types/post";
 import { createStore } from "zustand";
 

@@ -1,6 +1,6 @@
-import { PostCard } from "@/components/post/post-list/post-card";
+import { PostCard } from "@/components/posts/post-card";
 import { usePosts } from "@/providers/posts-store-provider";
-import { ClusterWithPosts } from "@/types/graph";
+import { ClusterWithPosts, GraphPost, PostTags } from "@/types/graph";
 import { useRef, useEffect } from "react";
 
 export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
@@ -8,6 +8,9 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   const setManualSelectedCluster = usePosts((s) => s.setManualSelectedCluster);
   const selectedClusterId = usePosts((s) => s.selectedCluster?.id);
   const isManualScrolling = usePosts((state) => state.isManualScrolling);
+  const posts = cluster.posts as (GraphPost & {
+    tags: PostTags[];
+  })[];
 
   useEffect(() => {
     const el = ref.current;
@@ -43,7 +46,7 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
         </span>
       </div>
       <div className="flex flex-col gap-6">
-        {cluster.posts.map((post) => (
+        {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
       </div>

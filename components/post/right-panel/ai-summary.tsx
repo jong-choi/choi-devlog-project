@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
-export default function AIGeneration() {
+export default function AISummary() {
   const summary = useSummary((state) => state.summary);
   const summaryId = useSummary((state) => state.summaryId);
   const setSummary = useSummary((state) => state.setSummary);

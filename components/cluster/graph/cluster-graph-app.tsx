@@ -1,8 +1,8 @@
 import { ClusteredPostGroup, ClusteredPostSimilarity } from "@/types/graph";
-import ClusterGraphSVG from "@/components/post/cluster/cluster-graph-svg";
-import ClusterGraphHydrator from "@/components/post/cluster/cluster-graph-hydrator";
+import ClusterGraphHydrator from "@/components/cluster/graph/cluster-graph-hydrator";
 
-import "@/components/post/cluster/cluster-graph.css";
+import "@/components/cluster/graph/cluster-graph.css";
+import ClusterGraphSVG from "@/components/cluster/graph/cluster-graph-svg";
 
 interface ClusterGraphAppProps {
   nodes: ClusteredPostGroup[];

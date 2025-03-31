@@ -2,17 +2,17 @@ import { Separator } from "@radix-ui/react-separator";
 import "@mdxeditor/editor/style.css";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
-import PostBreadcrumb from "@/components/post/main/post-breadcrumb";
-import PostControllerWrapper from "@/components/post/main/post-controller/post-controller-wrapper";
-import TitleEditor from "@/components/post/main/title-editor";
+import PostBreadcrumb from "@/components/post/post-breadcrumb";
+import TitleEditor from "@/components/post/title-editor";
 import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
-import AIGeneration from "@/components/post/main/ai-generation";
-import CreatePostButton from "@/components/post/sidebar/panels/create-post-button";
+import CreatePostButton from "@/components/post/create-post-button";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
-import AIPanelWrapper from "@/components/post/main/right-panel/ai-panel-wrapper";
-import PostMainWrapper from "@/components/post/main/right-panel/post-main-wrapper";
-import { RightPanelWrapper } from "@/components/post/main/right-panel/right-panel-wrapper";
+import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
+import PostMainWrapper from "@/components/post/right-panel/post-main-wrapper";
+import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
+import AISummary from "@/components/post/right-panel/ai-summary";
+import AutosaveApp from "@/components/post/autosave/autosave-app";
 
 // app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
@@ -72,7 +72,7 @@ export default async function Page({ params, searchParams }: PageProps) {
             <CreatePostButton subcategoryId={data?.subcategory_id} />
           </div>
         </header>
-        <PostControllerWrapper />
+        <AutosaveApp />
         <section
           data-component-name="main-post-section"
           className="flex flex-1 overflow-auto scrollbar py-6 bg-white dark:bg-neutral-900"
@@ -85,7 +85,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       </main>
       <AIPanelWrapper data={data}>
         <RightPanelWrapper>
-          <AIGeneration />
+          <AISummary />
         </RightPanelWrapper>
       </AIPanelWrapper>
     </PostMainWrapper>

@@ -1,6 +1,9 @@
 "use client";
 
-import { createLayoutStore, LayoutState } from "@/hooks/use-layout-store";
+import {
+  createLayoutStore,
+  LayoutState,
+} from "@/hooks/zustand/use-layout-store";
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
 

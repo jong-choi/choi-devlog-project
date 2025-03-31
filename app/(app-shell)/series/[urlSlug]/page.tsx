@@ -2,7 +2,7 @@ import {
   getPostsBySeriesId,
   getSeriesByUrlSlug,
 } from "@/components/series/actions";
-import { PostCard } from "@/components/post/post-list/post-card";
+import { PostCard } from "@/components/posts/post-card";
 import { SeriesInfoPanel } from "@/components/series/series-info-panel";
 import { redirect } from "next/navigation";
 

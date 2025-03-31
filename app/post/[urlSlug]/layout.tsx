@@ -1,6 +1,5 @@
 import { getSidebarCategory, getSidebarPosts } from "@/app/post/actions";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
-// import { LeftSidebar } from "@/components/post/sidebar/left-sidebar";
 
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 
@@ -25,7 +24,6 @@ export default async function PostLayout({
   return (
     <PostSidebarWrapper categories={categories} urlSlug={urlSlug} posts={posts}>
       <div className="flex h-screen">
-        {/* <LeftSidebar /> */}
         <Sidebar categories={categories} posts={posts} />
         {children}
       </div>

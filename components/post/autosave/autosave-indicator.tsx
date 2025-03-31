@@ -5,7 +5,7 @@ import { useAutosave } from "@/providers/autosave-store-provider";
 import { Loader2, CheckCircle } from "lucide-react";
 import { formatKoreanDate } from "@/lib/date";
 import { useIndexedDB } from "@/hooks/use-indexeddb";
-import { UploadingDialogTrigger } from "@/components/post/main/post-controller/post-uploading-dialog";
+import { UploadingDialogTrigger } from "@/components/post/post-controller/post-uploading-dialog";
 
 export default function AutosaveIndicator() {
   const deleteByPostId = useIndexedDB().deleteByPostId;

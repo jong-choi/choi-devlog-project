@@ -2,7 +2,10 @@
 
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
-import { createAutosaveStore, AutosaveState } from "@/hooks/use-autosave";
+import {
+  createAutosaveStore,
+  AutosaveState,
+} from "@/hooks/zustand/use-autosave";
 
 export type AutosaveApi = ReturnType<typeof createAutosaveStore>;
 

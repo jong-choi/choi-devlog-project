@@ -2,9 +2,9 @@ import {
   getClusterData,
   getClusterSimData,
   getClusterWithPosts,
-} from "@/components/post/cluster/actions";
-import ClusterGraphApp from "@/components/post/cluster/cluster-graph-app";
-import ClusterPostList from "@/components/post/post-list/cluster-post-list";
+} from "@/app/map/actions";
+import ClusterGraphApp from "@/components/cluster/graph/cluster-graph-app";
+import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
 import { PostsProvider } from "@/providers/posts-store-provider";
 
 export default async function ClusterGraphSection({

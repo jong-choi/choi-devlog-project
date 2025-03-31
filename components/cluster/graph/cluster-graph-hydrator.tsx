@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { select, zoom, ZoomBehavior, zoomIdentity } from "d3";
-import "@/components/post/cluster/cluster-graph.css";
+import "@/components/cluster/graph/cluster-graph.css";
 import { ClusteredPostGroup } from "@/types/graph";
 import { usePosts } from "@/providers/posts-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";

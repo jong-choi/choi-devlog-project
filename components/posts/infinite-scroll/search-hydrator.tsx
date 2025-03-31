@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useInfinitePostsStore } from "@/components/post/infinite-scroll/infinite-posts-provider";
+import { useInfinitePostsStore } from "@/components/posts/infinite-scroll/infinite-posts-provider";
 
 export default function SearchHydrator() {
   const params = useSearchParams();

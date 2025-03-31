@@ -2,7 +2,10 @@
 
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
-import { createSummaryStore, SummaryState } from "@/hooks/use-summary-store";
+import {
+  createSummaryStore,
+  SummaryState,
+} from "@/hooks/zustand/use-summary-store";
 
 export type SummaryApi = ReturnType<typeof createSummaryStore>;
 

@@ -106,7 +106,7 @@
 
 ```tsx
 import PostSidebar from "@/components/post/sidebar/post-sidebar";
-import PostTopBar from "@/components/post/topBar/post-top-bar";
+import PostTopBar from "@/components/ui/post-top-bar";
 import { ReactNode, Suspense } from "react";
 
 interface TodoLayoutProps {
@@ -645,7 +645,7 @@ Image를 업로드하는 route handler(`app/api/supabase/upload/route.ts`)는 �
   - `dynamic import`를 사용하여 `AutoSaveWrapper`를 비동기 로드
   - SSR을 비활성화하여 클라이언트에서만 실행되도록 설정
 
-- `components/post/main/post-controller/autosave/autosave-wrapper.tsx`
+- `components/post/post-controller/autosave/autosave-wrapper.tsx`
   - 마운트 시 IndexedDB에서 기존 데이터를 불러와 자동 저장 상태를 복원
   - autosaveStore의 상태에 따라 `useIndexedDB`를 이용해 자동 저장된 데이터를 IndexedDB에 저장 및 로드
 
@@ -1084,7 +1084,7 @@ subcategory_id, short_description, is_private, url_slug를 수정하게 한다.
 
 #### 업로딩 다이알로그
 
-`components/post/main/post-controller/post-uploading-dialog.tsx`
+`components/post/post-controller/post-uploading-dialog.tsx`
 Shadcn에서 기본적으로 다이알로그가 다 만들어져 있어서 쉽게 구현했다.  
 AutosaveStore에 Draft라는 상태를 만들었고,
 AutosaveStore에 PostId가 없는 경우, 유효하지 않은 URL_SLUG인 점에서 착안해 Create로 작동하도록 하여 생성과 업데이트 모두 구현하였다.
@@ -1158,7 +1158,7 @@ export const generateUniqueSlug = async (
 
 #### 글 생성 버튼
 
-`components/post/sidebar/panels/create-post-button.tsx`
+`components/post/create-post-button.tsx`
 
 앞서 만든 generateUniqueSlug로 아이디어를 얻어 없는 url_slug로 보내려고 했는데,
 generateUniqueSlug를 호출하는 시간이 꽤 길었다.
@@ -1167,7 +1167,7 @@ generateUniqueSlug를 호출하는 시간이 꽤 길었다.
 
 #### 인공지능 요약 생성
 
-`components/post/main/ai-generation.tsx`
+`components/post/ai-summary.tsx`
 summary가 존재하는지 여부만 체크하면 돼서 금방 끝났다.
 
 한편 로그인 여부, 인공지능 글 생성 여부, 추천 게시글 목록 생성 여부에 따라서 보여지는 메시지가 달라질 수 있도록 하였는데, 그 과정에서 여러가지 버그들을 찾아서 고칠 수 있었다. 특히 `utils/nextCache.tsx` 이 파일에서 tags가 제대로 생성되지 않고 있는 걸 발견해서 다행이다.
@@ -1680,13 +1680,13 @@ export default function D3AppHydrator() {
 
 ### 군집 그래프 작성하기
 
-`components/post/cluster/cluster-graph-svg.tsx` 클러스터 그래프를 ssr한다. 최초 로딩시에는 그래프를 시뮬레이션하느라 오래 걸리지만, 빌드를 하고 나면 그대로 고정된다.
+`components/cluster/graph/cluster-graph-svg.tsx` 클러스터 그래프를 ssr한다. 최초 로딩시에는 그래프를 시뮬레이션하느라 오래 걸리지만, 빌드를 하고 나면 그대로 고정된다.
 
-`components/post/cluster/cluster-graph-hydrator.tsx` csr을 통해 생성된 SVG에 이벤트를 삽입시킨다. 버튼을 누르면 선택된 버튼이 변경되는 등.
+`components/cluster/graph/cluster-graph-hydrator.tsx` csr을 통해 생성된 SVG에 이벤트를 삽입시킨다. 버튼을 누르면 선택된 버튼이 변경되는 등.
 
-`components/post/cluster/cluster-graph.css` 클래스명을 기반으로 디자인 한다. 선택되는 등의 경우에 클래스명이 변경된다.
+`components/cluster/graph/cluster-graph.css` 클래스명을 기반으로 디자인 한다. 선택되는 등의 경우에 클래스명이 변경된다.
 
-`components/post/cluster/actions.tsx` 군집의 데이터, 군집간 유사도를 가져오는 서버 액션. 자주 바뀌는 데이터가 아니라서 cluster라는 별도의 태그로 분리하고, 로그인을 하던 하지 않던 cache가 되어 있도록 한다.
+`app/map/actions.tsx` 군집의 데이터, 군집간 유사도를 가져오는 서버 액션. 자주 바뀌는 데이터가 아니라서 cluster라는 별도의 태그로 분리하고, 로그인을 하던 하지 않던 cache가 되어 있도록 한다.
 
 ## 20, 21일차 - 게시글 목록
 

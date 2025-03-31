@@ -2,10 +2,10 @@ import {
   getClusterWithPosts,
   getClusterData,
   getClusterSimData,
-} from "@/components/post/cluster/actions";
-import ClusterGraphApp from "@/components/post/cluster/cluster-graph-app";
-import ClusterPostList from "@/components/post/post-list/cluster-post-list";
-import { TopBar } from "@/components/post/topBar/post-top-bar";
+} from "@/app/map/actions";
+import ClusterGraphApp from "@/components/cluster/graph/cluster-graph-app";
+import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
+import { TopBar } from "@/components/ui/post-top-bar";
 import { PostsProvider } from "@/providers/posts-store-provider";
 
 export default async function Page() {

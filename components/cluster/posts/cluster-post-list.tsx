@@ -1,6 +1,6 @@
 "use client";
-import { ClusterHeaderBar } from "@/components/post/post-list/cluster-header-bar";
-import { ClusterSection } from "@/components/post/post-list/cluster-section";
+import { ClusterSection } from "@/components/cluster/posts/cluster-section";
+import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar";
 import { usePosts } from "@/providers/posts-store-provider";
 
 import { ClusterWithPosts } from "@/types/graph";

@@ -1,4 +1,4 @@
-import { CategorySelectScrollable } from "@/components/post/main/post-controller/post-scrollable-select";
+import { CategorySelectScrollable } from "@/components/post/post-controller/post-scrollable-select";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";

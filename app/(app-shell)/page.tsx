@@ -5,7 +5,7 @@ import {
 } from "@ui/glass-container";
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
-import { getPosts } from "@/components/post/infinite-scroll/actions";
+import { getPosts } from "@/components/posts/infinite-scroll/actions";
 import { getSeriesList } from "@/components/series/actions";
 import SeriesApp from "@/components/series/series-app";
 import { SectionLinkText } from "@ui/glass-button";

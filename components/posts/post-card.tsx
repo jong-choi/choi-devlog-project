@@ -1,4 +1,4 @@
-import { Logo } from "@/components/post/topBar/post-top-bar";
+import { Logo } from "@/components/ui/post-top-bar";
 import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { PostTags } from "@/types/graph";

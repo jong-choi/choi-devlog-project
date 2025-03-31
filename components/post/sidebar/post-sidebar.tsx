@@ -11,7 +11,7 @@ import {
   ChevronLeftIcon,
   X,
 } from "lucide-react";
-import { Logo } from "@/components/post/topBar/post-top-bar";
+import { Logo } from "@/components/ui/post-top-bar";
 
 export function Sidebar({
   inset = false,

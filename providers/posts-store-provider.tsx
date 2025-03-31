@@ -1,6 +1,9 @@
 "use client";
 
-import { createPostsStore, PostsState } from "@/hooks/use-posts-provider";
+import {
+  createPostsStore,
+  PostsState,
+} from "@/hooks/zustand/use-posts-provider";
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
 

@@ -2,7 +2,10 @@
 
 import { createContext, useRef, useContext, ReactNode } from "react";
 import { useStore } from "zustand";
-import { createSidebarStore, SidebarState } from "@/hooks/use-sidebar-store";
+import {
+  createSidebarStore,
+  SidebarState,
+} from "@/hooks/zustand/use-sidebar-store";
 
 export type SidebarStoreApi = ReturnType<typeof createSidebarStore>;
 
