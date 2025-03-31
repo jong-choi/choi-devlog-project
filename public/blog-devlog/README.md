@@ -2470,3 +2470,48 @@ params에 categoryId가 있으면 categoryId를 기준으로 불러오고, 이�
 한편 series/url_slug를 분리하였으니 서랍이 필요가 없지 않나 생각하였으나, '탐색'을 한다는 사용자 경험을 위해서 series 페이지에는 그대로 drawer를 유지하였다. 특히 series 카드를 클릭했는데 다짜고짜 페이지 이동이 일어나기 보다는 drawer를 통해서 내용을 한 번 더 확인하고 이동하는 것이 바람직해 보였다.
 
 url_slug를 쓰는 페이지는 post/url_slug 페이지 밖에 없을 줄 알았는데....아무튼 그렇게 됐다.
+
+### cluster 부분 리팩토링
+
+기존에 하드코딩으로 작성하였던 join을 posts_with_tags_summaries view와 조인하는 view로 리팩토링 하였다.
+
+```sql
+CREATE VIEW clustered_posts_groups_with_posts AS
+SELECT
+  g.id,
+  g.title,
+  g.post_ids,
+  g.quality,
+  g.summary,
+  g.created_at,
+  g.updated_at,
+  g.vector,
+  g.keywords,
+    count(p.*) AS post_count,
+  json_agg(
+    json_build_object(
+      'id', p.id,
+      'title', p.title,
+      'short_description', p.short_description,
+      'thumbnail', p.thumbnail,
+      'released_at', p.released_at,
+      'url_slug', p.url_slug,
+      'tags', p.tags
+    )
+  ) AS posts
+FROM clustered_posts_groups g
+JOIN LATERAL (
+  SELECT
+    p.id,
+    p.title,
+    p.short_description,
+    p.thumbnail,
+    p.released_at,
+    p.url_slug,
+    p.tags
+  FROM posts_with_tags_summaries p
+  WHERE p.id = ANY (g.post_ids)
+) p ON true
+GROUP BY
+  g.id, g.title, g.post_ids, g.quality, g.summary, g.created_at, g.updated_at, g.vector, g.keywords;
+```
