@@ -58,13 +58,13 @@ export function ClusterHeaderBar({ clusters }: Props) {
           <button
             key={c.id}
             ref={(el) => {
-              clusterRefs.current[c.id] = el;
+              clusterRefs.current[c.id || ""] = el;
             }}
             onClick={() => setSelectedCluster(c)}
             className={`px-2 py-1 rounded transition-all ${
               c.id === debouncedSelectedClusterId
                 ? "font-bold text-primary underline"
-                : "text-muted-foreground hover:text-foreground"
+                : "hover:text-color-base"
             }`}
           >
             {c.title} ({c.post_ids?.length})

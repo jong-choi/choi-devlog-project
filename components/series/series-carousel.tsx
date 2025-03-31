@@ -65,7 +65,7 @@ export const SeriesCard = ({
     <div
       className={cn(
         "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-transparent to-black/90  p-4 text-white break-keep",
-        !series.thumbnail && "bg-slate-300 dark:bg-slate-700 text-foreground"
+        !series.thumbnail && "bg-slate-300 dark:bg-slate-700 text-color-base"
       )}
     >
       <h3 className="font-bold text-lg line-clamp-2 mb-auto">{series.name}</h3>

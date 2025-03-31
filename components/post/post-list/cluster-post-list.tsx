@@ -45,7 +45,7 @@ export default function ClusterPostList({
       <ClusterHeaderBar clusters={clusterPostList} />
       <main
         ref={mainRef}
-        className="flex flex-1 overflow-auto scrollbar flex-col items-center"
+        className="flex flex-1 overflow-auto scrollbar flex-col items-center bg-glass-bg"
       >
         {clusterPostList
           .filter((cluster) => {
@@ -56,7 +56,7 @@ export default function ClusterPostList({
             <div
               key={cluster.id}
               ref={(el) => {
-                sectionRefs.current[cluster.id] = el;
+                sectionRefs.current[cluster.id || ""] = el;
               }}
               className="w-full flex justify-center"
             >

@@ -1,5 +1,7 @@
+import { Json } from "@/types/supabase";
+
 export type ClusteredPostGroup = {
-  id: string;
+  id: string | null;
   title: string | null;
   quality: number | null;
   post_ids: string[] | null;
@@ -24,7 +26,7 @@ export type GraphLink = {
 };
 
 type Cluster = {
-  id: string;
+  id: string | null;
   title: string | null;
   post_ids: string[] | null;
   quality: number | null;
@@ -47,5 +49,5 @@ export type PostTags = {
 };
 
 export type ClusterWithPosts = Cluster & {
-  posts: (GraphPost & { tags: PostTags[] })[];
+  posts: (GraphPost & { tags: PostTags[] })[] | Json;
 };

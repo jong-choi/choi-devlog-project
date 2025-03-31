@@ -157,10 +157,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "clustered_posts_groups_similarities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "clustered_posts_groups_with_posts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "clustered_posts_groups_similarities_target_id_fkey"
             columns: ["target_id"]
             isOneToOne: false
             referencedRelation: "clustered_posts_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clustered_posts_groups_similarities_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "clustered_posts_groups_with_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -433,6 +447,21 @@ export type Database = {
       }
     }
     Views: {
+      clustered_posts_groups_with_posts: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          keywords: string[] | null
+          post_ids: string[] | null
+          posts: Json | null
+          quality: number | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+          vector: string | null
+        }
+        Relationships: []
+      }
       post_similarities_with_target_info: {
         Row: {
           similarity: number | null
