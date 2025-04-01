@@ -103,7 +103,7 @@ export function Sidebar({
                     className={cn(
                       "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300  transition",
                       selectedPostId === post.id
-                        ? " text-gray-900 dark:text-white font-semibold bg-glass-bg"
+                        ? " text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                         : "text-gray-700 dark:text-gray-300 "
                     )}
                   >
@@ -154,7 +154,7 @@ export function Sidebar({
                   className={cn(
                     "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition",
                     selectedPostId === post.id
-                      ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold bg-glass-bg"
+                      ? "bg-gray-200 text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                       : "text-gray-700 dark:text-gray-300"
                   )}
                 >
@@ -217,7 +217,7 @@ export function SidebarContent({
               className={cn(
                 "block w-full text-left px-4 py-1.5 text-sm rounded-md transition",
                 selectedSubcategoryId === sub.id
-                  ? "text-gray-900 dark:text-white font-semibold bg-glass-bg "
+                  ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                   : "text-gray-700 dark:text-gray-300"
               )}
             >

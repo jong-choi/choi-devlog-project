@@ -1,30 +1,29 @@
 "use client";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useAutosave } from "@/providers/autosave-store-provider";
+import { Switch } from "@ui/switch";
 
 export default function ToggleEditButton() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const isEditMode = searchParams.get("edit") === "true";
+  const isEditMode = useAutosave((state) => state.isEditMode);
+  const setIsEditMode = useAutosave((state) => state.setIsEditMode);
 
   const toggleEditMode = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (isEditMode) {
-      params.delete("edit");
-    } else {
-      params.set("edit", "true");
-    }
-
-    router.push(`${pathname}?${params.toString()}`);
+    setIsEditMode(!isEditMode);
   };
 
   return (
-    <button
-      onClick={toggleEditMode}
-      className="px-4 py-2 rounded bg-blue-600 text-white"
-    >
-      {isEditMode ? "미리보기" : "수정하기"}
-    </button>
+    <form className="flex items-center gap-2">
+      <label htmlFor="edit-mode" className={cn(isEditMode && "text-shadow")}>
+        수정모드
+      </label>
+      <Switch
+        onClick={toggleEditMode}
+        checked={isEditMode}
+        id="edit-mode"
+        className={cn(
+          "data-[state=checked]:bg-lime-200 data-[state=checked]:shadow-glass"
+        )}
+      />
+    </form>
   );
 }

@@ -13,7 +13,8 @@ import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wra
 import AISummary from "@/components/post/right-panel/ai-summary";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
-import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
+import { formatKoreanDate } from "@/lib/date";
+import MainPostSectionContainer from "@/components/post/main-post-section-container";
 
 // app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
@@ -22,13 +23,12 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     subcategory_id: string;
-    edit: string;
   }>;
 }
 
 export default async function Page({ params, searchParams }: PageProps) {
   const { urlSlug } = await params;
-  const { subcategory_id, edit } = await searchParams; //?subcategory_id=123
+  const { subcategory_id } = await searchParams; //?subcategory_id=123
   const { data: categoryData } = await getSidebarCategory();
 
   const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
@@ -75,19 +75,19 @@ export default async function Page({ params, searchParams }: PageProps) {
           </div>
         </header>
         <AutosaveApp />
-        <section
-          data-component-name="main-post-section"
-          className="flex flex-1 overflow-auto scrollbar py-6 bg-white dark:bg-neutral-900"
-        >
+        <MainPostSectionContainer>
           <div className="main-post-section">
-            <TitleEditor defaultValue={data?.title || ""} />
-            {edit === "true" ? (
-              <MarkdownEditor markdown={data?.body || ""} />
-            ) : (
-              <MilkdownPreview markdown={data?.body || ""} />
-            )}
+            <div className="px-4 sm:px-14 mb-5 flex flex-col gap-2">
+              <div className="text-xs">{subcategory?.name}</div>
+              <TitleEditor defaultValue={data?.title || ""} />
+              <div className="text-end text-xs">
+                {formatKoreanDate(data?.released_at || "")}
+              </div>
+              <hr />
+            </div>
+            <MarkdownEditor markdown={data?.body || ""} />
           </div>
-        </section>
+        </MainPostSectionContainer>
       </main>
       <AIPanelWrapper data={data}>
         <RightPanelWrapper>

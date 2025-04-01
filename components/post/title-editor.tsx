@@ -11,6 +11,7 @@ export default function TitleEditor({
   defaultValue: string;
 }) {
   const postId = useAutosave((state) => state.postId);
+  const isEditable = useAutosave((state) => state.isEditMode);
   const [value, setValue] = useState(defaultValue);
   const [hasChanged, setHasChanged] = useState(false);
   const onInput: (value: string) => void = (value) => {
@@ -66,12 +67,12 @@ export default function TitleEditor({
   ]);
 
   return (
-    <div className="m-2 items-center">
+    <div className="items-center">
       <h2
         data-component-name="main-post-title"
-        className="p-1 tracking-tight font-bold text-zinc-950 dark:text-zinc-50"
+        className="text-2xl tracking-tight font-bold text-zinc-950 dark:text-zinc-50"
       >
-        <EditableDiv value={value} onInput={onInput} />
+        <EditableDiv value={value} onInput={onInput} isEditable={isEditable} />
       </h2>
     </div>
   );

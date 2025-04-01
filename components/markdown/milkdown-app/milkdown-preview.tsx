@@ -3,7 +3,7 @@ import React from "react";
 
 export default function MilkdownPreview({ markdown }: { markdown: string }) {
   return (
-    <div className="markdown-body milkdown">
+    <div className="milkdown">
       <div className="markdown-preview">
         <ReactMarkdownApp>{markdown}</ReactMarkdownApp>
       </div>

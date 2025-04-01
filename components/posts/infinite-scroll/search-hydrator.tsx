@@ -1,8 +1,8 @@
 "use client";
 
+import { useInfinitePostsStore } from "@/providers/infinite-posts-provider";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useInfinitePostsStore } from "@/components/posts/infinite-scroll/infinite-posts-provider";
 
 export default function SearchHydrator() {
   const params = useSearchParams();

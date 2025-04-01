@@ -27,6 +27,7 @@ export interface AutosaveState {
     url_slug: string;
   };
   categoryData: Category[] | null;
+  isEditMode: boolean;
   setIsLocalDBChecked: (value: boolean) => void;
   setIsUploaded: (value: boolean) => void;
   setIsUploading: (value: boolean) => void;
@@ -41,6 +42,7 @@ export interface AutosaveState {
   ) => void;
   setDraftPostData: (data: Partial<AutosaveState["draftPostData"]>) => void;
   setCategoryData: (data: Category[]) => void;
+  setIsEditMode: (value: boolean) => void;
 }
 
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
@@ -66,6 +68,7 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
       url_slug: "",
     },
     categoryData: null,
+    isEditMode: false,
     setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),
     setIsUploaded: (value) => set({ isUploaded: value }),
     setIsUploading: (value) => set({ isUploading: value }),
@@ -111,6 +114,6 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
         },
       })),
     setCategoryData: (data) => set({ categoryData: data }),
-
+    setIsEditMode: (value) => set({ isEditMode: value }),
     ...initialState,
   }));

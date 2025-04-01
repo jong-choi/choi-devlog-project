@@ -22,6 +22,7 @@ export default function AutosaveIndicator() {
   const setIsLoadingDraftBody = useAutosave(
     (state) => state.setIsLoadingDraftBody
   );
+  const setIsEditMode = useAutosave((state) => state.setIsEditMode);
   const setIsLoadingDraftTitle = useAutosave(
     (state) => state.setIsLoadingDraftTitle
   );
@@ -30,6 +31,7 @@ export default function AutosaveIndicator() {
   const onApplyTemp = () => {
     setIsLoadingDraftBody(true);
     setIsLoadingDraftTitle(true);
+    setIsEditMode(true);
     setBeforeUploading();
     // setBeforeModification();
   };
