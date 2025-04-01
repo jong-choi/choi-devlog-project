@@ -37,7 +37,7 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "inline-flex h-full bg-transparent backdrop-blur-3xl transition-colors flex-col md:flex-row z-50",
+        "inline-flex h-full bg-transparent backdrop-blur-sm transition-colors flex-col md:flex-row z-50",
         inset ?? "gap-4 p-4"
       )}
     >

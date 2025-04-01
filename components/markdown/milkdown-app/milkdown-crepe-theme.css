@@ -15,6 +15,21 @@
   }
 }
 
+.milkdown {
+  p {
+    line-height: 3rem !important;
+  }
+
+  li {
+    list-style-type: disc;
+    line-height: 2rem;
+  }
+
+  li p {
+    line-height: 2.5rem !important;
+  }
+}
+
 @media (max-width: 768px) {
   .markdown-preview,
   .ProseMirror {

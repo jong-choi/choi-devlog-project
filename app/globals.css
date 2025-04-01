@@ -13,36 +13,20 @@ body {
   width: 100vw;
 }
 
-.bg-clear-mode *:not(milkdown-code-block) {
+/* 게시글 보기 때 배경 투명 */
+.bg-clear-mode *:not(milkdown-code-block, code) {
   background-color: transparent !important;
 }
-
-@layer utilities {
-  .rainbow-glow {
-    background: linear-gradient(90deg, #ecfeff, #dbeafe, #f3e8ff, #fae8ff);
-    background-size: cover;
-    background-clip: padding-box;
-    border-radius: 9999px;
-    box-shadow: 0 0 5px #ecfeff, 0 0 10px #dbeafe, 0 0 15px #f3e8ff,
-      0 0 20px #fae8ff;
-    transition: box-shadow 0.3s ease-in-out;
+@media (prefers-color-scheme: dark) {
+  .bg-clear-mode pre,
+  milkdown-code-block {
+    border: 1px solid #52525b;
   }
+}
 
-  .rainbow-pulse {
-    animation: rainbow-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes rainbow-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 5px #ecfeff, 0 0 10px #dbeafe, 0 0 15px #f3e8ff,
-        0 0 20px #fae8ff;
-    }
-    50% {
-      box-shadow: 0 0 10px #ecfeff, 0 0 20px #dbeafe, 0 0 30px #f3e8ff,
-        0 0 40px #fae8ff;
-    }
-  }
+/* hljs로 파싱 안된 애들 기본 글꼴색 */
+.bg-clear-mode code {
+  color: #abb2bf;
 }
 
 *,
@@ -363,33 +347,33 @@ mark {
 
 @media (prefers-color-scheme: dark) {
   .css-background {
-    background: #111827;
+    background: #262626; /* neutral-800 */
   }
   .css-background span:nth-child(0) {
-    color: #18181b;
+    color: #18181b; /* zinc-900 */
   }
   .css-background span:nth-child(1) {
-    color: #18181b;
+    color: #18181b; /* zinc-900 */
   }
   .css-background span:nth-child(2) {
-    color: #18181b;
+    color: #18181b; /* zinc-900 */
   }
   .css-background span:nth-child(3) {
-    color: #292524;
+    color: #1c1917; /* stone-900 */
   }
   .css-background span:nth-child(4) {
-    color: #292524;
+    color: #1c1917; /* stone-900 */
   }
   .css-background span:nth-child(5) {
-    color: #292524;
+    color: #1c1917; /* stone-900 */
   }
   .css-background span:nth-child(6) {
-    color: #1e293b;
+    color: #020617; /* slate-950 */
   }
   .css-background span:nth-child(7) {
-    color: #1e293b;
+    color: #020617; /* slate-950 */
   }
   .css-background span:nth-child(8) {
-    color: #1e293b;
+    color: #020617; /* slate-950 */
   }
 }

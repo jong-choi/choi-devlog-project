@@ -52,7 +52,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       />
       <main
         id="메인레퍼"
-        className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-sm text-gray-800 dark:text-white"
+        className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
       >
         <header
           data-component-name="main-header"
