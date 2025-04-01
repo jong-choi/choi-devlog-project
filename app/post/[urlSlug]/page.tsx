@@ -5,7 +5,6 @@ import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
 import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
-import CreatePostButton from "@/components/post/create-post-button";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
@@ -13,6 +12,8 @@ import PostMainWrapper from "@/components/post/right-panel/post-main-wrapper";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
 import AISummary from "@/components/post/right-panel/ai-summary";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
+import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
+import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
 
 // app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
@@ -21,12 +22,13 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     subcategory_id: string;
+    edit: string;
   }>;
 }
 
 export default async function Page({ params, searchParams }: PageProps) {
   const { urlSlug } = await params;
-  const { subcategory_id } = await searchParams; //?subcategory_id=123
+  const { subcategory_id, edit } = await searchParams; //?subcategory_id=123
   const { data: categoryData } = await getSidebarCategory();
 
   const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
@@ -69,7 +71,7 @@ export default async function Page({ params, searchParams }: PageProps) {
             />
           </div>
           <div className="flex items-center gap-2 px-4">
-            <CreatePostButton subcategoryId={data?.subcategory_id} />
+            <ToggleEditButton />
           </div>
         </header>
         <AutosaveApp />
@@ -77,9 +79,13 @@ export default async function Page({ params, searchParams }: PageProps) {
           data-component-name="main-post-section"
           className="flex flex-1 overflow-auto scrollbar py-6 bg-white dark:bg-neutral-900"
         >
-          <div className="main-post-section ">
+          <div className="main-post-section">
             <TitleEditor defaultValue={data?.title || ""} />
-            <MarkdownEditor markdown={data?.body || ""} />
+            {edit === "true" ? (
+              <MarkdownEditor markdown={data?.body || ""} />
+            ) : (
+              <MilkdownPreview markdown={data?.body || ""} />
+            )}
           </div>
         </section>
       </main>
