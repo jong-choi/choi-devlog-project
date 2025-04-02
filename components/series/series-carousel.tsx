@@ -1,4 +1,5 @@
 "use client";
+import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { Series } from "@/types/series";
 import {
@@ -64,11 +65,26 @@ export const SeriesCard = ({
     )}
     <div
       className={cn(
-        "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-transparent to-black/90  p-4 text-white break-keep",
+        "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/50 to-black/90  p-4 text-white break-keep",
         !series.thumbnail && "bg-slate-300 dark:bg-slate-700 text-color-base"
       )}
     >
       <h3 className="font-bold text-lg line-clamp-2 mb-auto">{series.name}</h3>
+      <div className="w-full flex flex-col items-end">
+        {series.post_count && (
+          <div className="flex gap-1 text-sm text-zinc-200">
+            <span>{series.post_count}개의 게시글</span>
+            <span></span>
+          </div>
+        )}
+        {series.latest_post_date && (
+          <div className="flex gap-1 text-sm text-zinc-200 mt-1">
+            <span>
+              {formatKoreanDate(series.latest_post_date || "").split(" ")[0]}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 );

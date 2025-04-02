@@ -40,7 +40,7 @@ export default function SeriesApp({ seriesList }: { seriesList: Series[] }) {
               <DialogTitle className="sr-only">
                 {selectedSeries?.name}
               </DialogTitle>
-              <div className="w-full max-w-[50wh] md:max-w-screen-lg mx-auto pb-60 flex flex-col gap-2">
+              <div className="w-full max-w-[50wh] md:max-w-screen-sm mx-auto pb-60 flex flex-col gap-2">
                 <SeriesInfoPanel series={selectedSeries} />
                 <Link href={"/series/" + selectedSeries.url_slug} className="">
                   <GlassButton className="w-full">보러 가기</GlassButton>
