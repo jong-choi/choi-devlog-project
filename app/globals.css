@@ -258,7 +258,7 @@ mark {
   backface-visibility: hidden;
   position: absolute;
   animation: move;
-  animation-duration: 45;
+  animation-duration: 120s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
@@ -267,8 +267,6 @@ mark {
   color: #ecfeff;
   top: 66%;
   left: 95%;
-  animation-duration: 8s;
-  animation-delay: -15s;
   transform-origin: -2vw 15vh;
   box-shadow: 100vmin 0 1vmin currentColor;
 }
@@ -276,8 +274,6 @@ mark {
   color: #ecfeff;
   top: 64%;
   left: 69%;
-  animation-duration: 38s;
-  animation-delay: -30s;
   transform-origin: -18vw 8vh;
   box-shadow: -100vmin 0 1vmin currentColor;
 }
@@ -285,8 +281,6 @@ mark {
   color: #ecfeff;
   top: 99%;
   left: 20%;
-  animation-duration: 13s;
-  animation-delay: -6s;
   transform-origin: -16vw 22vh;
   box-shadow: 100vmin 0 1vmin currentColor;
 }
@@ -294,8 +288,6 @@ mark {
   color: #dbeafe;
   top: 92%;
   left: 17%;
-  animation-duration: 31s;
-  animation-delay: -40s;
   transform-origin: -4vw 12vh;
   box-shadow: -100vmin 0 1vmin currentColor;
 }
@@ -303,8 +295,6 @@ mark {
   color: #dbeafe;
   top: 42%;
   left: 52%;
-  animation-duration: 11s;
-  animation-delay: -42s;
   transform-origin: 9vw -20vh;
   box-shadow: -100vmin 0 1vmin currentColor;
 }
@@ -312,8 +302,6 @@ mark {
   color: #dbeafe;
   top: 57%;
   left: 71%;
-  animation-duration: 15s;
-  animation-delay: -45s;
   transform-origin: 3vw 11vh;
   box-shadow: 100vmin 0 1vmin currentColor;
 }
@@ -321,8 +309,6 @@ mark {
   color: #f3e8ff;
   top: 6%;
   left: 26%;
-  animation-duration: 29s;
-  animation-delay: -7s;
   transform-origin: 18vw -7vh;
   box-shadow: -100vmin 0 1vmin currentColor;
 }
@@ -330,8 +316,6 @@ mark {
   color: #f3e8ff;
   top: 97%;
   left: 16%;
-  animation-duration: 26s;
-  animation-delay: -30s;
   transform-origin: -5vw -20vh;
   box-shadow: -100vmin 0 1vmin currentColor;
 }
@@ -339,8 +323,6 @@ mark {
   color: #f3e8ff;
   top: 43%;
   left: 20%;
-  animation-duration: 47s;
-  animation-delay: -13s;
   transform-origin: 12vw 12vh;
   box-shadow: 100vmin 0 1vmin currentColor;
 }

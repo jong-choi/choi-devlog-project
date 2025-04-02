@@ -1,4 +1,4 @@
-.markdown-preview {
+.milkdown .markdown-preview {
   ul,
   ol,
   li {
@@ -13,20 +13,21 @@
   pre {
     background-color: #1a1a1a !important;
   }
+
+  li {
+    margin-bottom: 1rem;
+    line-height: 1.7rem;
+  }
 }
 
 .milkdown {
   p {
-    line-height: 3rem !important;
+    line-height: 2rem !important;
   }
 
-  li {
+  ul li {
     list-style-type: disc;
     line-height: 2rem;
-  }
-
-  li p {
-    line-height: 2.5rem !important;
   }
 }
 
@@ -137,6 +138,7 @@
     h6 {
       font-family: var(--crepe-font-title);
       font-weight: 600;
+      margin-bottom: 0.5rem;
       padding: 2px 0;
     }
 

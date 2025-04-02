@@ -28,6 +28,9 @@ export interface AutosaveState {
   };
   categoryData: Category[] | null;
   isEditMode: boolean;
+  isMarkdownOn: boolean;
+  isRawOn: boolean;
+  layoutSnapshot: boolean[];
   setIsLocalDBChecked: (value: boolean) => void;
   setIsUploaded: (value: boolean) => void;
   setIsUploading: (value: boolean) => void;
@@ -43,6 +46,9 @@ export interface AutosaveState {
   setDraftPostData: (data: Partial<AutosaveState["draftPostData"]>) => void;
   setCategoryData: (data: Category[]) => void;
   setIsEditMode: (value: boolean) => void;
+  setIsMarkdown: (value: boolean) => void;
+  setIsRaw: (value: boolean) => void;
+  setLayoutSnaphot: (value: boolean[]) => void;
 }
 
 export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
@@ -69,6 +75,9 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
     },
     categoryData: null,
     isEditMode: false,
+    isMarkdownOn: true,
+    isRawOn: false,
+    layoutSnapshot: [],
     setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),
     setIsUploaded: (value) => set({ isUploaded: value }),
     setIsUploading: (value) => set({ isUploading: value }),
@@ -115,5 +124,8 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
       })),
     setCategoryData: (data) => set({ categoryData: data }),
     setIsEditMode: (value) => set({ isEditMode: value }),
+    setIsMarkdown: (value) => set({ isMarkdownOn: value }),
+    setIsRaw: (value) => set({ isRawOn: value }),
+    setLayoutSnaphot: (value) => set({ layoutSnapshot: value }),
     ...initialState,
   }));

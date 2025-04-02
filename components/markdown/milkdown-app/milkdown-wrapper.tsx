@@ -6,9 +6,12 @@ import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/providers/auth-provider";
 import MilkdownEditor from "@/components/markdown/milkdown-app/milkdown-app";
 import { MilkdownProvider } from "@milkdown/react";
+import { MarkdownRawEditor } from "@/components/markdown/milkdown-app/markdown-raw-editor";
+import { cn } from "@/lib/utils";
 
 export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);
+  const [focused, setFocused] = useState<"milkdown" | "codemirror">("milkdown");
   const [snapshot, setSnapshot] = useState("");
 
   const { isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody } =
@@ -101,13 +104,38 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     });
   }
 
+  const isMarkdownOn = useAutosave((state) => state.isMarkdownOn);
+  const isRawOn = useAutosave((state) => state.isRawOn);
+
   return (
     <MilkdownProvider>
-      <MilkdownEditor
-        setMarkdown={setBody}
-        markdown={body}
-        onImageUpload={imageUploadHandler}
-      />
+      <div
+        className={cn(
+          isMarkdownOn && isRawOn && "grid grid-cols-2 absolute left-0"
+        )}
+      >
+        <div
+          className={cn(isMarkdownOn ? "block" : "hidden")}
+          onClick={() => setFocused("milkdown")}
+        >
+          <MilkdownEditor
+            setMarkdown={setBody}
+            markdown={body}
+            onImageUpload={imageUploadHandler}
+            isFocused={focused === "milkdown"}
+          />
+        </div>
+        <div
+          className={cn(isRawOn ? "block" : "hidden")}
+          onClick={() => setFocused("codemirror")}
+        >
+          <MarkdownRawEditor
+            value={body}
+            onChange={setBody}
+            isFocused={focused === "codemirror"}
+          />
+        </div>
+      </div>
     </MilkdownProvider>
   );
 }

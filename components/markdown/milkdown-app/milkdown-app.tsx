@@ -1,21 +1,32 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Crepe } from "@milkdown/crepe";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { EditorView } from "@codemirror/view";
+import { replaceAll } from "@milkdown/utils";
 
 const MilkdownEditor = ({
   markdown,
   setMarkdown,
   onImageUpload,
+  isFocused,
 }: {
   markdown: string;
   setMarkdown: (markdown: string) => void;
-  onFocus?: () => void;
   onImageUpload?: (file: File) => Promise<string>;
+  isFocused: boolean;
 }) => {
   const uploadImageToServer = async (_file: File) => {
     return "";
   };
+
+  const crepeRef = useRef<Crepe | null>(null);
+
+  const [body, setBody] = useState<string>(markdown);
+  useEffect(() => {
+    if (isFocused) {
+      setMarkdown(body);
+    }
+  }, [body, isFocused, setMarkdown]);
 
   useEditor((root) => {
     const crepe = new Crepe({
@@ -41,13 +52,20 @@ const MilkdownEditor = ({
     crepe.on((listener) => {
       listener.markdownUpdated((_, updatedMarkdown, prevMarkdown) => {
         if (updatedMarkdown !== prevMarkdown) {
-          setMarkdown(updatedMarkdown);
+          setBody(updatedMarkdown);
         }
       });
     });
 
+    crepeRef.current = crepe;
     return crepe;
   }, []);
+
+  useEffect(() => {
+    if (!isFocused && crepeRef.current) {
+      crepeRef.current.editor.action(replaceAll(markdown));
+    }
+  }, [isFocused, markdown]);
 
   return <Milkdown />;
 };
