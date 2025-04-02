@@ -23,7 +23,9 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
 
   return (
     <div className="markdown-body w-full relative">
-      <MilkdownPreview markdown={markdown} />
+      <div className={cn(isFullMode && "hidden")}>
+        <MilkdownPreview markdown={markdown} />
+      </div>
       {isEditMode && (
         <div
           className={cn(
