@@ -16,22 +16,19 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
-import { Series } from "@/types/series";
-import { useEffect, useState } from "react";
 
 export function Sidebar({
   inset = false,
   categories,
   posts,
-  seriesList,
 }: {
   inset?: boolean;
   categories: Category[];
   posts: Post[];
-  seriesList: Series[] | null;
 }) {
   const {
     selectedSubcategoryId,
+    selectedSubcategoryName,
     selectedPostId,
     leftCollapsed,
     rightCollapsed,
@@ -41,15 +38,6 @@ export function Sidebar({
     setRightCollapsed,
     toggleMobileOpen,
   } = useSidebarStore(useShallow((state) => state));
-
-  const [selectedSeries, setSelectedSeries] = useState<Series | null>(null);
-  useEffect(() => {
-    if (seriesList?.length && selectedSubcategoryId) {
-      setSelectedSeries(
-        seriesList.find((series) => series.id === selectedSubcategoryId) || null
-      );
-    }
-  }, [selectedSubcategoryId, seriesList]);
 
   return (
     <div
@@ -121,9 +109,9 @@ export function Sidebar({
           <div className="p-4 w-64 overflow-auto space-y-1 scrollbar flex flex-col">
             {selectedSubcategoryId ? (
               <>
-                {selectedSeries && (
+                {selectedSubcategoryName && (
                   <div className="font-extralight px-3 select-none">
-                    {selectedSeries.name}
+                    {selectedSubcategoryName}
                   </div>
                 )}
                 {posts
@@ -180,9 +168,9 @@ export function Sidebar({
               <ChevronLeftIcon className="h-5 w-5" />
               목록보기
             </button>
-            {selectedSeries && (
+            {selectedSubcategoryName && (
               <div className="font-extralight px-1 pb-1 select-none">
-                {selectedSeries.name}
+                {selectedSubcategoryName}
               </div>
             )}
             {posts
@@ -247,7 +235,7 @@ export function SidebarContent({
   catagory: Category;
   setRightCollapsed: (state: boolean) => void;
   selectedSubcategoryId?: string | null;
-  setSubcategory: (id: string | null) => void;
+  setSubcategory: (subcategory: { id: string; name: string } | null) => void;
 }) {
   const { isOpened, toggleCategory } = useSidebarStore(
     useShallow((state) => ({
@@ -271,7 +259,7 @@ export function SidebarContent({
             <button
               key={sub.id}
               onClick={() => {
-                setSubcategory(sub.id);
+                setSubcategory({ id: sub.id, name: sub.name });
                 setRightCollapsed(false);
               }}
               className={cn(

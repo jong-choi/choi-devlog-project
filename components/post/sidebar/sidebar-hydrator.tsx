@@ -32,7 +32,7 @@ export default function SidebarHydrator({
     hasMountedRef.current = true;
     setCategory(category.id);
     setOpenCategory(category.id, true);
-    setSubcategory(subcategory.id);
+    setSubcategory({ id: subcategory.id, name: subcategory.name });
     setPost(postId);
     setLeftCollapsed(false);
     setRightCollapsed(false);

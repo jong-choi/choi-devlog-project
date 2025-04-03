@@ -3,13 +3,14 @@ import { createStore } from "zustand";
 export interface SidebarState {
   selectedCategoryId: string | null;
   selectedSubcategoryId: string | null;
+  selectedSubcategoryName: string | null;
   selectedPostId: string | null;
   leftCollapsed: boolean;
   rightCollapsed: boolean;
   openedCategories: Record<string, boolean>;
   mobileOpen: boolean;
   setCategory: (id: string | null) => void;
-  setSubcategory: (id: string | null) => void;
+  setSubcategory: (subcategory: { id: string; name: string } | null) => void;
   setPost: (id: string | null) => void;
   setLeftCollapsed: (state: boolean) => void;
   setRightCollapsed: (state: boolean) => void;
@@ -22,6 +23,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
   createStore<SidebarState>((set) => ({
     selectedCategoryId: null,
     selectedSubcategoryId: null,
+    selectedSubcategoryName: null,
     selectedPostId: null,
     leftCollapsed: false,
     rightCollapsed: false,
@@ -29,7 +31,11 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     mobileOpen: false,
     setCategory: (id) =>
       set({ selectedCategoryId: id, selectedSubcategoryId: null }),
-    setSubcategory: (id) => set({ selectedSubcategoryId: id }),
+    setSubcategory: (subcategory) =>
+      set({
+        selectedSubcategoryId: subcategory?.id ?? null,
+        selectedSubcategoryName: subcategory?.name ?? null,
+      }),
     setPost: (id) => set({ selectedPostId: id }),
     setLeftCollapsed: (state) => set({ leftCollapsed: state }),
     setRightCollapsed: (state) => set({ rightCollapsed: state }),
