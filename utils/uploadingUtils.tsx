@@ -133,7 +133,7 @@ function isValidRecommendedPost(
  * @param posts Supabase View `post_similarities_with_target_info`의 Row 배열
  * @returns `Post` 형식의 배열
  */
-export function simToPosts(
+export function simsToPosts(
   posts: Database["public"]["Views"]["post_similarities_with_target_info"]["Row"][]
 ): Post[] {
   return posts

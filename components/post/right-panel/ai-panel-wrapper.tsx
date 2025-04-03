@@ -6,7 +6,7 @@ import { DEFAULT_SUMMARY } from "@/lib/constants/post";
 import { SummaryProvider } from "@/providers/summary-store-provider";
 import { Post } from "@/types/post";
 import { Database } from "@/types/supabase";
-import { simToPosts } from "@/utils/uploadingUtils";
+import { simsToPosts } from "@/utils/uploadingUtils";
 
 interface AIPanelWrapperProps {
   data: Database["public"]["Tables"]["posts"]["Row"] | null;
@@ -29,7 +29,7 @@ export default async function AIPanelWrapper({
     const { data: postsData } = await getRecommendedByPostId(data.id);
 
     if (postsData) {
-      recommendedPosts = simToPosts(postsData);
+      recommendedPosts = simsToPosts(postsData);
     }
   }
 

@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import AIModeButton from "@/components/post/right-panel/ai-mode-button";
 import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
-import { simToPosts } from "@/utils/uploadingUtils";
+import { simsToPosts } from "@/utils/uploadingUtils";
 
 export default function AIPanel() {
   const summary = useSummary((state) => state.summary);
@@ -109,7 +109,7 @@ export default function AIPanel() {
       body: JSON.stringify({ postId }),
     }).then(() => toast.success("추천 게시글 분석이 완료되었습니다."));
     const { data: postsData } = await getRecommendedByPostId(postId);
-    setRecommendedPosts(simToPosts(postsData || []));
+    setRecommendedPosts(simsToPosts(postsData || []));
     setSummary(AIData.summary);
     setSummaryId(AIData!.id);
 
