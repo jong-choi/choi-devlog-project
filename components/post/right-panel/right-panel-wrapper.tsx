@@ -17,7 +17,9 @@ export function RightPanelWrapper({ children }: { children: ReactNode }) {
       )}
     >
       {!rightOpen && (
-        <SidebarToggle onClick={() => setRightOpen(true)} reverse />
+        <>
+          <SidebarToggle onClick={() => setRightOpen(true)} reverse />
+        </>
       )}
       {rightOpen && <>{children}</>}
     </aside>

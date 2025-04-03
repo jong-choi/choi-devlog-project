@@ -1,5 +1,9 @@
 "use client";
-import { createAISummary, createTagsByPostId } from "@/app/post/actions";
+import {
+  createAISummary,
+  createTagsByPostId,
+  getRecommendedByPostId,
+} from "@/app/post/actions";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { useAuthStore } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
@@ -10,12 +14,17 @@ import { MainContainer } from "@ui/main-container";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import AIModeButton from "@/components/post/right-panel/ai-mode-button";
+import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
+import { simToPosts } from "@/utils/uploadingUtils";
 
-export default function AISummary() {
+export default function AIPanel() {
   const summary = useSummary((state) => state.summary);
   const summaryId = useSummary((state) => state.summaryId);
+  const recommendedPosts = useSummary((state) => state.recommendedPosts);
   const setSummary = useSummary((state) => state.setSummary);
   const setSummaryId = useSummary((state) => state.setSummaryId);
+  const setRecommendedPosts = useSummary((state) => state.setRecommendedPosts);
   const isLoading = useSummary((state) => state.loading);
   const setIsLoading = useSummary((state) => state.setLoading);
   const postId = useAutosave((state) => state.postId);
@@ -58,6 +67,10 @@ export default function AISummary() {
       toast.error("데이터를 입력하세요.");
       return setIsLoading(false);
     }
+    if (!postId) {
+      toast.error("게시글을 먼저 업로드하세요");
+      return setIsLoading(false);
+    }
     const data = await createSummary(title, body);
 
     if (!data || !data.summary) {
@@ -82,26 +95,31 @@ export default function AISummary() {
       id: AIData.id,
       summary: AIData.summary,
     });
+
     if (!TagsData || TagsData.post_id) {
       toast.error("태그를 생성하지 못하였습니다.");
       return setIsLoading(false);
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/summary/recommended`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/summary/recommended`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ postId }),
     }).then(() => toast.success("추천 게시글 분석이 완료되었습니다."));
+    const { data: postsData } = await getRecommendedByPostId(postId);
+    setRecommendedPosts(simToPosts(postsData || []));
     setSummary(AIData.summary);
     setSummaryId(AIData!.id);
+
     toast.success("요약 생성에 성공하였습니다.");
     return setIsLoading(false);
   };
 
   const rightOpen = useLayoutStore((state) => state.rightOpen);
   const setRightOpen = useLayoutStore((state) => state.setRightOpen);
+  const panelMode = useLayoutStore((state) => state.panelMode);
 
   if (!postId) return <></>;
   return (
@@ -113,9 +131,7 @@ export default function AISummary() {
         >
           {!rightOpen ? "<" : ">"}
         </button>
-        <div className="flex gap-1 items-center text-gray-800 dark:text-white font-semibold text-sm tracking-tight font-mono">
-          AI 멘토의 요약
-        </div>
+        <AIModeButton />
       </div>
       <Button
         onClick={onClick}
@@ -129,13 +145,17 @@ export default function AISummary() {
         data-component-name="main-post-section"
         className="flex flex-1 overflow-auto scrollbar-hidden"
       >
-        {isLoading ? (
+        {isLoading && (
           <Loader2
             className="w-40 h-40 opacity-10 mx-auto animate-spin text-gray-500"
             strokeWidth={0.4}
           />
-        ) : (
+        )}
+        {panelMode === "summary" && (
           <AiMarkdownWrapper>{summary}</AiMarkdownWrapper>
+        )}
+        {panelMode === "recommend" && (
+          <AiRecommendedList posts={recommendedPosts} />
         )}
       </section>
     </MainContainer>

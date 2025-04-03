@@ -1,4 +1,5 @@
-import { Category, Subcategory } from "@/types/post";
+import { Category, Post, Subcategory } from "@/types/post";
+import { Database } from "@/types/supabase";
 
 /**
  * 문자열을 URL-friendly한 슬러그(slug)로 변환합니다.
@@ -104,4 +105,47 @@ export function findCategoryAndSubcategoryById(
   }
 
   return { category: null, subcategory: null };
+}
+
+function isValidRecommendedPost(
+  post: Database["public"]["Views"]["post_similarities_with_target_info"]["Row"]
+): post is Database["public"]["Views"]["post_similarities_with_target_info"]["Row"] & {
+  similarity: number;
+  target_post_id: string;
+  target_url_slug: string;
+  target_title: string;
+} {
+  return (
+    typeof post.similarity === "number" &&
+    typeof post.target_post_id === "string" &&
+    typeof post.target_url_slug === "string" &&
+    typeof post.target_title === "string"
+  );
+}
+
+/**
+ * `post_similarities_with_target_info` 뷰에서 가져온 유사 게시글 데이터를
+ * 실제 `Post` 형태의 배열로 변환한다.
+ *
+ * - `similarity`, `target_post_id`, `target_url_slug`, `target_title`가 모두 존재하는 항목만 포함됨
+ * - 유사도(similarity)를 기준으로 내림차순 정렬됨 (높을수록 먼저)
+ *
+ * @param posts Supabase View `post_similarities_with_target_info`의 Row 배열
+ * @returns `Post` 형식의 배열
+ */
+export function simToPosts(
+  posts: Database["public"]["Views"]["post_similarities_with_target_info"]["Row"][]
+): Post[] {
+  return posts
+    .filter(isValidRecommendedPost)
+    .sort((a, b) => b.similarity - a.similarity)
+    .map((post) => ({
+      id: post.target_post_id,
+      url_slug: post.target_url_slug,
+      title: post.target_title,
+      short_description: null,
+      is_private: null,
+      order: null,
+      subcategory_id: null,
+    }));
 }

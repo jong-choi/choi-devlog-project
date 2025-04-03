@@ -10,7 +10,7 @@ import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
 import PostMainWrapper from "@/components/post/right-panel/post-main-wrapper";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
-import AISummary from "@/components/post/right-panel/ai-summary";
+import AIPanel from "@/components/post/right-panel/ai-panel";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
 import { formatKoreanDate } from "@/lib/date";
@@ -91,7 +91,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       </main>
       <AIPanelWrapper data={data}>
         <RightPanelWrapper>
-          <AISummary />
+          <AIPanel />
         </RightPanelWrapper>
       </AIPanelWrapper>
     </PostMainWrapper>
