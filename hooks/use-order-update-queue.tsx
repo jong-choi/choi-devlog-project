@@ -1,12 +1,17 @@
 import { useRef } from "react";
 import { debounce } from "lodash";
-import { Category, Subcategory, Post } from "@/types/post";
+import { SortableItem } from "@/components/post/sortable-list/sortable-list-container";
 
-// 누적 업데이트용 Map (id -> item)
-export const useOrderUpdateQueue = () => {
-  const queueRef = useRef(new Map<string, Category | Subcategory | Post>());
+export type OnUpdateFn<T extends SortableItem> = (
+  changedItems: T[]
+) => void | Promise<void>;
 
-  const addToQueue = (item: Category | Subcategory | Post) => {
+export const useOrderUpdateQueue = <T extends SortableItem>(
+  onUpdate?: OnUpdateFn<T>
+) => {
+  const queueRef = useRef(new Map<string, T>());
+
+  const addToQueue = (item: T) => {
     queueRef.current.set(item.id, item);
     debouncedSend();
   };
@@ -15,16 +20,16 @@ export const useOrderUpdateQueue = () => {
     const changedItems = Array.from(queueRef.current.values());
     if (changedItems.length > 0) {
       try {
-        // await fetch("/api/update", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(changedItems),
-        // });
-        console.log("✅ 변경된 order 저장 완료:", changedItems);
+        if (onUpdate) {
+          await onUpdate(changedItems);
+          console.log("✅ 변경된 order 저장 완료:", changedItems);
+        } else {
+          console.log("⚠️ onUpdate 없음. 변경된 항목:", changedItems);
+        }
       } catch (e) {
         console.error("❌ 저장 실패", e);
       }
-      queueRef.current.clear(); // 저장 후 초기화
+      queueRef.current.clear();
     }
   };
 
@@ -32,3 +37,9 @@ export const useOrderUpdateQueue = () => {
 
   return { addToQueue };
 };
+
+// await fetch("/api/update", {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify(changedItems),
+// });
