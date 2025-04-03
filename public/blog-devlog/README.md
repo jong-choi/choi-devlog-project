@@ -2582,5 +2582,62 @@ Codemirror에 테마를 흑백으로 밀어넣고, 화면 레이아웃을 fixed�
 
 getRecommendedPosts 기능을 어디에 넣을까 고민하다가, 인공지능 요약을 보여주는 우측 사이드바에 넣기로 하였다.  
 상단에 패널 모드 선택을 만들고, 패널이 '추천 게시글'일 때 추천 게시글 목록을 보여주도록 수정하였다.
-이 과정에서 post_similarities_with_target_info의 정보를 임시로 Posts 타입으로 바꿔주는 유틸 함수를 만들어 적용하였다.  
+이 과정에서 post_similarities_with_target_info의 정보를 임시로 Posts 타입으로 바꿔주는 유틸 함수를 만들어 적용하였다.
 
+## 28+29일차 사이드바 sortable 적용
+
+### 사이드바 버그 수정
+
+사이드바의 게시글 목록이 SSR이 안되는 이슈 : posts에서 url_slug를 찾도록 하는데, decodeuri가 안되어서 선택된 post를 찾지 못하는 이슈가 있었다. decode하도록 수정
+사이드바 게시글 목록 상단 Subcategory 명이 하이드레이션 되는 이슈 : 기존에는 useEffect를 통해서 선택된 카테고리명을 찾도록 구성하였는데, selectedSubcategoryName이라는 상태를 zustand에 넣어서 관리하도록 전체적인 로직을 수정했다.
+
+### Sidebar sortable 추가
+
+#### 구현 목표
+
+- 서브카테고리 목록을 드래그로 정렬 가능하게 만들고, 순서(order)를 저장할 수 있게 함.
+- 모드가 on, off 되도록 하고, 정렬모드 off 일 때에는 Static 컴포넌트 보이도록.
+
+#### 구현 요약
+
+##### 1. `SortableItemWrapper`, `SortableListContainer` 구현
+
+- `@dnd-kit/core`와 `@dnd-kit/sortable`을 기반으로 정렬 기능 추가
+- 정렬된 항목의 순서를 계산하고, 변경된 항목만 `useOrderUpdateQueue`로 전달해 배치 저장
+
+###### 함수형 Children
+
+`SortableListContainer`의 `SortableContext`에 `{children(localItems)}`라는 패턴이 쓰이는데 이를 '함수형 children'이라 한다.  
+`(sortedItems) => sortedItems.map((item) => ( ... ))` 이와 같은 함수형 children을 넘겨줄 때 사용한다.
+
+즉, `(sortedItems) => sortedItems.map((item) => ( ... ))` 를 `SortableListContainer`에 children으로 넘겨주면,
+`SortableListContainer`는 이를 `(localItems) => localItems.map((item) => ( ... ))`로 실행하여 렌더링한다.
+
+##### 2. 정렬이 필요 없는 경우를 위한 Static 컴포넌트 구현
+
+- `StaticItem`, `StaticContainer`는 정렬이 불필요한 상황에서 그대로 children만 렌더링하는 역할
+
+---
+
+##### 3. `Wrapper 컴포넌트 분기 처리`
+
+Sortable List랑 Sortable Item을 wrapper 형태로 만들고,  
+isSortable이 false일 때에는 비어있는 Pass-through 컴포넌트로 랩핑한다.
+
+```ts
+const ListContainer = isSortable ? SortableListContainer : StaticContainer;
+const ItemWrapper = isSortable ? SortableItemWrapper : StaticItem;
+```
+
+#### 이러한 Pass-through 컴포넌트 랩핑을 통해 SortableListContainer, SortableItemWrapper의 다이나믹 임포트가 가능해짐.
+
+##### 4. 성능 최적화: `dynamic import` 적용
+
+- `SortableItemWrapper`, `SortableListContainer`는 `next/dynamic`으로 불러오고 SSR은 비활성화
+- 로딩 중에는 별도 fallback 없이 Static 버전 렌더링
+
+##### 5. 추상화
+
+SortableListContainer, SortableItemWrapper, StaticContainer, StaticItem를 WithSortableItem, WithSortableList라는 컴포넌트로 합치고 마무리.
+
+게시글과 카테고리에도 sortable이 가능하도록 적용한 뒤 디자인을 살짝 변형하여 끝냈다.
