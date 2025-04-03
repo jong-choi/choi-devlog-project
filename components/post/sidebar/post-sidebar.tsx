@@ -10,6 +10,8 @@ import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar";
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
+import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
+import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 
 export function Sidebar({
   inset = false,
@@ -76,15 +78,20 @@ export function Sidebar({
               />
             </div>
             <div className="border-t">
-              {categories.map((cat) => (
-                <SidebarCategoryContent
-                  key={cat.id}
-                  catagory={cat}
-                  setRightCollapsed={setRightCollapsed}
-                  setSubcategory={setSubcategory}
-                  selectedSubcategoryId={selectedSubcategoryId}
-                />
-              ))}
+              <WithSortableList items={categories}>
+                {(categories) =>
+                  categories.map((cat) => (
+                    <WithSortableItem key={cat.id} id={cat.id}>
+                      <SidebarCategoryContent
+                        catagory={cat}
+                        setRightCollapsed={setRightCollapsed}
+                        setSubcategory={setSubcategory}
+                        selectedSubcategoryId={selectedSubcategoryId}
+                      />
+                    </WithSortableItem>
+                  ))
+                }
+              </WithSortableList>
             </div>
           </div>
         )}
@@ -106,24 +113,30 @@ export function Sidebar({
                     {selectedSubcategoryName}
                   </div>
                 )}
-                {posts
-                  .filter(
+
+                <WithSortableList
+                  items={posts.filter(
                     (post) => post.subcategory_id === selectedSubcategoryId
-                  )
-                  .map((post) => (
-                    <Link
-                      key={post.id}
-                      href={`/post/${post.url_slug}`}
-                      className={cn(
-                        "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300  transition",
-                        selectedPostId === post.id
-                          ? " text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                          : "text-gray-700 dark:text-gray-300 "
-                      )}
-                    >
-                      {post.title}
-                    </Link>
-                  ))}
+                  )}
+                >
+                  {(sortedPosts) =>
+                    sortedPosts.map((post) => (
+                      <WithSortableItem key={post.id} id={post.id}>
+                        <Link
+                          href={`/post/${post.url_slug}`}
+                          className={cn(
+                            "block px-3 py-2 rounded-lg text-sm transition",
+                            selectedPostId === post.id
+                              ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
+                              : "text-gray-700 dark:text-gray-300"
+                          )}
+                        >
+                          {post.title}
+                        </Link>
+                      </WithSortableItem>
+                    ))
+                  }
+                </WithSortableList>
               </>
             ) : (
               <p className="text-sm text-gray-400 dark:text-gray-500">

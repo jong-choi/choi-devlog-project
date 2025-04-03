@@ -44,7 +44,7 @@ export function SidebarCategoryContent({
                       setRightCollapsed(false);
                     }}
                     className={cn(
-                      "block w-full text-left px-4 py-1.5 text-sm rounded-md transition",
+                      "block w-full text-left px-4 py-2 text-sm rounded-md transition",
                       selectedSubcategoryId === sub.id
                         ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                         : "text-gray-700 dark:text-gray-300"

@@ -26,15 +26,15 @@ export function SortableItemWrapper({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-1 cursor-grab active:cursor-grabbing group"
+      className="relative items-center gap-1 cursor-grab active:cursor-grabbing group"
       {...attributes}
       {...listeners}
     >
-      <div className="flex-1 truncate whitespace-nowrap overflow-hidden text-ellipsis">
+      <div className="relative flex-1 truncate whitespace-nowrap overflow-hidden text-ellipsis pl-1">
         {children}
       </div>
-      <div className="text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-200 pl-1">
-        <GripVertical className="w-4 h-4 shrink-0" />
+      <div className="absolute w-4 h-5 top-2  text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-200">
+        <GripVertical className="w-4 h-5 shrink-0" />
       </div>
     </div>
   );
