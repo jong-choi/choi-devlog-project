@@ -18,7 +18,7 @@ export function PostCard({
     <Link
       href={`/post/${post.url_slug}`}
       className={cn(
-        "w-full bg-glass-bg text-color-base  rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
+        "w-full bg-glass-bg-80 text-color-base rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
         isFeatured ? "flex flex-col lg:flex-row lg:flex-1 h-full" : "flex"
       )}
     >

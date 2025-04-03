@@ -77,3 +77,22 @@ export function SectionInnerContainer({
     </GlassBox>
   );
 }
+
+export function PageContainer({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-4 bg-glass-bg-20 p-8 backdrop-blur-2xl -mt-4 shadow-glass",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}

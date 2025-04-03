@@ -34,6 +34,10 @@ export default {
         // 기본 Glass
         "glass-bg": "var(--glass-bg)",
         "glass-border": "var(--glass-border)",
+        "glass-bg-20": "var(--glass-bg-20)",
+        "glass-bg-40": "var(--glass-bg-40)",
+        "glass-bg-60": "var(--glass-bg-60)",
+        "glass-bg-80": "var(--glass-bg-80)",
 
         // 색상별 Glass 배경 & 텍스트
         "glass-primary": "var(--glass-primary-bg)",

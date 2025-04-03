@@ -10,17 +10,25 @@ import {
   PanelLeftOpen,
   ChevronLeftIcon,
   X,
+  Search,
+  ListOrdered,
+  Map,
 } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
+import SearchInput from "@/components/posts/infinite-scroll/search-input";
+import { Series } from "@/types/series";
+import { useEffect, useState } from "react";
 
 export function Sidebar({
   inset = false,
   categories,
   posts,
+  seriesList,
 }: {
   inset?: boolean;
   categories: Category[];
   posts: Post[];
+  seriesList: Series[] | null;
 }) {
   const {
     selectedSubcategoryId,
@@ -33,6 +41,15 @@ export function Sidebar({
     setRightCollapsed,
     toggleMobileOpen,
   } = useSidebarStore(useShallow((state) => state));
+
+  const [selectedSeries, setSelectedSeries] = useState<Series | null>(null);
+  useEffect(() => {
+    if (seriesList?.length && selectedSubcategoryId) {
+      setSelectedSeries(
+        seriesList.find((series) => series.id === selectedSubcategoryId) || null
+      );
+    }
+  }, [selectedSubcategoryId, seriesList]);
 
   return (
     <div
@@ -69,17 +86,26 @@ export function Sidebar({
         </button>
 
         {!leftCollapsed && (
-          <div className="p-4 w-64 overflow-auto space-y-2">
-            <Logo />
-            {categories.map((cat) => (
-              <SidebarContent
-                key={cat.id}
-                catagory={cat}
-                setRightCollapsed={setRightCollapsed}
-                setSubcategory={setSubcategory}
-                selectedSubcategoryId={selectedSubcategoryId}
+          <div className="px-4 py-2 w-64 overflow-auto space-y-2">
+            <div className="flex flex-col gap-2">
+              <Logo />
+              <SearchInput
+                className="py-0 bg-glass-bg-20 shadow-none border h-6"
+                withButton={false}
+                onSidebar={true}
               />
-            ))}
+            </div>
+            <div className="border-t">
+              {categories.map((cat) => (
+                <SidebarContent
+                  key={cat.id}
+                  catagory={cat}
+                  setRightCollapsed={setRightCollapsed}
+                  setSubcategory={setSubcategory}
+                  selectedSubcategoryId={selectedSubcategoryId}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -92,24 +118,33 @@ export function Sidebar({
         )}
       >
         {!rightCollapsed && (
-          <div className="p-4 w-64 overflow-auto space-y-1 scrollbar">
+          <div className="p-4 w-64 overflow-auto space-y-1 scrollbar flex flex-col">
             {selectedSubcategoryId ? (
-              posts
-                .filter((post) => post.subcategory_id === selectedSubcategoryId)
-                .map((post) => (
-                  <Link
-                    key={post.id}
-                    href={`/post/${post.url_slug}`}
-                    className={cn(
-                      "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300  transition",
-                      selectedPostId === post.id
-                        ? " text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                        : "text-gray-700 dark:text-gray-300 "
-                    )}
-                  >
-                    {post.title}
-                  </Link>
-                ))
+              <>
+                {selectedSeries && (
+                  <div className="font-extralight px-3 select-none">
+                    {selectedSeries.name}
+                  </div>
+                )}
+                {posts
+                  .filter(
+                    (post) => post.subcategory_id === selectedSubcategoryId
+                  )
+                  .map((post) => (
+                    <Link
+                      key={post.id}
+                      href={`/post/${post.url_slug}`}
+                      className={cn(
+                        "block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300  transition",
+                        selectedPostId === post.id
+                          ? " text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
+                          : "text-gray-700 dark:text-gray-300 "
+                      )}
+                    >
+                      {post.title}
+                    </Link>
+                  ))}
+              </>
             ) : (
               <p className="text-sm text-gray-400 dark:text-gray-500">
                 서브 카테고리를 선택해주세요.
@@ -122,7 +157,7 @@ export function Sidebar({
       {/* 🌟 모바일 사이드바 (왼쪽, 오른쪽 공통 컨테이너) */}
       <div
         className={cn(
-          "fixed md:hidden inset-y-0 left-0 bg-white dark:bg-gray-900 transition-transform duration-300 z-40 shadow-xl overflow-auto",
+          "fixed flex flex-col justify-between md:hidden inset-y-0 left-0 bg-white dark:bg-gray-900 transition-transform duration-300 z-40 shadow-xl overflow-auto",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
           "w-screen pt-12 p-4" // padding-top 추가
         )}
@@ -137,7 +172,7 @@ export function Sidebar({
 
         {/* 🌟 콘텐츠만 조건부 렌더링 */}
         {selectedSubcategoryId ? (
-          <>
+          <div className="flex flex-col gap-1">
             <button
               className="mb-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 flex"
               onClick={() => setSubcategory(null)}
@@ -145,6 +180,11 @@ export function Sidebar({
               <ChevronLeftIcon className="h-5 w-5" />
               목록보기
             </button>
+            {selectedSeries && (
+              <div className="font-extralight px-1 pb-1 select-none">
+                {selectedSeries.name}
+              </div>
+            )}
             {posts
               .filter((post) => post.subcategory_id === selectedSubcategoryId)
               .map((post) => (
@@ -161,18 +201,38 @@ export function Sidebar({
                   {post.title}
                 </Link>
               ))}
-          </>
+          </div>
         ) : (
-          categories.map((cat) => (
-            <SidebarContent
-              key={cat.id}
-              catagory={cat}
-              setRightCollapsed={setRightCollapsed}
-              setSubcategory={setSubcategory}
-              selectedSubcategoryId={selectedSubcategoryId}
-            />
-          ))
+          <div>
+            <Logo />
+            <div className="py-4 flex flex-col gap-2">
+              {categories.map((cat) => (
+                <SidebarContent
+                  key={cat.id}
+                  catagory={cat}
+                  setRightCollapsed={setRightCollapsed}
+                  setSubcategory={setSubcategory}
+                  selectedSubcategoryId={selectedSubcategoryId}
+                />
+              ))}
+            </div>
+          </div>
         )}
+        <div className="py-8 flex flex-col gap-4">
+          <hr />
+          <Link href="/posts" className="flex items-center gap-2">
+            <Search className="w-4 h-4" />
+            검색
+          </Link>
+          <Link href="/posts" className="flex items-center gap-2">
+            <ListOrdered className="w-4 h-4" />
+            전체 게시글
+          </Link>
+          <Link href="/map" className="flex items-center gap-2">
+            <Map className="w-4 h-4" />
+            지식 지도
+          </Link>
+        </div>
       </div>
     </div>
   );

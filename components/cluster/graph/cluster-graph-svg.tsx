@@ -39,7 +39,7 @@ export default async function ClusterGraphSVG({
       .force(
         "link",
         forceLink<SimNode, SimLink>(simLinks)
-          .id((d) => d.id)
+          .id((d) => d.id!)
           .distance(100)
       )
       .force("charge", forceManyBody().strength(-50))

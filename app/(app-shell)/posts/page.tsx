@@ -4,6 +4,9 @@ import InfiniteScrollPosts from "@/components/posts/infinite-scroll/infinite-scr
 import SearchHydrator from "@/components/posts/infinite-scroll/search-hydrator";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import Link from "next/link";
+import { withJosa } from "@/utils/withJosa";
+import { ChevronLeft } from "lucide-react";
+import { PageContainer } from "@ui/glass-container";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -15,17 +18,20 @@ export default async function Page({ searchParams }: PageProps) {
   const { data: postLists } = await getPosts({ page: 0, search });
 
   return (
-    <>
+    <PageContainer>
       <SearchInput />
       {isSearching && (
-        <p className="flex gap-2">
-          <span className="text-sm text-color-base">{`"${search}"로 검색한 결과입니다.`}</span>
+        <p className="flex gap-2 flex-col">
           <Link
-            className="text-sm text-color-muted hover:text-color-base"
-            href="/post"
+            className="text-sm text-color-muted hover:text-color-base flex items-center"
+            href="/posts"
           >
-            전체 게시글 보기
+            <ChevronLeft className="w-4 h-4" /> 전체 게시글 보기
           </Link>
+          <span className="text-sm text-color-base">
+            {" "}
+            {`${withJosa(`"${search}"`, ["으로", "로"])} 검색한 결과입니다.`}
+          </span>
         </p>
       )}
       <InfinitePostsStoreProvider
@@ -39,6 +45,6 @@ export default async function Page({ searchParams }: PageProps) {
         <InfiniteScrollPosts />
         <SearchHydrator />
       </InfinitePostsStoreProvider>
-    </>
+    </PageContainer>
   );
 }

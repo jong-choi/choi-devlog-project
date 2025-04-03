@@ -5,6 +5,9 @@ import {
 import { PostCard } from "@/components/posts/post-card";
 import { SeriesInfoPanel } from "@/components/series/series-info-panel";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { PageContainer } from "@ui/glass-container";
 
 interface PageProps {
   params: Promise<{
@@ -25,14 +28,21 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
-      <SeriesInfoPanel series={seriesData} />
-      <div className="flex flex-col gap-4">
+      <Link
+        href={"/series"}
+        className="-mt-5 text-color-muted hover:text-color-base underline flex w-fit items-center"
+      >
+        <ChevronLeft className="w-5 h-5" />
+        다른 시리즈 보기
+      </Link>
+      <PageContainer>
+        <SeriesInfoPanel series={seriesData} />
         {posts.map((post) => (
           <div key={post.id}>
             <PostCard key={post.id} post={post} />
           </div>
         ))}
-      </div>
+      </PageContainer>
     </>
   );
 }

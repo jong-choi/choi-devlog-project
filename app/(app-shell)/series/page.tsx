@@ -1,4 +1,4 @@
-import { SectionContainer } from "@ui/glass-container";
+import { PageContainer, SectionContainer } from "@ui/glass-container";
 import { getAllCategories } from "@/app/post/actions";
 import SeriesApp from "@/components/series/series-app";
 import { getSeriesList } from "@/components/series/actions";
@@ -9,7 +9,7 @@ export default async function Page() {
     recommended: true,
   });
   return (
-    <>
+    <PageContainer>
       <h2 className="text-2xl font-extrabold tracking-tighter text-shadow">
         시리즈
       </h2>
@@ -30,6 +30,6 @@ export default async function Page() {
           </SectionContainer>
         );
       })}
-    </>
+    </PageContainer>
   );
 }

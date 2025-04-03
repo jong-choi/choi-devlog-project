@@ -6,7 +6,7 @@ export function SeriesInfoPanel({ series }: { series: Series }) {
   const { name, description, latest_post_date, thumbnail, post_count } = series;
 
   return (
-    <div className="w-full pt-2 md:pt-0 bg-glass-bg text-color-base border border-glass-border shadow-glass flex flex-col md:flex-row justify-between overflow-hidden">
+    <div className="w-full pt-2 md:pt-0 bg-glass-bg-80 text-color-base border border-glass-border shadow-glass flex flex-col md:flex-row justify-between overflow-hidden">
       {/* 왼쪽 썸네일 */}
       {thumbnail && (
         <div className="aspect-[3/2] w-full max-w-[250px] mx-auto relative overflow-hidden border border-glass-border flex-shrink-0">
