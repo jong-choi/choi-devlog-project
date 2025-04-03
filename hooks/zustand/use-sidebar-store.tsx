@@ -18,6 +18,7 @@ export interface SidebarState {
   setOpenCategory: (categoryId: string, open: boolean) => void;
   toggleCategory: (categoryId: string) => void;
   toggleMobileOpen: () => void;
+  toggleIsSortable: () => void;
 }
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
@@ -56,5 +57,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
         },
       })),
     toggleMobileOpen: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
+    toggleIsSortable: () => set((state) => ({ isSortable: !state.isSortable })),
     ...initialState, // 초기값 덮어쓰기
   }));

@@ -12,6 +12,7 @@ import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
+import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
 
 export function Sidebar({
   inset = false,
@@ -71,6 +72,9 @@ export function Sidebar({
           <div className="px-4 py-2 w-64 overflow-auto space-y-2">
             <div className="flex flex-col gap-2">
               <Logo />
+              <div className="flex justify-end w-full">
+                <ToggleSortableButton />
+              </div>
               <SearchInput
                 className="py-0 bg-glass-bg-20 shadow-none border h-6"
                 withButton={false}

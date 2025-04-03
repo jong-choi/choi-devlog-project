@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { ReactNode } from "react";
 
 interface SortableItemWrapperProps {
@@ -33,8 +33,8 @@ export function SortableItemWrapper({
       <div className="relative flex-1 truncate whitespace-nowrap overflow-hidden text-ellipsis pl-1">
         {children}
       </div>
-      <div className="absolute w-4 h-5 top-2  text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-200">
-        <GripVertical className="w-4 h-5 shrink-0" />
+      <div className="absolute w-4 h-5 top-2  text-color-muted">
+        <MoreVertical className="w-4 h-5 shrink-0" />
       </div>
     </div>
   );
