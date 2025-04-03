@@ -75,7 +75,7 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
     },
     categoryData: null,
     isEditMode: false,
-    isMarkdownOn: true,
+    isMarkdownOn: false,
     isRawOn: false,
     layoutSnapshot: [],
     setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),

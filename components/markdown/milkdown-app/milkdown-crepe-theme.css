@@ -1,3 +1,10 @@
+/* rehype에 줄바꿈 적용  */
+.markdown-preview pre code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 .milkdown .markdown-preview {
   ul,
   ol,
