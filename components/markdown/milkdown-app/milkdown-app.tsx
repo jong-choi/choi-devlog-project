@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Crepe } from "@milkdown/crepe";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { EditorView } from "@codemirror/view";
-import { replaceAll } from "@milkdown/utils";
+import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
+import { Slice } from "@milkdown/kit/prose/model";
+import { Selection } from "@milkdown/kit/prose/state";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 const MilkdownEditor = ({
@@ -65,7 +67,26 @@ const MilkdownEditor = ({
 
   useEffect(() => {
     if (!isFocused && crepeRef.current) {
-      crepeRef.current.editor.action(replaceAll(markdown));
+      crepeRef.current.editor.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const parser = ctx.get(parserCtx);
+        const doc = parser(markdown);
+        if (!doc) return;
+
+        const state = view.state;
+        const selection = state.selection;
+        const { from } = selection;
+
+        let tr = state.tr;
+        tr = tr.replace(
+          0,
+          state.doc.content.size,
+          new Slice(doc.content, 0, 0)
+        );
+        tr = tr.setSelection(Selection.near(tr.doc.resolve(from)));
+
+        view.dispatch(tr);
+      });
     }
   }, [isFocused, markdown]);
 

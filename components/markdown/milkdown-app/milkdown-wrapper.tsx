@@ -116,7 +116,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       >
         <div
           className={cn(isMarkdownOn ? "block" : "hidden")}
-          onClick={() => setFocused("milkdown")}
+          onFocus={() => setFocused("milkdown")}
         >
           <MilkdownEditor
             setMarkdown={setBody}
@@ -127,7 +127,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
         </div>
         <div
           className={cn(isRawOn ? "block" : "hidden")}
-          onClick={() => setFocused("codemirror")}
+          onFocus={() => setFocused("codemirror")}
         >
           <MarkdownRawEditor
             value={body}
