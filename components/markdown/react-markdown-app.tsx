@@ -12,14 +12,15 @@ export default function ReactMarkdownApp({ children }: { children?: string }) {
       remarkPlugins={[remarkGfm, remarkParse, remarkBreaks]}
       rehypePlugins={[rehypeHighlight]}
       components={{
-        img: (props) => (
+        img: ({ src = "", alt = "" }) => (
           <Image
-            {...props}
-            src={props.src || ""}
-            width={props.width ? Number(props.width) : 500}
-            height={props.height ? Number(props.height) : 400}
-            alt={props.alt ?? ""}
-            className="rounded-md"
+            src={src}
+            alt={alt}
+            // https://stackoverflow.com/questions/69230343/nextjs-image-component-with-fixed-witdth-and-auto-height
+            width="0" // width와 height에 0을 줘러 렌더링 계산에서 제외
+            height="0"
+            sizes="(max-width: 768px) 100vw, 50vw" // 이미지 크기 힌팅 : sm사이즈에서 100vw, 그 이상에서 50vw에 맞는 이미지로 불러오기 (supabase가 이미지 프록시 서버가 아니라서 작동 안하긴 함)
+            className="w-auto h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[340px]" // css를 통해 실제 렌더링 크기를 확정
           />
         ),
       }}
