@@ -29,7 +29,6 @@ export default function ToggleSortableButton() {
         thumbClassName={cn(
           "h-3 w-3  dark:border dark:border-color-muted", // thumb 사이즈 조정 (선택)
           "data-[state=checked]:translate-x-3.5",
-          "",
           "transition-transform"
         )}
       />
