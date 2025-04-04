@@ -2638,6 +2638,188 @@ const ItemWrapper = isSortable ? SortableItemWrapper : StaticItem;
 
 ##### 5. 추상화
 
-SortableListContainer, SortableItemWrapper, StaticContainer, StaticItem를 WithSortableItem, WithSortableList라는 컴포넌트로 합치고 마무리.
+SortableListContainer, SortableItemWrapper, StaticContainer, StaticItem를 WithSortableItem, WithSortableList라는 컴포넌트로 합치고 마무리.
 
 게시글과 카테고리에도 sortable이 가능하도록 적용한 뒤 디자인을 살짝 변형하여 끝냈다.
+
+## 29일차
+
+### 캐시 함수 + 인증 적용
+
+1. PostgrestError 타입에 맞게 에러 객체를 반환하는 걸 몰라서 그간 헤맸다가, 에러 객체 까보니까 constructor로 만들어져 있더라. 그래서 감 잡고 수정함.
+2. requireAuth라는 플래그를 세워서 조건들을 수정하였고, revalidate는 내가 원하는 바에 맞게, requreAuth가 있으면 기본값 0, 없으면 기본값 30일, 추가적으로 명시적인 revalidate 기간이 있으면 해당 기간을 따라가도록.
+3. 이때 '널 병합 연산자' 라는 녀석이 요긴하게 쓰였다. revalidate가 0인 경우를 명시적으로 처리할 수 있게 된다. or 연산자(||)만 주로 썼는데, 많이 애용해야겠다.
+
+```ts
+// 새로운 캐시함수 래퍼
+export type WithCacheParams<P, T, Single extends boolean = false> = {
+  key?: string[];
+  tags?: string[];
+  revalidate?: number;
+  single?: Single;
+  requireAuth?: boolean;
+  skipCache?: (params: P) => boolean;
+  handler: (
+    supabase: SupabaseClient,
+    params: P
+  ) => Promise<WithSupabaseReturn<T, Single>>;
+};
+
+// 응답 타입 분기 유틸
+type WithSupabaseReturn<T, Single extends boolean> = Single extends true
+  ? PostgrestSingleResponse<T>
+  : PostgrestResponse<T>;
+
+const makeAuthError = <T, Single extends boolean>(): WithSupabaseReturn<
+  T,
+  Single
+> => {
+  const error = new Error("Authentication required") as PostgrestError;
+  error.code = "401";
+
+  return {
+    data: null,
+    error,
+    count: null,
+    status: 401,
+    statusText: "Unauthorized",
+  } as WithSupabaseReturn<T, Single>;
+};
+/**
+ * Supabase Client를 기반으로 캐싱된 서버 요청을 실행합니다.
+ *
+ * - 캐시 키 및 태그를 통해 `unstable_cache`를 구성합니다.
+ * - `single` 옵션을 통해 단건(single) 또는 다건(list) 응답을 선택할 수 있습니다.
+ * - `skipCache` 조건이 true일 경우 캐시를 우회하고 항상 fresh 요청을 실행합니다.
+ *
+ * @template P - 파라미터 타입
+ * @template T - 반환될 데이터의 row 타입
+ * @template Single - 단건 여부 (`true`이면 PostgrestSingleResponse, 아니면 PostgrestResponse)
+ *
+ * @param params - Supabase 요청에 전달할 파라미터
+ * @param options - 캐싱과 핸들러 설정
+ * @param options.handler - Supabase 요청을 수행할 비동기 핸들러
+ * @param options.key - unstable_cache에 사용할 고유한 캐시 키
+ * @param options.tags - 캐시 무효화에 사용할 태그 목록
+ * @param options.requireAuth - true인 경우 인증된 사용자만 요청 가능 (기본: false)
+ * @param options.revalidate - 캐시 재검증 주기 (초 단위, 기본값: 미인증시 30일 / 인증필요시 fresh)
+ * @param options.skipCache - 조건부 캐시 우회 함수 (true일 경우 handler를 직접 호출)
+ * @param options.single - 단건 조회 여부 (true 시 PostgrestSingleResponse<T> 반환)
+ *
+ * @returns Supabase 응답 객체 (단건 또는 다건 응답)
+ */
+export const withSupabaseCache = async <P, T, Single extends boolean = false>(
+  params: P,
+  options: WithCacheParams<P, T, Single>
+): Promise<WithSupabaseReturn<T, Single>> => {
+  const supabase = await createClient(await cookies());
+  const { handler, key, tags, requireAuth = false, skipCache } = options;
+
+  // 인증 필요할 경우 무조건 fresh 요청
+  if (requireAuth) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    // tip: 인증된 사용자만 session이 생성됨
+    if (!session?.user) {
+      return makeAuthError<T, Single>();
+    }
+  }
+
+  // 캐시 우회 조건: skipCache거나, revalidate === 0일 때
+  const shouldSkipCache = skipCache?.(params) || options.revalidate === 0;
+
+  if (shouldSkipCache) {
+    return handler(supabase, params);
+  }
+
+  // 널 병합 연산자 : revalidate가 null 또는 undefined일 때만 → 30일
+  const revalidate = options.revalidate ?? 60 * 60 * 24 * 30;
+
+  const cached = unstable_cache(() => handler(supabase, params), key ?? [], {
+    revalidate,
+    tags,
+  });
+
+  return cached();
+};
+
+// 캐시 함수 예시
+
+// 1. 다건 조회 / 30일 캐싱
+// await withSupabaseCache({}, {
+//   key: ["posts", "all"],
+//   tags: ["posts"],
+//   handler: async (supabase) => {
+//     return supabase.from("posts").select("*");
+//   },
+// });
+
+// 2. 단건 조회 / 5분 캐싱
+// await withSupabaseCache({ id: 123 }, {
+//   key: ["post", "by-id", "123"],
+//   tags: ["post:123"],
+//   revalidate: 60 * 5,
+//   single: true,
+//   handler: async (supabase, { id }) => {
+//     return supabase.from("posts").select("*").eq("id", id).single();
+//   },
+// });
+
+// 3. 인증 필요 / 노 캐싱
+// await withSupabaseCache({ user_id: "abc" }, {
+//   requireAuth: true,
+//   single: false,
+//   handler: async (supabase, { user_id }) => {
+//     return supabase.from("followers").select("*").eq("user_id", user_id);
+//   },
+// });
+
+// 4. 인증 필요 / 5분 캐싱
+// await withSupabaseCache({ user_id: "abc" }, {
+//   requireAuth: true,
+//   single: false,
+//   revalidate: 60 * 5,
+//   handler: async (supabase, { user_id }) => {
+//     return supabase.from("followers").select("*").eq("user_id", user_id);
+//   },
+// });
+
+// 5. 다건 조회 / 검색어가 있는 경우 노 캐싱
+// await withSupabaseCache({ keyword: "hello" }, {
+//   key: ["posts", "search"],
+//   tags: ["posts"],
+//   skipCache: ({ keyword }) => !!keyword,
+//   handler: async (supabase, { keyword }) => {
+//     return supabase.from("posts").select("*").ilike("title", `%${keyword}%`);
+//   },
+// });
+```
+
+### 수정 기능 팝 오버
+
+1. 기존 MoreVertical 버튼을 각각 아이템들의 우측으로 위치를 옮겼다.
+2. 이후 MoreVertical 버튼을 popover trigger로 하는 popover shadcn ui로 수정하였다.
+
+### DND 오류 수정
+
+1. POPOVER가 된 상태에서 수정을 할 때에 POPOVER에 대한 클릭이 드래그로 인식되는 문제가 있었다. -> with-sortable-item 컴포넌트가 이름 부분만 감싸도록 수정하였다. 드래그 시에 MoreVertical을 안 움직이고 이름 부분만 움직이긴 하는데, 이거 더 자연스러워서 냅뒀다. (MoreVertical도 같이 움직이게 하려면 특정 요소에만 draggable 이벤트를 주고... 아무튼 많이 복잡하기도 하다.)
+2. 드래그가 끝날 때에 이를 클릭 이벤트로 인지해서 링크가 이동하거나 접혀져있던 카테고리가 펴지는 문제가 있었다. -> dragStart 이벤트에 flag를 on하고, dragEnd 이벤트에 플래그를 off 한다. flag가 on일 때에는 on-click이벤트가 none이도록 스타일을 입혔다.
+
+### sonner 적용
+
+react-hot-toast를 쓰던 중에 warning 토스트가 없는게 불만이었다.
+그래서 깔끔하게 toast들을 shadcn sonner로 전부 교체하고 react-hot-toast는 지웠다.
+
+### 남은 할 일
+
+1. 수정 기능을 팝오버로 구현하기
+2. 게시글 조회기능에서 인증 여부에 따라서 is_private를 RLS로 적용하기
+3. 기존에 조회 기능들을 actions 파일에 넣었던 것들을 fetchers 파일로 옮기기
+4. fetchers 파일로 옮긴 것들을 withSupabaseCache 랩퍼로 감싸도록 리팩토링 하기
+5. 리팩토링 후 비공개된 게시글이 캐싱이 되는지 안되는지 테스트 해보기
+6. sonner 디자인 입히기
+
+   일단 오늘은 여기까지.
+   30일에 배포하려고 했는데....안 돼 안 돼...
