@@ -59,6 +59,7 @@ export const createCachedFunction = <
     const cacheTag = getCacheTag(key, typeof id === "string" ? id : undefined);
     return unstable_cache(fn, [cacheTag, ...tags], {
       revalidate: 60 * 60 * 24 * 30,
+      tags: [cacheTag, ...tags],
     })(...args, isValid);
   }) as T;
 };
