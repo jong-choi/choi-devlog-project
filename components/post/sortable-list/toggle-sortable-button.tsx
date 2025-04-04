@@ -22,8 +22,8 @@ export default function ToggleSortableButton() {
         checked={isSortable}
         onCheckedChange={toggleIsSortable}
         className={cn(
-          "h-4 w-7 dark:border dark:border-color-muted", // switch 전체 크기 줄이기
-          "data-[state=checked]:bg-lime-300",
+          "h-4 w-7 border border-color-muted/60", // switch 전체 크기 줄이기
+          "data-[state=checked]:bg-lime-200",
           "dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-neutral-900"
         )}
         thumbClassName={cn(
