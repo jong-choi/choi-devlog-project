@@ -1,6 +1,6 @@
-import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 import {
+  PostgrestError,
   PostgrestResponse,
   PostgrestSingleResponse,
   SupabaseClient,
@@ -75,23 +75,39 @@ export const createWithInvalidation = <T, A extends unknown[]>(
 };
 
 // 새로운 캐시함수 래퍼
-interface WithCacheParams<P, T, Single extends boolean = false> {
-  key: string[];
-  tags: string[];
+export type WithCacheParams<P, T, Single extends boolean = false> = {
+  key?: string[];
+  tags?: string[];
   revalidate?: number;
-  skipCache?: (params: P) => boolean;
   single?: Single;
+  requireAuth?: boolean;
+  skipCache?: (params: P) => boolean;
   handler: (
-    supabase: SupabaseClient<Database>,
+    supabase: SupabaseClient,
     params: P
   ) => Promise<WithSupabaseReturn<T, Single>>;
-}
+};
 
 // 응답 타입 분기 유틸
 type WithSupabaseReturn<T, Single extends boolean> = Single extends true
   ? PostgrestSingleResponse<T>
   : PostgrestResponse<T>;
 
+const makeAuthError = <T, Single extends boolean>(): WithSupabaseReturn<
+  T,
+  Single
+> => {
+  const error = new Error("Authentication required") as PostgrestError;
+  error.code = "401";
+
+  return {
+    data: null,
+    error,
+    count: null,
+    status: 401,
+    statusText: "Unauthorized",
+  } as WithSupabaseReturn<T, Single>;
+};
 /**
  * Supabase Client를 기반으로 캐싱된 서버 요청을 실행합니다.
  *
@@ -108,7 +124,8 @@ type WithSupabaseReturn<T, Single extends boolean> = Single extends true
  * @param options.handler - Supabase 요청을 수행할 비동기 핸들러
  * @param options.key - unstable_cache에 사용할 고유한 캐시 키
  * @param options.tags - 캐시 무효화에 사용할 태그 목록
- * @param options.revalidate - 캐시 재검증 주기 (초 단위, 기본값: 60초)
+ * @param options.requireAuth - true인 경우 인증된 사용자만 요청 가능 (기본: false)
+ * @param options.revalidate - 캐시 재검증 주기 (초 단위, 기본값: 미인증시 30일 / 인증필요시 fresh)
  * @param options.skipCache - 조건부 캐시 우회 함수 (true일 경우 handler를 직접 호출)
  * @param options.single - 단건 조회 여부 (true 시 PostgrestSingleResponse<T> 반환)
  *
@@ -119,19 +136,85 @@ export const withSupabaseCache = async <P, T, Single extends boolean = false>(
   options: WithCacheParams<P, T, Single>
 ): Promise<WithSupabaseReturn<T, Single>> => {
   const supabase = await createClient(await cookies());
+  const { handler, key, tags, requireAuth = false, skipCache } = options;
 
-  if (options.skipCache?.(params)) {
-    return options.handler(supabase, params);
+  // 인증 필요할 경우 무조건 fresh 요청
+  if (requireAuth) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    // tip: 인증된 사용자만 session이 생성됨
+    if (!session?.user) {
+      return makeAuthError<T, Single>();
+    }
   }
 
-  const cached = unstable_cache(
-    () => options.handler(supabase, params),
-    options.key,
-    {
-      revalidate: options.revalidate ?? 60,
-      tags: options.tags,
-    }
-  );
+  // 캐시 우회 조건: skipCache거나, revalidate === 0일 때
+  const shouldSkipCache = skipCache?.(params) || options.revalidate === 0;
+
+  if (shouldSkipCache) {
+    return handler(supabase, params);
+  }
+
+  // 널 병합 연산자 : revalidate가 null 또는 undefined일 때만 → 30일
+  const revalidate = options.revalidate ?? 60 * 60 * 24 * 30;
+
+  const cached = unstable_cache(() => handler(supabase, params), key ?? [], {
+    revalidate,
+    tags,
+  });
 
   return cached();
 };
+
+// 캐시 함수 예시
+
+// 1. 다건 조회 / 30일 캐싱
+// await withSupabaseCache({}, {
+//   key: ["posts", "all"],
+//   tags: ["posts"],
+//   handler: async (supabase) => {
+//     return supabase.from("posts").select("*");
+//   },
+// });
+
+// 2. 단건 조회 / 5분 캐싱
+// await withSupabaseCache({ id: 123 }, {
+//   key: ["post", "by-id", "123"],
+//   tags: ["post:123"],
+//   revalidate: 60 * 5,
+//   single: true,
+//   handler: async (supabase, { id }) => {
+//     return supabase.from("posts").select("*").eq("id", id).single();
+//   },
+// });
+
+// 3. 인증 필요 / 노 캐싱
+// await withSupabaseCache({ user_id: "abc" }, {
+//   requireAuth: true,
+//   single: false,
+//   handler: async (supabase, { user_id }) => {
+//     return supabase.from("followers").select("*").eq("user_id", user_id);
+//   },
+// });
+
+// 4. 인증 필요 / 5분 캐싱
+// await withSupabaseCache({ user_id: "abc" }, {
+//   requireAuth: true,
+//   single: false,
+//   revalidate: 60 * 5,
+//   handler: async (supabase, { user_id }) => {
+//     return supabase.from("followers").select("*").eq("user_id", user_id);
+//   },
+// });
+
+// 5. 다건 조회 / 검색어가 있는 경우 노 캐싱
+// await withSupabaseCache({ keyword: "hello" }, {
+//   key: ["posts", "search"],
+//   tags: ["posts"],
+//   skipCache: ({ keyword }) => !!keyword,
+//   handler: async (supabase, { keyword }) => {
+//     return supabase.from("posts").select("*").ilike("title", `%${keyword}%`);
+//   },
+// });
