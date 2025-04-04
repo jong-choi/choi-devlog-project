@@ -12,7 +12,7 @@ import { useSummary } from "@/providers/summary-store-provider";
 import { Button } from "@ui/button";
 import { MainContainer } from "@ui/main-container";
 import { Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import AIModeButton from "@/components/post/right-panel/ai-mode-button";
 import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";

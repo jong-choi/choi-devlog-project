@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { debounce } from "lodash";
 import { SortableItem } from "@/components/post/sortable-list/sortable-list-container";
+import { toast } from "sonner";
 
 export type OnUpdateFn<T extends SortableItem> = (
   changedItems: T[]
@@ -23,8 +24,14 @@ export const useOrderUpdateQueue = <T extends SortableItem>(
         if (onUpdate) {
           await onUpdate(changedItems);
           console.log("✅ 변경된 order 저장 완료:", changedItems);
+          toast.success(`변경된 순서 저장 완료: ${changedItems.length}`);
         } else {
-          console.log("⚠️ onUpdate 없음. 변경된 항목:", changedItems);
+          toast.warning(
+            `${changedItems.length}개의 순서가 저장되지 않았습니다.`,
+            {
+              description: "게스트 모드에서는 변경사항이 저장되지 않습니다.",
+            }
+          );
         }
       } catch (e) {
         console.error("❌ 저장 실패", e);
@@ -37,9 +44,3 @@ export const useOrderUpdateQueue = <T extends SortableItem>(
 
   return { addToQueue };
 };
-
-// await fetch("/api/update", {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify(changedItems),
-// });

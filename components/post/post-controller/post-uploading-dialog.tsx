@@ -19,7 +19,7 @@ import PostUploadingForm from "@/components/post/post-controller/post-uploading-
 import { useAuthStore } from "@/providers/auth-provider";
 import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export function UploadingDialogTrigger() {
   const recentAutoSavedData = useAutosave((state) => state.recentAutoSavedData);
