@@ -145,7 +145,9 @@ export function Sidebar({
                         </WithSortableItem>
                         {isSortable && (
                           <UpdatePopover>
-                            <PostUpdateForm post={post} />
+                            {({ onClose }) => (
+                              <PostUpdateForm post={post} onClose={onClose} />
+                            )}
                           </UpdatePopover>
                         )}
                       </div>

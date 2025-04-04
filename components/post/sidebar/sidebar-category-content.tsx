@@ -39,7 +39,7 @@ export function SidebarCategoryContent({
             {catagory.name}
           </button>
         </WithSortableItem>
-        {isSortable && <UpdatePopover></UpdatePopover>}
+        {isSortable && <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>}
       </div>
       {isOpened && (
         <div className="ml-2 mt-1 space-y-1">
@@ -67,7 +67,9 @@ export function SidebarCategoryContent({
                       {sub.name}
                     </button>
                   </WithSortableItem>
-                  {isSortable && <UpdatePopover></UpdatePopover>}
+                  {isSortable && (
+                    <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
+                  )}
                 </div>
               ))
             }

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Popover,
   PopoverContent,
@@ -7,19 +5,17 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
-import { MouseEventHandler } from "react";
+import { ReactNode, useState } from "react";
 
 type UpdatePopoverProps = {
-  children?: React.ReactNode;
-  onContentClick?: MouseEventHandler<HTMLDivElement>;
+  children: (props: { onClose: () => void }) => ReactNode;
 };
 
-export function UpdatePopover({
-  children,
-  onContentClick,
-}: UpdatePopoverProps) {
+export function UpdatePopover({ children }: UpdatePopoverProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -32,10 +28,9 @@ export function UpdatePopover({
       <PopoverContent
         side="bottom"
         align="end"
-        className="p-2 shadow-xl bg-glass-bg backdrop-blur-sm"
-        onClick={(e) => onContentClick && onContentClick(e)}
+        className="p-2 shadow-xl bg-color-bg"
       >
-        {children ?? <div className="flex flex-col gap-1">팝 오버 열림</div>}
+        {children({ onClose: () => setOpen(false) })}
       </PopoverContent>
     </Popover>
   );
