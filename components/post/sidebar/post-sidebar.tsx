@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { Category, Post } from "@/types/post";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { MoreVertical, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar";
@@ -29,6 +29,7 @@ export function Sidebar({
     selectedPostId,
     leftCollapsed,
     rightCollapsed,
+    isSortable,
     setSubcategory,
     setLeftCollapsed,
     setRightCollapsed,
@@ -117,7 +118,6 @@ export function Sidebar({
                     {selectedSubcategoryName}
                   </div>
                 )}
-
                 <WithSortableList
                   items={posts.filter(
                     (post) => post.subcategory_id === selectedSubcategoryId
@@ -126,17 +126,26 @@ export function Sidebar({
                   {(sortedPosts) =>
                     sortedPosts.map((post) => (
                       <WithSortableItem key={post.id} id={post.id}>
-                        <Link
-                          href={`/post/${post.url_slug}`}
-                          className={cn(
-                            "block px-3 py-2 rounded-lg text-sm transition",
-                            selectedPostId === post.id
-                              ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                              : "text-gray-700 dark:text-gray-300"
+                        <div className="flex justify-between items-center w-full">
+                          <Link
+                            href={`/post/${post.url_slug}`}
+                            className={cn(
+                              "block px-3 py-2 rounded-lg text-sm transition",
+                              selectedPostId === post.id
+                                ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
+                                : "text-gray-700 dark:text-gray-300",
+                              isSortable &&
+                                "flex-1 whitespace-nowrap overflow-hidden"
+                            )}
+                          >
+                            {post.title}
+                          </Link>
+                          {isSortable && (
+                            <div className="text-color-muted -mr-2">
+                              <MoreVertical className="w-4 h-5 shrink-0" />
+                            </div>
                           )}
-                        >
-                          {post.title}
-                        </Link>
+                        </div>
                       </WithSortableItem>
                     ))
                   }
