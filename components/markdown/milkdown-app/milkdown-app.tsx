@@ -3,7 +3,7 @@ import { Crepe } from "@milkdown/crepe";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { EditorView } from "@codemirror/view";
 import { replaceAll } from "@milkdown/utils";
-import { oneDark } from "@codemirror/theme-one-dark";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 const MilkdownEditor = ({
   markdown,
@@ -46,7 +46,7 @@ const MilkdownEditor = ({
         },
         [Crepe.Feature.CodeMirror]: {
           extensions: [EditorView.lineWrapping],
-          theme: oneDark,
+          theme: vscodeDark,
         },
       },
     });

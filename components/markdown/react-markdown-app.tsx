@@ -3,8 +3,8 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkBreaks from "remark-breaks";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/atom-one-dark.css"; // rehype-highlight 스타일 추가
-import Image from "next/image"; // 반드시 import 해야 함
+import "@/components/markdown/styles/highlight-vs-code-dark.css";
+import Image from "next/image";
 
 export default function ReactMarkdownApp({ children }: { children?: string }) {
   return (

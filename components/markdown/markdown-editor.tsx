@@ -1,11 +1,11 @@
 "use client";
-import "@/components/markdown/github-markdown.css";
 import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import dynamic from "next/dynamic";
+import "@/components/markdown/styles/github-markdown.css";
 import "@milkdown/crepe/theme/common/style.css";
 // https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
-import "@/components/markdown/milkdown-app/milkdown-crepe-theme.css";
+import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
 
 const MilkdownWrapper = dynamic(
