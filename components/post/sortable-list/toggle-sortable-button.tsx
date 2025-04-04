@@ -10,10 +10,10 @@ export default function ToggleSortableButton() {
   const toggleIsSortable = useSidebarStore((state) => state.toggleIsSortable);
 
   return (
-    <div className="flex items-center gap-2 py-1">
+    <div className="flex items-center gap-1 py-1">
       <Label
         htmlFor="sortable-switch"
-        className="text-[12px] font-semibold text-color-muted"
+        className="text-[12px] font-semibold text-color-muted cursor-pointer"
       >
         {isSortable ? "편집 모드" : "편집 꺼짐"}
       </Label>
@@ -22,9 +22,15 @@ export default function ToggleSortableButton() {
         checked={isSortable}
         onCheckedChange={toggleIsSortable}
         className={cn(
-          "h-4", // switch 전체 크기 줄이기
-          "data-[state=checked]:bg-lime-200",
+          "h-4 w-7 dark:border dark:border-color-muted", // switch 전체 크기 줄이기
+          "data-[state=checked]:bg-lime-300",
           "dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-neutral-900"
+        )}
+        thumbClassName={cn(
+          "h-3 w-3  dark:border dark:border-color-muted", // thumb 사이즈 조정 (선택)
+          "data-[state=checked]:translate-x-3.5",
+          "",
+          "transition-transform"
         )}
       />
     </div>
