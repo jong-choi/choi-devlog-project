@@ -16,6 +16,7 @@ export default async function PostSidebarWrapper({
   children,
 }: PostSidebarProps) {
   const initialState: Partial<SidebarState> = {
+    categories: categories,
     selectedCategoryId: categories[0].id,
     selectedSubcategoryId: null,
     selectedSubcategoryName: null,

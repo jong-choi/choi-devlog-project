@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
@@ -25,7 +26,7 @@ export function SortableItemWrapper({
     <div
       ref={setNodeRef}
       style={style}
-      className="relative items-center gap-1 cursor-grab active:cursor-grabbing"
+      className={cn("flex-1 whitespace-nowrap overflow-hidden")}
       {...attributes}
       {...listeners}
     >

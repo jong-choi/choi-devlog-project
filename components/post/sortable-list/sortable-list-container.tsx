@@ -16,6 +16,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { ReactNode, useEffect, useState } from "react";
 import { useOrderUpdateQueue } from "@/hooks/use-order-update-queue";
+import { cn } from "@/lib/utils";
 
 export type SortableItem = { id: string; order: number | null };
 
@@ -31,6 +32,7 @@ export function SortableListContainer<T extends SortableItem>({
   onUpdate,
 }: SortableListContainerProps<T>) {
   const [localItems, setLocalItems] = useState<T[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     setLocalItems(items);
@@ -40,6 +42,7 @@ export function SortableListContainer<T extends SortableItem>({
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
     }),
+
     useSensor(KeyboardSensor)
   );
 
@@ -82,12 +85,14 @@ export function SortableListContainer<T extends SortableItem>({
         return newList;
       });
     }
+    setIsDragging(false);
   };
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={() => setIsDragging(true)}
       onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis]}
     >
@@ -95,7 +100,9 @@ export function SortableListContainer<T extends SortableItem>({
         items={localItems.map((item) => item.id)}
         strategy={verticalListSortingStrategy}
       >
-        {children(localItems)}
+        <div className={cn(isDragging && "pointer-events-none")}>
+          {children(localItems)}
+        </div>
       </SortableContext>
     </DndContext>
   );

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { Category, Post } from "@/types/post";
-import { MoreVertical, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar";
@@ -13,6 +13,8 @@ import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-catego
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
+import { UpdatePopover } from "@/components/post/update-panel/update-popover";
+import PostUpdateForm from "@/components/post/update-panel/post-update-form";
 
 export function Sidebar({
   inset = false,
@@ -86,14 +88,13 @@ export function Sidebar({
               <WithSortableList items={categories}>
                 {(categories) =>
                   categories.map((cat) => (
-                    <WithSortableItem key={cat.id} id={cat.id}>
-                      <SidebarCategoryContent
-                        catagory={cat}
-                        setRightCollapsed={setRightCollapsed}
-                        setSubcategory={setSubcategory}
-                        selectedSubcategoryId={selectedSubcategoryId}
-                      />
-                    </WithSortableItem>
+                    <SidebarCategoryContent
+                      key={cat.id}
+                      catagory={cat}
+                      setRightCollapsed={setRightCollapsed}
+                      setSubcategory={setSubcategory}
+                      selectedSubcategoryId={selectedSubcategoryId}
+                    />
                   ))
                 }
               </WithSortableList>
@@ -125,28 +126,29 @@ export function Sidebar({
                 >
                   {(sortedPosts) =>
                     sortedPosts.map((post) => (
-                      <WithSortableItem key={post.id} id={post.id}>
-                        <div className="flex justify-between items-center w-full">
+                      <div
+                        key={post.id}
+                        className="flex justify-between items-center w-full"
+                      >
+                        <WithSortableItem key={post.id} id={post.id}>
                           <Link
                             href={`/post/${post.url_slug}`}
                             className={cn(
                               "block px-3 py-2 rounded-lg text-sm transition",
                               selectedPostId === post.id
                                 ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                                : "text-gray-700 dark:text-gray-300",
-                              isSortable &&
-                                "flex-1 whitespace-nowrap overflow-hidden"
+                                : "text-gray-700 dark:text-gray-300"
                             )}
                           >
                             {post.title}
                           </Link>
-                          {isSortable && (
-                            <div className="text-color-muted -mr-2">
-                              <MoreVertical className="w-4 h-5 shrink-0" />
-                            </div>
-                          )}
-                        </div>
-                      </WithSortableItem>
+                        </WithSortableItem>
+                        {isSortable && (
+                          <UpdatePopover>
+                            <PostUpdateForm post={post} />
+                          </UpdatePopover>
+                        )}
+                      </div>
                     ))
                   }
                 </WithSortableList>
