@@ -10,8 +10,12 @@ export default function TitleEditor({
 }: {
   defaultValue: string;
 }) {
-  const postId = useAutosave((state) => state.postId);
-  const isEditable = useAutosave((state) => state.isEditMode);
+  const { postId, isEditable } = useAutosave(
+    useShallow((state) => ({
+      postId: state.postId,
+      isEditable: state.isEditMode,
+    }))
+  );
   const [value, setValue] = useState(defaultValue);
   const [hasChanged, setHasChanged] = useState(false);
   const onInput: (value: string) => void = (value) => {

@@ -20,18 +20,34 @@ import { useAuthStore } from "@/providers/auth-provider";
 import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useShallow } from "zustand/react/shallow";
 
 export function UploadingDialogTrigger() {
-  const recentAutoSavedData = useAutosave((state) => state.recentAutoSavedData);
-  const setDraftPostData = useAutosave((state) => state.setDraftPostData);
-  const draftPostData = useAutosave((state) => state.draftPostData);
-  const postId = useAutosave((state) => state.postId);
-  const isValid = useAuthStore((state) => state.isValid);
+  const {
+    recentAutoSavedData,
+    setDraftPostData,
+    draftPostData,
+    postId,
+    setIsUploading,
+    setIsUploaded,
+  } = useAutosave(
+    useShallow((state) => ({
+      recentAutoSavedData: state.recentAutoSavedData,
+      setDraftPostData: state.setDraftPostData,
+      draftPostData: state.draftPostData,
+      postId: state.postId,
+      setIsUploading: state.setIsUploading,
+      setIsUploaded: state.setIsUploaded,
+    }))
+  );
+
+  const { isValid } = useAuthStore(
+    useShallow((state) => ({
+      isValid: state.isValid,
+    }))
+  );
+
   const router = useRouter();
-
-  const setIsUploading = useAutosave((state) => state.setIsUploading);
-  const setIsUploaded = useAutosave((state) => state.setIsUploaded);
-
   const onClick = async () => {
     if (!recentAutoSavedData) return;
     const { body, title } = recentAutoSavedData;

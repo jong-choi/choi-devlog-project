@@ -2,12 +2,19 @@ import { PostCard } from "@/components/posts/post-card";
 import { usePosts } from "@/providers/posts-store-provider";
 import { ClusterWithPosts, GraphPost, PostTags } from "@/types/graph";
 import { useRef, useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const setManualSelectedCluster = usePosts((s) => s.setManualSelectedCluster);
-  const selectedClusterId = usePosts((s) => s.selectedCluster?.id);
-  const isManualScrolling = usePosts((state) => state.isManualScrolling);
+
+  const { selectedClusterId, isManualScrolling, setManualSelectedCluster } =
+    usePosts(
+      useShallow((state) => ({
+        selectedClusterId: state.selectedCluster?.id,
+        isManualScrolling: state.isManualScrolling,
+        setManualSelectedCluster: state.setManualSelectedCluster,
+      }))
+    );
   const posts = cluster.posts as (GraphPost & {
     tags: PostTags[];
   })[];

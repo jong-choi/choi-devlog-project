@@ -2,8 +2,12 @@ import { cn } from "@/lib/utils"; // 유틸 임포트는 네 기존 구조 기�
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function AIModeButton() {
-  const mode = useLayoutStore((state) => state.rightPanelMode);
-  const setMode = useLayoutStore((state) => state.setRightPanelMode);
+  const { mode, setMode } = useLayoutStore(
+    useShallow((state) => ({
+      mode: state.rightPanelMode,
+      setMode: state.setRightPanelMode,
+    }))
+  );
 
   return (
     <div className="grid grid-cols-2 divide-x overflow-hidden rounded-full border text-xs font-medium">

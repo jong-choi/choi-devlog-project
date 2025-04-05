@@ -6,27 +6,39 @@ import { Loader2, CheckCircle } from "lucide-react";
 import { formatKoreanDate } from "@/lib/date";
 import { useIndexedDB } from "@/hooks/use-indexeddb";
 import { UploadingDialogTrigger } from "@/components/post/post-controller/post-uploading-dialog";
+import { useShallow } from "zustand/react/shallow";
 
 export default function AutosaveIndicator() {
   const deleteByPostId = useIndexedDB().deleteByPostId;
-  const selectedPostId = useAutosave((state) => state.selectedPostId);
-  const setBeforeModification = useAutosave(
-    (state) => state.setBeforeModification
+  const {
+    selectedPostId,
+    setBeforeModification,
+    isAutoSaving,
+    isAutoSaved,
+    isUploading,
+    isUploaded,
+    isLocalDBChecked,
+    recentAutoSavedData,
+    setIsLoadingDraftBody,
+    setIsEditMode,
+    setIsLoadingDraftTitle,
+    setBeforeUploading,
+  } = useAutosave(
+    useShallow((state) => ({
+      selectedPostId: state.selectedPostId,
+      setBeforeModification: state.setBeforeModification,
+      isAutoSaving: state.isAutoSaving,
+      isAutoSaved: state.isAutoSaved,
+      isUploading: state.isUploading,
+      isUploaded: state.isUploaded,
+      isLocalDBChecked: state.isLocalDBChecked,
+      recentAutoSavedData: state.recentAutoSavedData,
+      setIsLoadingDraftBody: state.setIsLoadingDraftBody,
+      setIsEditMode: state.setIsEditMode,
+      setIsLoadingDraftTitle: state.setIsLoadingDraftTitle,
+      setBeforeUploading: state.setBeforeUploading,
+    }))
   );
-  const isAutoSaving = useAutosave((state) => state.isAutoSaving);
-  const isAutoSaved = useAutosave((state) => state.isAutoSaved);
-  const isUploading = useAutosave((state) => state.isUploading);
-  const isUploaded = useAutosave((state) => state.isUploaded);
-  const isLocalDBChecked = useAutosave((state) => state.isLocalDBChecked);
-  const recentAutoSavedData = useAutosave((state) => state.recentAutoSavedData);
-  const setIsLoadingDraftBody = useAutosave(
-    (state) => state.setIsLoadingDraftBody
-  );
-  const setIsEditMode = useAutosave((state) => state.setIsEditMode);
-  const setIsLoadingDraftTitle = useAutosave(
-    (state) => state.setIsLoadingDraftTitle
-  );
-  const setBeforeUploading = useAutosave((state) => state.setBeforeUploading);
 
   const onApplyTemp = () => {
     setIsLoadingDraftBody(true);

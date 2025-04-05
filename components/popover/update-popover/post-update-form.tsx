@@ -37,7 +37,12 @@ export default function PostUpdateForm({
     post.subcategory_id || ""
   );
 
-  const session = useAuthStore((state) => state.session);
+  const { session } = useAuthStore(
+    useShallow((state) => ({
+      session: state.session,
+    }))
+  );
+
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const isChanged =
@@ -134,7 +139,11 @@ function SubcategorySelectScrollable({
   value: string;
   setValue: (value: string) => void;
 }) {
-  const categories = useSidebarStore(useShallow((state) => state.categories));
+  const { categories } = useSidebarStore(
+    useShallow((state) => ({
+      categories: state.categories,
+    }))
+  );
 
   return (
     <Select

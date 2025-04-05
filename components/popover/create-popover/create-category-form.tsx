@@ -6,6 +6,7 @@ import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useShallow } from "zustand/react/shallow";
 
 type CreateCategoryPanelProps = {
   onClose: () => void;
@@ -15,8 +16,12 @@ export default function CreateCategoryForm({
   onClose,
 }: CreateCategoryPanelProps) {
   const [name, setName] = useState<string>("");
-  const session = useAuthStore((state) => state.session);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const { session } = useAuthStore(
+    useShallow((state) => ({
+      session: state.session,
+    }))
+  );
 
   const isChanged = !!name;
 

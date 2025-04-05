@@ -9,13 +9,17 @@ import {
 } from "@/components/ui/select";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useEffect, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export function CategorySelectScrollable() {
-  const categories = useAutosave((state) => state.categoryData);
-  const setDraftPostData = useAutosave((state) => state.setDraftPostData);
-  const initialSelectedSubcategory = useAutosave(
-    (state) => state.draftPostData.subcategory_id
-  );
+  const { categories, setDraftPostData, initialSelectedSubcategory } =
+    useAutosave(
+      useShallow((state) => ({
+        categories: state.categoryData,
+        setDraftPostData: state.setDraftPostData,
+        initialSelectedSubcategory: state.draftPostData.subcategory_id,
+      }))
+    );
 
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(
     initialSelectedSubcategory

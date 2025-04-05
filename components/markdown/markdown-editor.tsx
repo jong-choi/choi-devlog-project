@@ -7,6 +7,7 @@ import "@milkdown/crepe/theme/common/style.css";
 // https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
 import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 
 const MilkdownWrapper = dynamic(
   () => import("@/components/markdown/milkdown-app/milkdown-wrapper"),
@@ -16,9 +17,11 @@ const MilkdownWrapper = dynamic(
 );
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
-  const isEditMode = useAutosave((state) => state.isEditMode);
-  const isFullMode = useAutosave(
-    (state) => state.isRawOn && state.isMarkdownOn
+  const { isEditMode, isFullMode } = useAutosave(
+    useShallow((state) => ({
+      isEditMode: state.isEditMode,
+      isFullMode: state.isRawOn && state.isMarkdownOn,
+    }))
   );
 
   return (

@@ -4,10 +4,15 @@ import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@ui/label";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ToggleSortableButton() {
-  const isSortable = useSidebarStore((state) => state.isSortable);
-  const toggleIsSortable = useSidebarStore((state) => state.toggleIsSortable);
+  const { isSortable, toggleIsSortable } = useSidebarStore(
+    useShallow((state) => ({
+      isSortable: state.isSortable,
+      toggleIsSortable: state.toggleIsSortable,
+    }))
+  );
 
   return (
     <div className="flex items-center gap-1 py-1">

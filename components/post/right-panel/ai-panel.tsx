@@ -17,20 +17,52 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 import AIModeButton from "@/components/post/right-panel/ai-mode-button";
 import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
 import { simsToPosts } from "@/utils/uploadingUtils";
+import { useShallow } from "zustand/react/shallow";
 
 export default function AIPanel() {
-  const summary = useSummary((state) => state.summary);
-  const summaryId = useSummary((state) => state.summaryId);
-  const recommendedPosts = useSummary((state) => state.recommendedPosts);
-  const setSummary = useSummary((state) => state.setSummary);
-  const setSummaryId = useSummary((state) => state.setSummaryId);
-  const setRecommendedPosts = useSummary((state) => state.setRecommendedPosts);
-  const isLoading = useSummary((state) => state.loading);
-  const setIsLoading = useSummary((state) => state.setLoading);
-  const postId = useAutosave((state) => state.postId);
-  const isValid = useAuthStore((state) => state.isValid);
-  const title = useAutosave((state) => state.recentAutoSavedData?.title);
-  const body = useAutosave((state) => state.recentAutoSavedData?.body);
+  const {
+    summary,
+    summaryId,
+    recommendedPosts,
+    setSummary,
+    setSummaryId,
+    setRecommendedPosts,
+    isLoading,
+    setIsLoading,
+  } = useSummary(
+    useShallow((state) => ({
+      summary: state.summary,
+      summaryId: state.summaryId,
+      recommendedPosts: state.recommendedPosts,
+      setSummary: state.setSummary,
+      setSummaryId: state.setSummaryId,
+      setRecommendedPosts: state.setRecommendedPosts,
+      isLoading: state.loading,
+      setIsLoading: state.setLoading,
+    }))
+  );
+
+  const { postId, title, body } = useAutosave(
+    useShallow((state) => ({
+      postId: state.postId,
+      title: state.recentAutoSavedData?.title,
+      body: state.recentAutoSavedData?.body,
+    }))
+  );
+
+  const { rightPanelOpen, setRightPanelOpen, rightPanelMode } = useLayoutStore(
+    useShallow((state) => ({
+      rightPanelOpen: state.rightPanelOpen,
+      setRightPanelOpen: state.setRightPanelOpen,
+      rightPanelMode: state.rightPanelMode,
+    }))
+  );
+
+  const { isValid } = useAuthStore(
+    useShallow((state) => ({
+      isValid: state.isValid,
+    }))
+  );
 
   const createSummary = async (title: string, body: string) => {
     const response = await fetch(
@@ -116,10 +148,6 @@ export default function AIPanel() {
     toast.success("요약 생성에 성공하였습니다.");
     return setIsLoading(false);
   };
-
-  const rightPanelOpen = useLayoutStore((state) => state.rightPanelOpen);
-  const setRightPanelOpen = useLayoutStore((state) => state.setRightPanelOpen);
-  const rightPanelMode = useLayoutStore((state) => state.rightPanelMode);
 
   if (!postId) return <></>;
   return (

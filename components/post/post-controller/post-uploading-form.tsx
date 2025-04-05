@@ -5,10 +5,15 @@ import { Label } from "@ui/label";
 import { Switch } from "@ui/switch";
 import { Textarea } from "@ui/textarea";
 import { useEffect, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export default function PostUploadingForm() {
-  const setDraftPostData = useAutosave((state) => state.setDraftPostData);
-  const draftPostData = useAutosave((state) => state.draftPostData);
+  const { setDraftPostData, draftPostData } = useAutosave(
+    useShallow((state) => ({
+      setDraftPostData: state.setDraftPostData,
+      draftPostData: state.draftPostData,
+    }))
+  );
   const [isPrivate, setIsPrivate] = useState<boolean>(
     draftPostData.is_private || false
   );

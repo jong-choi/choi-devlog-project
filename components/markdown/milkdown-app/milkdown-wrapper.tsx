@@ -14,14 +14,35 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [focused, setFocused] = useState<"milkdown" | "codemirror">("milkdown");
   const [snapshot, setSnapshot] = useState("");
 
-  const { isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody } =
-    useAutosave(
-      useShallow((state) => ({
-        isLoadingDraftBody: state.isLoadingDraftBody,
-        recentAutoSavedBody: state.recentAutoSavedData?.body || "",
-        setIsLoadingDraftBody: state.setIsLoadingDraftBody,
-      }))
-    );
+  const {
+    isLoadingDraftBody,
+    recentAutoSavedBody,
+    selectedPostId,
+    postId,
+    isMarkdownOn,
+    isRawOn,
+    setIsLoadingDraftBody,
+    setIsAutoSaving,
+    setRecentAutoSavedData,
+  } = useAutosave(
+    useShallow((state) => ({
+      isLoadingDraftBody: state.isLoadingDraftBody,
+      recentAutoSavedBody: state.recentAutoSavedData?.body || "",
+      selectedPostId: state.selectedPostId,
+      postId: state.postId,
+      isMarkdownOn: state.isMarkdownOn,
+      isRawOn: state.isRawOn,
+      setIsLoadingDraftBody: state.setIsLoadingDraftBody,
+      setIsAutoSaving: state.setIsAutoSaving,
+      setRecentAutoSavedData: state.setRecentAutoSavedData,
+    }))
+  );
+
+  const { isValid } = useAuthStore(
+    useShallow((state) => ({
+      isValid: state.isValid,
+    }))
+  );
 
   // '자동저장된 파일을 반영하기'가 트리거 됐을 때 useEffect
   useEffect(() => {
@@ -32,17 +53,6 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     }
     setIsLoadingDraftBody(false);
   }, [isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody]);
-
-  const postId = useAutosave((state) => state.postId);
-
-  const { selectedPostId, setIsAutoSaving, setRecentAutoSavedData } =
-    useAutosave(
-      useShallow((state) => ({
-        selectedPostId: state.selectedPostId,
-        setIsAutoSaving: state.setIsAutoSaving,
-        setRecentAutoSavedData: state.setRecentAutoSavedData,
-      }))
-    );
 
   const debouncedBody = useDebounce(body);
 
@@ -74,8 +84,6 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     snapshot,
   ]);
 
-  const isValid = useAuthStore((state) => state.isValid);
-
   async function imageUploadHandler(image: File) {
     if (!isValid) {
       // 로그아웃 상태에서는 Blob으로 이미지를 반환
@@ -103,9 +111,6 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       reader.onloadend = () => resolve(reader.result as string);
     });
   }
-
-  const isMarkdownOn = useAutosave((state) => state.isMarkdownOn);
-  const isRawOn = useAutosave((state) => state.isRawOn);
 
   return (
     <MilkdownProvider>

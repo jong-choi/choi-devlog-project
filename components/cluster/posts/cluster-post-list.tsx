@@ -6,19 +6,25 @@ import { usePosts } from "@/providers/posts-store-provider";
 import { ClusterWithPosts } from "@/types/graph";
 
 import { useRef, useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ClusterPostList({
   clusterPostList,
 }: {
   clusterPostList: ClusterWithPosts[];
 }) {
-  const selectedClusterId = usePosts((state) => state.selectedCluster?.id);
-  const isMain = usePosts((state) => state.isMain);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const isManualScrolling = usePosts((state) => state.isManualScrolling);
-  const setManualScrolling = usePosts((state) => state.setManualScrolling);
-
   const mainRef = useRef<HTMLElement | null>(null);
+
+  const { selectedClusterId, isMain, isManualScrolling, setManualScrolling } =
+    usePosts(
+      useShallow((state) => ({
+        selectedClusterId: state.selectedCluster?.id,
+        isMain: state.isMain,
+        isManualScrolling: state.isManualScrolling,
+        setManualScrolling: state.setManualScrolling,
+      }))
+    );
 
   useEffect(() => {
     if (isManualScrolling) return;

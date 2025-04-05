@@ -4,10 +4,15 @@ import { cn } from "@/lib/utils";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarToggle } from "@ui/sidebar-toggle";
 import { ReactNode } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export function RightPanelWrapper({ children }: { children: ReactNode }) {
-  const rightPanelOpen = useLayoutStore((state) => state.rightPanelOpen);
-  const setRightPanelOpen = useLayoutStore((state) => state.setRightPanelOpen);
+  const { rightPanelOpen, setRightPanelOpen } = useLayoutStore(
+    useShallow((state) => ({
+      rightPanelOpen: state.rightPanelOpen,
+      setRightPanelOpen: state.setRightPanelOpen,
+    }))
+  );
   return (
     <aside
       className={cn(

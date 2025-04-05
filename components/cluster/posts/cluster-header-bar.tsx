@@ -3,6 +3,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { usePosts } from "@/providers/posts-store-provider";
 import { ClusteredPostGroup } from "@/types/graph";
 import { useRef, useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 type Props = {
   clusters: ClusteredPostGroup[];
@@ -11,8 +12,12 @@ type Props = {
 };
 
 export function ClusterHeaderBar({ clusters }: Props) {
-  const selectedClusterId = usePosts((state) => state.selectedCluster?.id);
-  const setSelectedCluster = usePosts((state) => state.setSelectedCluster);
+  const { selectedClusterId, setSelectedCluster } = usePosts(
+    useShallow((state) => ({
+      selectedClusterId: state.selectedCluster?.id,
+      setSelectedCluster: state.setSelectedCluster,
+    }))
+  );
   const debouncedSelectedClusterId = useDebounce(selectedClusterId, 100);
 
   // 선택된 카테고리가 바뀌면 가운데로 이동

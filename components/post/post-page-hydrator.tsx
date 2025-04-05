@@ -4,13 +4,23 @@ import { useEffect } from "react";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { hydrateFromSessionStorage } from "@/utils/persistState";
 import { useAutosave } from "@/providers/autosave-store-provider";
+import { useShallow } from "zustand/react/shallow";
 
 // 세션 스토리지 상태를 주입
 export default function PostPageHydrator() {
-  const setIsSortable = useSidebarStore((state) => state.setIsSortable);
-  const setIsEditMode = useAutosave((state) => state.setIsEditMode);
-  const setIsMarkdown = useAutosave((state) => state.setIsMarkdown);
-  const setIsRaw = useAutosave((state) => state.setIsRaw);
+  const { setIsSortable } = useSidebarStore(
+    useShallow((state) => ({
+      setIsSortable: state.setIsSortable,
+    }))
+  );
+
+  const { setIsEditMode, setIsMarkdown, setIsRaw } = useAutosave(
+    useShallow((state) => ({
+      setIsEditMode: state.setIsEditMode,
+      setIsMarkdown: state.setIsMarkdown,
+      setIsRaw: state.setIsRaw,
+    }))
+  );
 
   useEffect(() => {
     hydrateFromSessionStorage("isSortable", setIsSortable);

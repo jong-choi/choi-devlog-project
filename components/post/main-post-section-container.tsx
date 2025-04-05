@@ -3,13 +3,18 @@
 import { cn } from "@/lib/utils";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { ReactNode } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export default function MainPostSectionContainer({
   children,
 }: {
   children: ReactNode;
 }) {
-  const isEditMode = useAutosave((state) => state.isEditMode);
+  const { isEditMode } = useAutosave(
+    useShallow((state) => ({
+      isEditMode: state.isEditMode,
+    }))
+  );
   return (
     <section
       data-component-name="main-post-containder"

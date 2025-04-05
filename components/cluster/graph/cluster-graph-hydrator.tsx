@@ -6,14 +6,19 @@ import "@/components/cluster/graph/cluster-graph.css";
 import { ClusteredPostGroup } from "@/types/graph";
 import { usePosts } from "@/providers/posts-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useShallow } from "zustand/react/shallow";
 
 type Props = {
   nodes: ClusteredPostGroup[];
 };
 
 export default function ClusterGraphHydrator({ nodes }: Props) {
-  const selectedId = usePosts((state) => state.selectedCluster?.id);
-  const setSelectedCluster = usePosts((state) => state.setSelectedCluster);
+  const { selectedId, setSelectedCluster } = usePosts(
+    useShallow((state) => ({
+      selectedId: state.selectedCluster?.id,
+      setSelectedCluster: state.setSelectedCluster,
+    }))
+  );
 
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
