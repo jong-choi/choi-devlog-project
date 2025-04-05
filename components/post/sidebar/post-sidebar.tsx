@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { Category, Post } from "@/types/post";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar";
@@ -15,6 +15,7 @@ import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
 import { UpdatePopover } from "@/components/post/update-panel/update-popover";
 import PostUpdateForm from "@/components/post/update-panel/post-update-form";
+import CreateNewTrigger from "@/components/post/create-panel/create-new-trigger";
 
 export function Sidebar({
   inset = false,
@@ -75,16 +76,18 @@ export function Sidebar({
           <div className="px-4 py-2 w-64 overflow-auto space-y-2">
             <div className="flex flex-col gap-2">
               <Logo />
-              <div className="flex justify-end w-full">
-                <ToggleSortableButton />
-              </div>
               <SearchInput
                 className="py-0 bg-glass-bg-20 shadow-none border h-6"
                 withButton={false}
                 onSidebar={true}
               />
             </div>
+
             <div className="border-t">
+              <div className="flex w-full justify-between">
+                <CreateNewTrigger />
+                <ToggleSortableButton />
+              </div>
               <WithSortableList items={categories}>
                 {(categories) =>
                   categories.map((cat) => (
@@ -134,12 +137,19 @@ export function Sidebar({
                           <Link
                             href={`/post/${post.url_slug}`}
                             className={cn(
-                              "block px-3 py-2 rounded-lg text-sm transition",
+                              "block px-3 py-2 rounded-lg text-sm transition ",
                               selectedPostId === post.id
                                 ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                                 : "text-gray-700 dark:text-gray-300"
                             )}
                           >
+                            {post.is_private && (
+                              <Lock
+                                className={
+                                  "h-3 w-3 text-color-muted inline-block my-auto"
+                                }
+                              />
+                            )}
                             {post.title}
                           </Link>
                         </WithSortableItem>

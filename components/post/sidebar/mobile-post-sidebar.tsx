@@ -6,12 +6,13 @@ import {
   Search,
   ListOrdered,
   Map,
-  Link,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Post, Category } from "@/types/post";
 import { Logo } from "@ui/post-top-bar";
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
+import Link from "next/link";
 
 export function MobilePostSidebar({
   posts,
@@ -74,6 +75,11 @@ export function MobilePostSidebar({
                     : "text-gray-700 dark:text-gray-300"
                 )}
               >
+                {post.is_private && (
+                  <Lock
+                    className={"h-3 w-3 text-color-muted inline-block my-auto"}
+                  />
+                )}
                 {post.title}
               </Link>
             ))}

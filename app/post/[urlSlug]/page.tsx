@@ -15,6 +15,7 @@ import AutosaveApp from "@/components/post/autosave/autosave-app";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
 import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
+import { Lock } from "lucide-react";
 
 // app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
@@ -79,7 +80,14 @@ export default async function Page({ params, searchParams }: PageProps) {
           <div className="main-post-section">
             <div className="px-4 sm:px-14 mb-5 flex flex-col gap-2">
               <div className="text-xs">{subcategory?.name}</div>
-              <TitleEditor defaultValue={data?.title || ""} />
+              <div className="flex gap-1">
+                {data?.is_private && (
+                  <Lock
+                    className={"h-5 w-5 text-color-muted inline-block my-auto"}
+                  />
+                )}
+                <TitleEditor defaultValue={data?.title || ""} />
+              </div>
               <div className="text-end text-xs">
                 {formatKoreanDate(data?.released_at || "")}
               </div>
