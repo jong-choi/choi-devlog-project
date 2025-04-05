@@ -143,18 +143,13 @@ const _getSidebarCategory = async (): Promise<PostgrestResponse<Category>> => {
     .from("categories")
     .select(
       `
-  id,
-  name,
-  order,
-  subcategories (
-    id,
-    name,
-    order
-  )
-  `
+      id,
+      name,
+      order,
+      subcategories(id, name, order)
+    `
     )
-    .order("order", { ascending: true }) // categories를 order 기준으로 정렬
-    .select("id, name, order, subcategories!inner(id, name, order)")
+    .order("order", { ascending: true })
     .order("order", { ascending: true, referencedTable: "subcategories" });
 
   return result;
@@ -336,6 +331,7 @@ export const createCategory = createWithInvalidation(
   _createCategory,
   async () => {
     revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+    revalidateTag(CACHE_TAGS.SIDEBAR.CATEGORY());
   }
 );
 
@@ -363,6 +359,7 @@ export const updateCategory = createWithInvalidation(
   _updateCategory,
   async () => {
     revalidateTag(CACHE_TAGS.CATEGORY.ALL());
+    revalidateTag(CACHE_TAGS.SIDEBAR.CATEGORY());
   }
 );
 
