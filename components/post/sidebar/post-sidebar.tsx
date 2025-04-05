@@ -33,14 +33,28 @@ export function Sidebar({
     sidebarRightCollapsed,
     setSidebarLeftCollapsed,
     setSidebarRightCollapsed,
-  } = useLayoutStore(useShallow((state) => state));
+  } = useLayoutStore(
+    useShallow((state) => ({
+      sidebarLeftCollapsed: state.sidebarLeftCollapsed,
+      sidebarRightCollapsed: state.sidebarRightCollapsed,
+      setSidebarLeftCollapsed: state.setSidebarLeftCollapsed,
+      setSidebarRightCollapsed: state.setSidebarRightCollapsed,
+    }))
+  );
 
   const {
     selectedSubcategoryId,
     selectedSubcategoryName,
     selectedPostId,
     setSubcategory,
-  } = useSidebarStore(useShallow((state) => state));
+  } = useSidebarStore(
+    useShallow((state) => ({
+      selectedSubcategoryId: state.selectedSubcategoryId,
+      selectedSubcategoryName: state.selectedSubcategoryName,
+      selectedPostId: state.selectedPostId,
+      setSubcategory: state.setSubcategory,
+    }))
+  );
 
   return (
     <div

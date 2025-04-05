@@ -24,7 +24,16 @@ export default function ToggleEditButton() {
     sidebarLeftCollapsed,
     sidebarRightCollapsed,
     rightPanelOpen,
-  } = useLayoutStore(useShallow((state) => state));
+  } = useLayoutStore(
+    useShallow((state) => ({
+      setSidebarLeftCollapsed: state.setSidebarLeftCollapsed,
+      setSidebarRightCollapsed: state.setSidebarRightCollapsed,
+      setRightPanelOpen: state.setRightPanelOpen,
+      sidebarLeftCollapsed: state.sidebarLeftCollapsed,
+      sidebarRightCollapsed: state.sidebarRightCollapsed,
+      rightPanelOpen: state.rightPanelOpen,
+    }))
+  );
 
   useEffect(() => {
     if (!isEditMode) return;

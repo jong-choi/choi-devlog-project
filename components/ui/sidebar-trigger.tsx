@@ -12,9 +12,17 @@ export function SidebarTrigger({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { sidebarRightCollapsed, setSidebarRightCollapsed } = useLayoutStore(
-    useShallow((state) => state)
+    useShallow((state) => ({
+      sidebarRightCollapsed: state.sidebarRightCollapsed,
+      setSidebarRightCollapsed: state.setSidebarRightCollapsed,
+    }))
   );
-  const { toggleMobileOpen } = useSidebarStore(useShallow((state) => state));
+
+  const { toggleMobileOpen } = useSidebarStore(
+    useShallow((state) => ({
+      toggleMobileOpen: state.toggleMobileOpen,
+    }))
+  );
   return (
     <Button
       data-sidebar="trigger"

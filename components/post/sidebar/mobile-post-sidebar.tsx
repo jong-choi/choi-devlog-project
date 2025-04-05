@@ -33,8 +33,16 @@ export function MobilePostSidebar({
     mobileOpen,
     setSubcategory,
     toggleMobileOpen,
-  } = useSidebarStore(useShallow((state) => state));
-
+  } = useSidebarStore(
+    useShallow((state) => ({
+      selectedSubcategoryId: state.selectedSubcategoryId,
+      selectedSubcategoryName: state.selectedSubcategoryName,
+      selectedPostId: state.selectedPostId,
+      mobileOpen: state.mobileOpen,
+      setSubcategory: state.setSubcategory,
+      toggleMobileOpen: state.toggleMobileOpen,
+    }))
+  );
   return (
     <div
       className={cn(
