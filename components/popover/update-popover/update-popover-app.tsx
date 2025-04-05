@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Popover,
   PopoverContent,
@@ -5,17 +7,21 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 
-type UpdatePopoverProps = {
-  children: (props: { onClose: () => void }) => ReactNode;
+type UpdatePopoverAppProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
 };
 
-export function UpdatePopover({ children }: UpdatePopoverProps) {
-  const [open, setOpen] = useState(false);
-
+export default function UpdatePopoverApp({
+  open,
+  onOpenChange,
+  children,
+}: UpdatePopoverAppProps) {
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -30,7 +36,7 @@ export function UpdatePopover({ children }: UpdatePopoverProps) {
         align="end"
         className="p-2 shadow-xl bg-color-bg"
       >
-        {children({ onClose: () => setOpen(false) })}
+        {children}
       </PopoverContent>
     </Popover>
   );

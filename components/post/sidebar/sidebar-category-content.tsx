@@ -1,6 +1,6 @@
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
-import { UpdatePopover } from "@/components/post/update-panel/update-popover";
+import { UpdatePopover } from "@/components/popover/update-popover/update-popover";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
@@ -39,7 +39,7 @@ export function SidebarCategoryContent({
             {catagory.name}
           </button>
         </WithSortableItem>
-        {isSortable && <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>}
+        <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
       </div>
       {isOpened && (
         <div className="ml-2 mt-1 space-y-1">
@@ -67,9 +67,7 @@ export function SidebarCategoryContent({
                       {sub.name}
                     </button>
                   </WithSortableItem>
-                  {isSortable && (
-                    <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
-                  )}
+                  <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
                 </div>
               ))
             }

@@ -1,22 +1,29 @@
+"use client";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ReactNode, useState } from "react";
-import CreateNewTrigger from "@/components/post/create-panel/create-new-trigger";
-import { Button } from "@ui/button";
+import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import CreateNewTrigger from "@/components/popover/create-popover/create-new-trigger";
 
-type CreatePopoverProps = {
+type CreatePopoverAppProps = {
   title?: string;
-  children: (props: { onClose: () => void }) => ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
 };
 
-export function CreatePopover({ title, children }: CreatePopoverProps) {
-  const [open, setOpen] = useState(false);
-
+export default function CreatePopoverApp({
+  title,
+  open,
+  onOpenChange,
+  children,
+}: CreatePopoverAppProps) {
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -30,7 +37,7 @@ export function CreatePopover({ title, children }: CreatePopoverProps) {
         align="end"
         className="p-2 shadow-xl bg-color-bg"
       >
-        {children({ onClose: () => setOpen(false) })}
+        {children}
       </PopoverContent>
     </Popover>
   );

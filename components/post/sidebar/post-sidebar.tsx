@@ -13,10 +13,10 @@ import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-catego
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
-import { UpdatePopover } from "@/components/post/update-panel/update-popover";
-import PostUpdateForm from "@/components/post/update-panel/post-update-form";
-import { CreatePopover } from "@/components/post/create-panel/create-popover";
-import CreateCategoryForm from "@/components/post/create-panel/create-category-form";
+import { UpdatePopover } from "@/components/popover/update-popover/update-popover";
+import PostUpdateForm from "@/components/popover/update-popover/post-update-form";
+import { CreatePopover } from "@/components/popover/create-popover/create-popover";
+import CreateCategoryForm from "@/components/popover/create-popover/create-category-form";
 
 export function Sidebar({
   inset = false,
@@ -86,7 +86,7 @@ export function Sidebar({
 
             <div className="border-t pt-1">
               <div className="flex w-full justify-between">
-                <CreatePopover title={"주제"}>
+                <CreatePopover title={"분류"}>
                   {({ onClose }) => <CreateCategoryForm onClose={onClose} />}
                 </CreatePopover>
                 <ToggleSortableButton />
@@ -156,13 +156,11 @@ export function Sidebar({
                             {post.title}
                           </Link>
                         </WithSortableItem>
-                        {isSortable && (
-                          <UpdatePopover>
-                            {({ onClose }) => (
-                              <PostUpdateForm post={post} onClose={onClose} />
-                            )}
-                          </UpdatePopover>
-                        )}
+                        <UpdatePopover>
+                          {({ onClose }) => (
+                            <PostUpdateForm post={post} onClose={onClose} />
+                          )}
+                        </UpdatePopover>
                       </div>
                     ))
                   }
