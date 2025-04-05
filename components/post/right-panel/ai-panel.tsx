@@ -117,19 +117,19 @@ export default function AIPanel() {
     return setIsLoading(false);
   };
 
-  const rightOpen = useLayoutStore((state) => state.rightOpen);
-  const setRightOpen = useLayoutStore((state) => state.setRightOpen);
-  const panelMode = useLayoutStore((state) => state.panelMode);
+  const rightPanelOpen = useLayoutStore((state) => state.rightPanelOpen);
+  const setRightPanelOpen = useLayoutStore((state) => state.setRightPanelOpen);
+  const rightPanelMode = useLayoutStore((state) => state.rightPanelMode);
 
   if (!postId) return <></>;
   return (
     <MainContainer className="text-gray-700 dark:text-gray-300  overflow-scroll scrollbar-hidden text-shadow">
       <div className="px-4 py-2 flex flex-col gap-2">
         <button
-          onClick={() => setRightOpen(!rightOpen)}
+          onClick={() => setRightPanelOpen(!rightPanelOpen)}
           className="z-10 text-sm border border-color-muted px-2 py-1 rounded self-start"
         >
-          {!rightOpen ? "<" : ">"}
+          {!rightPanelOpen ? "<" : ">"}
         </button>
         <AIModeButton />
       </div>
@@ -151,10 +151,10 @@ export default function AIPanel() {
             strokeWidth={0.4}
           />
         )}
-        {panelMode === "summary" && (
+        {rightPanelMode === "summary" && (
           <AiMarkdownWrapper>{summary}</AiMarkdownWrapper>
         )}
-        {panelMode === "recommend" && (
+        {rightPanelMode === "recommend" && (
           <AiRecommendedList posts={recommendedPosts} />
         )}
       </section>

@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useLayoutStore } from "@/providers/layout-store-provider";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Columns2 } from "lucide-react";
@@ -18,24 +17,32 @@ export default function ToggleEditButton() {
   const layoutSnapshot = useAutosave((state) => state.layoutSnapshot);
   const setLayoutSnaphot = useAutosave((state) => state.setLayoutSnaphot);
 
-  const { setLeftCollapsed, setRightCollapsed, leftCollapsed, rightCollapsed } =
-    useSidebarStore(useShallow((state) => state));
-  const setRightOpen = useLayoutStore((state) => state.setRightOpen);
-  const rightOpen = useLayoutStore((state) => state.rightOpen);
+  const {
+    setSidebarLeftCollapsed,
+    setSidebarRightCollapsed,
+    setRightPanelOpen,
+    sidebarLeftCollapsed,
+    sidebarRightCollapsed,
+    rightPanelOpen,
+  } = useLayoutStore(useShallow((state) => state));
 
   useEffect(() => {
     if (!isEditMode) return;
     if (isMarkdownOn && isRawOn) {
       if (layoutSnapshot.length) return;
-      setLayoutSnaphot([leftCollapsed, rightCollapsed, rightOpen]);
-      setLeftCollapsed(true);
-      setRightCollapsed(true);
-      setRightOpen(false);
+      setLayoutSnaphot([
+        sidebarLeftCollapsed,
+        sidebarRightCollapsed,
+        rightPanelOpen,
+      ]);
+      setSidebarLeftCollapsed(true);
+      setSidebarRightCollapsed(true);
+      setRightPanelOpen(false);
     } else if (layoutSnapshot.length) {
       const [prevLeft, prevRight, prevOpen] = layoutSnapshot;
-      setLeftCollapsed(prevLeft);
-      setRightCollapsed(prevRight);
-      setRightOpen(prevOpen);
+      setSidebarLeftCollapsed(prevLeft);
+      setSidebarRightCollapsed(prevRight);
+      setRightPanelOpen(prevOpen);
       setLayoutSnaphot([]);
     }
   }, [
@@ -43,30 +50,30 @@ export default function ToggleEditButton() {
     isMarkdownOn,
     isRawOn,
     layoutSnapshot,
-    leftCollapsed,
-    rightCollapsed,
-    rightOpen,
+    sidebarLeftCollapsed,
+    sidebarRightCollapsed,
+    rightPanelOpen,
     setLayoutSnaphot,
-    setLeftCollapsed,
-    setRightCollapsed,
-    setRightOpen,
+    setSidebarLeftCollapsed,
+    setSidebarRightCollapsed,
+    setRightPanelOpen,
   ]);
 
   useEffect(() => {
     if (!isEditMode && layoutSnapshot.length) {
       const [prevLeft, prevRight, prevOpen] = layoutSnapshot;
-      setLeftCollapsed(prevLeft);
-      setRightCollapsed(prevRight);
-      setRightOpen(prevOpen);
+      setSidebarLeftCollapsed(prevLeft);
+      setSidebarRightCollapsed(prevRight);
+      setRightPanelOpen(prevOpen);
       setLayoutSnaphot([]);
     }
   }, [
     isEditMode,
     layoutSnapshot,
     setLayoutSnaphot,
-    setLeftCollapsed,
-    setRightCollapsed,
-    setRightOpen,
+    setSidebarLeftCollapsed,
+    setSidebarRightCollapsed,
+    setRightPanelOpen,
   ]);
 
   useEffect(() => {

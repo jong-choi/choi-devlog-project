@@ -8,12 +8,12 @@ import { useShallow } from "zustand/react/shallow";
 
 export function SidebarCategoryContent({
   catagory,
-  setRightCollapsed,
+  setSidebarRightCollapsed,
   selectedSubcategoryId,
   setSubcategory,
 }: {
   catagory: Category;
-  setRightCollapsed: (state: boolean) => void;
+  setSidebarRightCollapsed: (state: boolean) => void;
   selectedSubcategoryId?: string | null;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
 }) {
@@ -54,7 +54,7 @@ export function SidebarCategoryContent({
                     <button
                       onClick={() => {
                         setSubcategory({ id: sub.id, name: sub.name });
-                        setRightCollapsed(false);
+                        setSidebarRightCollapsed(false);
                       }}
                       className={cn(
                         "block w-full text-left px-4 py-2 text-sm rounded-md transition relative flex-1",

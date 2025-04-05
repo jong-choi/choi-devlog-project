@@ -13,6 +13,7 @@ import { Post, Category } from "@/types/post";
 import { Logo } from "@ui/post-top-bar";
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
 import Link from "next/link";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export function MobilePostSidebar({
   posts,
@@ -21,13 +22,16 @@ export function MobilePostSidebar({
   posts: Post[];
   categories: Category[];
 }) {
+  const setSidebarRightCollapsed = useLayoutStore(
+    (state) => state.setSidebarRightCollapsed
+  );
+
   const {
     selectedSubcategoryId,
     selectedSubcategoryName,
     selectedPostId,
     mobileOpen,
     setSubcategory,
-    setRightCollapsed,
     toggleMobileOpen,
   } = useSidebarStore(useShallow((state) => state));
 
@@ -92,7 +96,7 @@ export function MobilePostSidebar({
               <SidebarCategoryContent
                 key={cat.id}
                 catagory={cat}
-                setRightCollapsed={setRightCollapsed}
+                setSidebarRightCollapsed={setSidebarRightCollapsed}
                 setSubcategory={setSubcategory}
                 selectedSubcategoryId={selectedSubcategoryId}
               />

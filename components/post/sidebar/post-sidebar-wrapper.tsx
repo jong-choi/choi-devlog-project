@@ -22,8 +22,8 @@ export default async function PostSidebarWrapper({
     selectedSubcategoryName: null,
     selectedPostId: null,
     openedCategories: {},
-    leftCollapsed: false,
-    rightCollapsed: false,
+    sidebarLeftCollapsed: false,
+    sidebarRightCollapsed: false,
   };
 
   const post = posts.find((p) => p.url_slug === decodeURIComponent(urlSlug));

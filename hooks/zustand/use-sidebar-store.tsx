@@ -8,16 +8,12 @@ export interface SidebarState {
   selectedSubcategoryId: string | null;
   selectedSubcategoryName: string | null;
   selectedPostId: string | null;
-  leftCollapsed: boolean;
-  rightCollapsed: boolean;
   openedCategories: Record<string, boolean>;
   mobileOpen: boolean;
   isSortable: boolean;
   setCategory: (id: string | null) => void;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
   setPost: (id: string | null) => void;
-  setLeftCollapsed: (state: boolean) => void;
-  setRightCollapsed: (state: boolean) => void;
   setOpenCategory: (categoryId: string, open: boolean) => void;
   toggleCategory: (categoryId: string) => void;
   toggleMobileOpen: () => void;
@@ -32,8 +28,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     selectedSubcategoryId: null,
     selectedSubcategoryName: null,
     selectedPostId: null,
-    leftCollapsed: false,
-    rightCollapsed: false,
     openedCategories: {},
     mobileOpen: false,
     isSortable: false,
@@ -45,8 +39,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
         selectedSubcategoryName: subcategory?.name ?? null,
       }),
     setPost: (id) => set({ selectedPostId: id }),
-    setLeftCollapsed: (state) => set({ leftCollapsed: state }),
-    setRightCollapsed: (state) => set({ rightCollapsed: state }),
     setOpenCategory: (categoryId, open) =>
       set((state) => ({
         openedCategories: {

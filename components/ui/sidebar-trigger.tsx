@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Button } from "@ui/button";
 import { PanelLeftIcon } from "lucide-react";
@@ -10,8 +11,10 @@ export function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { rightCollapsed, setRightCollapsed, toggleMobileOpen } =
-    useSidebarStore(useShallow((state) => state));
+  const { sidebarRightCollapsed, setSidebarRightCollapsed } = useLayoutStore(
+    useShallow((state) => state)
+  );
+  const { toggleMobileOpen } = useSidebarStore(useShallow((state) => state));
   return (
     <Button
       data-sidebar="trigger"
@@ -22,7 +25,7 @@ export function SidebarTrigger({
       onClick={(event) => {
         onClick?.(event);
         toggleMobileOpen();
-        setRightCollapsed(!rightCollapsed);
+        setSidebarRightCollapsed(!sidebarRightCollapsed);
       }}
       {...props}
     >

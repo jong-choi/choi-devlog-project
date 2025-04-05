@@ -17,6 +17,7 @@ import { UpdatePopover } from "@/components/popover/update-popover/update-popove
 import PostUpdateForm from "@/components/popover/update-popover/post-update-form";
 import { CreatePopover } from "@/components/popover/create-popover/create-popover";
 import CreateCategoryForm from "@/components/popover/create-popover/create-category-form";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export function Sidebar({
   inset = false,
@@ -28,14 +29,17 @@ export function Sidebar({
   posts: Post[];
 }) {
   const {
+    sidebarLeftCollapsed,
+    sidebarRightCollapsed,
+    setSidebarLeftCollapsed,
+    setSidebarRightCollapsed,
+  } = useLayoutStore(useShallow((state) => state));
+
+  const {
     selectedSubcategoryId,
     selectedSubcategoryName,
     selectedPostId,
-    leftCollapsed,
-    rightCollapsed,
     setSubcategory,
-    setLeftCollapsed,
-    setRightCollapsed,
   } = useSidebarStore(useShallow((state) => state));
 
   return (
@@ -49,33 +53,35 @@ export function Sidebar({
       <div
         className={cn(
           "hidden md:flex flex-col border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
-          leftCollapsed ? "w-6 cursor-pointer" : "w-64",
+          sidebarLeftCollapsed ? "w-6 cursor-pointer" : "w-64",
           inset ??
             "rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700"
         )}
         onClick={() => {
-          if (leftCollapsed) {
-            setLeftCollapsed(false);
+          if (sidebarLeftCollapsed) {
+            setSidebarLeftCollapsed(false);
           }
         }}
       >
         <button
           className="absolute top-2 right-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-md p-1 transition"
           onClick={() => {
-            setLeftCollapsed(!leftCollapsed);
+            setSidebarLeftCollapsed(!sidebarLeftCollapsed);
           }}
         >
-          {leftCollapsed ? (
+          {sidebarLeftCollapsed ? (
             <PanelLeftOpen className="h-5 w-5 -mr-3" />
           ) : (
             <PanelLeftClose className="h-5 w-5" />
           )}
         </button>
 
-        {!leftCollapsed && (
+        {!sidebarLeftCollapsed && (
           <div className="px-4 py-2 w-64 overflow-auto space-y-2">
             <div className="flex flex-col gap-2">
-              <Logo />
+              <div className="flex h-full max-w-32">
+                <Logo />
+              </div>
               <SearchInput
                 className="py-0 bg-glass-bg-20 shadow-none border h-6"
                 withButton={false}
@@ -96,7 +102,7 @@ export function Sidebar({
                     <SidebarCategoryContent
                       key={cat.id}
                       catagory={cat}
-                      setRightCollapsed={setRightCollapsed}
+                      setSidebarRightCollapsed={setSidebarRightCollapsed}
                       setSubcategory={setSubcategory}
                       selectedSubcategoryId={selectedSubcategoryId}
                     />
@@ -112,10 +118,14 @@ export function Sidebar({
         className={cn(
           "hidden md:flex flex-col border-x border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
           inset ?? "rounded-2xl shadow-sm border",
-          rightCollapsed ? (inset ? "w-0 -ml-4" : "w-0 opacity-20") : "w-64"
+          sidebarRightCollapsed
+            ? inset
+              ? "w-0 -ml-4"
+              : "w-0 opacity-20"
+            : "w-64"
         )}
       >
-        {!rightCollapsed && (
+        {!sidebarRightCollapsed && (
           <div className="p-4 w-64 overflow-auto space-y-1 scrollbar flex flex-col">
             {selectedSubcategoryId ? (
               <>
