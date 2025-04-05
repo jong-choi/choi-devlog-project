@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"; // 유틸 임포트는 네 기존 구조 기준
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { useShallow } from "zustand/react/shallow";
 
 export default function AIModeButton() {
   const { mode, setMode } = useLayoutStore(
