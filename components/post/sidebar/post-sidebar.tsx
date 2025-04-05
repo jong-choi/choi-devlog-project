@@ -33,7 +33,6 @@ export function Sidebar({
     selectedPostId,
     leftCollapsed,
     rightCollapsed,
-    isSortable,
     setSubcategory,
     setLeftCollapsed,
     setRightCollapsed,

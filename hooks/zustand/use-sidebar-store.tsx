@@ -21,6 +21,7 @@ export interface SidebarState {
   toggleCategory: (categoryId: string) => void;
   toggleMobileOpen: () => void;
   toggleIsSortable: () => void;
+  setIsSortable: (value: boolean) => void;
 }
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
@@ -34,7 +35,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     rightCollapsed: false,
     openedCategories: {},
     mobileOpen: false,
-    isSortable: true,
+    isSortable: false,
     setCategory: (id) =>
       set({ selectedCategoryId: id, selectedSubcategoryId: null }),
     setSubcategory: (subcategory) =>
@@ -60,6 +61,14 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
         },
       })),
     toggleMobileOpen: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
-    toggleIsSortable: () => set((state) => ({ isSortable: !state.isSortable })),
+    toggleIsSortable: () =>
+      set((state) => {
+        const newValue = !state.isSortable;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("isSortable", JSON.stringify(newValue));
+        }
+        return { isSortable: newValue };
+      }),
+    setIsSortable: (value) => set({ isSortable: value }),
     ...initialState, // 초기값 덮어쓰기
   }));
