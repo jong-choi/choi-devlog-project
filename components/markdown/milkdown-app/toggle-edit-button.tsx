@@ -79,7 +79,7 @@ export default function ToggleEditButton() {
 
   return (
     <div className="flex items-center gap-1">
-      <div className="text-[12px] font-semibold">
+      <div className="text-[12px] font-semibold hidden md:flex">
         {isEditMode ? "편집 모드" : "편집 꺼짐"}
       </div>
       <div className="flex divide-x overflow-hidden rounded-full border text-[8px] font-medium">
