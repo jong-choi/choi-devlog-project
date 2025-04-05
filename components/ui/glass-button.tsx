@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
+import { Spinner } from "@ui/spinner";
 import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "success" | "warning" | "danger" | "neutral";
+  loading?: boolean;
   selected?: boolean;
   className?: string;
 }
@@ -37,6 +39,7 @@ export function GlassButton({
   className,
   children,
   disabled,
+  loading,
   ...props
 }: GlassButtonProps) {
   const style = variantClasses[variant];
@@ -46,7 +49,7 @@ export function GlassButton({
       {...props}
       disabled={disabled}
       className={cn(
-        "px-4 py-2 text-sm font-medium rounded backdrop-blur-glass transition whitespace-nowrap",
+        "px-4 py-2 text-sm font-medium rounded backdrop-blur-glass transition whitespace-nowrap flex items-center justify-center",
         selected ? style.selected : style.base,
         !disabled &&
           "hover:brightness-105 dark:hover:brightness-125 shadow-glass",
@@ -54,7 +57,7 @@ export function GlassButton({
         className
       )}
     >
-      {children}
+      {loading ? <Spinner size="sm" className="" /> : children}
     </button>
   );
 }

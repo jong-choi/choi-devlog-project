@@ -2,6 +2,7 @@ import { updatePost } from "@/app/post/actions";
 import { useAuthStore } from "@/providers/auth-provider";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Post } from "@/types/post";
+import notSavedToast from "@/utils/not-saved-toast";
 import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
@@ -14,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@ui/select";
-import { Spinner } from "@ui/spinner";
 import { Switch } from "@ui/switch";
 import { Textarea } from "@ui/textarea";
 import { useState } from "react";
@@ -49,22 +49,24 @@ export default function PostUpdateForm({
   const handleUpdate = async () => {
     setIsSaving(true);
     if (!session) {
-      toast.warning("변경사항이 저장되지 않았습니다.", {
-        description: "게스트 모드에서는 변경사항이 저장되지 않습니다.",
-      });
+      notSavedToast();
       onClose();
       return setIsSaving(false);
     }
     try {
-      await updatePost(post.id, {
+      const { data, error } = await updatePost(post.id, {
         url_slug: urlSlug,
         short_description: shortDesc,
         is_private: isPrivate,
         subcategory_id: subcategoryId,
       });
-      toast.success("게시글이 업데이트 되었습니다.");
+      if (data) {
+        toast.success("게시글이 수정되었습니다.");
+      } else if (error) {
+        toast.error("게시글 수정 실패", { description: error.message });
+      }
     } catch (e) {
-      예: toast.error("게시글이 업데이트에 실패하였습니다.");
+      toast.error("게시글 수정에 실패하였습니다.");
       console.error(e);
     }
     onClose();
@@ -115,9 +117,10 @@ export default function PostUpdateForm({
         <GlassButton
           className="py-1"
           disabled={!isChanged}
+          loading={isSaving}
           onClick={handleUpdate}
         >
-          {isSaving ? <Spinner size="sm" className="mr-2" /> : "업데이트"}
+          업데이트
         </GlassButton>
       </div>
     </div>
