@@ -10,7 +10,6 @@ export function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  // const toggleLeftOpen = useLayoutStore((state) => state.toggleLeftOpen);
   const {
     leftCollapsed,
     setLeftCollapsed,
@@ -30,6 +29,7 @@ export function SidebarTrigger({
         toggleMobileOpen();
         if (leftCollapsed && rightCollapsed) {
           setRightCollapsed(false);
+          setLeftCollapsed(false);
         } else {
           setRightCollapsed(true);
           setLeftCollapsed(true);
