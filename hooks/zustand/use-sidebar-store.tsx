@@ -1,4 +1,5 @@
 import { Category } from "@/types/post";
+import { safeSessionSet } from "@/utils/persistState";
 import { createStore } from "zustand";
 
 export interface SidebarState {
@@ -64,9 +65,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     toggleIsSortable: () =>
       set((state) => {
         const newValue = !state.isSortable;
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("isSortable", JSON.stringify(newValue));
-        }
+        safeSessionSet("isSortable", newValue);
         return { isSortable: newValue };
       }),
     setIsSortable: (value) => set({ isSortable: value }),

@@ -5,7 +5,7 @@ import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
 import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
-import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
+import PostPageHydrator from "@/components/post/post-page-hydrator";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
 import PostMainWrapper from "@/components/post/right-panel/post-main-wrapper";
@@ -17,7 +17,6 @@ import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import { Lock } from "lucide-react";
 
-// app/post/dashboard/ai-panel-wrapper.tsx
 interface PageProps {
   params: Promise<{
     urlSlug: string;
@@ -46,7 +45,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       subcategoryId={subcategory_id}
       categoryData={categoryData}
     >
-      <SidebarHydrator />
+      <PostPageHydrator />
       <main
         id="메인레퍼"
         className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"

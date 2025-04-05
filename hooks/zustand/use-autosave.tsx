@@ -1,4 +1,5 @@
 import { Category } from "@/types/post";
+import { safeSessionSet } from "@/utils/persistState";
 import { createStore } from "zustand";
 
 export interface AutosaveState {
@@ -123,9 +124,18 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
         },
       })),
     setCategoryData: (data) => set({ categoryData: data }),
-    setIsEditMode: (value) => set({ isEditMode: value }),
-    setIsMarkdown: (value) => set({ isMarkdownOn: value }),
-    setIsRaw: (value) => set({ isRawOn: value }),
+    setIsEditMode: (value) => {
+      safeSessionSet("isEditMode", value);
+      set({ isEditMode: value });
+    },
+    setIsMarkdown: (value) => {
+      safeSessionSet("isMarkdownOn", value);
+      set({ isMarkdownOn: value });
+    },
+    setIsRaw: (value) => {
+      safeSessionSet("isRawOn", value);
+      set({ isRawOn: value });
+    },
     setLayoutSnaphot: (value) => set({ layoutSnapshot: value }),
     ...initialState,
   }));
