@@ -28,8 +28,6 @@ const _getAISummaryByPostId = async (
     .select()
     .eq("post_id", post_id || "") // 특정 게시글에 대한 요약만 조회
     .order("created_at", { ascending: false }) // 최신 요약이 가장 위로 오도록 정렬
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single(); // 가장 최신 요약 하나만 가져옴
 
   return result;
@@ -58,8 +56,6 @@ const _createAISummary = async (
     .from("ai_summaries")
     //@ts-expect-error : vector값이 불일치
     .insert(payload)
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -303,25 +299,20 @@ const _createCategory = async (
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
 
-  // 현재 가장 큰 order 값을 조회
   const { data: maxOrderData } = await supabase
     .from("categories")
     .select("order")
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false })
     .limit(1)
     .single();
 
-  const maxOrder = maxOrderData?.order ?? 0; // 최대 order 값이 없으면 기본값 0
-  const newOrder = maxOrder + 100000; // 새로운 order 값
+  const maxOrder = maxOrderData?.order ?? 0;
+  const newOrder = maxOrder + 100000;
 
-  // 2️⃣ 새로운 카테고리 생성
   const result = await supabase
     .from("categories")
     .insert({ ...payload, order: newOrder })
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -348,8 +339,6 @@ const _updateCategory = async (
     .update(payload)
     .eq("id", category_id)
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -376,8 +365,6 @@ const _softDeleteCategory = async (
     .eq("id", category_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -446,7 +433,6 @@ const _createSubcategory = async (
   const { data: maxOrderData } = await supabase
     .from("subcategories")
     .select("order")
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false })
     .limit(1)
     .single();
@@ -459,8 +445,6 @@ const _createSubcategory = async (
     .from("subcategories")
     .insert({ ...payload, order: newOrder }) // 자동 order 값 추가
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -489,8 +473,6 @@ const _updateSubcategory = async (
     .update(payload)
     .eq("id", subcategory_id)
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -519,8 +501,6 @@ const _softDeleteSubcategory = async (
     .eq("id", subcategory_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -576,8 +556,6 @@ const _getPostByUrlSlug = async (
         ? "is_private.is.null,is_private.is.false,is_private.is.true"
         : "is_private.is.null,is_private.is.false"
     ) // 공개된 게시글만 조회
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single(); // 단일 객체 반환
 
   return result;
@@ -638,7 +616,6 @@ const _createPost = async (
     .from("posts")
     .select("order")
     .eq("subcategory_id", payload.subcategory_id) // 같은 subcategory_id 내에서 조회
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
     .order("order", { ascending: false }) // order 기준 내림차순 정렬
     .limit(1)
     .single();
@@ -652,8 +629,6 @@ const _createPost = async (
     .from("posts")
     .insert({ ...payload, order: newOrder, url_slug: uniqueSlug }) // 자동 order 값 추가
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -689,8 +664,6 @@ const _updatePost = async (
     .update({ ...payload, url_slug: uniqueSlug })
     .eq("id", post_id)
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
@@ -720,8 +693,6 @@ const _softDeletePost = async (
     .eq("id", post_id)
     .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
     .select()
-    .order("id", { ascending: false }) // 추가 정렬 (유니크)
-    .limit(1)
     .single();
 
   return result;
