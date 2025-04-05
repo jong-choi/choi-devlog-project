@@ -2823,3 +2823,175 @@ react-hot-toast를 쓰던 중에 warning 토스트가 없는게 불만이었다.
 
    일단 오늘은 여기까지.
    30일에 배포하려고 했는데....안 돼 안 돼...
+
+## 30일차
+
+### 스타일링
+
+Milkdown의 Codemirror에 스타일링 적용하는 방법을 익혀서 uiw의 vocode 다크 테마를 적용했다.(oneDark 테마를 내가 하드코딩으로 적용한줄 알고 까보기 시작했는데 아니었고...)  
+이후 highlight 테마와 vscode 테마가 색상이 달라서 uiw vscode 테마에 맞게 수정하였다.  
+자바스크립트 기준으로 스타일링 수정함. 결과적으로 자바스크립트는 실제 vscode랑 가장 비슷해졌다.
+
+그 밖에 이전에 수정하다가 미처 다 못한 issortable swtich 의 스타일링 수정하였다.
+
+### Milkdown Playground - 파싱 구조 개선
+
+Milkdown 공식 홈페이지의 코드를 찾았다. [github - Milkdown/website/Playground ](https://github.com/Milkdown/website/blob/main/src/components/playground)
+
+Playground 코드보다 현재 내가 짠 코드가 더 빠릿빠릿 잘 동작해서 수정할 부분은 없었는데, ReplaceAll로 수정하던 부분을 Milkdown Playground에 맞게 다시 수정했다. 확실히 성능 개선은 있는 듯.
+
+### 사이드바 - 게시글 업데이트 버튼 **Render Props 패턴**
+
+게시글 업데이트를 누르면 상태를 확인 후 portal이 닫혀야 한다.
+
+**Render Props 패턴**
+`<PopoverContent />`에 `children`을 그냥 JSX로 넘기는 대신,  
+**함수로 넘기면 내부에서 `onClose()`를 주입해줌**.
+
+```tsx
+<PopoverContent side="bottom" align="end">
+  {(onClose) => <PostUpdateForm post={post} onClose={onClose} />}
+</PopoverContent>
+```
+
+이렇게 하면 `PostUpdateForm` 내부에서 `onClose()`를 호출해 Popover를 닫을 수 있음.
+
+Popover content에서는 chlidren을 react node가 아니라 함수 형태로 받는다.
+
+```tsx
+type UpdatePopoverProps = {
+  children: (props: { onClose: () => void }) => ReactNode;
+};
+```
+
+그리고 자식 노드는 아래와 같이 children을 실행하는 형태.
+
+```tsx
+<PopoverContent side="bottom" align="end" className="p-2 shadow-xl bg-color-bg">
+  {children({ onClose: () => setOpen(false) })}
+</PopoverContent>
+```
+
+이걸 이용해서 post update form 완성하고 마무리...
+
+### 분류, 시리즈, 게시글 비공개 전략
+
+분류, 시리즈는 포함된 시리즈 혹은 게시글이 없으면 비공개로 한다.
+-> 포함된 게시글의 수를 count로 넣는 새로운 view 테이블 필요.
+
+게시글은 isPrivate이면 좌물쇠 표시를 제목 앞에 넣는다.
+-> 아이콘만 추가하면 됨.
+
+### 새 분류
+
+새 분류 버튼을 사이드바 좌측 상단 편집모드와 같은 라인에 두고,
+새 분류 버튼을 클릭하면 pop over가 나타나도록 하였다.
+
+게시글 업데이트 팝오버를 재사용 하면서 재사용성이 높도록 약간 수정을 가하였고,  
+편집모드(isSortable)이 false일 때에는 import가 되지 않도록 popover, popover-app을 따로 분리하였다.
+
+### isSortable 세션 스토리지 활용
+
+게시글을 이동할 때마다 isSortable이 off 되는 것이 사용성에 좋지 않았다.  
+serachParams를 이용하려고 했지만, 링크 태그 전체를 serachParams에 맞게 href props를 변경해주는 것이 사실상 바람직 하지 않았음.
+
+그래서 세션 스토리지를 활용하기로 했다.
+
+Zustand Persiste 미들웨어는 서버사이드 렌더링과 충돌이 많이 일어나고, 너무 헤비해서 isSortable만 세션 스토리지로 저장한다.
+
+기존 toggleIsSortable
+
+```tsx
+      set((state) => { isSortable: !state.isSortable }),
+```
+
+세션 스토리지에 저장하도록 한 isSortable
+
+```tsx
+    toggleIsSortable: () =>
+      set((state) => {
+        const newValue = !state.isSortable;
+        sessionStorage.setItem("isSortable", JSON.stringify(newValue));
+        return { isSortable: newValue };
+      }),
+```
+
+위 상태로도 잘 작동되지만, 서버사이드에서 오류가 날 수 있음으로 아래와 같이 런타임 가드를 씌워준다.
+
+```tsx
+    toggleIsSortable: () =>
+      set((state) => {
+        const newValue = !state.isSortable;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("isSortable", JSON.stringify(newValue));
+        }
+        return { isSortable: newValue };
+      }),
+```
+
+기존에 만들어두었던 sidebar hydrator에서 주입해준다.
+
+```tsx
+// 사이드바 상태를 주입
+export default function SidebarHydrator() {
+  const setIsSortable = useSidebarStore((state) => state.setIsSortable);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("isSortable");
+    if (stored !== null) {
+      const parsed = JSON.parse(stored);
+      setIsSortable(parsed);
+    }
+  }, [setIsSortable]);
+
+  return null;
+}
+```
+
+### isEditMode 세션 스토리지 적용
+
+```tsx
+export const safeSessionSet = <T,>(key: string, value: T) => {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  }
+};
+
+export function hydrateFromSessionStorage<T>(
+  key: string,
+  setter: (value: T) => void
+) {
+  if (typeof window === "undefined") return;
+
+  const stored = sessionStorage.getItem(key);
+  if (stored !== null) {
+    try {
+      const parsed = JSON.parse(stored);
+      setter(parsed);
+    } catch (e) {
+      console.warn(`Failed to parse sessionStorage[${key}]`, e);
+    }
+  }
+}
+```
+
+위와 같은 유틸 함수를 만들어서 isEditMode와 관련해서도 적용해주었다. sidebarHydrator는 PostPageHydrator로 변경하였다.
+
+```tsx
+// 세션 스토리지 상태를 주입
+export default function PostPageHydrator() {
+  const setIsSortable = useSidebarStore((state) => state.setIsSortable);
+  const setIsEditMode = useAutosave((state) => state.setIsEditMode);
+  const setIsMarkdown = useAutosave((state) => state.setIsMarkdown);
+  const setIsRaw = useAutosave((state) => state.setIsRaw);
+
+  useEffect(() => {
+    hydrateFromSessionStorage("isSortable", setIsSortable);
+    hydrateFromSessionStorage("isEditMode", setIsEditMode);
+    hydrateFromSessionStorage("isMarkdownOn", setIsMarkdown);
+    hydrateFromSessionStorage("isRawOn", setIsRaw);
+  }, [setIsSortable, setIsEditMode, setIsMarkdown, setIsRaw]);
+
+  return null;
+}
+```
