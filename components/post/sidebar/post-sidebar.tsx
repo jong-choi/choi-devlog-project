@@ -15,7 +15,8 @@ import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
 import { UpdatePopover } from "@/components/post/update-panel/update-popover";
 import PostUpdateForm from "@/components/post/update-panel/post-update-form";
-import CreateNewTrigger from "@/components/post/create-panel/create-new-trigger";
+import { CreatePopover } from "@/components/post/create-panel/create-popover";
+import CreateCategoryForm from "@/components/post/create-panel/create-category-form";
 
 export function Sidebar({
   inset = false,
@@ -83,9 +84,11 @@ export function Sidebar({
               />
             </div>
 
-            <div className="border-t">
+            <div className="border-t pt-1">
               <div className="flex w-full justify-between">
-                <CreateNewTrigger />
+                <CreatePopover title={"주제"}>
+                  {({ onClose }) => <CreateCategoryForm onClose={onClose} />}
+                </CreatePopover>
                 <ToggleSortableButton />
               </div>
               <WithSortableList items={categories}>
