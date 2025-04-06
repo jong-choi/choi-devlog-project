@@ -2995,3 +2995,137 @@ export default function PostPageHydrator() {
   return null;
 }
 ```
+
+### 31일차
+
+### isSortable, isEditMode SSR 전환
+
+어제 isSortable, isEditMode를 세션 스토리지에 저장하고 불러오는 방식을 사용하였는데,
+이렇게 하는 경우 하이드레이션이 일어나며 화면이 깜빡깜빡 거리는 문제가 있다.
+
+이를 해결하는 방법은 세션 스토리지가 아니라 cookies에 저장하여 SSR로 렌더링되게 하는 것이다.
+먼저 이와 관련된 컴포넌트들을 dynamic import할 때에 'ssr'을 false로 두었던 것을 제거한다.
+
+이후 아래와 같이 쿠키로 관리하도록 전환한다.
+
+utils/cookies/post-page-cookie.ts
+
+```tsx
+export const POST_PAGE_COOKIE_KEYS = {
+  AUTOSAVE: {
+    isEditMode: "isEditMode",
+    isMarkdownOn: "isMarkdownOn",
+    isRawOn: "isRawOn",
+  },
+  SIDEBAR: {
+    isSortable: "isSortable",
+  },
+} as const;
+
+export type PostPageCookieKey =
+  | (typeof POST_PAGE_COOKIE_KEYS.AUTOSAVE)[keyof typeof POST_PAGE_COOKIE_KEYS.AUTOSAVE]
+  | (typeof POST_PAGE_COOKIE_KEYS.SIDEBAR)[keyof typeof POST_PAGE_COOKIE_KEYS.SIDEBAR];
+
+export function setPostPageCookie(key: PostPageCookieKey, value: string) {
+  document.cookie = `${key}=${value}; path=/; max-age=${60 * 60 * 24 * 7}`;
+}
+```
+
+위와 같이 쿠키를 관리하는 유틸 함수를 만들고
+
+components/post/autosave-store-wrapper.tsx
+
+```tsx
+export default async function PostMainWrapper({
+  data,
+  subcategoryId,
+  categoryData,
+  children,
+}: PostMainWrapperProps) {
+  const cookieStore = await cookies();
+  const isEditMode =
+    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isEditMode)?.value ===
+    "true";
+  const isMarkdownOn =
+    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isMarkdownOn)?.value ===
+    "true";
+  const isRawOn =
+    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isRawOn)?.value === "true";
+```
+
+저장된 쿠키는 위와 같이 페이지 혹은 레이아웃에서 불러와 zustand의 initialState에 주입시킨다.
+
+쿠키를 저장할 때에는 아래와 같다.
+
+```tsx
+    setIsEditMode: (value) => {
+      setPostPageCookie("isEditMode", String(value));
+      set({ isEditMode: value });
+    },
+    setIsMarkdown: (value) => {
+      setPostPageCookie("isMarkdownOn", String(value));
+      set({ isMarkdownOn: value });
+    },
+    setIsRaw: (value) => {
+      setPostPageCookie("isRawOn", String(value));
+      set({ isRawOn: value });
+    },
+```
+
+### isSortable, isEditMode를 LootLayout으로
+
+위와 같은 cookies처럼 서버 데이터에 접근하는 내용이 있으면 반드시 SSR로만 작동된다.
+
+실제로 `export const dynamic = "force-static";`를 하면 cookies를 쓰지 말라고 에러를 발생시킨다.
+현재는 기본값인 `export const dynamic = "auto";`를 쓰고 있는데, 미인증 사용자의 경우 데이터를 cache하고 있기 때문에 미인증 사용자에 한해서는 `"force-static"`처럼 작동하고, 인증된 사용자에 한해서만 `"force-dynamic"`처럼 작동한다.
+
+이 상황에서...
+
+두 가지 선택지를 고려해보았는데
+
+1. ServerAction을 만들어서 cookies를 읽고 반환하는 serverAction을 만든다.
+2. isEditmode, isSortable 등을 LootLayout으로 뺀다. **<- 채택**
+
+애초에 `<LayoutStoreProvider>`를 만들었던 이유가 사이드바 등 레이아웃에 영향을 줄 수 있는 녀석들을 관리하기 위함이었고, 실제로 leftCollapsed 등이 잘 작동하고 있다.
+
+리팩토링 -> 그냥 기본에 쿠키나 세션을 이용해서 관리하던거 다 지우고, isEditMode, isSortable을 LayoutStore로 옮겼음.
+
+여기에 추가로, 해당 LayoutStore는 Post 페이지에서만 사용하고 있으니, 루트 레이아웃에 뒀던 LayoutStoreProvider를 지우고 아래와 같이 Post페이지의 레이아웃으로 옮긴다.
+
+// app/post/layout.tsx
+
+```tsx
+import { LayoutStoreProvider } from "@/providers/layout-store-provider";
+
+interface PostRootLayoutProps {
+  children: React.ReactNode;
+}
+
+export default async function PostRootLayout({
+  children,
+}: PostRootLayoutProps) {
+  return <LayoutStoreProvider>{children}</LayoutStoreProvider>;
+}
+```
+
+### 레이아웃 관리 전략 정리
+
+결과적으로 Post 페이지의 관리 전략은 아래와 같다
+
+- 게시글을 이동해도 유지되어야 하는 레이아웃
+  - /app/post/layout의 layoutStore에서 관리
+  ```
+    sidebarLeftCollapsed: false,
+    sidebarRightCollapsed: false,
+    rightPanelOpen: true,
+    rightPanelMode: "summary",
+    isEditMode: false,
+    isMarkdownOn: false,
+    isRawOn: false,
+    isSortable: false,
+  ```
+- 게시글을 이동했을 때 초기 상태로 돌아와야 하는 레이아웃
+  - /app/post/[urlSlug]/layout에서 관리 (sidebar-state의 mobileOpen 등)
+  ```
+    mobileOpen: false,
+  ```
