@@ -1,5 +1,5 @@
 import { Category } from "@/types/post";
-import { safeSessionSet } from "@/utils/persistState";
+import { setPostPageCookie } from "@/utils/cookies/post-page-cookie";
 import { createStore } from "zustand";
 
 export interface SidebarState {
@@ -57,7 +57,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     toggleIsSortable: () =>
       set((state) => {
         const newValue = !state.isSortable;
-        safeSessionSet("isSortable", newValue);
+        setPostPageCookie("isSortable", String(newValue));
         return { isSortable: newValue };
       }),
     setIsSortable: (value) => set({ isSortable: value }),

@@ -5,10 +5,8 @@ import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
 import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
-import PostPageHydrator from "@/components/post/post-page-hydrator";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
-import PostMainWrapper from "@/components/post/right-panel/post-main-wrapper";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
 import AIPanel from "@/components/post/right-panel/ai-panel";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
@@ -16,6 +14,7 @@ import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-but
 import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import { Lock } from "lucide-react";
+import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
 
 interface PageProps {
   params: Promise<{
@@ -40,12 +39,11 @@ export default async function Page({ params, searchParams }: PageProps) {
   );
 
   return (
-    <PostMainWrapper
+    <AutosaveStoreWrapper
       data={data}
       subcategoryId={subcategory_id}
       categoryData={categoryData}
     >
-      <PostPageHydrator />
       <main
         id="메인레퍼"
         className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
@@ -97,6 +95,6 @@ export default async function Page({ params, searchParams }: PageProps) {
           <AIPanel />
         </RightPanelWrapper>
       </AIPanelWrapper>
-    </PostMainWrapper>
+    </AutosaveStoreWrapper>
   );
 }

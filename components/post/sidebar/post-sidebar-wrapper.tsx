@@ -1,6 +1,8 @@
 import { SidebarState } from "@/hooks/zustand/use-sidebar-store";
 import { SidebarStoreProvider } from "@/providers/sidebar-store-provider";
 import { Category, Post } from "@/types/post";
+import { POST_PAGE_COOKIE_KEYS } from "@/utils/cookies/post-page-cookie";
+import { cookies } from "next/headers";
 
 interface PostSidebarProps {
   urlSlug?: string;
@@ -15,6 +17,10 @@ export default async function PostSidebarWrapper({
   posts,
   children,
 }: PostSidebarProps) {
+  const cookieStore = await cookies();
+  const isSortable =
+    cookieStore.get(POST_PAGE_COOKIE_KEYS.SIDEBAR.isSortable)?.value === "true";
+
   const initialState: Partial<SidebarState> = {
     categories: categories,
     selectedCategoryId: categories[0].id,
@@ -22,8 +28,7 @@ export default async function PostSidebarWrapper({
     selectedSubcategoryName: null,
     selectedPostId: null,
     openedCategories: {},
-    sidebarLeftCollapsed: false,
-    sidebarRightCollapsed: false,
+    isSortable,
   };
 
   const post = posts.find((p) => p.url_slug === decodeURIComponent(urlSlug));

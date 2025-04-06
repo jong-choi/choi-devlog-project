@@ -1,5 +1,5 @@
 import { Category } from "@/types/post";
-import { safeSessionSet } from "@/utils/persistState";
+import { setPostPageCookie } from "@/utils/cookies/post-page-cookie";
 import { createStore } from "zustand";
 
 export interface AutosaveState {
@@ -125,15 +125,15 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
       })),
     setCategoryData: (data) => set({ categoryData: data }),
     setIsEditMode: (value) => {
-      safeSessionSet("isEditMode", value);
+      setPostPageCookie("isEditMode", String(value));
       set({ isEditMode: value });
     },
     setIsMarkdown: (value) => {
-      safeSessionSet("isMarkdownOn", value);
+      setPostPageCookie("isMarkdownOn", String(value));
       set({ isMarkdownOn: value });
     },
     setIsRaw: (value) => {
-      safeSessionSet("isRawOn", value);
+      setPostPageCookie("isRawOn", String(value));
       set({ isRawOn: value });
     },
     setLayoutSnaphot: (value) => set({ layoutSnapshot: value }),
