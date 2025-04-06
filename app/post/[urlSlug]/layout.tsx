@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 
-interface PostLayoutProps {
+interface PostDetailLayoutProps {
   params: Promise<{
     urlSlug?: string;
   }>;
@@ -11,10 +11,10 @@ interface PostLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function PostLayout({
+export default async function PostDetailLayout({
   params,
   children,
-}: PostLayoutProps) {
+}: PostDetailLayoutProps) {
   const urlSlug = (await params).urlSlug || "";
   const { data } = await getSidebarCategory();
   const categories = data || [];

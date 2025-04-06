@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
 import { AuthStoreProvider } from "@/providers/auth-provider";
-import { LayoutStoreProvider } from "@/providers/layout-store-provider";
 import { Toaster } from "@ui/sonner";
 
 export const metadata: Metadata = {
@@ -33,9 +32,7 @@ export default function RootLayout({
         </div>
         <AuthStoreProvider>
           <AuthProvider />
-          <LayoutStoreProvider>
-            <div className="z-10">{children}</div>
-          </LayoutStoreProvider>
+          <div className="z-10">{children}</div>
         </AuthStoreProvider>
         <Toaster />
       </body>
