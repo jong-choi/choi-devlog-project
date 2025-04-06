@@ -13,16 +13,29 @@ export default function ReactMarkdownApp({ children }: { children?: string }) {
       rehypePlugins={[rehypeHighlight]}
       components={{
         img: ({ src, alt = "" }) => {
-          if (!src) return null;
+          if (!src)
+            return (
+              <Image
+                src={
+                  "data:image/svg+xml;base64," +
+                  "Cjxzdmcgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHZpZXdCb3g9IjAgMCAxNTAgMTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjlmOWY5Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzZweCI+4pqg77iP8J+YrTwvdGV4dD4KPC9zdmc+Cg=="
+                }
+                alt="image-error"
+                width="0"
+                height="0"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="w-auto h-[180px] shadow-glass"
+              />
+            );
           return (
             <Image
               src={src}
               alt={alt}
               // https://stackoverflow.com/questions/69230343/nextjs-image-component-with-fixed-witdth-and-auto-height
-              width="0" // width와 height에 0을 줘서 렌더링 계산에서 제외
+              width="0"
               height="0"
-              sizes="(max-width: 768px) 100vw, 50vw" // 이미지 크기 힌팅 : sm사이즈에서 100vw, 그 이상에서 50vw에 맞는 이미지로 불러오기 (supabase가 이미지 프록시 서버가 아니라서 작동 안하긴 함)
-              className="w-auto h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[340px]" // css를 통해 실제 렌더링 크기를 확정
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="w-auto h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[340px]"
             />
           );
         },
