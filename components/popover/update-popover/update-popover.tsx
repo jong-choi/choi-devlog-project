@@ -2,7 +2,6 @@
 
 import { useState, ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
