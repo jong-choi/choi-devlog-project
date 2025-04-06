@@ -1,5 +1,4 @@
 import { Category } from "@/types/post";
-import { setPostPageCookie } from "@/utils/cookies/post-page-cookie";
 import { createStore } from "zustand";
 
 export interface SidebarState {
@@ -10,15 +9,12 @@ export interface SidebarState {
   selectedPostId: string | null;
   openedCategories: Record<string, boolean>;
   mobileOpen: boolean;
-  isSortable: boolean;
   setCategory: (id: string | null) => void;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
   setPost: (id: string | null) => void;
   setOpenCategory: (categoryId: string, open: boolean) => void;
   toggleCategory: (categoryId: string) => void;
   toggleMobileOpen: () => void;
-  toggleIsSortable: () => void;
-  setIsSortable: (value: boolean) => void;
 }
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
@@ -30,7 +26,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     selectedPostId: null,
     openedCategories: {},
     mobileOpen: false,
-    isSortable: false,
     setCategory: (id) =>
       set({ selectedCategoryId: id, selectedSubcategoryId: null }),
     setSubcategory: (subcategory) =>
@@ -54,12 +49,5 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
         },
       })),
     toggleMobileOpen: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
-    toggleIsSortable: () =>
-      set((state) => {
-        const newValue = !state.isSortable;
-        setPostPageCookie("isSortable", String(newValue));
-        return { isSortable: newValue };
-      }),
-    setIsSortable: (value) => set({ isSortable: value }),
     ...initialState, // 초기값 덮어쓰기
   }));

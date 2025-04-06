@@ -1,9 +1,9 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 const CreatePopoverApp = dynamic(
   () => import("@/components/popover/create-popover/create-popover-app")
@@ -16,7 +16,7 @@ type CreatePopoverProps = {
 
 export function CreatePopover({ title, children }: CreatePopoverProps) {
   const [open, setOpen] = useState(false);
-  const { isSortable } = useSidebarStore(
+  const { isSortable } = useLayoutStore(
     useShallow((state) => ({
       isSortable: state.isSortable,
     }))

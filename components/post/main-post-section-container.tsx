@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useAutosave } from "@/providers/autosave-store-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 import { ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -10,7 +10,7 @@ export default function MainPostSectionContainer({
 }: {
   children: ReactNode;
 }) {
-  const { isEditMode } = useAutosave(
+  const { isEditMode } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
     }))

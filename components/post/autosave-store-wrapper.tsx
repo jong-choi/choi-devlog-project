@@ -1,8 +1,6 @@
 import { AutosaveProvider } from "@/providers/autosave-store-provider";
 import { Category } from "@/types/post";
 import { Database } from "@/types/supabase";
-import { POST_PAGE_COOKIE_KEYS } from "@/utils/cookies/post-page-cookie";
-import { cookies } from "next/headers";
 
 interface AutosaveStoreWrapperProps {
   data: Database["public"]["Tables"]["posts"]["Row"] | null;
@@ -17,16 +15,6 @@ export default async function AutosaveStoreWrapper({
   categoryData,
   children,
 }: AutosaveStoreWrapperProps) {
-  const cookieStore = await cookies();
-  const isEditMode =
-    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isEditMode)?.value ===
-    "true";
-  const isMarkdownOn =
-    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isMarkdownOn)?.value ===
-    "true";
-  const isRawOn =
-    cookieStore.get(POST_PAGE_COOKIE_KEYS.AUTOSAVE.isRawOn)?.value === "true";
-
   return (
     <AutosaveProvider
       initialState={{
@@ -50,9 +38,6 @@ export default async function AutosaveStoreWrapper({
           url_slug: data?.url_slug || "",
         },
         categoryData,
-        isEditMode,
-        isMarkdownOn,
-        isRawOn,
       }}
     >
       {children}

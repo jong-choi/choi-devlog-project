@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@ui/label";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function ToggleSortableButton() {
-  const { isSortable, toggleIsSortable } = useSidebarStore(
+  const { isSortable, toggleIsSortable } = useLayoutStore(
     useShallow((state) => ({
       isSortable: state.isSortable,
       toggleIsSortable: state.toggleIsSortable,

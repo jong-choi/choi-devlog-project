@@ -7,25 +7,28 @@ import { useShallow } from "zustand/react/shallow";
 import { Columns2 } from "lucide-react";
 
 export default function ToggleEditButton() {
+  const { layoutSnapshot, setLayoutSnaphot } = useAutosave(
+    useShallow((state) => ({
+      layoutSnapshot: state.layoutSnapshot,
+      setLayoutSnaphot: state.setLayoutSnaphot,
+    }))
+  );
+
   const {
     isEditMode,
     isMarkdownOn,
     isRawOn,
-    layoutSnapshot,
     setIsEditMode,
     setIsMarkdown: setIsMarkdownOn,
     setIsRaw: setIsRawOn,
-    setLayoutSnaphot,
-  } = useAutosave(
+  } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
       isMarkdownOn: state.isMarkdownOn,
       isRawOn: state.isRawOn,
-      layoutSnapshot: state.layoutSnapshot,
       setIsEditMode: state.setIsEditMode,
       setIsMarkdown: state.setIsMarkdown,
       setIsRaw: state.setIsRaw,
-      setLayoutSnaphot: state.setLayoutSnaphot,
     }))
   );
 

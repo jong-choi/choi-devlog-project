@@ -1,6 +1,5 @@
 "use client";
 import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
-import { useAutosave } from "@/providers/autosave-store-provider";
 import dynamic from "next/dynamic";
 import "@/components/markdown/styles/github-markdown.css";
 import "@milkdown/crepe/theme/common/style.css";
@@ -8,13 +7,14 @@ import "@milkdown/crepe/theme/common/style.css";
 import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 const MilkdownWrapper = dynamic(
   () => import("@/components/markdown/milkdown-app/milkdown-wrapper")
 );
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
-  const { isEditMode, isFullMode } = useAutosave(
+  const { isEditMode, isFullMode } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
       isFullMode: state.isRawOn && state.isMarkdownOn,

@@ -1,9 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { ReactNode, Fragment } from "react";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 const SortableItemWrapperDynamic = dynamic(() =>
   import("@/components/post/sortable-list/sortable-item-wrapper").then(
@@ -18,7 +18,7 @@ export function WithSortableItem({
   id: string;
   children: ReactNode;
 }) {
-  const isSortable = useSidebarStore(useShallow((s) => s.isSortable));
+  const isSortable = useLayoutStore(useShallow((s) => s.isSortable));
   if (isSortable) {
     return (
       <SortableItemWrapperDynamic id={id}>

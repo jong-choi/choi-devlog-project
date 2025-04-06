@@ -1,9 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { SortableItem } from "@/components/post/sortable-list/sortable-list-container";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export const SortableListContainerDynamic = dynamic(() =>
   import("@/components/post/sortable-list/sortable-list-container").then(
@@ -22,7 +22,7 @@ export function WithSortableList<T extends SortableItem>({
   children,
   onUpdate, // ✅ 받기
 }: Props<T>) {
-  const isSortable = useSidebarStore(useShallow((s) => s.isSortable));
+  const isSortable = useLayoutStore(useShallow((s) => s.isSortable));
 
   if (isSortable) {
     return (

@@ -1,5 +1,4 @@
 import { Category } from "@/types/post";
-import { setPostPageCookie } from "@/utils/cookies/post-page-cookie";
 import { createStore } from "zustand";
 
 export interface AutosaveState {
@@ -28,9 +27,6 @@ export interface AutosaveState {
     url_slug: string;
   };
   categoryData: Category[] | null;
-  isEditMode: boolean;
-  isMarkdownOn: boolean;
-  isRawOn: boolean;
   layoutSnapshot: boolean[];
   setIsLocalDBChecked: (value: boolean) => void;
   setIsUploaded: (value: boolean) => void;
@@ -46,9 +42,6 @@ export interface AutosaveState {
   ) => void;
   setDraftPostData: (data: Partial<AutosaveState["draftPostData"]>) => void;
   setCategoryData: (data: Category[]) => void;
-  setIsEditMode: (value: boolean) => void;
-  setIsMarkdown: (value: boolean) => void;
-  setIsRaw: (value: boolean) => void;
   setLayoutSnaphot: (value: boolean[]) => void;
 }
 
@@ -75,9 +68,6 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
       url_slug: "",
     },
     categoryData: null,
-    isEditMode: false,
-    isMarkdownOn: false,
-    isRawOn: false,
     layoutSnapshot: [],
     setIsLocalDBChecked: (value) => set({ isLocalDBChecked: value }),
     setIsUploaded: (value) => set({ isUploaded: value }),
@@ -124,18 +114,6 @@ export const createAutosaveStore = (initialState?: Partial<AutosaveState>) =>
         },
       })),
     setCategoryData: (data) => set({ categoryData: data }),
-    setIsEditMode: (value) => {
-      setPostPageCookie("isEditMode", String(value));
-      set({ isEditMode: value });
-    },
-    setIsMarkdown: (value) => {
-      setPostPageCookie("isMarkdownOn", String(value));
-      set({ isMarkdownOn: value });
-    },
-    setIsRaw: (value) => {
-      setPostPageCookie("isRawOn", String(value));
-      set({ isRawOn: value });
-    },
     setLayoutSnaphot: (value) => set({ layoutSnapshot: value }),
     ...initialState,
   }));

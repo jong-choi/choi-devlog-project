@@ -1,6 +1,7 @@
 "use client";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAutosave } from "@/providers/autosave-store-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 import { EditableDiv } from "@ui/editable-div";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -10,9 +11,13 @@ export default function TitleEditor({
 }: {
   defaultValue: string;
 }) {
-  const { postId, isEditable } = useAutosave(
+  const { postId } = useAutosave(
     useShallow((state) => ({
       postId: state.postId,
+    }))
+  );
+  const { isEditable } = useLayoutStore(
+    useShallow((state) => ({
       isEditable: state.isEditMode,
     }))
   );

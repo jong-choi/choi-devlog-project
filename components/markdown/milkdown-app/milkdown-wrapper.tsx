@@ -8,6 +8,7 @@ import MilkdownEditor from "@/components/markdown/milkdown-app/milkdown-app";
 import { MilkdownProvider } from "@milkdown/react";
 import { MarkdownRawEditor } from "@/components/markdown/milkdown-app/markdown-raw-editor";
 import { cn } from "@/lib/utils";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);
@@ -19,8 +20,6 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     recentAutoSavedBody,
     selectedPostId,
     postId,
-    isMarkdownOn,
-    isRawOn,
     setIsLoadingDraftBody,
     setIsAutoSaving,
     setRecentAutoSavedData,
@@ -30,11 +29,15 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       recentAutoSavedBody: state.recentAutoSavedData?.body || "",
       selectedPostId: state.selectedPostId,
       postId: state.postId,
-      isMarkdownOn: state.isMarkdownOn,
-      isRawOn: state.isRawOn,
       setIsLoadingDraftBody: state.setIsLoadingDraftBody,
       setIsAutoSaving: state.setIsAutoSaving,
       setRecentAutoSavedData: state.setRecentAutoSavedData,
+    }))
+  );
+  const { isMarkdownOn, isRawOn } = useLayoutStore(
+    useShallow((state) => ({
+      isMarkdownOn: state.isMarkdownOn,
+      isRawOn: state.isRawOn,
     }))
   );
 

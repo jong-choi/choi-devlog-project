@@ -7,6 +7,7 @@ import { formatKoreanDate } from "@/lib/date";
 import { useIndexedDB } from "@/hooks/use-indexeddb";
 import { UploadingDialogTrigger } from "@/components/post/post-controller/post-uploading-dialog";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function AutosaveIndicator() {
   const deleteByPostId = useIndexedDB().deleteByPostId;
@@ -20,7 +21,6 @@ export default function AutosaveIndicator() {
     isLocalDBChecked,
     recentAutoSavedData,
     setIsLoadingDraftBody,
-    setIsEditMode,
     setIsLoadingDraftTitle,
     setBeforeUploading,
   } = useAutosave(
@@ -34,9 +34,13 @@ export default function AutosaveIndicator() {
       isLocalDBChecked: state.isLocalDBChecked,
       recentAutoSavedData: state.recentAutoSavedData,
       setIsLoadingDraftBody: state.setIsLoadingDraftBody,
-      setIsEditMode: state.setIsEditMode,
       setIsLoadingDraftTitle: state.setIsLoadingDraftTitle,
       setBeforeUploading: state.setBeforeUploading,
+    }))
+  );
+  const { setIsEditMode } = useLayoutStore(
+    useShallow((state) => ({
+      setIsEditMode: state.setIsEditMode,
     }))
   );
 

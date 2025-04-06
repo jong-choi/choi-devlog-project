@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export function SidebarCategoryContent({
   catagory,
@@ -17,11 +18,16 @@ export function SidebarCategoryContent({
   selectedSubcategoryId?: string | null;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
 }) {
-  const { isOpened, toggleCategory, isSortable } = useSidebarStore(
+  const { isSortable } = useLayoutStore(
+    useShallow((state) => ({
+      isSortable: state.isSortable,
+    }))
+  );
+
+  const { isOpened, toggleCategory } = useSidebarStore(
     useShallow((state) => ({
       isOpened: state.openedCategories[catagory.id] || false,
       toggleCategory: state.toggleCategory,
-      isSortable: state.isSortable,
     }))
   );
 
