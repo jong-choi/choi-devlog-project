@@ -3129,3 +3129,344 @@ export default async function PostRootLayout({
   ```
     mobileOpen: false,
   ```
+
+## 30일차 + 31일차
+
+### 레이아웃 바운더리 원리 이해
+
+지금까지 살펴본 바에 따르면, 상위 폴더에 있는 레이아웃은 상태가 초기화되지 않고, 하위 폴더에 있는 내용들만 언마운트/마운트 되면서 내용이 바뀌는 것을 확인할 수 있었는데, 이는 next.js가 레이아웃 바운더리(Layout Boundary, shared layout boundary, route segment boundary)를 가지고 있기 때문이다.
+
+next js는 각 segement마다 layout과 page를 각기 ssg로 렌더링하여 캐싱하며,
+최초 사용자가 접속 시에 이렇게 나뉘어진 segement별 html들을 병합하여 전송한다.
+
+이후 사용자가 요청을 보낼 때마다, 변화가 있는 segement의 html만 주고 받는, 즉 Patial 렌더링(혹은 streaming) 방식으로 작동한다.
+
+### 레이아웃 리팩토링
+
+위와 같은 원리를 이용해 레이아웃을 리팩토링한다.
+
+기존
+
+```tsx
+export default async function PostRootLayout({
+  children,
+}: PostRootLayoutProps) {
+  return <LayoutStoreProvider>{children}</LayoutStoreProvider>;
+}
+```
+
+```tsx
+export default async function PostDetailLayout({
+  params,
+  children,
+}: PostDetailLayoutProps) {
+  const urlSlug = (await params).urlSlug || "";
+  const { data } = await getSidebarCategory();
+  const categories = data || [];
+  const { data: PostsData } = await getSidebarPosts();
+  const posts = PostsData || [];
+
+  return (
+    <PostSidebarWrapper categories={categories} urlSlug={urlSlug} posts={posts}>
+      <div className="flex h-screen">
+        <Sidebar categories={categories} posts={posts} />
+        {children}
+      </div>
+    </PostSidebarWrapper>
+  );
+}
+```
+
+사이드바가 PostDetailLayout에 들어가있는데, 이렇게 되는 경우에는 모든 게시글들이 postSidebar와 관련된 html을 중복하여 캐싱하게 되며, 스트리밍을 할 때에도 함께 들어오게 된다.
+
+따라서 아래와 같이 중복될 수 있는 부분을 rootlayout으로 보내야 한다.
+
+```tsx
+import { getSidebarCategory, getSidebarPosts } from "@/app/post/actions";
+import { Sidebar } from "@/components/post/sidebar/post-sidebar";
+import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
+import { LayoutStoreProvider } from "@/providers/layout-store-provider";
+
+interface PostRootLayoutProps {
+  children: React.ReactNode;
+}
+
+export default async function PostRootLayout({
+  children,
+}: PostRootLayoutProps) {
+  const { data } = await getSidebarCategory();
+  const categories = data || [];
+  const { data: PostsData } = await getSidebarPosts();
+  const posts = PostsData || [];
+
+  return (
+    <LayoutStoreProvider>
+      <PostSidebarWrapper categories={categories} posts={posts}>
+        <div className="flex h-screen">
+          <Sidebar categories={categories} posts={posts} />
+          {children}
+        </div>
+      </PostSidebarWrapper>
+    </LayoutStoreProvider>
+  );
+}
+```
+
+```tsx
+interface PostDetailLayoutProps {
+  params: Promise<{
+    urlSlug?: string;
+  }>;
+
+  children: React.ReactNode;
+}
+
+export default async function PostDetailLayout({
+  params,
+  children,
+}: PostDetailLayoutProps) {
+  const urlSlug = (await params).urlSlug || "";
+
+  return <>{children}</>;
+}
+```
+
+위와 같이 변경하는 경우, urlSlug를 통해 선택된 카테고리와 선택된 게시글을 업데이트하는 로직이 제외되어 있다. 이때 필요한 것이 SidebarHydrator 이다.
+
+```tsx
+interface PostDetailLayoutProps {
+  params: Promise<{
+    urlSlug?: string;
+  }>;
+
+  children: React.ReactNode;
+}
+
+export default async function PostDetailLayout({
+  params,
+  children,
+}: PostDetailLayoutProps) {
+  const urlSlug = (await params).urlSlug || "";
+
+  return <>{children}</>;
+}
+```
+
+```tsx
+"use client";
+
+import { useEffect } from "react";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { useShallow } from "zustand/react/shallow";
+
+interface SidebarHydratorProps {
+  urlSlug?: string;
+}
+
+export default function SidebarHydrator({
+  urlSlug = "",
+}: SidebarHydratorProps) {
+  const {
+    categories,
+    posts,
+    setCategory,
+    setSubcategory,
+    setPost,
+    setOpenCategory,
+  } = useSidebarStore(
+    useShallow((state) => ({
+      categories: state.categories,
+      posts: state.posts,
+      setCategory: state.setCategory,
+      setSubcategory: state.setSubcategory,
+      setPost: state.setPost,
+      setOpenCategory: state.setOpenCategory,
+    }))
+  );
+
+  useEffect(() => {
+    if (!categories || !posts) return;
+    const decodedSlug = decodeURIComponent(urlSlug);
+    const post = posts.find((p) => p.url_slug === decodedSlug);
+
+    let selectedCategoryId = categories[0]?.id ?? null;
+
+    if (post) {
+      setPost(post.id);
+
+      for (const category of categories) {
+        const subcategory = category.subcategories.find(
+          (sub) => sub.id === post.subcategory_id
+        );
+
+        if (subcategory) {
+          selectedCategoryId = category.id;
+          setCategory(category.id);
+          setSubcategory({ id: subcategory.id, name: subcategory.name });
+          setOpenCategory(category.id, true);
+          break;
+        }
+      }
+    } else {
+      setCategory(selectedCategoryId);
+    }
+  }, [
+    categories,
+    posts,
+    urlSlug,
+    setCategory,
+    setSubcategory,
+    setPost,
+    setOpenCategory,
+  ]);
+
+  return null;
+}
+```
+
+SidebarHydrator는 urlSlug를 받아 사이드바 상태에 주입한다.
+
+이와같이 리팩토링하는 경우, 최초 로딩시에 사이드바가 기본상태였다가 순간적으로 하이드레이션되는 과정을 겪게 된다.
+
+하지만 최초 로딩 이후에는 post와 관련된 내용들만 partial하게 rendering하기 때문에 사이드바에 불필요한 렌더링이 사라지고, 서버에서 `post/[urlSlug]`들이 차지하는 캐싱데이터의 용량이 줄어들게 된다.
+
+여기에 마지막으로 디테일을 잡아보자.
+
+앞서 설명했듯, 최초 마운트시에 초기상태로 렌더링되었다가 하이드레이션이 되는 플리커링이 일어나 미관상 보기 좋지 않다.
+
+loading이라는 플래그를 세워 스켈레톤을 보여주자.
+loading의 초기값은 true이다.
+
+```tsx
+export function Sidebar({
+
+}: {
+
+}) {
+
+  const {
+
+    loading,
+  } = useSidebarStore(
+    useShallow((state) => ({
+
+      loading: state.loading,
+    }))
+  );
+
+  return
+              {loading ? (
+                <SidebarSkeleton />
+              ) : (
+                <WithSortableList items={categories}>
+                  {(categories) =>
+                    categories.map((cat) => (
+                      <SidebarCategoryContent
+                        key={cat.id}
+                        catagory={cat}
+                        setSidebarRightCollapsed={setSidebarRightCollapsed}
+                        setSubcategory={setSubcategory}
+                        selectedSubcategoryId={selectedSubcategoryId}
+                      />
+                    ))
+                  }
+                </WithSortableList>
+              )}
+```
+
+스켈레톤은 아래와 같이 opacity-30, blur-sm 인 더미 텍스트들을 보여주도록 하였다. 또한 shimmer 효과를 주기 위한 animate pulse까지.
+
+```tsx
+export function SidebarSkeleton() {
+  const dummyLines = [
+    "송희는 들어 보고 싶다기보다",
+    "버려 보고 싶었다.",
+    "빈 봉을 쏘아 올리며",
+    "한 계절을 보냈다.",
+    "하체의 힘이 봉에 제대로 전달됐을 때 울리는,",
+    "‘탕’ 하는 경쾌한 소리.",
+    "진동하는 봉 안에서",
+    "작은 링과 티끌 같은 것들이 구르며 내는 메아리.",
+    "쌀알을 부어 넣은 페트병,",
+    "아버지가 흔드는 은단통,",
+    "혹은 수학여행지의 바다에서 들었던",
+    "파도가 쓸어가는 굵은 모래 소리.",
+    "- 김기태, 『무겁고 높은』, 2022",
+  ];
+
+  return (
+    <div className="space-y-2 animate-pulse">
+      {dummyLines.map((text, i) => (
+        <p
+          key={i}
+          className="h-[36px] px-3 py-2 text-sm font-medium text-color-base opacity-30 blur-sm select-none"
+        >
+          {text}
+        </p>
+      ))}
+    </div>
+  );
+}
+```
+
+마지막으로 sidebar-hydrator는
+
+1. loading이 true일 때에는 선택된 카테고리, 선택된 게시글 등을 지정한다.
+2. loading이 false일 때에는 선택된 카테고리와 선택된 게시글은 이미 지정되었을 것으로 보고 post만 지정하고 return한다.
+3. 마지막으로, 모바일인 경우 글을 이동할 때마다 모바일 사이드바가 닫혀야 함으로, 모바일 사이드바에 한정해서는 마운트 이후에도 게시글이 바뀔 때마다 off로 하이드레이션을 한다.
+
+```tsx
+"use client";
+
+import { useEffect } from "react";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { useShallow } from "zustand/react/shallow";
+
+interface SidebarHydratorProps {
+  urlSlug?: string;
+}
+
+export default function SidebarHydrator({
+  urlSlug = "",
+}: SidebarHydratorProps) {
+  const {
+...
+    loading,
+...
+    setLoaded,
+    setMobileClosed,
+  } = useSidebarStore(
+    useShallow((state) => ({
+...
+      loading: state.loading,
+...
+      setLoaded: state.setLoaded,
+      setMobileClosed: state.setMobileClosed,
+    }))
+  );
+
+  useEffect(() => setMobileClosed(), [setMobileClosed]);
+
+  useEffect(() => {
+    if (!loading) return;
+    if (!categories || !posts) return;
+...
+    if (post) {
+      setPost(post.id);
+
+      if (!loading) return;
+      for (const category of categories) {
+...
+    setLoaded();
+  }, [
+
+    loading,
+    setLoaded,
+  ]);
+
+  return null;
+}
+```
+
+GET /post/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%A3%A8%EC%8A%A4%EC%B9%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%B5%9C%EC%86%8C-%EC%8B%A0%EC%9E%A5-%ED%8A%B8%EB%A6%AC 200 in 545ms
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
