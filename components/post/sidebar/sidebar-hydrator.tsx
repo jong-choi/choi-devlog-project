@@ -14,20 +14,28 @@ export default function SidebarHydrator({
   const {
     categories,
     posts,
+    loading,
     setCategory,
     setSubcategory,
     setPost,
     setOpenCategory,
+    setLoaded,
+    setMobileClosed,
   } = useSidebarStore(
     useShallow((state) => ({
       categories: state.categories,
       posts: state.posts,
+      loading: state.loading,
       setCategory: state.setCategory,
       setSubcategory: state.setSubcategory,
       setPost: state.setPost,
       setOpenCategory: state.setOpenCategory,
+      setLoaded: state.setLoaded,
+      setMobileClosed: state.setMobileClosed,
     }))
   );
+
+  useEffect(() => setMobileClosed(), [setMobileClosed]);
 
   useEffect(() => {
     if (!categories || !posts) return;
@@ -38,7 +46,6 @@ export default function SidebarHydrator({
 
     if (post) {
       setPost(post.id);
-
       for (const category of categories) {
         const subcategory = category.subcategories.find(
           (sub) => sub.id === post.subcategory_id
@@ -55,6 +62,7 @@ export default function SidebarHydrator({
     } else {
       setCategory(selectedCategoryId);
     }
+    setLoaded();
   }, [
     categories,
     posts,
@@ -63,6 +71,8 @@ export default function SidebarHydrator({
     setSubcategory,
     setPost,
     setOpenCategory,
+    loading,
+    setLoaded,
   ]);
 
   return null;

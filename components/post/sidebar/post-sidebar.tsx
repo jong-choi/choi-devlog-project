@@ -18,6 +18,7 @@ import PostUpdateForm from "@/components/popover/update-popover/post-update-form
 import { CreatePopover } from "@/components/popover/create-popover/create-popover";
 import CreateCategoryForm from "@/components/popover/create-popover/create-category-form";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 
 export function Sidebar({
   inset = false,
@@ -47,12 +48,14 @@ export function Sidebar({
     selectedSubcategoryName,
     selectedPostId,
     setSubcategory,
+    loading,
   } = useSidebarStore(
     useShallow((state) => ({
       selectedSubcategoryId: state.selectedSubcategoryId,
       selectedSubcategoryName: state.selectedSubcategoryName,
       selectedPostId: state.selectedPostId,
       setSubcategory: state.setSubcategory,
+      loading: state.loading,
     }))
   );
 
@@ -110,19 +113,23 @@ export function Sidebar({
                 </CreatePopover>
                 <ToggleSortableButton />
               </div>
-              <WithSortableList items={categories}>
-                {(categories) =>
-                  categories.map((cat) => (
-                    <SidebarCategoryContent
-                      key={cat.id}
-                      catagory={cat}
-                      setSidebarRightCollapsed={setSidebarRightCollapsed}
-                      setSubcategory={setSubcategory}
-                      selectedSubcategoryId={selectedSubcategoryId}
-                    />
-                  ))
-                }
-              </WithSortableList>
+              {loading ? (
+                <SidebarSkeleton />
+              ) : (
+                <WithSortableList items={categories}>
+                  {(categories) =>
+                    categories.map((cat) => (
+                      <SidebarCategoryContent
+                        key={cat.id}
+                        catagory={cat}
+                        setSidebarRightCollapsed={setSidebarRightCollapsed}
+                        setSubcategory={setSubcategory}
+                        selectedSubcategoryId={selectedSubcategoryId}
+                      />
+                    ))
+                  }
+                </WithSortableList>
+              )}
             </div>
           </div>
         )}
@@ -141,58 +148,58 @@ export function Sidebar({
       >
         {!sidebarRightCollapsed && (
           <div className="p-4 w-64 overflow-auto space-y-1 scrollbar flex flex-col">
-            {selectedSubcategoryId ? (
-              <>
-                {selectedSubcategoryName && (
-                  <div className="font-extralight px-3 select-none">
-                    {selectedSubcategoryName}
-                  </div>
-                )}
-                <WithSortableList
-                  items={posts.filter(
-                    (post) => post.subcategory_id === selectedSubcategoryId
-                  )}
-                >
-                  {(sortedPosts) =>
-                    sortedPosts.map((post) => (
-                      <div
-                        key={post.id}
-                        className="flex justify-between items-center w-full"
-                      >
-                        <WithSortableItem key={post.id} id={post.id}>
-                          <Link
-                            href={`/post/${post.url_slug}`}
-                            className={cn(
-                              "block px-3 py-2 rounded-lg text-sm transition ",
-                              selectedPostId === post.id
-                                ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                                : "text-gray-700 dark:text-gray-300"
-                            )}
-                          >
-                            {post.is_private && (
-                              <Lock
-                                className={
-                                  "h-3 w-3 text-color-muted inline-block my-auto"
-                                }
-                              />
-                            )}
-                            {post.title}
-                          </Link>
-                        </WithSortableItem>
-                        <UpdatePopover>
-                          {({ onClose }) => (
-                            <PostUpdateForm post={post} onClose={onClose} />
-                          )}
-                        </UpdatePopover>
-                      </div>
-                    ))
-                  }
-                </WithSortableList>
-              </>
-            ) : (
+            {!selectedSubcategoryId && loading && <SidebarSkeleton />}
+            {!selectedSubcategoryId && !loading && (
               <p className="text-sm text-gray-400 dark:text-gray-500">
                 서브 카테고리를 선택해주세요.
               </p>
+            )}
+            {selectedSubcategoryName && (
+              <div className="font-extralight px-3 select-none">
+                {selectedSubcategoryName}
+              </div>
+            )}
+            {selectedSubcategoryId && (
+              <WithSortableList
+                items={posts.filter(
+                  (post) => post.subcategory_id === selectedSubcategoryId
+                )}
+              >
+                {(sortedPosts) =>
+                  sortedPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="flex justify-between items-center w-full"
+                    >
+                      <WithSortableItem key={post.id} id={post.id}>
+                        <Link
+                          href={`/post/${post.url_slug}`}
+                          className={cn(
+                            "block px-3 py-2 rounded-lg text-sm transition ",
+                            selectedPostId === post.id
+                              ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
+                              : "text-gray-700 dark:text-gray-300"
+                          )}
+                        >
+                          {post.is_private && (
+                            <Lock
+                              className={
+                                "h-3 w-3 text-color-muted inline-block my-auto"
+                              }
+                            />
+                          )}
+                          {post.title}
+                        </Link>
+                      </WithSortableItem>
+                      <UpdatePopover>
+                        {({ onClose }) => (
+                          <PostUpdateForm post={post} onClose={onClose} />
+                        )}
+                      </UpdatePopover>
+                    </div>
+                  ))
+                }
+              </WithSortableList>
             )}
           </div>
         )}
