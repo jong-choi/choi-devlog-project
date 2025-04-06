@@ -1,8 +1,9 @@
-import { Category } from "@/types/post";
+import { Category, Post } from "@/types/post";
 import { createStore } from "zustand";
 
 export interface SidebarState {
   categories: Category[] | null;
+  posts: Post[] | null;
   selectedCategoryId: string | null;
   selectedSubcategoryId: string | null;
   selectedSubcategoryName: string | null;
@@ -20,6 +21,7 @@ export interface SidebarState {
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
   createStore<SidebarState>((set) => ({
     categories: null,
+    posts: null,
     selectedCategoryId: null,
     selectedSubcategoryId: null,
     selectedSubcategoryName: null,

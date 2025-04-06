@@ -44,7 +44,7 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
     },
     toggleIsSortable: () =>
       set((state) => {
-        return { isSortable: state.isSortable };
+        return { isSortable: !state.isSortable };
       }),
     ...initialState, // 초기값 덮어쓰기
   }));

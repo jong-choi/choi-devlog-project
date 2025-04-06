@@ -1,7 +1,4 @@
-import { getSidebarCategory, getSidebarPosts } from "@/app/post/actions";
-import { Sidebar } from "@/components/post/sidebar/post-sidebar";
-
-import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
+import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
 
 interface PostDetailLayoutProps {
   params: Promise<{
@@ -16,17 +13,11 @@ export default async function PostDetailLayout({
   children,
 }: PostDetailLayoutProps) {
   const urlSlug = (await params).urlSlug || "";
-  const { data } = await getSidebarCategory();
-  const categories = data || [];
-  const { data: PostsData } = await getSidebarPosts();
-  const posts = PostsData || [];
 
   return (
-    <PostSidebarWrapper categories={categories} urlSlug={urlSlug} posts={posts}>
-      <div className="flex h-screen">
-        <Sidebar categories={categories} posts={posts} />
-        {children}
-      </div>
-    </PostSidebarWrapper>
+    <>
+      <SidebarHydrator urlSlug={urlSlug} />
+      {children}
+    </>
   );
 }
