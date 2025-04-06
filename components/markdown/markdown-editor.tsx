@@ -10,10 +10,7 @@ import { cn } from "@/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 
 const MilkdownWrapper = dynamic(
-  () => import("@/components/markdown/milkdown-app/milkdown-wrapper"),
-  {
-    ssr: false, // 필요 시
-  }
+  () => import("@/components/markdown/milkdown-app/milkdown-wrapper")
 );
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {

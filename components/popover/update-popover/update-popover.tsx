@@ -6,8 +6,7 @@ import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 
 const UpdatePopoverApp = dynamic(
-  () => import("@/components/popover/update-popover/update-popover-app"),
-  { ssr: false }
+  () => import("@/components/popover/update-popover/update-popover-app")
 );
 
 type UpdatePopoverProps = {

@@ -6,8 +6,7 @@ import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
 
 const CreatePopoverApp = dynamic(
-  () => import("@/components/popover/create-popover/create-popover-app"),
-  { ssr: false }
+  () => import("@/components/popover/create-popover/create-popover-app")
 );
 
 type CreatePopoverProps = {
