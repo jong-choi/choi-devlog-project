@@ -3,6 +3,8 @@ import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
 import { AuthStoreProvider } from "@/providers/auth-provider";
 import { Toaster } from "@ui/sonner";
+import { RouteLoadingProvider } from "@/providers/route-loading-provider";
+import { RouteLoader } from "@ui/route-loader";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -31,8 +33,13 @@ export default function RootLayout({
           <span></span>
         </div>
         <AuthStoreProvider>
-          <AuthProvider />
-          <div className="z-10">{children}</div>
+          <RouteLoadingProvider>
+            <AuthProvider />
+            <div className="z-10">
+              <RouteLoader />
+              {children}
+            </div>
+          </RouteLoadingProvider>
         </AuthStoreProvider>
         <Toaster />
       </body>
