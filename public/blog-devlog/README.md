@@ -3468,5 +3468,505 @@ export default function SidebarHydrator({
 }
 ```
 
+## 31일차
+
+### Image 태그 버그 수정 (empty string)
+
+```
 GET /post/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%A3%A8%EC%8A%A4%EC%B9%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%B5%9C%EC%86%8C-%EC%8B%A0%EC%9E%A5-%ED%8A%B8%EB%A6%AC 200 in 545ms
 An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+```
+
+비어 있는 string을 src로 넣으면 페이지를 새로 로딩하겠다는 협박을 당했다.  
+그리고... 실제로 페이지가 무한로딩 되었다.  
+일전에 이미지를 업로드하다가 멈춰서 blob으로 있던 이미지였다.
+
+수정 전
+
+```tsx
+<ReactMarkdown
+  remarkPlugins={[remarkGfm, remarkParse, remarkBreaks]}
+  rehypePlugins={[rehypeHighlight]}
+  components={{
+    img: ({ src = "", alt = "" }) => {
+      return (
+        <Image
+          src={src}
+          alt={alt}
+          // https://stackoverflow.com/questions/69230343/nextjs-image-component-with-fixed-witdth-and-auto-height
+          width="0"
+          height="0"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="w-auto h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[340px]"
+        />
+      );
+    },
+  }}
+>
+  {children}
+</ReactMarkdown>
+```
+
+수정 후
+
+```tsx
+<ReactMarkdown
+  remarkPlugins={[remarkGfm, remarkParse, remarkBreaks]}
+  rehypePlugins={[rehypeHighlight]}
+  components={{
+    img: ({ src, alt = "" }) => {
+      if (!src)
+        return (
+          <Image
+            src={
+              "data:image/svg+xml;base64," +
+              "Cjxzdmcgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHZpZXdCb3g9IjAgMCAxNTAgMTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjlmOWY5Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzZweCI+4pqg77iP8J+YrTwvdGV4dD4KPC9zdmc+Cg=="
+            }
+            alt="image-error"
+            width="0"
+            height="0"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="w-auto h-[180px] shadow-glass"
+          />
+        );
+      return (
+        <Image
+          src={src}
+          alt={alt}
+          // https://stackoverflow.com/questions/69230343/nextjs-image-component-with-fixed-witdth-and-auto-height
+          width="0"
+          height="0"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="w-auto h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[340px]"
+        />
+      );
+    },
+  }}
+>
+  {children}
+</ReactMarkdown>
+```
+
+src에 디폴트 값이 들어 있던 것을 없애고 예외처리를 해주었다. SSR이 되기 때문에 Image나 img 태그가 아닌 다른 태그는 사용할 수가 없었고, 그래서 base64를 이용해서 플레이스 홀더를 만들어 주었다. 해당 베이스64는 귀여운 이모지가 나온다.
+
+### 화면 전체를 관장하는 Loader 만들기
+
+지금 현재 캐싱이 게시글로 이동할 때에는 즉각적이지만, 캐싱이 되지 않은 페이지로 이동할 따에는 시간이 오래 걸리는 문제가 있다.
+
+그렇다고 /post/[urlSlug]에 loading.tsx를 넣는 경우 SSG 자체가 되지 않게 된다.
+
+이를 해결하는 방법은 클라이언트 사이드에서 임시로 spinwheel을 보여줬다가 꺼줬다가 하는 방식으로 ux를 개선하는 것이다.
+
+아래와 같이 zustand 상태를 만든다.
+
+```tsx
+import { createStore } from "zustand";
+
+type LoadingState = "idle" | "pending" | "loading";
+
+export interface RouteLoadingState {
+  state: LoadingState;
+  start: () => void;
+  stop: () => void;
+}
+
+export const createRouteLoadingStore = (
+  initialState?: Partial<RouteLoadingState>
+) =>
+  createStore<RouteLoadingState>((set, get) => {
+    let timeout: NodeJS.Timeout; // timeout id를 저장하는 '비공개 상태'
+    return {
+      state: "idle",
+      start: () => {
+        clearTimeout(timeout);
+        set({ state: "pending" });
+        timeout = setTimeout(() => {
+          if (get().state === "pending") {
+            set({ state: "loading" });
+          }
+        }, 200);
+      },
+      stop: () => {
+        clearTimeout(timeout);
+        set({ state: "idle" });
+      },
+      ...initialState,
+    };
+  });
+```
+
+idle은 로딩이 완료된 상태
+pending은 로딩 스핀휠을 노출시키기 전 200ms를 대기하는 상태
+loading은 페이지 이동이 200ms보다 길어져서 로딩 스핀휠을 보여주고 있는 상태이다.
+
+위 스토어의 detail은
+
+1. setTimeout의 id를 `timeout`이라는 변수에 선언했다. 이와 같이 observe할 필요가 없는 상태들은 함수 내부에 변수로 지정하여 사용하는 것이 좋다. (클로저가...느껴지십니까?)
+2. start는 실행될 때마다 clearTimeout(timeout)을 하여 Race Condition을 방지한다. Race Condition이 일어날 때에 후발주자를 막느냐 선발주자를 조지느냐의 문제인데, Loading UI의 기본 목적은 사용자가 지루하지 않게 하기 위함인 바, 클릭을 열심히 하는 사용자는 지루하지 않아 급할 이유가 없으므로 선발주자를 ClearTimeout 조져버린다.
+
+Link 태그를 클릭할 때마다 Start 함수를 실행시키면 된다.
+
+```tsx
+export function LinkLoader(props: Props) {
+  const { start } = useRouteLoadingStore(
+    useShallow((state) => ({
+      start: state.start,
+    }))
+  );
+
+  return (
+    <Link
+      {...props}
+      onClick={(e) => {
+        props.onClick?.(e);
+        start();
+      }}
+    />
+  );
+}
+```
+
+컴포넌트 명은 Link라고 했을때 자동완성이 되는걸 고려해서 지었다.
+
+참고로 위의 링크는 버그가 하나 있는데, 자기 자신으로 이동하는 경우 무한 로딩이 걸린다.
+
+Next의 Link의 Href는 string으로도 줄 수 있고, 객체로도 줄 수 있고, 객체에서 pathname 빼고 쿼리만 넣을 수도 있고... 별의 별 분기가 다 있는데 이걸 다 처리해주는건 오버해드가 있는 것 같다.
+
+그래서 아래처럼 'href'가 pathname이랑 다르거나, href.pathname이 pathname과 다른 경우에만 start()를 실행하도록 예외처리를 넣어주었다. start()가 실행이 안되는 경우(가령 Link태그에 객체를 이용해 searchParams를 밀어넣는 경우 등)가 있지만, 적어도 start()가 너무 자주 실행되어서 무한 로딩보다는 낫다.
+
+```tsx
+      onClick={(e) => {
+        onClick?.(e);
+        if (
+          (typeof href === "object" &&
+            (href as UrlObject).pathname !== decodedPathname) ||
+          (typeof href === "string" && href !== decodedPathname)
+        ) {
+          start();
+        }
+      }}
+```
+
+참고로 객체를 다룰 때에는 (typeof href === "object" &&)와 같이 타입 체크를 명시적으로 같이 해주는게 좋다. 그러지 않으면 예상치 못한 타이밍에 `[object obejct]`라는 녀석이 튀어나와서 꿈 속에서도 괴롭힌다.
+
+이제 이 링크태그를 기존 Next/Link 태그를 대신하여 넣으면 된다.
+
+```tsx
+<LinkLoader href={`/post/${post.url_slug}`}>{post.title}</LinkLoader>
+```
+
+Link 태그를 LinkLoader로 변경함으로써 링크를 이동할 때마다 0.2초 후 loading이 된다.
+
+이제 나머지 두 가지 기능이 필요한데.
+
+1. loading 상태일 때 스핀휠을 보여준다.
+2. 링크 이동이 완료된 경우 stop()을 실행시켜 idle로 변경한다.
+
+이 두 가지를 RouteLoader라는 컴포넌트로 합쳤다.
+
+```tsx
+export function RouteLoader() {
+  const pathname = usePathname();
+  const { stop, state } = useRouteLoadingStore(
+    useShallow((state) => ({
+      stop: state.stop,
+      state: state.state,
+    }))
+  );
+
+  useEffect(() => {
+    stop();
+  }, [pathname, stop]);
+
+  if (state !== "loading") return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] md:z-30 flex items-center justify-center bg-glass-bg-20 backdrop-blur-sm">
+      <div className="text-muted-foreground">
+        <Spinner size="lg" />
+      </div>
+    </div>
+  );
+}
+```
+
+위의 코드에서의 디테일은
+
+```tsx
+useEffect(() => {
+  stop();
+}, [pathname, stop]);
+```
+
+주소가 바뀔 때마다 stop()을 실행한다. (참고로 zustand의 setter는 static하기 때문에 useEffect 실행에 영향을 주지 않음)
+
+`fixed inset-0 backdrop-blur-sm` - 화면 전체를 감싸고 blur로 흐릿하게 만든다
+`md:z-30` z 인덱스는 30: 메인 콘텐츠의 요소들이 10, 20의 z-index를 쓴다. `drawer`와 `사이드바`는 z-index가 50이다. 따라서 이 사잇값인 30으로 z-index를 줘서 메인 콘텐츠 영역만 감추도록 한다.
+`z-[100]` 모바일에서는 z-index가 100. 모바일 사이드바가 화면 전체를 가득 채우는데, z-index가 50이다. 따라서 50보다 큰 수를 넣어 사이드바보다 위로 나오게 한다.
+
+### 캐싱 조건 만들기
+
+로딩 ui를 만들고나서 느끼는건,
+로그인 된 사용자는 무조건 캐싱을 안하도록 하는데, 너무 로딩이 많아서 힘들다.
+
+그래서 '로그인은 됐지만, is_private이 아니면 캐싱을 하고싶어...'라는 생각.
+
+그래서 withSupabaseCache의 skipCache에 대해 고민하기 시작했다.
+
+일단 skipCache에 supabase client를 넘겨줘서 이를 사용하게 한다.
+
+```ts
+// 기존
+  skipCache?: (params: P) => boolean;
+
+// 수정
+  skipCache?: (ctx: {
+    supabase: SupabaseClient;
+    params: P;
+  }) => Promise<boolean>;
+```
+
+이제 supabase 클라이언트 자체를 넘겨주었기 때문에 로그인이 됐는지 게시글이 is_private인지 모두 다 확인할 수 있게 됐다.
+
+그러고 나서... 자주 쓰이는 로직 (로그인 된 사용자면 skip cache)을 어떻게 추상화 할것인가에 대한 고민
+
+1. 플러그인 방식
+
+```ts
+skipCache: applyPlugins([isLoggedIn(), postIsPrivate(postId)]);
+```
+
+applyPlugins에서 함수 배열을 순회하면서, 해당 배열에 ctx를 주입해가면서 실행한다.  
+문제는 이 코딩 컨벤션이 계속 유지되기가 힘들다는 것.
+
+```ts
+skipCache: async ({ params }) => !!params.search,
+skipCache: applyPlugins([
+  isLoggedIn(),
+  ({ params }) => !!params.search,
+])
+```
+
+위와 같이 직접 skipCache의 함수를 커스텀으로 작성하는 경우가 종종 생길 것으로 보이며, 이를 방지하기 위해서는 새로운 로직을 작성할 때마다 plugin화 해야한다.
+
+2. 팩토리 방식
+
+```ts
+skipCache: async ({ params, presets }) => {
+  const isLoggedIn = await presets.isLoggedIn();
+  const isSearching = !!params.search;
+  return !isLoggedIn && !isSearching;
+};
+skipCache: async ({ params, presets }) =>
+  presets.isLoggedIn() && presets.postNotPrivate(params.postId);
+```
+
+코딩의 자유도가 지나치게 높기는 한데, skipCache가 결과값으로 boolean을 반환하는 비동기 함수라는 점은 일관되게 유지되며, 복잡한 로직이 가능해진다. presets는 그저 유틸함수, helper 함수의 모음집일 뿐...
+
+따라서 2번 팩토리 방식(내지는 전략 패턴...?) 으로 간다.
+
+#### 팩토리 방식으로 기능확장
+
+```tsx
+export const makePresets = <P extends Record<string, unknown>>({
+  supabase,
+  params,
+}: {
+  supabase: SupabaseClient;
+  params: P;
+}) => {
+  return {
+    isLoggedIn: async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      return !!session?.user;
+    },
+    isPrivatePost: async () => {
+      const postId = params?.postId;
+      if (typeof postId !== "string") return true;
+      const { data } = await supabase
+        .from("posts")
+        .select("is_private")
+        .eq("id", postId)
+        .single();
+      return data?.is_private === true;
+    },
+  };
+};
+```
+
+params와 supabase를 받아서 유틸 함수를 만드는 makePresets를 만든다.
+
+이때 한가지 최적화 문제가 있는데
+
+makePresets는 supabase와 params에 의존성을 가지고 있기 때문에 싱글톤 패턴으로 만들지 못한다. 그래서 이 거대한 팩토리를 매 요청마다 만들게 된다.
+
+차선책 : Lazy Getter를 이용한다. 이렇게 하면 팩토리 객체 자체는 만들어 지지만 내부의 함수들은 평가단계를 거치지 않는다.
+
+```tsx
+export const makePresets = <P extends Record<string, unknown>>({
+  supabase,
+  params,
+}: {
+  supabase: SupabaseClient;
+  params: P;
+}) => {
+  return {
+    get isLoggedIn() {
+      return async () => {
+        const { data } = await supabase.auth.getSession();
+        return !!data.session?.user;
+      };
+    },
+    get isPrivatePost() {
+      return async () => {
+        const postId = params?.postId;
+        if (typeof postId !== "string") return true;
+        const { data } = await supabase
+          .from("posts")
+          .select("is_private")
+          .eq("id", postId)
+          .single();
+        return data?.is_private === true;
+      };
+    },
+  };
+};
+```
+
+Lazy Getter의 원리
+
+- 객체가 생성될 때, 그 객체 안에 있는 프로퍼티와 메서드들은 즉시 평가되어 메모리에. 이를 데이터 프로퍼티라고 한다.
+
+```js
+const obj1 = {
+  foo: () => {
+    return 123;
+  },
+};
+```
+
+```js
+console.log(Object.getOwnPropertyDescriptor(obj2, "foo"));
+/*
+  {
+    get: [Function: get foo],
+    set: undefined,
+    enumerable: true,
+    configurable: true
+  }
+*/
+```
+
+- 하지만 getter를 사용하면, getter 내부에 있는 값은 평가되지 않는다. getter와 setter를 접근자 프로퍼티라고 한다.
+
+```js
+const obj2 = {
+  get foo() {
+    return () => {
+      return 123;
+    };
+  },
+};
+```
+
+```js
+console.log(Object.getOwnPropertyDescriptor(obj2, "foo"));
+/*
+{
+  get: [Function: get foo],
+  set: undefined,
+  enumerable: true,
+  configurable: true
+}
+*/
+```
+
+한편 현재로서는 접근자 프로퍼티의 성능상 이점이 크지 않아 굳이 사용할 필요가 없어 보이는데...  
+접근자 프로퍼티의 특성을 활용해서 반환값을 즉시실행 함수로 하여 용이성을 높이도록 한다.
+
+```tsx
+export const makePresets = <P extends Record<string, unknown>>({
+  supabase,
+  params,
+}: {
+  supabase: SupabaseClient;
+  params: P;
+}) => {
+  return {
+    get isLoggedIn() {
+      return (async () => {
+        const { data } = await supabase.auth.getSession();
+        return !!data.session?.user;
+      })();
+    },
+    get isPrivatePost() {
+      return (async () => {
+        const postId = params?.postId;
+        if (typeof postId !== "string") return true;
+        const { data } = await supabase
+          .from("posts")
+          .select("is_private")
+          .eq("id", postId)
+          .single();
+        return data?.is_private === true;
+      })();
+    },
+  };
+};
+```
+
+```tsx
+// 즉시실행 이전
+const loggedIn = await presets.isLoggedIn();
+const isPrivate = await presets.isPrivatePost();
+
+// 즉시실행 이후
+const loggedIn = await presets.isLoggedIn;
+const isPrivate = await presets.isPrivatePost;
+```
+
+즉시실행함수로 변환하여 해당 getter 들이 params를 받지 않음을 명확히 한다.
+
+과도한 추상화이긴 하지만, preset을 통해 호출하는 경우 ctx의 params와 supabase를 조회할 필요가 없고, 별도의 실행을 할 필요도 없어 편의성이 높아지고 코드가 짧아졌다.
+
+...
+하지만 결국 과도한 추상화 문제로 타입에러도 많이나고 명시적이지 않아서 아래처럼 그냥 메서드 형식으로 받아서 쓰는 걸로...
+
+```tsx
+export const makePresets = () => {
+  return {
+    async isLoggedIn({ supabase }: { supabase: SupabaseClient }) {
+      const { data } = await supabase.auth.getSession();
+      return !!data.session?.user;
+    },
+    async isPrivatePost({
+      supabase,
+      params,
+    }: {
+      supabase: SupabaseClient;
+      params: { postId?: string };
+    }) {
+      const { postId } = params;
+      if (typeof postId !== "string") return true;
+      const { data } = await supabase
+        .from("posts")
+        .select("is_private")
+        .eq("id", postId)
+        .single();
+      return data?.is_private === true;
+    },
+  };
+};
+```
+
+대신 presets 인스턴스는 skipCache 함수가 있을 때 생성하는 걸로 타협했다.
+
+```ts
+const shouldSkipCache =
+  (await skipCache?.({ supabase, params, presets: makePresets() })) ||
+  rawRevalidate === 0;
+```
+
+이렇게 리팩토링된 캐시 태그를 바탕으로 게시글 조회를 실행해봤는데 다행히 캐시가 잘 된다.
