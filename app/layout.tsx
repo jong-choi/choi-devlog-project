@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="ko-KR">
       <body
-        className={`antialiased h-screen flex flex-col bg-background text-color-base font-sans`}
+        className={`antialiased h-screen flex flex-col bg-background text-color-base font-sans scrollbar-hidden`}
       >
         <div className="css-background z-0">
           <span></span>
