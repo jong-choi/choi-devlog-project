@@ -8,15 +8,15 @@ import { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 interface GetPostsParams {
   page: number;
   limit?: number;
-  search?: string;
+  keyword?: string;
 }
 
 export const _getPosts = async (
   supabase: SupabaseClient<Database>,
-  { page, limit = 10, search = "" }: GetPostsParams
+  { page, limit = 10, keyword = "" }: GetPostsParams
 ): Promise<PostgrestResponse<CardPost>> => {
   const result = await supabase.rpc("search_posts_with_snippet", {
-    search_text: search,
+    search_text: keyword,
     page,
     page_size: limit,
   });
@@ -29,6 +29,6 @@ export const getPosts = async (params: GetPostsParams) =>
     handler: _getPosts,
     key: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
     tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
-    skipCache: async ({ params }) => !!params.search, // 검색어 있으면 캐싱하지 않음
+    skipCache: async ({ params }) => !!params.keyword, // 검색어 있으면 캐싱하지 않음
     revalidate: 60 * 60 * 24 * 7, // 1주일 캐싱
   });

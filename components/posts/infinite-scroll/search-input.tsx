@@ -18,7 +18,7 @@ export default function SearchInput({
 }) {
   const router = useRouter();
   const params = useSearchParams();
-  const initialSearch = params.get("search") || "";
+  const initialSearch = params.get("keyword") || "";
   const [input, setInput] = useState(initialSearch);
 
   useEffect(() => {
@@ -26,11 +26,15 @@ export default function SearchInput({
   }, [initialSearch]);
 
   const handleSearch = () => {
+    if (!input) return router.push("/posts");
+    console.log(params);
     const newParams = new URLSearchParams(params);
-    if (input) newParams.set("search", input);
-    else newParams.delete("search");
+    if (input) newParams.set("keyword", input);
+    else newParams.delete("keyword");
 
-    router.push(`/posts/?${newParams.toString()}`, { scroll: false });
+    router.push(`/posts/search?keyword=${input}`, {
+      scroll: false,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -1,6 +1,5 @@
-import PostPageRenderer from "@/components/post/page/page-renderer";
-
 export const dynamic = "force-dynamic";
+import PostPageRenderer from "@/components/post/page/page-renderer";
 
 interface PageProps {
   params: Promise<{

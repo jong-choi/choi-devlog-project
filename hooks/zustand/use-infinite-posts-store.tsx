@@ -5,11 +5,10 @@ import { createStore } from "zustand";
 export interface InfinitePostsState {
   posts: CardPost[];
   page: number;
-  search: string;
+  keyword: string;
   loading: boolean;
   hasMore: boolean;
-  setSearch: (search: string) => void;
-  resetPosts: () => void;
+  setKeyword: (keyword: string) => void;
   fetchNextPage: () => Promise<void>;
 }
 
@@ -19,16 +18,15 @@ export const createInfinitePostsStore = (
   createStore<InfinitePostsState>((set, get) => ({
     posts: [],
     page: 0,
-    search: "",
+    keyword: "",
     loading: false,
     hasMore: true,
-    setSearch: (search) => set({ search }),
-    resetPosts: () => set({ posts: [], page: 0, hasMore: true }),
+    setKeyword: (keyword) => set({ keyword }),
     fetchNextPage: async () => {
-      const { page, posts, search, loading, hasMore } = get();
+      const { page, posts, keyword, loading, hasMore } = get();
       if (loading || !hasMore) return;
       set({ loading: true });
-      const { data } = await getPosts({ page, search });
+      const { data } = await getPosts({ page, keyword });
       const nextPosts = data || [];
       set({
         posts: [...posts, ...nextPosts],
