@@ -89,7 +89,7 @@ export function extractTextFromMarkdown(
 
 export function findCategoryAndSubcategoryById(
   categories: Category[] | null,
-  subcategoryId: string
+  subcategoryId: string | undefined
 ): { category: Category | null; subcategory: Subcategory | null } {
   if (!categories) {
     return { category: null, subcategory: null };
