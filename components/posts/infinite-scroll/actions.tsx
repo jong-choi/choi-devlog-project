@@ -29,6 +29,6 @@ export const getPosts = async (params: GetPostsParams) =>
     handler: _getPosts,
     key: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
     tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
-    skipCache: ({ search }) => !!search, // 검색어 있으면 캐싱하지 않음
+    skipCache: async ({ params }) => !!params.search, // 검색어 있으면 캐싱하지 않음
     revalidate: 60 * 60 * 24 * 7, // 1주일 캐싱
   });

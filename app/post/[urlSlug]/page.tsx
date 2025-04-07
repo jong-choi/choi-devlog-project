@@ -4,7 +4,7 @@ import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
-import { getPostByUrlSlug, getSidebarCategory } from "@/app/post/actions";
+import { getSidebarCategory } from "@/app/post/actions";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
@@ -15,6 +15,7 @@ import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import { Lock } from "lucide-react";
 import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
+import { getPostByUrlSlug } from "@/app/post/[urlSlug]/fetcher";
 
 interface PageProps {
   params: Promise<{
@@ -30,7 +31,10 @@ export default async function Page({ params, searchParams }: PageProps) {
   const { subcategory_id } = await searchParams; //?subcategory_id=123
   const { data: categoryData } = await getSidebarCategory();
 
-  const result = await getPostByUrlSlug(decodeURIComponent(urlSlug));
+  const result = await getPostByUrlSlug({
+    urlSlug: decodeURIComponent(urlSlug),
+  });
+
   const { data } = result;
 
   const { category, subcategory } = findCategoryAndSubcategoryById(
