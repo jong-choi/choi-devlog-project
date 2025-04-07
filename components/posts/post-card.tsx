@@ -3,9 +3,9 @@ import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { PostTags } from "@/types/graph";
 import { CardPost } from "@/types/post";
+import { LinkLoader } from "@ui/route-loader";
 import { Calendar, Paperclip } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export function PostCard({
   post,
@@ -15,7 +15,7 @@ export function PostCard({
   isFeatured?: boolean;
 }) {
   return (
-    <Link
+    <LinkLoader
       href={`/post/${post.url_slug}`}
       className={cn(
         "w-full bg-glass-bg-80 text-color-base rounded-xl overflow-hidden shadow-glass transition-all duration-200 border border-glass-border cursor-pointer",
@@ -116,6 +116,6 @@ export function PostCard({
           )}
         </div>
       </div>
-    </Link>
+    </LinkLoader>
   );
 }

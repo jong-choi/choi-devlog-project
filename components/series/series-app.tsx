@@ -6,8 +6,8 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { Drawer, DrawerContent } from "@ui/drawer";
 import { GlassButton } from "@ui/glass-button";
 import { SectionInnerContainer } from "@ui/glass-container";
+import { LinkLoader } from "@ui/route-loader";
 import { X } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 export default function SeriesApp({ seriesList }: { seriesList: Series[] }) {
@@ -42,9 +42,12 @@ export default function SeriesApp({ seriesList }: { seriesList: Series[] }) {
               </DialogTitle>
               <div className="w-full max-w-[50wh] md:max-w-screen-sm mx-auto pb-60 flex flex-col gap-2">
                 <SeriesInfoPanel series={selectedSeries} />
-                <Link href={"/series/" + selectedSeries.url_slug} className="">
+                <LinkLoader
+                  href={"/series/" + selectedSeries.url_slug}
+                  className=""
+                >
                   <GlassButton className="w-full">보러 가기</GlassButton>
-                </Link>
+                </LinkLoader>
               </div>
             </div>
           </DrawerContent>

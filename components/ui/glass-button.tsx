@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
+import { LinkLoader } from "@ui/route-loader";
 import { Spinner } from "@ui/spinner";
-import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -70,8 +70,8 @@ export function SectionLinkText({
   href: string;
 }) {
   return (
-    <Link href={href} className="self-end">
+    <LinkLoader href={href} className="self-end">
       <GlassButton className="text-shadow">{children}</GlassButton>
-    </Link>
+    </LinkLoader>
   );
 }

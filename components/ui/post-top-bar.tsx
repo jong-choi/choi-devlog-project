@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LinkLoader } from "@ui/route-loader";
 
 export function TopBar() {
   return (
@@ -14,10 +14,10 @@ export function TopBar() {
 
 export function Logo() {
   return (
-    <Link href="/">
+    <LinkLoader href="/">
       <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
         scribbly<span className="text-indigo-500">.</span>
       </h1>
-    </Link>
+    </LinkLoader>
   );
 }

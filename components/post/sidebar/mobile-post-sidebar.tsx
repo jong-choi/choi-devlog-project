@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 import { Post, Category } from "@/types/post";
 import { Logo } from "@ui/post-top-bar";
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
-import Link from "next/link";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { LinkLoader } from "@ui/route-loader";
 
 export function MobilePostSidebar({
   posts,
@@ -77,7 +77,7 @@ export function MobilePostSidebar({
           {posts
             .filter((post) => post.subcategory_id === selectedSubcategoryId)
             .map((post) => (
-              <Link
+              <LinkLoader
                 key={post.id}
                 href={`/post/${post.url_slug}`}
                 className={cn(
@@ -93,7 +93,7 @@ export function MobilePostSidebar({
                   />
                 )}
                 {post.title}
-              </Link>
+              </LinkLoader>
             ))}
         </div>
       ) : (
@@ -114,18 +114,18 @@ export function MobilePostSidebar({
       )}
       <div className="py-8 flex flex-col gap-4">
         <hr />
-        <Link href="/posts" className="flex items-center gap-2">
+        <LinkLoader href="/posts" className="flex items-center gap-2">
           <Search className="w-4 h-4" />
           검색
-        </Link>
-        <Link href="/posts" className="flex items-center gap-2">
+        </LinkLoader>
+        <LinkLoader href="/posts" className="flex items-center gap-2">
           <ListOrdered className="w-4 h-4" />
           전체 게시글
-        </Link>
-        <Link href="/map" className="flex items-center gap-2">
+        </LinkLoader>
+        <LinkLoader href="/map" className="flex items-center gap-2">
           <Map className="w-4 h-4" />
           지식 지도
-        </Link>
+        </LinkLoader>
       </div>
     </div>
   );

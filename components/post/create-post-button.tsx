@@ -3,7 +3,7 @@ import { Button } from "@ui/button";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { generate } from "random-words";
-import Link from "next/link";
+import { LinkLoader } from "@ui/route-loader";
 
 export default function CreatePostButton({
   subcategoryId,
@@ -25,12 +25,12 @@ export default function CreatePostButton({
   }, [subcategoryId]);
 
   return (
-    <Link href={url}>
+    <LinkLoader href={url}>
       <Button variant="secondary" size={"sm"}>
         <span className="flex items-center gap-1">
           <Plus className="w-4 h-4 text-gray-500" />새 글 작성
         </span>
       </Button>
-    </Link>
+    </LinkLoader>
   );
 }

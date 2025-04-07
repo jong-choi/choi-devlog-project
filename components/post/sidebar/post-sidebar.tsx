@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { Category, Post } from "@/types/post";
@@ -19,6 +18,7 @@ import { CreatePopover } from "@/components/popover/create-popover/create-popove
 import CreateCategoryForm from "@/components/popover/create-popover/create-category-form";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
+import { LinkLoader } from "@ui/route-loader";
 
 export function Sidebar({
   inset = false,
@@ -172,7 +172,7 @@ export function Sidebar({
                       className="flex justify-between items-center w-full"
                     >
                       <WithSortableItem key={post.id} id={post.id}>
-                        <Link
+                        <LinkLoader
                           href={`/post/${post.url_slug}`}
                           className={cn(
                             "block px-3 py-2 rounded-lg text-sm transition ",
@@ -189,7 +189,7 @@ export function Sidebar({
                             />
                           )}
                           {post.title}
-                        </Link>
+                        </LinkLoader>
                       </WithSortableItem>
                       <UpdatePopover>
                         {({ onClose }) => (

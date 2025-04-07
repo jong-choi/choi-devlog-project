@@ -1,5 +1,5 @@
 import { Post } from "@/types/post";
-import Link from "next/link";
+import { LinkLoader } from "@ui/route-loader";
 
 export default function AiRecommendedList({ posts }: { posts: Post[] }) {
   return (
@@ -13,13 +13,13 @@ export default function AiRecommendedList({ posts }: { posts: Post[] }) {
         </div>
         <hr />
         {posts.map((post) => (
-          <Link
+          <LinkLoader
             key={post.id}
             href={`/post/${post.url_slug}`}
             className="block px-3 py-2 rounded-lg text-sm text-gray-800 dark:text-gray-100  transition"
           >
             {post.title}
-          </Link>
+          </LinkLoader>
         ))}
       </div>
     </div>
