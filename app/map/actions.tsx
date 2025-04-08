@@ -6,13 +6,11 @@ import { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
 const _getClusterData = async (): Promise<
-  PostgrestResponse<
-    Database["public"]["Tables"]["clustered_posts_groups"]["Row"]
-  >
+  PostgrestResponse<Database["public"]["Tables"]["clusters"]["Row"]>
 > => {
   const supabase = createClientClient();
   const result = await supabase
-    .from("clustered_posts_groups")
+    .from("clusters")
     .select("*")
     .order("quality", { ascending: true });
 
@@ -32,15 +30,13 @@ export const getClusterData = unstable_cache(
 );
 
 const _getClusterSimData = async (): Promise<
-  PostgrestResponse<
-    Database["public"]["Tables"]["clustered_posts_groups_similarities"]["Row"]
-  >
+  PostgrestResponse<Database["public"]["Tables"]["cluster_similarities"]["Row"]>
 > => {
   const THRESHOLD = 0.6; // 원하는 기준값 설정
 
   const supabase = createClientClient();
   const result = await supabase
-    .from("clustered_posts_groups_similarities")
+    .from("cluster_similarities")
     .select("*")
     .gte("similarity", THRESHOLD) // ✅ THRESHOLD 이상만 필터링
     .order("similarity", { ascending: false });
@@ -64,7 +60,7 @@ const _getClusterWithPosts = async (
   supabase: SupabaseClient<Database>
 ): Promise<PostgrestResponse<ClusterWithPosts>> => {
   const result = await supabase
-    .from("clustered_posts_groups_with_posts")
+    .from("clusters_with_posts")
     .select("*")
     .order("quality", { ascending: true })
     .order("post_count", { ascending: false });
@@ -75,7 +71,7 @@ const _getClusterWithPosts = async (
 export const getClusterWithPosts = async () =>
   withSupabaseCache<null, ClusterWithPosts>(null, {
     handler: _getClusterWithPosts,
-    key: ["clustered_posts_groups_with_posts", CACHE_TAGS.CLUSTER.ALL()],
-    tags: ["clustered_posts_groups_with_posts", CACHE_TAGS.CLUSTER.ALL()],
+    key: ["clusters_with_posts", CACHE_TAGS.CLUSTER.ALL()],
+    tags: ["clusters_with_posts", CACHE_TAGS.CLUSTER.ALL()],
     revalidate: 60 * 60 * 24 * 30, // 30일 캐싱
   });

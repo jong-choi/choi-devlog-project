@@ -135,9 +135,9 @@ export async function GET() {
     const resultSummary = allClusters.map((c) => c.post_ids.length);
     const totalClustered = resultSummary.reduce((a, b) => a + b, 0);
 
-    // 5. 생성된 군집 배열을 clustered_posts_groups 테이블에 삽입함.
+    // 5. 생성된 군집 배열을 clusters 테이블에 삽입함.
     const { data: groups, error: insertError } = await supabase
-      .from("clustered_posts_groups")
+      .from("clusters")
       .insert(
         //@ts-expect-error: vector 타입 불일치 예상
         allClusters.map((cluster) => ({
@@ -188,7 +188,7 @@ export async function GET() {
       }
     }
 
-    // 7. 군집 간 코사인 유사도를 clustered_posts_groups_similarities 테이블에 삽입하는 단계
+    // 7. 군집 간 코사인 유사도를 cluster_similarities 테이블에 삽입하는 단계
     const CLUSTER_SIM_THRESHOLD = 0.2; // 군집 간 유사도가 적으면 삽입 안함.
     const cleanedSimilarities = similarities
       .filter((item) => item.similarity > CLUSTER_SIM_THRESHOLD)
@@ -205,7 +205,7 @@ export async function GET() {
         };
       });
     const { error: simInsertError } = await supabase
-      .from("clustered_posts_groups_similarities")
+      .from("cluster_similarities")
       .insert(cleanedSimilarities);
 
     if (simInsertError) {
