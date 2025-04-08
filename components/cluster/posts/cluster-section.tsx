@@ -1,5 +1,5 @@
 import { PostCard } from "@/components/posts/post-card";
-import { usePosts } from "@/providers/posts-store-provider";
+import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { ClusterWithPosts, GraphPost, PostTags } from "@/types/graph";
 import { useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -8,7 +8,7 @@ export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { selectedClusterId, isManualScrolling, setManualSelectedCluster } =
-    usePosts(
+    useClusterPosts(
       useShallow((state) => ({
         selectedClusterId: state.selectedCluster?.id,
         isManualScrolling: state.isManualScrolling,

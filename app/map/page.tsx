@@ -8,7 +8,7 @@ import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar"
 import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
 
 import { TopBar } from "@/components/ui/post-top-bar";
-import { PostsProvider } from "@/providers/posts-store-provider";
+import { ClusterPostsProvider } from "@/providers/cluster-posts-store-provider";
 
 export default async function Page() {
   const { data: clusterData } = await getClusterData();
@@ -20,7 +20,7 @@ export default async function Page() {
   return (
     <div className="h-screen flex flex-col bg-background text-color-base font-sans">
       <TopBar />
-      <PostsProvider
+      <ClusterPostsProvider
         initialState={{
           selectedCluster: clusterData?.[0],
           clusterPostList: postListData ? [postListData] : [],
@@ -40,7 +40,7 @@ export default async function Page() {
             </div>
           </div>
         </div>
-      </PostsProvider>
+      </ClusterPostsProvider>
     </div>
   );
 }

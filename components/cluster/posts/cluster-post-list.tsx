@@ -1,6 +1,6 @@
 "use client";
 import { ClusterSection } from "@/components/cluster/posts/cluster-section";
-import { usePosts } from "@/providers/posts-store-provider";
+import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -14,7 +14,7 @@ export default function ClusterPostList() {
     isManualScrolling,
     setManualScrolling,
     clusterPostList,
-  } = usePosts(
+  } = useClusterPosts(
     useShallow((state) => ({
       clusterPostList: state.clusterPostList,
       selectedClusterId: state.selectedCluster?.id,

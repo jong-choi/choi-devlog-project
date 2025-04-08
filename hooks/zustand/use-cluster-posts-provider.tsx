@@ -1,7 +1,7 @@
 import { ClusteredPostGroup, ClusterWithPosts } from "@/types/graph";
 import { createStore } from "zustand";
 
-export interface PostsState {
+export interface ClusterPostsState {
   selectedCluster: ClusteredPostGroup | null;
   clusterPostList: ClusterWithPosts[];
   isManualScrolling: boolean;
@@ -12,8 +12,10 @@ export interface PostsState {
   setClusterPostList: (list: ClusterWithPosts[]) => void;
 }
 
-export const createPostsStore = (initialState?: Partial<PostsState>) =>
-  createStore<PostsState>((set) => ({
+export const createClusterPostsStore = (
+  initialState?: Partial<ClusterPostsState>
+) =>
+  createStore<ClusterPostsState>((set) => ({
     selectedCluster: null,
     clusterPostList: [],
     isManualScrolling: false,

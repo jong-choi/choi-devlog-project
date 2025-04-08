@@ -6,7 +6,7 @@ import {
 import ClusterGraphApp from "@/components/cluster/graph/cluster-graph-app";
 import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar";
 import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
-import { PostsProvider } from "@/providers/posts-store-provider";
+import { ClusterPostsProvider } from "@/providers/cluster-posts-store-provider";
 
 export default async function ClusterGraphSection() {
   const { data: clusterData } = await getClusterData();
@@ -15,7 +15,7 @@ export default async function ClusterGraphSection() {
     (clusterData && clusterData[0].id) || ""
   );
   return (
-    <PostsProvider
+    <ClusterPostsProvider
       initialState={{
         selectedCluster: clusterData?.[0],
 
@@ -36,6 +36,6 @@ export default async function ClusterGraphSection() {
           </div>
         </div>
       </div>
-    </PostsProvider>
+    </ClusterPostsProvider>
   );
 }

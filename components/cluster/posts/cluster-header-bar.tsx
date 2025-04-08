@@ -1,7 +1,7 @@
 "use client";
 import { getClusterWithPostsById } from "@/app/map/actions";
 import { useDebounce } from "@/hooks/use-debounce";
-import { usePosts } from "@/providers/posts-store-provider";
+import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { ClusteredPostGroup } from "@/types/graph";
 import { useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -14,7 +14,7 @@ type Props = {
 
 export function ClusterHeaderBar({ clusters }: Props) {
   const { selectedClusterId, setSelectedCluster, setClusterPostList } =
-    usePosts(
+    useClusterPosts(
       useShallow((state) => ({
         selectedClusterId: state.selectedCluster?.id,
         setSelectedCluster: state.setSelectedCluster,
