@@ -3970,3 +3970,476 @@ const shouldSkipCache =
 ```
 
 이렇게 리팩토링된 캐시 태그를 바탕으로 게시글 조회를 실행해봤는데 다행히 캐시가 잘 된다.
+
+## 32일차 - 정적 페이지 생성 최적화
+
+현재 로직은 잘 작동하나, cookies를 이용한 로직이기 때문에 정적 페이지 생성은 되지 않는다.
+최 상단인 roolLayout 에 `export const dynamic = "force-static";` 를 넣어서 정적 페이지를 생성하도록 강제한다.
+
+이후 하나씩 최적화해나간다.
+
+### post page 정적 최적화
+
+```tsx
+import { getPostByUrlSlug } from "@/app/post/[urlSlug]/fetcher";
+import PostPageRenderer from "@/components/post/page/page-renderer";
+import RedirectTo from "@ui/redirect-to";
+
+interface PageProps {
+  params: Promise<{
+    urlSlug: string;
+  }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { urlSlug } = await params;
+  const result = await getPostByUrlSlug({
+    urlSlug: decodeURIComponent(urlSlug),
+  });
+  const { data } = result;
+
+  // 데이터가 없거나, 비공개된 게시글이면 router.replace를 이용하는 클라이언트 컴포넌트로 클라이언트 쿠키와 함께 리다이렉트 시킴.
+  if (!data || data.is_private) {
+    return <RedirectTo to={`/post/${urlSlug}/private`} />;
+  }
+
+  return <PostPageRenderer data={data} />;
+}
+```
+
+- PostPageRenderer는 기존 post page에서 data를 불러오는 로직을 제외한 나머지 부분이다.
+- 게시글이 없거나, 비공개된 게시글이면 '/post/urlSlug/private'으로 리다이렉트 시킨다.
+- 이때 렌더링 없이 307로 리다이렉트시키면 클라이언트 쿠키가 날아가서 슈파베이스가 작동을 안한다. 그래서 router.replce를 이용하는 클라이언트 컴포넌트를 통해 리다이렉트 시킨다.
+
+```tsx
+// 캐싱하지 않음
+export default async function Page({ params }: PageProps) {
+  const { urlSlug } = await params;
+  const result = await getPostByUrlSlug({
+    urlSlug: decodeURIComponent(urlSlug),
+  });
+  const { data } = result;
+
+  // 게시글이 없으면 클라이언트에서 재시도
+  if (!data) {
+    return <RedirectTo to={`/post/${urlSlug}/private`} />;
+  } else if (!data.is_private) {
+    // 공개된 게시글이면 주소 변경
+    return redirect(`/post/${urlSlug}`);
+  }
+
+  return <PostPageRenderer data={data} />;
+}
+```
+
+post/urlSlug/private 페이지는 post/urlSlug 페이지와 딱 두 줄 다른데,
+
+- `export const dynamic = "force-dynamic";`을 이용해서 정적 페이지를 생성하지 않는다.
+- `!data.is_private`면 page/urlSlug로 이동시켜준다.
+- `!data`일 때 자기 자신으로 리다이렉트를 한 번 시도한다.
+  - `!data`일 때 자기 자신으로 한 번 리다이렉트를 시도하는 이유는, 클라이언트 쿠키를 받아오기 위함이다. 새로고침을 하거나, url에 직접 주소를 입력하는 경우에는 클라이언트 쿠키가 없다.
+
+시행착오를 너무 많이 겪었지만...
+추상화 수준도 적당하고 에러도 없이 잘 된다....ㅠㅠㅠ
+
+### posts 및 search 페이지 정적 최적화
+
+`posts` 페이지
+
+```tsx
+import { getPosts } from "@/components/posts/infinite-scroll/actions";
+import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
+
+export default async function PostsPage() {
+  const { data: postLists } = await getPosts({ page: 0 });
+
+  return <PostsPageRenderer initialPosts={postLists || []} />;
+}
+```
+
+`posts/search` 페이지
+
+```tsx
+export const dynamic = "force-dynamic";
+import { getPosts } from "@/components/posts/infinite-scroll/actions";
+import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
+import { redirect } from "next/navigation";
+
+interface PageProps {
+  searchParams: Promise<{ keyword: string }>;
+}
+
+export default async function SearchPage({ searchParams }: PageProps) {
+  const keyword = decodeURIComponent((await searchParams).keyword);
+  if (!keyword) return redirect("/posts");
+
+  const { data: postLists } = await getPosts({ page: 0, keyword });
+  return <PostsPageRenderer keyword={keyword} initialPosts={postLists || []} />;
+}
+```
+
+분리 작업에 큰 특이사항은 없었고,
+무한 스크롤 하면서 초기 상태값 관련해서 이슈가 있어서 조금 수정했다.
+
+### 캐싱 데이터 최적화 (벡터 테이블 분리)
+
+벡터가 쓰이는 테이블들
+
+- cluster
+- ai summaries
+- posts
+  각 테이블들이 벡터를 쓰고 있어서 참으로 곤란쓰.
+
+#### ai summaries에서 vector 분리
+
+```sql
+-- 새 테이블 생성
+CREATE TABLE ai_summary_vectors (
+  summary_id UUID PRIMARY KEY REFERENCES ai_summaries(id) ON DELETE CASCADE,
+  vector VECTOR(1536)
+);
+
+-- 이관
+INSERT INTO ai_summary_vectors (summary_id, vector)
+SELECT id, vector FROM ai_summaries WHERE vector IS NOT NULL;
+
+-- vector 칼럼 제거
+ALTER TABLE ai_summaries DROP COLUMN vector;
+
+-- view 생성
+CREATE OR REPLACE VIEW ai_summaries_with_vectors AS
+SELECT
+  a.*,
+  v.vector
+FROM ai_summaries a
+LEFT JOIN ai_summary_vectors v ON v.summary_id = a.id;
+```
+
+영향 받은 api
+app/api/similarity/generate/route.ts => ai_summaries를 ai_summaries_with_vectors
+app/api/summary/recommended/route.ts => ai_summaries, ai_summary_vectors, posts를 조인하도록 수정
+app/api/summary/update/vectors/route.ts => ai_summaries_with_vectors에서 가져오고 ai_summary_vectors를 업데이트 하도록 수정
+createAISummary 액션 => ai_summaries를 먼저 생성하고, ai_summary_vectors 생성시도
+app/api/similarity/cluster/generate/route.ts => ai_summaries를 ai_summaries_with_vectors
+
+#### posts에서 tsv 분리
+
+1. posts 테이블에서 tsv를 별도의 테이블로 분리
+2. posts 테이블에서 (post.is_private가 true가 아님 + post.is_deleted_at이 null임) 인 게시글만 조회하는 뷰를 생성
+3. 뷰와 tsv를 join하여 조회하는 뷰를 생성
+4. posts_with_tags_summaries의 이름을 변경하고 새로 생성
+
+##### tsv 테이블 분리
+
+```sql
+-- 새로운 tsv 테이블 생성
+CREATE TABLE post_tsvectors (
+  post_id UUID PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE,
+  tsv tsvector
+);
+
+-- tsv 테이블로 데이터를 이관
+INSERT INTO post_tsvectors (post_id, tsv)
+SELECT id, tsv FROM posts WHERE tsv IS NOT NULL;
+
+-- tsv 테이블 내에 인덱스 생성
+CREATE INDEX post_tsvectors_tsv_idx ON post_tsvectors USING GIN(tsv);
+```
+
+```sql
+-- tsv 생성 트리거 삭제
+DROP TRIGGER IF EXISTS tsv_update ON posts;
+
+-- tsv 생성 함수 삭제
+DROP FUNCTION IF EXISTS posts_tsv_trigger;
+
+-- posts에서 tsv 칼럼 드랍
+-- CASACADE로 영향 받는 뷰 posts_with_tags_summaries, subcategories_with_meta, clusters_with_posts
+ALTER TABLE posts DROP COLUMN tsv CASCADE;
+
+-- 새 트리거 함수 생성
+CREATE OR REPLACE FUNCTION update_post_tsvector()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO post_tsvectors (post_id, tsv)
+  VALUES (
+    NEW.id,
+    setweight(to_tsvector(coalesce(NEW.title, '')), 'A') ||
+    setweight(to_tsvector(coalesce(NEW.body, '')), 'B')
+  )
+  ON CONFLICT (post_id)
+  DO UPDATE SET tsv = EXCLUDED.tsv;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 새 트리거 생성
+CREATE TRIGGER trg_update_post_tsvector
+AFTER INSERT OR UPDATE ON posts
+FOR EACH ROW
+EXECUTE FUNCTION update_post_tsvector();
+```
+
+의존성 있는 뷰들 :
+posts_with_tags_summaries (=>published_posts_with_tags_summaries),
+subcategories_with_meta (=>subcategories_with_published_meta),
+clusters_with_posts
+
+##### published_posts view / with_tags_summaries view
+
+private이 아니고 삭제된 적 없는 게시글을 view로 생성
+
+```sql
+CREATE OR REPLACE VIEW published_posts AS
+SELECT *
+FROM posts
+WHERE NOT is_private
+  AND deleted_at IS NULL;
+```
+
+tag 및 ai요약 데이터와 조인
+posts_with_tags_summaries=>published_posts_with_tags_summaries
+
+```sql
+CREATE OR REPLACE VIEW published_posts_with_tags_summaries AS
+SELECT
+  p.id,
+  p.title,
+  COALESCE(p.short_description, ais.summary) AS short_description,
+  p.thumbnail,
+  p.released_at,
+  p.url_slug,
+  COALESCE(
+    ARRAY_AGG(
+      DISTINCT jsonb_build_object(
+        'id', t.id,
+        'name', t.name
+      )
+    ) FILTER (WHERE t.id IS NOT NULL), ARRAY[]::jsonb[]
+  ) AS tags,
+  p.body,
+  p.is_private,
+  p.subcategory_id,
+  p."order"
+FROM published_posts p
+LEFT JOIN post_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+LEFT JOIN ai_summaries ais ON ais.post_id = p.id
+GROUP BY
+  p.id,
+  p.title,
+  p.short_description,
+  p.thumbnail,
+  p.released_at,
+  p.url_slug,
+  p.body,
+  p.is_private,
+  p.subcategory_id,
+  p."order",
+  ais.summary;
+```
+
+##### 검색용 view 생성
+
+태그 및 ai 요약 데이터와 조인한 녀석을 tsv와 조인
+
+```sql
+CREATE OR REPLACE VIEW published_posts_with_tags_summaries_tsv AS
+SELECT
+  s.*,
+  t.tsv
+FROM published_posts_with_tags_summaries s
+JOIN post_tsvectors t ON t.post_id = s.id;
+```
+
+supabase에서 검색용 rpc를 수정
+
+```sql
+BEGIN
+  RETURN QUERY
+  SELECT
+    v.id,
+    v.title,
+    v.short_description,
+    v.thumbnail,
+    v.released_at,
+    v.url_slug,
+    v.tags,
+    CASE
+      WHEN search_text = '' THEN NULL
+      ELSE ts_headline(
+        v.body,
+        plainto_tsquery(search_text),
+        'StartSel=<mark>,StopSel=</mark>,MaxFragments=2,FragmentDelimiter=...,MaxWords=20,MinWords=5'
+      )
+    END AS snippet
+  -- 기존에는 posts_with_tags_summaries
+  FROM published_posts_with_tags_summaries_tsv v
+  WHERE (v.is_private IS NULL OR v.is_private IS FALSE)
+    AND (search_text = '' OR v.tsv @@ plainto_tsquery(search_text))
+  ORDER BY v.released_at DESC
+  OFFSET (page * page_size)
+  LIMIT page_size;
+END;
+```
+
+`git mv "components/posts/infinite-scroll/actions.tsx" "app/(app-shell)/posts/fetchers.ts"`
+
+##### subcategories_with_meta 재생성
+
+```sql
+create or replace view subcategories_with_published_meta as
+select
+  s.category_id,
+  s.created_at,
+  s.description,
+  s.id,
+  s.name,
+  s.url_slug,
+  s."order",
+  s.recommended,
+  s.thumbnail,
+  count(p.id) as post_count,
+  max(p.released_at) as latest_post_date
+from subcategories s
+left join published_posts_with_tags_summaries p on p.subcategory_id = s.id
+where s.deleted_at is null
+group by
+  s.category_id,
+  s.created_at,
+  s.description,
+  s.id,
+  s.name,
+  s."order",
+  s.recommended,
+  s.thumbnail;
+```
+
+clusters_with_posts
+
+#### 테이블명 변경 - cluster
+
+clustered_posts_groups => clusters  
+clustered_posts_groups_similarities => cluster_similarities  
+clustered_posts_groups_with_posts => clusters_with_published_posts
+
+##### clusters 의 vector 분리
+
+```sql
+CREATE TABLE cluster_vectors (
+  cluster_id UUID PRIMARY KEY REFERENCES clusters(id) ON DELETE CASCADE,
+  vector VECTOR(1536)
+);
+
+INSERT INTO cluster_vectors (cluster_id, vector)
+SELECT id, vector FROM clusters WHERE vector IS NOT NULL;
+
+ALTER TABLE clusters DROP COLUMN vector;
+
+CREATE OR REPLACE VIEW clusters_with_vectors AS
+SELECT
+  c.*,
+  v.vector
+FROM clusters c
+LEFT JOIN cluster_vectors v ON v.cluster_id = c.id;
+```
+
+##### cluster 생성용 RPC
+
+/app/api/similarity/cluster/generate/route.ts => 생성용 RPC를 작성
+
+```sql
+CREATE OR REPLACE FUNCTION create_clusters_with_vectors(
+  clusters JSONB
+)
+RETURNS TABLE (
+  id UUID,
+  vector VECTOR(1536)
+) AS $$
+DECLARE
+  cluster_data JSONB;
+  cluster_id UUID;
+BEGIN
+  FOR cluster_data IN SELECT * FROM jsonb_array_elements(clusters)
+  LOOP
+    cluster_id := gen_random_uuid();
+
+    INSERT INTO clusters (
+      id,
+      title,
+      summary,
+      keywords,
+      quality,
+      post_ids
+    )
+    VALUES (
+      cluster_id,
+      cluster_data->>'title',
+      cluster_data->>'summary',
+      string_to_array(cluster_data->>'keywords', ','),
+      (cluster_data->>'quality')::NUMERIC,
+      (SELECT ARRAY_AGG(value::UUID) FROM jsonb_array_elements_text(cluster_data->'post_ids'))
+    );
+
+    INSERT INTO cluster_vectors (
+      cluster_id,
+      vector
+    )
+    VALUES (
+      cluster_id,
+      (cluster_data->>'vector')::vector
+    );
+
+    id := cluster_id;
+    vector := (cluster_data->>'vector')::vector;
+    RETURN NEXT;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+##### 클러스터별 게시글
+
+```sql
+DROP VIEW IF EXISTS clustered_posts_groups_with_posts;
+DROP VIEW IF EXISTS clusters_with_posts;
+
+CREATE VIEW clusters_with_published_posts AS
+SELECT
+  g.id,
+  g.title,
+  g.post_ids,
+  g.quality,
+  g.summary,
+  g.created_at,
+  g.updated_at,
+  g.keywords,
+    count(p.*) AS post_count,
+  json_agg(
+    json_build_object(
+      'id', p.id,
+      'title', p.title,
+      'short_description', p.short_description,
+      'thumbnail', p.thumbnail,
+      'released_at', p.released_at,
+      'url_slug', p.url_slug,
+      'tags', p.tags
+    )
+  ) AS posts
+FROM clusters g
+JOIN LATERAL (
+  SELECT
+    p.id,
+    p.title,
+    p.short_description,
+    p.thumbnail,
+    p.released_at,
+    p.url_slug,
+    p.tags
+  FROM published_posts_with_tags_summaries p
+  WHERE p.id = ANY (g.post_ids)
+) p ON true
+GROUP BY
+  g.id, g.title, g.post_ids, g.quality, g.summary, g.created_at, g.updated_at, g.keywords;
+```
