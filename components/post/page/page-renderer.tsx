@@ -14,28 +14,15 @@ import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import { Lock } from "lucide-react";
 import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
-import { getPostByUrlSlug } from "@/app/post/[urlSlug]/fetcher";
-import PostNotFound from "@/components/post/page/post-not-found";
+
+import { Database } from "@/types/supabase";
 
 interface PageProps {
-  params: Promise<{
-    urlSlug: string;
-  }>;
+  data: Database["public"]["Tables"]["posts"]["Row"];
 }
 
-export default async function PostPageRenderer({ params }: PageProps) {
-  const { urlSlug } = await params;
+export default async function PostPageRenderer({ data }: PageProps) {
   const { data: categoryData } = await getSidebarCategory();
-
-  const result = await getPostByUrlSlug({
-    urlSlug: decodeURIComponent(urlSlug),
-  });
-
-  const { data } = result;
-  if (!data) {
-    return <PostNotFound urlSlug={urlSlug} />;
-  }
-
   const { category, subcategory } = findCategoryAndSubcategoryById(
     categoryData,
     data.subcategory_id
