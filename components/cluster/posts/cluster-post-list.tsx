@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef } from "react";
 import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { ClusterSection } from "@/components/cluster/posts/cluster-section";
@@ -19,9 +20,8 @@ export default function ClusterPostList() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const sentinelTopRef = useRef<HTMLDivElement | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
-  const directionRef = useRef<"up" | "down">("down");
-  const prevY = useRef<number>(0);
   const isWaitingRef = useRef(false);
+  const hasMountedRef = useRef(false);
 
   const scrollToTop = () => {
     if (mainRef.current) {
@@ -33,61 +33,77 @@ export default function ClusterPostList() {
   };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const y = entry.boundingClientRect.y;
-          const direction = y < prevY.current ? "down" : "up";
-          directionRef.current = direction;
-          prevY.current = y;
+    if (mainRef.current && !hasMountedRef.current) {
+      mainRef.current.scrollTo({
+        top: 100,
+        behavior: "smooth",
+      });
+      setTimeout(() => {
+        hasMountedRef.current = true;
+      }, 500);
+    }
 
-          if (
-            entry.isIntersecting &&
-            selectedCluster &&
-            !isWaitingRef.current
-          ) {
-            const currentIndex = clusters.findIndex(
-              (c) => c.id === selectedCluster.id
-            );
+    if (!selectedCluster) return;
 
-            let nextIndex =
-              direction === "down" ? currentIndex + 1 : currentIndex - 1;
+    const currentIndex = clusters.findIndex((c) => c.id === selectedCluster.id);
 
-            if (nextIndex >= clusters.length) nextIndex = 0;
-            if (nextIndex < 0) nextIndex = clusters.length - 1;
+    const handleClusterChange = (nextIndex: number) => {
+      if (nextIndex < 0) nextIndex = clusters.length - 1;
+      if (nextIndex >= clusters.length) nextIndex = 0;
 
-            const next = clusters[nextIndex];
+      const next = clusters[nextIndex];
+      if (!next.id || next.id === selectedCluster.id) return;
 
-            if (next.id !== selectedCluster.id) {
-              isWaitingRef.current = true;
+      isWaitingRef.current = true;
 
-              setSelectedCluster(next);
-              getClusterWithPostsById(next.id!).then((res) => {
-                if (res?.data) {
-                  setClusterWithPost(res.data);
+      setSelectedCluster(next);
+      getClusterWithPostsById(next.id!).then((res) => {
+        if (res?.data) {
+          setClusterWithPost(res.data);
+          setTimeout(scrollToTop, 50);
+        }
+      });
 
-                  setTimeout(() => {
-                    scrollToTop();
-                  }, 50);
-                }
-              });
+      setTimeout(() => {
+        isWaitingRef.current = false;
+      }, 500);
+    };
 
-              setTimeout(() => {
-                isWaitingRef.current = false;
-              }, 500);
-            }
-          }
-        });
+    const bottomObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          !hasMountedRef.current ||
+          !entry.isIntersecting ||
+          isWaitingRef.current
+        )
+          return;
+
+        handleClusterChange(currentIndex + 1);
       },
-      {
-        threshold: 0.3,
-      }
+      { threshold: 0.3 }
     );
 
-    if (sentinelRef.current) observer.observe(sentinelRef.current);
-    if (sentinelTopRef.current) observer.observe(sentinelTopRef.current);
+    const topObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          !hasMountedRef.current ||
+          !entry.isIntersecting ||
+          isWaitingRef.current
+        )
+          return;
 
-    return () => observer.disconnect();
+        handleClusterChange(currentIndex - 1);
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sentinelRef.current) bottomObserver.observe(sentinelRef.current);
+    if (sentinelTopRef.current) topObserver.observe(sentinelTopRef.current);
+
+    return () => {
+      bottomObserver.disconnect();
+      topObserver.disconnect();
+    };
   }, [selectedCluster, clusters, setSelectedCluster, setClusterWithPost]);
 
   return (
