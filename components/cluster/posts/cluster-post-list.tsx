@@ -1,30 +1,28 @@
 "use client";
 import { ClusterSection } from "@/components/cluster/posts/cluster-section";
-import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar";
 import { usePosts } from "@/providers/posts-store-provider";
-
-import { ClusterWithPosts } from "@/types/graph";
-
 import { useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-export default function ClusterPostList({
-  clusterPostList,
-}: {
-  clusterPostList: ClusterWithPosts[];
-}) {
+export default function ClusterPostList() {
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const mainRef = useRef<HTMLElement | null>(null);
 
-  const { selectedClusterId, isMain, isManualScrolling, setManualScrolling } =
-    usePosts(
-      useShallow((state) => ({
-        selectedClusterId: state.selectedCluster?.id,
-        isMain: state.isMain,
-        isManualScrolling: state.isManualScrolling,
-        setManualScrolling: state.setManualScrolling,
-      }))
-    );
+  const {
+    selectedClusterId,
+    isMain,
+    isManualScrolling,
+    setManualScrolling,
+    clusterPostList,
+  } = usePosts(
+    useShallow((state) => ({
+      clusterPostList: state.clusterPostList,
+      selectedClusterId: state.selectedCluster?.id,
+      isMain: state.isMain,
+      isManualScrolling: state.isManualScrolling,
+      setManualScrolling: state.setManualScrolling,
+    }))
+  );
 
   useEffect(() => {
     if (isManualScrolling) return;
@@ -48,7 +46,6 @@ export default function ClusterPostList({
   }, [isManualScrolling, selectedClusterId, setManualScrolling]);
   return (
     <>
-      <ClusterHeaderBar clusters={clusterPostList} />
       <main
         ref={mainRef}
         className="flex flex-1 overflow-auto scrollbar flex-col items-center bg-glass-bg"

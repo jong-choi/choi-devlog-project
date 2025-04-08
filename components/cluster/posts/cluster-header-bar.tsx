@@ -1,4 +1,5 @@
 "use client";
+import { getClusterWithPostsById } from "@/app/map/actions";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePosts } from "@/providers/posts-store-provider";
 import { ClusteredPostGroup } from "@/types/graph";
@@ -12,21 +13,30 @@ type Props = {
 };
 
 export function ClusterHeaderBar({ clusters }: Props) {
-  const { selectedClusterId, setSelectedCluster } = usePosts(
-    useShallow((state) => ({
-      selectedClusterId: state.selectedCluster?.id,
-      setSelectedCluster: state.setSelectedCluster,
-    }))
-  );
+  const { selectedClusterId, setSelectedCluster, setClusterPostList } =
+    usePosts(
+      useShallow((state) => ({
+        selectedClusterId: state.selectedCluster?.id,
+        setSelectedCluster: state.setSelectedCluster,
+        setClusterPostList: state.setClusterPostList,
+      }))
+    );
   const debouncedSelectedClusterId = useDebounce(selectedClusterId, 100);
 
   // 선택된 카테고리가 바뀌면 가운데로 이동
   const clusterRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   useEffect(() => {
+    if (!debouncedSelectedClusterId) return;
     const container = scrollContainerRef.current;
     const el =
       debouncedSelectedClusterId &&
       clusterRefs.current[debouncedSelectedClusterId];
+
+    getClusterWithPostsById(debouncedSelectedClusterId).then((res) => {
+      if (res?.data) {
+        setClusterPostList([res.data]); // 배열 형태로 상태에 저장
+      }
+    });
 
     if (container && el) {
       const elLeft = el.offsetLeft;
@@ -40,7 +50,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
         behavior: "smooth",
       });
     }
-  }, [debouncedSelectedClusterId]);
+  }, [debouncedSelectedClusterId, setClusterPostList]);
 
   // 상하 스크롤 시 좌우 스크롤로
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);

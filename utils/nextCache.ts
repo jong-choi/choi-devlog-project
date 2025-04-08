@@ -34,6 +34,7 @@ export const CACHE_TAGS = {
   },
   CLUSTER: {
     ALL: () => "cluster",
+    BY_ID: (clusterId: string) => "cluster:by_id:" + clusterId,
   },
 } as const;
 

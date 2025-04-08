@@ -48,7 +48,7 @@ export default async function Page() {
         description={"유사한 게시글을 인공지능으로 분류한 지도입니다"}
       >
         <SectionInnerContainer className="flex h-[600px] flex-col">
-          <ClusterGraphSection isMain />
+          <ClusterGraphSection />
         </SectionInnerContainer>
         <SectionLinkText href="/map">더 크게 보기</SectionLinkText>
       </SectionContainer>

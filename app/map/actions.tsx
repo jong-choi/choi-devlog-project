@@ -1,8 +1,13 @@
+"use server";
 import { ClusterWithPosts } from "@/types/graph";
 import { Database } from "@/types/supabase";
 import { CACHE_TAGS, withSupabaseCache } from "@/utils/nextCache";
 import { createClient as createClientClient } from "@/utils/supabase/client";
-import { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
+import {
+  PostgrestResponse,
+  PostgrestSingleResponse,
+  SupabaseClient,
+} from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
 const _getClusterData = async (): Promise<
@@ -68,10 +73,26 @@ const _getClusterWithPosts = async (
   return result;
 };
 
-export const getClusterWithPosts = async () =>
-  withSupabaseCache<null, ClusterWithPosts>(null, {
-    handler: _getClusterWithPosts,
-    key: ["clusters_with_published_posts", CACHE_TAGS.CLUSTER.ALL()],
-    tags: ["clusters_with_published_posts", CACHE_TAGS.CLUSTER.ALL()],
-    revalidate: 60 * 60 * 24 * 30, // 30일 캐싱
+const _getClusterWithPostsById = async (
+  supabase: SupabaseClient<Database>,
+  clusterId: string
+): Promise<PostgrestSingleResponse<ClusterWithPosts>> => {
+  const result = await supabase
+    .from("clusters_with_published_posts")
+    .select("*")
+    .eq("id", clusterId)
+    .single(); // 단일 클러스터 반환
+
+  return result;
+};
+
+export const getClusterWithPostsById = async (clusterId: string) =>
+  withSupabaseCache<string, ClusterWithPosts, true>(clusterId, {
+    handler: _getClusterWithPostsById,
+    key: ["clusters_with_published_posts", clusterId],
+    tags: [
+      "clusters_with_published_posts",
+      CACHE_TAGS.CLUSTER.BY_ID(clusterId),
+    ],
+    revalidate: 60 * 60 * 24, // 하루 캐싱 (1개만이라서 짧게)
   });
