@@ -45,18 +45,33 @@ const _createAISummary = async (
   > & { vector: number[] | null }
 ): Promise<
   PostgrestSingleResponse<
-    Omit<Database["public"]["Tables"]["ai_summaries"]["Insert"], "vector"> & {
-      vector: string | null;
-    }
+    Database["public"]["Tables"]["ai_summaries"]["Insert"]
   >
 > => {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
+  const { vector, ...rest } = payload;
   const result = await supabase
     .from("ai_summaries")
-    //@ts-expect-error : vector값이 불일치
-    .insert(payload)
+    .insert(rest)
+    .select()
     .single();
+
+  let vecResult = null;
+  if (result.data?.id) {
+    vecResult = await supabase
+      .from("ai_summary_vectors")
+      //@ts-expect-error : vector값이 불일치
+      .insert({
+        summary_id: result.data.id,
+        vector,
+      })
+      .single();
+  }
+
+  if (vecResult && !vecResult?.data) {
+    return vecResult;
+  }
 
   return result;
 };

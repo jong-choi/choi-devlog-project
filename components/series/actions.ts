@@ -20,7 +20,7 @@ export const _getSeriesList = async (
   { categoryId, recommended = false }: GetSeriesListParams
 ): Promise<PostgrestResponse<Series>> => {
   const query = supabase
-    .from("subcategories_with_meta")
+    .from("subcategories_with_published_meta")
     .select("*")
     .not("latest_post_date", "is", null)
     .order("latest_post_date", { ascending: false }); // 전체 조회시 최신이 가장 위로
@@ -59,10 +59,13 @@ export const _getSeriesList = async (
  * // Get recommended series
  * const {data, error} = await getSeriesList({ recommended: true });
  *
- * @see subcategories_with_meta - 게시글 수와 최근 게시일 등의 메타 정보를 포함하는 Supabase 뷰
+ * @see subcategories_with_published_meta - 게시글 수와 최근 게시일 등의 메타 정보를 포함하는 Supabase 뷰
  */
 export const getSeriesList = async (params?: GetSeriesListParams) => {
-  const tags = ["subcategories_with_meta", CACHE_TAGS.SUBCATEGORY.ALL()];
+  const tags = [
+    "subcategories_with_published_meta",
+    CACHE_TAGS.SUBCATEGORY.ALL(),
+  ];
   if (params?.categoryId) {
     tags.push(CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(params.categoryId));
   }
@@ -83,7 +86,7 @@ export const _getPostsBySeriesId = async (
   { seriesId }: { seriesId: string }
 ): Promise<PostgrestResponse<CardPost>> => {
   const result = await supabase
-    .from("posts_with_tags_summaries")
+    .from("published_posts_with_tags_summaries")
     .select("*")
     .eq("subcategory_id", seriesId)
     .order("order", { ascending: true }); // order 낮은 것부터
@@ -97,7 +100,7 @@ export const getPostsBySeriesId = async (seriesId: string) =>
     {
       handler: _getPostsBySeriesId,
       key: [
-        "posts_with_tags_summaries",
+        "published_posts_with_tags_summaries",
         CACHE_TAGS.POST.ALL(),
         CACHE_TAGS.POST.BY_SUBCATEGORY_ID(seriesId),
       ],
@@ -114,7 +117,7 @@ const _getSeriesByUrlSlug = async (
   { urlSlug }: { urlSlug: string }
 ): Promise<PostgrestSingleResponse<Series>> => {
   const result = await supabase
-    .from("subcategories_with_meta")
+    .from("subcategories_with_published_meta")
     .select()
     .eq("url_slug", urlSlug)
     .single();

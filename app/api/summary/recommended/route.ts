@@ -28,47 +28,72 @@ export async function POST(req: Request) {
       });
     }
 
-    const { data: sourceData } = await supabase
+    const { data: sourceNestedData } = await supabase
       .from("ai_summaries")
       .select(
         `
-      id,
-      vector,
-      post_id,
-      posts!ai_summaries_post_id_fkey (title, url_slug)
-    `
+        id,
+        post_id,
+        ai_summary_vectors (
+          vector
+        ),
+        posts (
+          title,
+          url_slug
+        )
+      `
       )
       .eq("post_id", postId)
       .limit(1)
       .single();
 
     // AI 요약이 없는 상황
-    if (!sourceData) {
-      NextResponse.json(
+    if (!sourceNestedData) {
+      return NextResponse.json(
         { error: "AI 요약을 먼저 생성하세요." },
         { status: 500 }
       );
     }
 
-    const { data: targetData } = await supabase
+    const sourceData = {
+      id: sourceNestedData.id,
+      post_id: sourceNestedData.post_id,
+      vector: sourceNestedData.ai_summary_vectors?.vector ?? null,
+      posts: sourceNestedData.posts,
+    };
+
+    const { data: targetNestedata } = await supabase
       .from("ai_summaries")
       .select(
         `
-    id,
-    vector,
-    post_id,
-    posts!ai_summaries_post_id_fkey (title, url_slug)
-  `
+        id,
+        post_id,
+        ai_summary_vectors (
+          vector
+        ),
+        posts (
+          title,
+          url_slug
+        )
+      `
       )
       .neq("post_id", postId)
       .or("is_private.is.null,is_private.eq.false", { foreignTable: "posts" });
 
-    if (!targetData) {
-      NextResponse.json(
+    if (!targetNestedata) {
+      return NextResponse.json(
         { error: "요약 목록를 불러오는데 오류가 발생하였습니다." },
         { status: 500 }
       );
     }
+
+    const targetData =
+      targetNestedata?.map((item) => ({
+        id: item.id,
+        post_id: item.post_id,
+        vector: item.ai_summary_vectors?.vector ?? null,
+        posts: item.posts ?? null,
+      })) ?? [];
 
     // @ts-expect-error: Supabase가 posts 데이터를 배열로 반환하는 경우가 있어서 첫 번째 요소를 사용
     const sims = findTopSimilarPosts(sourceData, targetData);

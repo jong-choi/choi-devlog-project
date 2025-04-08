@@ -12,7 +12,7 @@ export async function POST() {
   try {
     // 1. 요약 벡터 전체 불러오기
     const { data: summaries, error } = await supabase
-      .from("ai_summaries")
+      .from("ai_summaries_with_vectors")
       .select("post_id, vector")
       .not("vector", "is", null);
 

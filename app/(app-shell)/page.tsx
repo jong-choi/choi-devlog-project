@@ -5,13 +5,13 @@ import {
 } from "@ui/glass-container";
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
-import { getPosts } from "@/components/posts/infinite-scroll/actions";
+import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
 import { getSeriesList } from "@/components/series/actions";
 import SeriesApp from "@/components/series/series-app";
 import { SectionLinkText } from "@ui/glass-button";
 
 export default async function Page() {
-  const { data: recentPosts } = await getPosts({ page: 0 });
+  const { data: recentPosts } = await getPublishedPosts({ page: 0 });
   const { data: subcategories } = await getSeriesList();
   return (
     <>

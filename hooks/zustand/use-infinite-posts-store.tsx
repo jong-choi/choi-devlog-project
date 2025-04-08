@@ -1,4 +1,4 @@
-import { getPosts } from "@/components/posts/infinite-scroll/actions";
+import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
 import { CardPost } from "@/types/post";
 import { createStore } from "zustand";
 
@@ -26,7 +26,7 @@ export const createInfinitePostsStore = (
       const { page, posts, keyword, loading, hasMore } = get();
       if (loading || !hasMore) return;
       set({ loading: true });
-      const { data } = await getPosts({ page, keyword });
+      const { data } = await getPublishedPosts({ page, keyword });
       const nextPosts = data || [];
       set({
         posts: [...posts, ...nextPosts],

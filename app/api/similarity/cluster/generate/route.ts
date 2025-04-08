@@ -14,7 +14,7 @@ export async function GET() {
   try {
     // 1. 인공지능 요약에서 벡터 데이터를 가져옵니다.
     const { data, error } = await supabase
-      .from("ai_summaries")
+      .from("ai_summaries_with_vectors")
       .select("post_id, vector, summary")
       .is("deleted_at", null)
       .not("vector", "is", null);
@@ -46,7 +46,7 @@ export async function GET() {
         if (Array.isArray(parsed)) {
           vectors.push(parsed);
           postIds.push(item.post_id);
-          summaries.push(summaryParser(item.summary) ?? "");
+          summaries.push(summaryParser(item.summary || ""));
         }
       } catch (_e) {
         console.warn("파싱 실패:", item.vector);
@@ -136,20 +136,19 @@ export async function GET() {
     const totalClustered = resultSummary.reduce((a, b) => a + b, 0);
 
     // 5. 생성된 군집 배열을 clusters 테이블에 삽입함.
-    const { data: groups, error: insertError } = await supabase
-      .from("clusters")
-      .insert(
-        //@ts-expect-error: vector 타입 불일치 예상
-        allClusters.map((cluster) => ({
+    const { data: groups, error: insertError } = await supabase.rpc(
+      "create_clusters_with_vectors",
+      {
+        clusters: allClusters.map((cluster) => ({
           title: cluster.result.title,
           summary: cluster.result.summary,
           keywords: cluster.result.keywords,
           vector: cluster.result.vector,
           quality: cluster.quality,
           post_ids: cluster.post_ids,
-        }))
-      )
-      .select("id, vector");
+        })),
+      }
+    );
 
     if (insertError) {
       console.error("삽입 실패:", insertError);

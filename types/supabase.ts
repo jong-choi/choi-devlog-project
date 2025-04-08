@@ -18,7 +18,6 @@ export type Database = {
           summary: string
           updated_at: string | null
           user_id: string | null
-          vector: string | null
         }
         Insert: {
           created_at?: string | null
@@ -28,7 +27,6 @@ export type Database = {
           summary: string
           updated_at?: string | null
           user_id?: string | null
-          vector?: string | null
         }
         Update: {
           created_at?: string | null
@@ -38,7 +36,6 @@ export type Database = {
           summary?: string
           updated_at?: string | null
           user_id?: string | null
-          vector?: string | null
         }
         Relationships: [
           {
@@ -52,7 +49,51 @@ export type Database = {
             foreignKeyName: "ai_summaries_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "posts_with_tags_summaries"
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_summary_vectors: {
+        Row: {
+          summary_id: string
+          vector: string | null
+        }
+        Insert: {
+          summary_id: string
+          vector?: string | null
+        }
+        Update: {
+          summary_id?: string
+          vector?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_summary_vectors_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: true
+            referencedRelation: "ai_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summary_vectors_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: true
+            referencedRelation: "ai_summaries_with_vectors"
             referencedColumns: ["id"]
           },
         ]
@@ -124,7 +165,14 @@ export type Database = {
             foreignKeyName: "clustered_posts_groups_similarities_source_id_fkey"
             columns: ["source_id"]
             isOneToOne: false
-            referencedRelation: "clusters_with_posts"
+            referencedRelation: "clusters_with_published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clustered_posts_groups_similarities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "clusters_with_vectors"
             referencedColumns: ["id"]
           },
           {
@@ -138,7 +186,51 @@ export type Database = {
             foreignKeyName: "clustered_posts_groups_similarities_target_id_fkey"
             columns: ["target_id"]
             isOneToOne: false
-            referencedRelation: "clusters_with_posts"
+            referencedRelation: "clusters_with_published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clustered_posts_groups_similarities_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "clusters_with_vectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cluster_vectors: {
+        Row: {
+          cluster_id: string
+          vector: string | null
+        }
+        Insert: {
+          cluster_id: string
+          vector?: string | null
+        }
+        Update: {
+          cluster_id?: string
+          vector?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cluster_vectors_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: true
+            referencedRelation: "clusters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cluster_vectors_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: true
+            referencedRelation: "clusters_with_published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cluster_vectors_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: true
+            referencedRelation: "clusters_with_vectors"
             referencedColumns: ["id"]
           },
         ]
@@ -153,7 +245,6 @@ export type Database = {
           summary: string | null
           title: string | null
           updated_at: string | null
-          vector: string | null
         }
         Insert: {
           created_at?: string | null
@@ -164,7 +255,6 @@ export type Database = {
           summary?: string | null
           title?: string | null
           updated_at?: string | null
-          vector?: string | null
         }
         Update: {
           created_at?: string | null
@@ -175,7 +265,6 @@ export type Database = {
           summary?: string | null
           title?: string | null
           updated_at?: string | null
-          vector?: string | null
         }
         Relationships: []
       }
@@ -213,7 +302,21 @@ export type Database = {
             foreignKeyName: "post_similarities_source_post_id_fkey"
             columns: ["source_post_id"]
             isOneToOne: false
-            referencedRelation: "posts_with_tags_summaries"
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
           {
@@ -227,7 +330,21 @@ export type Database = {
             foreignKeyName: "post_similarities_target_post_id_fkey"
             columns: ["target_post_id"]
             isOneToOne: false
-            referencedRelation: "posts_with_tags_summaries"
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
         ]
@@ -257,7 +374,21 @@ export type Database = {
             foreignKeyName: "post_tags_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "posts_with_tags_summaries"
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
           {
@@ -265,6 +396,50 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_tsvectors: {
+        Row: {
+          post_id: string
+          tsv: unknown | null
+        }
+        Insert: {
+          post_id: string
+          tsv?: unknown | null
+        }
+        Update: {
+          post_id?: string
+          tsv?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
         ]
@@ -282,7 +457,6 @@ export type Database = {
           subcategory_id: string
           thumbnail: string | null
           title: string
-          tsv: unknown | null
           updated_at: string | null
           url_slug: string
           user_id: string
@@ -300,7 +474,6 @@ export type Database = {
           subcategory_id: string
           thumbnail?: string | null
           title: string
-          tsv?: unknown | null
           updated_at?: string | null
           url_slug: string
           user_id?: string
@@ -318,7 +491,6 @@ export type Database = {
           subcategory_id?: string
           thumbnail?: string | null
           title?: string
-          tsv?: unknown | null
           updated_at?: string | null
           url_slug?: string
           user_id?: string
@@ -336,7 +508,7 @@ export type Database = {
             foreignKeyName: "posts_subcategory_id_fkey"
             columns: ["subcategory_id"]
             isOneToOne: false
-            referencedRelation: "subcategories_with_meta"
+            referencedRelation: "subcategories_with_published_meta"
             referencedColumns: ["id"]
           },
         ]
@@ -447,7 +619,49 @@ export type Database = {
       }
     }
     Views: {
-      clusters_with_posts: {
+      ai_summaries_with_vectors: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          id: string | null
+          post_id: string | null
+          summary: string | null
+          updated_at: string | null
+          user_id: string | null
+          vector: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clusters_with_published_posts: {
         Row: {
           created_at: string | null
           id: string | null
@@ -455,6 +669,19 @@ export type Database = {
           post_count: number | null
           post_ids: string[] | null
           posts: Json | null
+          quality: number | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      clusters_with_vectors: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          keywords: string[] | null
+          post_ids: string[] | null
           quality: number | null
           summary: string | null
           title: string | null
@@ -474,7 +701,107 @@ export type Database = {
         }
         Relationships: []
       }
-      posts_with_tags_summaries: {
+      published_posts: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          deleted_at: string | null
+          id: string | null
+          is_private: boolean | null
+          order: number | null
+          released_at: string | null
+          short_description: string | null
+          subcategory_id: string | null
+          thumbnail: string | null
+          title: string | null
+          updated_at: string | null
+          url_slug: string | null
+          user_id: string | null
+          velog_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string | null
+          is_private?: boolean | null
+          order?: number | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id?: string | null
+          thumbnail?: string | null
+          title?: string | null
+          updated_at?: string | null
+          url_slug?: string | null
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string | null
+          is_private?: boolean | null
+          order?: number | null
+          released_at?: string | null
+          short_description?: string | null
+          subcategory_id?: string | null
+          thumbnail?: string | null
+          title?: string | null
+          updated_at?: string | null
+          url_slug?: string | null
+          user_id?: string | null
+          velog_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories_with_published_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      published_posts_with_tags_summaries: {
+        Row: {
+          body: string | null
+          id: string | null
+          is_private: boolean | null
+          order: number | null
+          released_at: string | null
+          short_description: string | null
+          subcategory_id: string | null
+          tags: Json[] | null
+          thumbnail: string | null
+          title: string | null
+          url_slug: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories_with_published_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      published_posts_with_tags_summaries_tsv: {
         Row: {
           body: string | null
           id: string | null
@@ -501,12 +828,12 @@ export type Database = {
             foreignKeyName: "posts_subcategory_id_fkey"
             columns: ["subcategory_id"]
             isOneToOne: false
-            referencedRelation: "subcategories_with_meta"
+            referencedRelation: "subcategories_with_published_meta"
             referencedColumns: ["id"]
           },
         ]
       }
-      subcategories_with_meta: {
+      subcategories_with_published_meta: {
         Row: {
           category_id: string | null
           created_at: string | null
@@ -535,6 +862,27 @@ export type Database = {
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
+      }
+      create_cluster_with_vector: {
+        Args: {
+          p_title: string
+          p_summary: string
+          p_keywords: string[]
+          p_quality: number
+          p_post_ids: string[]
+          p_vector: string
+        }
+        Returns: {
+          id: string
+          vector: string
+        }[]
+      }
+      create_clusters_with_vectors: {
+        Args: { clusters: Json }
+        Returns: {
+          id: string
+          vector: string
+        }[]
       }
       halfvec_avg: {
         Args: { "": number[] }

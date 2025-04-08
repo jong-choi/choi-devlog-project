@@ -17,7 +17,7 @@ export async function POST() {
   try {
     // 1. 요약 목록 가져오기 (벡터가 아직 없는 것만)
     const { data: summaries, error } = await supabase
-      .from("ai_summaries")
+      .from("ai_summaries_with_vectors")
       .select("id, summary")
       .is("vector", null);
 
@@ -39,9 +39,9 @@ export async function POST() {
 
       // 3. Supabase에 vector 업데이트
       await supabase
-        .from("ai_summaries")
+        .from("ai_summary_vectors")
         .update({ vector: embedding.embedding })
-        .eq("id", summary.id);
+        .eq("summary_id", summary.id);
     }
 
     return NextResponse.json({

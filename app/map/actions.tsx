@@ -60,7 +60,7 @@ const _getClusterWithPosts = async (
   supabase: SupabaseClient<Database>
 ): Promise<PostgrestResponse<ClusterWithPosts>> => {
   const result = await supabase
-    .from("clusters_with_posts")
+    .from("clusters_with_published_posts")
     .select("*")
     .order("quality", { ascending: true })
     .order("post_count", { ascending: false });
@@ -71,7 +71,7 @@ const _getClusterWithPosts = async (
 export const getClusterWithPosts = async () =>
   withSupabaseCache<null, ClusterWithPosts>(null, {
     handler: _getClusterWithPosts,
-    key: ["clusters_with_posts", CACHE_TAGS.CLUSTER.ALL()],
-    tags: ["clusters_with_posts", CACHE_TAGS.CLUSTER.ALL()],
+    key: ["clusters_with_published_posts", CACHE_TAGS.CLUSTER.ALL()],
+    tags: ["clusters_with_published_posts", CACHE_TAGS.CLUSTER.ALL()],
     revalidate: 60 * 60 * 24 * 30, // 30일 캐싱
   });

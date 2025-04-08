@@ -5,15 +5,15 @@ import { Database } from "@/types/supabase";
 import { CACHE_TAGS, withSupabaseCache } from "@/utils/nextCache";
 import { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 
-interface GetPostsParams {
+interface GetPublishedPostsParams {
   page: number;
   limit?: number;
   keyword?: string;
 }
 
-export const _getPosts = async (
+export const _getPublishedPosts = async (
   supabase: SupabaseClient<Database>,
-  { page, limit = 10, keyword = "" }: GetPostsParams
+  { page, limit = 10, keyword = "" }: GetPublishedPostsParams
 ): Promise<PostgrestResponse<CardPost>> => {
   const result = await supabase.rpc("search_posts_with_snippet", {
     search_text: keyword,
@@ -24,11 +24,11 @@ export const _getPosts = async (
   return result;
 };
 
-export const getPosts = async (params: GetPostsParams) =>
-  withSupabaseCache<GetPostsParams, CardPost>(params, {
-    handler: _getPosts,
+export const getPublishedPosts = async (params: GetPublishedPostsParams) =>
+  withSupabaseCache<GetPublishedPostsParams, CardPost>(params, {
+    handler: _getPublishedPosts,
     key: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
     tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_PAGE(params.page)],
-    skipCache: async ({ params }) => !!params.keyword, // 검색어 있으면 캐싱하지 않음
-    revalidate: 60 * 60 * 24 * 7, // 1주일 캐싱
+    skipCache: async ({ params }) => !!params.keyword,
+    revalidate: 60 * 60 * 24 * 7,
   });
