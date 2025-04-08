@@ -1,55 +1,38 @@
+"use client";
 import { PostCard } from "@/components/posts/post-card";
 import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
-import { ClusterWithPosts, GraphPost, PostTags } from "@/types/graph";
-import { useRef, useEffect } from "react";
+import { GraphPost, PostTags } from "@/types/graph";
+import { Spinner } from "@ui/spinner";
 import { useShallow } from "zustand/react/shallow";
 
-export function ClusterSection({ cluster }: { cluster: ClusterWithPosts }) {
-  const ref = useRef<HTMLDivElement | null>(null);
+export function ClusterSection() {
+  const { clusterWithPosts } = useClusterPosts(
+    useShallow((state) => ({
+      clusterWithPosts: state.clusterWithPosts,
+    }))
+  );
 
-  const { selectedClusterId, isManualScrolling, setManualSelectedCluster } =
-    useClusterPosts(
-      useShallow((state) => ({
-        selectedClusterId: state.selectedCluster?.id,
-        isManualScrolling: state.isManualScrolling,
-        setManualSelectedCluster: state.setManualSelectedCluster,
-      }))
+  if (!clusterWithPosts) {
+    return (
+      <section className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm pb-4 min-h-[40vh] flex items-center justify-center">
+        <div className="text-muted-foreground">
+          <Spinner size="lg" />
+        </div>
+      </section>
     );
-  const posts = cluster.posts as (GraphPost & {
+  }
+  const posts = clusterWithPosts.posts as (GraphPost & {
     tags: PostTags[];
   })[];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (!isManualScrolling) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && selectedClusterId !== cluster.id) {
-          setManualSelectedCluster(cluster);
-        }
-      },
-      {
-        rootMargin: "-0% 0px -0% 0px",
-        threshold: 0.05,
-      }
-    );
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-    };
-  }, [cluster, isManualScrolling, selectedClusterId, setManualSelectedCluster]);
-
   return (
-    <section
-      ref={ref}
-      className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm pb-4"
-    >
+    <section className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm pb-4">
       <div className="flex flex-col gap-1 py-4 px-4">
-        <h2 className="text-xl font-bold text-shadow">{cluster.title}</h2>
+        <h2 className="text-xl font-bold text-shadow">
+          {clusterWithPosts.title}
+        </h2>
         <span className="text-sm text-shadow">
-          {cluster.summary?.replaceAll("이 군집은", "").trim()}
+          {clusterWithPosts.summary?.replaceAll("이 군집은", "").trim()}
         </span>
       </div>
       <div className="flex flex-col gap-6">

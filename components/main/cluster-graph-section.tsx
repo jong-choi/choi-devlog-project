@@ -18,8 +18,7 @@ export default async function ClusterGraphSection() {
     <ClusterPostsProvider
       initialState={{
         selectedCluster: clusterData?.[0],
-
-        clusterPostList: postListData ? [postListData] : [],
+        clusterWithPosts: postListData,
       }}
     >
       <aside className="absolute inset-0 w-full z-0">

@@ -3,13 +3,9 @@ import { createStore } from "zustand";
 
 export interface ClusterPostsState {
   selectedCluster: ClusteredPostGroup | null;
-  clusterPostList: ClusterWithPosts[];
-  isManualScrolling: boolean;
-  isMain: boolean;
+  clusterWithPosts: ClusterWithPosts | null;
   setSelectedCluster: (cluster: ClusteredPostGroup) => void;
-  setManualSelectedCluster: (cluster: ClusteredPostGroup) => void;
-  setManualScrolling: (flag: boolean) => void;
-  setClusterPostList: (list: ClusterWithPosts[]) => void;
+  setClusterWithPost: (cluster: ClusterWithPosts) => void;
 }
 
 export const createClusterPostsStore = (
@@ -17,14 +13,8 @@ export const createClusterPostsStore = (
 ) =>
   createStore<ClusterPostsState>((set) => ({
     selectedCluster: null,
-    clusterPostList: [],
-    isManualScrolling: false,
-    isMain: false,
-    setSelectedCluster: (c) =>
-      set({ selectedCluster: c, isManualScrolling: false }),
-    setManualSelectedCluster: (c) =>
-      set({ selectedCluster: c, isManualScrolling: true }),
-    setManualScrolling: (flag) => set({ isManualScrolling: flag }),
-    setClusterPostList: (list) => set({ clusterPostList: list }),
+    clusterWithPosts: null,
+    setSelectedCluster: (c) => set({ selectedCluster: c }),
+    setClusterWithPost: (cluster) => set({ clusterWithPosts: cluster }),
     ...initialState,
   }));

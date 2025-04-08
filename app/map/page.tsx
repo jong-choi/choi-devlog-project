@@ -23,7 +23,7 @@ export default async function Page() {
       <ClusterPostsProvider
         initialState={{
           selectedCluster: clusterData?.[0],
-          clusterPostList: postListData ? [postListData] : [],
+          clusterWithPosts: postListData,
         }}
       >
         <aside className="absolute inset-0 w-full z-0">

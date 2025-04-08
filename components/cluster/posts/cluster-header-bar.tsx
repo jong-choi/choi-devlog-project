@@ -1,6 +1,5 @@
 "use client";
 import { getClusterWithPostsById } from "@/app/map/actions";
-import { useDebounce } from "@/hooks/use-debounce";
 import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { ClusteredPostGroup } from "@/types/graph";
 import { useRef, useEffect } from "react";
@@ -13,28 +12,25 @@ type Props = {
 };
 
 export function ClusterHeaderBar({ clusters }: Props) {
-  const { selectedClusterId, setSelectedCluster, setClusterPostList } =
+  const { selectedClusterId, setSelectedCluster, setClusterWithPost } =
     useClusterPosts(
       useShallow((state) => ({
         selectedClusterId: state.selectedCluster?.id,
         setSelectedCluster: state.setSelectedCluster,
-        setClusterPostList: state.setClusterPostList,
+        setClusterWithPost: state.setClusterWithPost,
       }))
     );
-  const debouncedSelectedClusterId = useDebounce(selectedClusterId, 100);
 
   // 선택된 카테고리가 바뀌면 가운데로 이동
   const clusterRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   useEffect(() => {
-    if (!debouncedSelectedClusterId) return;
+    if (!selectedClusterId) return;
     const container = scrollContainerRef.current;
-    const el =
-      debouncedSelectedClusterId &&
-      clusterRefs.current[debouncedSelectedClusterId];
+    const el = selectedClusterId && clusterRefs.current[selectedClusterId];
 
-    getClusterWithPostsById(debouncedSelectedClusterId).then((res) => {
+    getClusterWithPostsById(selectedClusterId).then((res) => {
       if (res?.data) {
-        setClusterPostList([res.data]); // 배열 형태로 상태에 저장
+        setClusterWithPost(res.data); // 배열 형태로 상태에 저장
       }
     });
 
@@ -50,7 +46,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
         behavior: "smooth",
       });
     }
-  }, [debouncedSelectedClusterId, setClusterPostList]);
+  }, [selectedClusterId, setClusterWithPost]);
 
   // 상하 스크롤 시 좌우 스크롤로
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -77,7 +73,7 @@ export function ClusterHeaderBar({ clusters }: Props) {
             }}
             onClick={() => setSelectedCluster(c)}
             className={`px-2 py-1 rounded transition-all ${
-              c.id === debouncedSelectedClusterId
+              c.id === selectedClusterId
                 ? "font-bold text-primary underline"
                 : "hover:text-color-base"
             }`}
