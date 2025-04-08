@@ -1,6 +1,8 @@
-import { getSidebarCategory, getSidebarPosts } from "@/app/post/actions";
+import { getSidebarCategory } from "@/app/post/actions";
+import { getSidebarPublishedPosts } from "@/app/post/fetcher";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
+import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
 import { LayoutStoreProvider } from "@/providers/layout-store-provider";
 
 interface PostRootLayoutProps {
@@ -12,14 +14,15 @@ export default async function PostRootLayout({
 }: PostRootLayoutProps) {
   const { data } = await getSidebarCategory();
   const categories = data || [];
-  const { data: PostsData } = await getSidebarPosts();
+  const { data: PostsData } = await getSidebarPublishedPosts();
   const posts = PostsData || [];
 
   return (
     <LayoutStoreProvider>
       <PostSidebarWrapper categories={categories} posts={posts}>
         <div className="flex h-screen">
-          <Sidebar categories={categories} posts={posts} />
+          <Sidebar />
+          <SidebarHydrator />
           {children}
         </div>
       </PostSidebarWrapper>

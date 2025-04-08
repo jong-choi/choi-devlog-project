@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
-import { Category, Post } from "@/types/post";
 import { Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Logo } from "@/components/ui/post-top-bar";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
@@ -19,16 +18,9 @@ import CreateCategoryForm from "@/components/popover/create-popover/create-categ
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 import { LinkLoader } from "@ui/route-loader";
+import { useEffect } from "react";
 
-export function Sidebar({
-  inset = false,
-  categories,
-  posts,
-}: {
-  inset?: boolean;
-  categories: Category[];
-  posts: Post[];
-}) {
+export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
     sidebarLeftCollapsed,
     sidebarRightCollapsed,
@@ -44,6 +36,8 @@ export function Sidebar({
   );
 
   const {
+    posts,
+    categories,
     selectedSubcategoryId,
     selectedSubcategoryName,
     selectedPostId,
@@ -51,6 +45,8 @@ export function Sidebar({
     loading,
   } = useSidebarStore(
     useShallow((state) => ({
+      posts: state.posts || [],
+      categories: state.categories || [],
       selectedSubcategoryId: state.selectedSubcategoryId,
       selectedSubcategoryName: state.selectedSubcategoryName,
       selectedPostId: state.selectedPostId,
@@ -58,6 +54,7 @@ export function Sidebar({
       loading: state.loading,
     }))
   );
+  useEffect(() => {}, [posts.length]);
 
   return (
     <div
@@ -69,7 +66,7 @@ export function Sidebar({
       {/* 왼쪽 사이드바 */}
       <div
         className={cn(
-          "hidden md:flex flex-col border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden",
+          "hidden md:flex flex-col border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden ",
           sidebarLeftCollapsed ? "w-6 cursor-pointer" : "w-64",
           inset ??
             "rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700"
@@ -94,7 +91,7 @@ export function Sidebar({
         </button>
 
         {!sidebarLeftCollapsed && (
-          <div className="px-4 py-2 w-64 overflow-auto space-y-2">
+          <div className="px-4 py-2 w-64 overflow-auto space-y-2 scrollbar">
             <div className="flex flex-col gap-2">
               <div className="flex h-full max-w-32">
                 <Logo />

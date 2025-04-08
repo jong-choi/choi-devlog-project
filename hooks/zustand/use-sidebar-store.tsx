@@ -14,6 +14,7 @@ export interface SidebarState {
   setCategory: (id: string | null) => void;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
   setPost: (id: string | null) => void;
+  setPosts: (posts: Post[] | null) => void;
   setOpenCategory: (categoryId: string, open: boolean) => void;
   toggleCategory: (categoryId: string) => void;
   toggleMobileOpen: () => void;
@@ -40,6 +41,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
         selectedSubcategoryName: subcategory?.name ?? null,
       }),
     setPost: (id) => set({ selectedPostId: id }),
+    setPosts: (posts) => set({ posts: posts }),
     setOpenCategory: (categoryId, open) =>
       set((state) => ({
         openedCategories: {
