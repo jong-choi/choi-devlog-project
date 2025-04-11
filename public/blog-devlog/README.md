@@ -4471,3 +4471,18 @@ GROUP BY
 3. 게시글을 비공개->공개로 수정하는 경우에만 반응하도록, 전체 게시글에서 공개된 게시글의 숫자가 변할 때에만 hydrator가 한번 더 렌더링을 시도한다.
 
 그 밖에 사이드바에 있는 카테고리가 수정되는 경우에는 데이터가 revalidate 되어 화면 전체가 리렌더링 되므로 별도의 로직은 추가하지 않았다.
+
+## 34일차 + 35일차
+
+### server actions 리팩토링 -> fetchers, actions로 분리
+
+revalidate가 있는, CRUD 중 CUD만 actions로 칭하고,
+나머지 read 요청들은 fetchers로 분류하였다.
+
+그리고 post 페이지에서는 actions가 분류가 제대로 되어있지 않아 관리가 까다로웠는데, 각각 cateogry, post, ai 등의 파일로 분리하고 아래와 같이 actions/index.ts에서 불러왔다.
+
+```ts
+export * from "@/app/post/fetchers/sidebar";
+export * from "@/app/post/fetchers/ai";
+export * from "@/app/post/fetchers/post";
+```
