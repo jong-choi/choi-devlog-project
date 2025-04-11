@@ -2,7 +2,7 @@ import {
   getClusterData,
   getClusterSimData,
   getClusterWithPostsById,
-} from "@/app/map/actions";
+} from "@/app/map/fetchers";
 import ClusterGraphApp from "@/components/cluster/graph/cluster-graph-app";
 import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar";
 import ClusterPostList from "@/components/cluster/posts/cluster-post-list";

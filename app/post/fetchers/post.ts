@@ -1,3 +1,4 @@
+"use server";
 import { Database } from "@/types/supabase";
 import { CACHE_TAGS, withSupabaseCache } from "@/utils/nextCache";
 import { SupabaseClient } from "@supabase/supabase-js";

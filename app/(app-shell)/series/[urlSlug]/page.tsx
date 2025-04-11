@@ -1,8 +1,8 @@
-import {
-  getPostsBySeriesId,
-  getSeriesByUrlSlug,
-} from "@/components/series/actions";
 import { PostCard } from "@/components/posts/post-card";
+import {
+  getSeriesByUrlSlug,
+  getPostsBySeriesId,
+} from "@/app/(app-shell)/series/[urlSlug]/fetchers";
 import { SeriesInfoPanel } from "@/components/series/series-info-panel";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";

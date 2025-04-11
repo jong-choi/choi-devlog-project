@@ -1,7 +1,7 @@
 import {
   getAISummaryByPostId,
-  getRecommendedByPostId,
-} from "@/app/post/actions";
+  getRecommendedListByPostId,
+} from "@/app/post/fetchers";
 import { DEFAULT_SUMMARY } from "@/lib/constants/post";
 import { SummaryProvider } from "@/providers/summary-store-provider";
 import { Post } from "@/types/post";
@@ -26,7 +26,7 @@ export default async function AIPanelWrapper({
       summary = aiData.summary;
       summaryId = aiData.id;
     }
-    const { data: postsData } = await getRecommendedByPostId(data.id);
+    const { data: postsData } = await getRecommendedListByPostId(data.id);
 
     if (postsData) {
       recommendedPosts = simsToPosts(postsData);

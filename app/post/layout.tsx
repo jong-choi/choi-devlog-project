@@ -1,5 +1,7 @@
-import { getSidebarCategory } from "@/app/post/actions";
-import { getSidebarPublishedPosts } from "@/app/post/fetcher";
+import {
+  getSidebarPublishedPosts,
+  getSidebarCategory,
+} from "@/app/post/fetchers";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";

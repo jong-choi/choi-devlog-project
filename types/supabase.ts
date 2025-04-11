@@ -534,11 +534,11 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           id?: string
-          name?: string
+          name: string
           order?: number | null
           recommended?: boolean | null
           thumbnail?: string | null
-          url_slug?: string
+          url_slug: string
           user_id?: string | null
           velog_id?: string | null
         }

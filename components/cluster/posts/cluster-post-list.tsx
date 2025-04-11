@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { ClusterSection } from "@/components/cluster/posts/cluster-section";
-import { getClusterWithPostsById } from "@/app/map/actions";
+import { getClusterWithPostsById } from "@/app/map/fetchers";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ClusterPostList() {

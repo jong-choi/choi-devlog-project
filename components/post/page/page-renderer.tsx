@@ -3,7 +3,7 @@ import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
-import { getSidebarCategory } from "@/app/post/actions";
+import { getSidebarCategory } from "@/app/post/fetchers";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";

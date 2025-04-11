@@ -1,10 +1,12 @@
 import { PageContainer, SectionContainer } from "@ui/glass-container";
-import { getAllCategories } from "@/app/post/actions";
 import SeriesApp from "@/components/series/series-app";
-import { getSeriesList } from "@/components/series/actions";
+import {
+  getCategories,
+  getSeriesList,
+} from "@/app/(app-shell)/series/fetchers";
 
 export default async function Page() {
-  const { data: categories } = await getAllCategories();
+  const { data: categories } = await getCategories();
   const { data: recommendedSeriesList } = await getSeriesList({
     recommended: true,
   });

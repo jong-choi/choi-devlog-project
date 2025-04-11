@@ -6,9 +6,9 @@ import {
 import { LatestPostsSection } from "@/components/main/latest-posts-section";
 import ClusterGraphSection from "@/components/main/cluster-graph-section";
 import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
-import { getSeriesList } from "@/components/series/actions";
 import SeriesApp from "@/components/series/series-app";
 import { SectionLinkText } from "@ui/glass-button";
+import { getSeriesList } from "@/app/(app-shell)/series/fetchers";
 
 export default async function Page() {
   const { data: recentPosts } = await getPublishedPosts({ page: 0 });

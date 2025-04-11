@@ -2,18 +2,17 @@
 import { ClusterWithPosts } from "@/types/graph";
 import { Database } from "@/types/supabase";
 import { CACHE_TAGS, withSupabaseCache } from "@/utils/nextCache";
-import { createClient as createClientClient } from "@/utils/supabase/client";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
   SupabaseClient,
 } from "@supabase/supabase-js";
-import { unstable_cache } from "next/cache";
 
-const _getClusterData = async (): Promise<
+const _getClusterData = async (
+  supabase: SupabaseClient<Database>
+): Promise<
   PostgrestResponse<Database["public"]["Tables"]["clusters"]["Row"]>
 > => {
-  const supabase = createClientClient();
   const result = await supabase
     .from("clusters")
     .select("*")
@@ -26,20 +25,24 @@ const _getClusterData = async (): Promise<
   return result;
 };
 
-export const getClusterData = unstable_cache(
-  _getClusterData,
-  [CACHE_TAGS.CLUSTER.ALL()],
-  {
-    revalidate: 60 * 60 * 24 * 30,
-  }
-);
+export const getClusterData = async () =>
+  withSupabaseCache<null, Database["public"]["Tables"]["clusters"]["Row"]>(
+    null,
+    {
+      handler: _getClusterData,
+      key: ["getClusterData", CACHE_TAGS.CLUSTER.ALL()],
+      tags: [CACHE_TAGS.CLUSTER.ALL()],
+      revalidate: 60 * 60 * 24 * 30,
+    }
+  );
 
-const _getClusterSimData = async (): Promise<
+const _getClusterSimData = async (
+  supabase: SupabaseClient<Database>
+): Promise<
   PostgrestResponse<Database["public"]["Tables"]["cluster_similarities"]["Row"]>
 > => {
   const THRESHOLD = 0.6; // 원하는 기준값 설정
 
-  const supabase = createClientClient();
   const result = await supabase
     .from("cluster_similarities")
     .select("*")
@@ -53,25 +56,16 @@ const _getClusterSimData = async (): Promise<
   return result;
 };
 
-export const getClusterSimData = unstable_cache(
-  _getClusterSimData,
-  [CACHE_TAGS.CLUSTER.ALL()],
-  {
+export const getClusterSimData = async () =>
+  withSupabaseCache<
+    null,
+    Database["public"]["Tables"]["cluster_similarities"]["Row"]
+  >(null, {
+    handler: _getClusterSimData,
+    key: ["getClusterSimData", CACHE_TAGS.CLUSTER.ALL()],
+    tags: [CACHE_TAGS.CLUSTER.ALL()],
     revalidate: 60 * 60 * 24 * 30,
-  }
-);
-
-const _getClusterWithPosts = async (
-  supabase: SupabaseClient<Database>
-): Promise<PostgrestResponse<ClusterWithPosts>> => {
-  const result = await supabase
-    .from("clusters_with_published_posts")
-    .select("*")
-    .order("quality", { ascending: true })
-    .order("post_count", { ascending: false });
-
-  return result;
-};
+  });
 
 const _getClusterWithPostsById = async (
   supabase: SupabaseClient<Database>,
@@ -94,5 +88,5 @@ export const getClusterWithPostsById = async (clusterId: string) =>
       "clusters_with_published_posts",
       CACHE_TAGS.CLUSTER.BY_ID(clusterId),
     ],
-    revalidate: 60 * 60 * 24, // 하루 캐싱 (1개만이라서 짧게)
+    revalidate: 60 * 60 * 24 * 30,
   });

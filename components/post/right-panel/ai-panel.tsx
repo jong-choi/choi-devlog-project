@@ -1,9 +1,4 @@
 "use client";
-import {
-  createAISummary,
-  createTagsByPostId,
-  getRecommendedByPostId,
-} from "@/app/post/actions";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { useAuthStore } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
@@ -18,6 +13,8 @@ import AIModeButton from "@/components/post/right-panel/ai-mode-button";
 import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
 import { simsToPosts } from "@/utils/uploadingUtils";
 import { useShallow } from "zustand/react/shallow";
+import { createAISummary, createTagsByPostId } from "@/app/post/actions";
+import { getRecommendedListByPostId } from "@/app/post/fetchers";
 
 export default function AIPanel() {
   const {
@@ -140,7 +137,7 @@ export default function AIPanel() {
       },
       body: JSON.stringify({ postId }),
     }).then(() => toast.success("추천 게시글 분석이 완료되었습니다."));
-    const { data: postsData } = await getRecommendedByPostId(postId);
+    const { data: postsData } = await getRecommendedListByPostId(postId);
     setRecommendedPosts(simsToPosts(postsData || []));
     setSummary(AIData.summary);
     setSummaryId(AIData!.id);
