@@ -5,12 +5,19 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Columns2 } from "lucide-react";
+import { useAuthStore } from "@/providers/auth-provider";
 
 export default function ToggleEditButton() {
   const { layoutSnapshot, setLayoutSnaphot } = useAutosave(
     useShallow((state) => ({
       layoutSnapshot: state.layoutSnapshot,
       setLayoutSnaphot: state.setLayoutSnaphot,
+    }))
+  );
+
+  const { isValid } = useAuthStore(
+    useShallow((state) => ({
+      isValid: state.isValid,
     }))
   );
 
@@ -108,10 +115,12 @@ export default function ToggleEditButton() {
     }
   }, [isMarkdownOn, isRawOn, setIsEditMode]);
 
+  const editLabel = isValid ? "편집 모드" : "게스트 모드";
+
   return (
     <div className="flex items-center gap-1">
       <div className="text-[12px] font-semibold hidden md:flex">
-        {isEditMode ? "편집 모드" : "편집 꺼짐"}
+        {isEditMode ? editLabel : "편집 꺼짐"}
       </div>
       <div className="flex divide-x overflow-hidden rounded-full border text-[8px] font-medium">
         <button

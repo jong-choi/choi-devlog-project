@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@ui/label";
 import { useShallow } from "zustand/react/shallow";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { useAuthStore } from "@/providers/auth-provider";
 
 export default function ToggleSortableButton() {
   const { isSortable, toggleIsSortable } = useLayoutStore(
@@ -13,6 +14,13 @@ export default function ToggleSortableButton() {
       toggleIsSortable: state.toggleIsSortable,
     }))
   );
+  const { isValid } = useAuthStore(
+    useShallow((state) => ({
+      isValid: state.isValid,
+    }))
+  );
+
+  const editLabel = isValid ? "편집 모드" : "게스트 모드";
 
   return (
     <div className="flex items-center gap-1 py-1">
@@ -20,7 +28,7 @@ export default function ToggleSortableButton() {
         htmlFor="sortable-switch"
         className="text-[12px] font-semibold text-color-muted cursor-pointer"
       >
-        {isSortable ? "편집 모드" : "편집 꺼짐"}
+        {isSortable ? editLabel : "편집 꺼짐"}
       </Label>
       <Switch
         id="sortable-switch"
