@@ -14,7 +14,7 @@ import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortabl
 import { UpdatePopover } from "@/components/popover/update-popover/update-popover";
 import PostUpdateForm from "@/components/popover/update-popover/post-update-form";
 import { CreatePopover } from "@/components/popover/create-popover/create-popover";
-import CreateCategoryForm from "@/components/popover/create-popover/create-category-form";
+import CategoryCreateForm from "@/components/popover/create-popover/category-create-form";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 import { LinkLoader } from "@ui/route-loader";
@@ -106,7 +106,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
             <div className="border-t pt-1">
               <div className="flex w-full justify-between">
                 <CreatePopover title={"분류"}>
-                  {({ onClose }) => <CreateCategoryForm onClose={onClose} />}
+                  {({ onClose }) => <CategoryCreateForm onClose={onClose} />}
                 </CreatePopover>
                 <ToggleSortableButton />
               </div>

@@ -8,13 +8,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 
-type CreateCategoryPanelProps = {
+type CategoryCreatePanelProps = {
   onClose: () => void;
 };
 
-export default function CreateCategoryForm({
+export default function CategoryCreateForm({
   onClose,
-}: CreateCategoryPanelProps) {
+}: CategoryCreatePanelProps) {
   const [name, setName] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const { session } = useAuthStore(
@@ -52,7 +52,7 @@ export default function CreateCategoryForm({
 
   return (
     <div className="grid gap-2">
-      <p className="text-sm text-muted-foreground">새 주제</p>
+      <p className="text-sm text-muted-foreground">새 분류</p>
       <div className="grid gap-2">
         <div className="grid grid-cols-4 items-center gap-1">
           <Input

@@ -14,6 +14,7 @@ export default function ToggleSortableButton() {
       toggleIsSortable: state.toggleIsSortable,
     }))
   );
+
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
