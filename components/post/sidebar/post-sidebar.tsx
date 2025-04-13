@@ -11,14 +11,16 @@ import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-catego
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
-import { UpdatePopover } from "@/components/popover/update-popover/update-popover";
-import PostUpdateForm from "@/components/popover/update-popover/post-update-form";
-import { CreatePopover } from "@/components/popover/create-popover/create-popover";
-import CategoryCreateForm from "@/components/popover/create-popover/category-create-form";
+
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 import { LinkLoader } from "@ui/route-loader";
 import { useEffect } from "react";
+import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
+
+import CategoryCreateForm from "@/components/dialogs/create-forms/category-create-form";
+import PostUpdateForm from "@/components/dialogs/update-forms/post-update-form";
+import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -105,9 +107,9 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
 
             <div className="border-t pt-1">
               <div className="flex w-full justify-between">
-                <CreatePopover title={"분류"}>
+                <CreateDialog title={"분류"}>
                   {({ onClose }) => <CategoryCreateForm onClose={onClose} />}
-                </CreatePopover>
+                </CreateDialog>
                 <ToggleSortableButton />
               </div>
               {loading ? (
@@ -188,11 +190,11 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                           {post.title}
                         </LinkLoader>
                       </WithSortableItem>
-                      <UpdatePopover>
+                      <SidebarContentDropdown>
                         {({ onClose }) => (
                           <PostUpdateForm post={post} onClose={onClose} />
                         )}
-                      </UpdatePopover>
+                      </SidebarContentDropdown>
                     </div>
                   ))
                 }

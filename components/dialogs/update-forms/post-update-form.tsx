@@ -80,6 +80,10 @@ export default function PostUpdateForm({
 
   return (
     <div className="flex flex-col gap-4 p-2">
+      <div className="flex gap-2 items-center">
+        <Label htmlFor="title">제목</Label>
+        <div>{post.title}</div>
+      </div>
       <div className="grid flex-1 gap-2">
         <Label htmlFor="url-slug">URL 주소</Label>
         <div className="flex items-center">
@@ -116,7 +120,7 @@ export default function PostUpdateForm({
             onCheckedChange={(checked) => setIsPrivate(!checked)}
           />
           <Label htmlFor="is-praivate-mode">
-            {isPrivate ? "비공개" : "공개"}
+            {isPrivate ? "비공개됨" : "공개됨"}
           </Label>
         </div>
         <GlassButton

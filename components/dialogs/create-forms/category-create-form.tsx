@@ -52,15 +52,14 @@ export default function CategoryCreateForm({
 
   return (
     <div className="grid gap-2">
-      <p className="text-sm text-muted-foreground">새 분류</p>
       <div className="grid gap-2">
-        <div className="grid grid-cols-4 items-center gap-1">
+        <div className="grid grid-cols-5 items-center gap-1">
           <Input
             id="width"
             value={name}
             onChange={(e) => setName(e.currentTarget.value)}
             placeholder="이름"
-            className="col-span-3 h-8"
+            className="col-span-4 h-8"
           />
           <GlassButton
             className="py-1"

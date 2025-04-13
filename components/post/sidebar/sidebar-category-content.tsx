@@ -1,11 +1,12 @@
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
-import { UpdatePopover } from "@/components/popover/update-popover/update-popover";
+
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
 import { useShallow } from "zustand/react/shallow";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
 
 export function SidebarCategoryContent({
   catagory,
@@ -45,7 +46,7 @@ export function SidebarCategoryContent({
             {catagory.name}
           </button>
         </WithSortableItem>
-        <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
+        <SidebarContentDropdown>{(_onClose) => <div />}</SidebarContentDropdown>
       </div>
       {isOpened && (
         <div className="ml-2 mt-1 space-y-1">
@@ -73,7 +74,9 @@ export function SidebarCategoryContent({
                       {sub.name}
                     </button>
                   </WithSortableItem>
-                  <UpdatePopover>{(_onClose) => <div />}</UpdatePopover>
+                  <SidebarContentDropdown>
+                    {(_onClose) => <div />}
+                  </SidebarContentDropdown>
                 </div>
               ))
             }
