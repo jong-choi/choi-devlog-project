@@ -4486,3 +4486,215 @@ export * from "@/app/post/fetchers/sidebar";
 export * from "@/app/post/fetchers/ai";
 export * from "@/app/post/fetchers/post";
 ```
+
+## 36일차
+
+### 수정/삭제 등을 드랍다운 + 다이알로그로 리팩토링
+
+`components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown.tsx`  
+드랍다운은 잘 구현이 됐는데,  
+문제는 드랍다운이 닫히면서 팝오버, 다이알로그 등이 같이 닫히는 문제가 있다.  
+일단 다이알로그로 리팩토링을 완료했고,  
+다이알로그를 다이알로그 내부의 상태로 관리하는 것이 아니라, 다이알로그 외부의 상태로 관리 + dialogOpen이 false일 때에 useEffect로 클린업 하도록 수정하였다.
+
+```ts
+useEffect(() => {
+  // 다이알로그가 pointer-events: none을 넣는 것을 수동으로 클린업
+  if (!updateOpen) {
+    document.body.style.pointerEvents = "auto";
+    document.body.removeAttribute("inert");
+  }
+}, [updateOpen]);
+
+if (!isSortable) return null;
+return (
+  <>
+    <SidabarContentDropdownApp
+      setUpdateOpen={() => setUpdateOpen(true)}
+      setDeleteOpen={() => setUpdateOpen(true)}
+    />
+    {updateOpen && (
+      <Dialog defaultOpen={true} onOpenChange={setUpdateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>수정</DialogTitle>
+          </DialogHeader>
+          {children({ onClose: () => setUpdateOpen(false) })}
+        </DialogContent>
+      </Dialog>
+    )}
+  </>
+);
+```
+
+그 밖에 updateForm과 deleteForm을 넘겨받고 싶어서 함수형 children 구조에서 slot 구조로 변경하였다.
+
+```tsx
+<SidebarContentDropdown
+  slots={{
+    update: ({ onClose }) => <PostUpdateForm post={post} onClose={onClose} />,
+    delete: () => <></>,
+  }}
+/>
+```
+
+이렇게 넘겨주면
+
+```tsx
+{
+  dialogOpen && (
+    <Dialog defaultOpen={true} onOpenChange={setDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          {mode === "update" && <DialogTitle>수정</DialogTitle>}
+          {mode === "delete" && <DialogTitle>삭제</DialogTitle>}
+        </DialogHeader>
+        {slots[mode]({ onClose: () => setDialogOpen(false) })}
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+이렇게 `slots[mode]` 형태로 불러다가 쓸 수 있다.
+
+### 클라이언트 사이드 업데이트
+
+force-static으로 데이터를 SSG 로 캐싱한 상태에서는 revalidate가 있어도 현재 접속된 사용자는 반영되지 않는다.  
+사실 생성/수정/삭제 기능을 나만 쓸꺼긴 한데, 내가 불편해서 수정한다.
+
+카테고리 생성 시에 zustand 상태 'categoriesPending'을 true로 한다.
+이 true를 받으면 카테고리 목록을 불러와 category를 업데이트 한다.
+
+이러한 fetcher는 기존 `_getSidebarCategory` 함수를 getClientSidebarCategory로 이름을 바꿔 별도의 파일로 분리하여 사용하였다.
+
+### RLS 정책 및 jwt
+
+여기서 `auth.jwt()) ->> 'sub' = user_id::text`의 의미는 다음과 같다.
+
+1. auth.jwt 토큰에서 sub를 가져온다. sub는 문자열 형식의 user_id 이다.
+2. 'sub' = user_id인지 체크한다.
+3. 이때 user_id는 uuid 형식이므로 이를 ::text 를 이용해서 text 형식으로 바꾼다.
+
+```sql
+-- 🔥 POSTS 테이블
+DROP POLICY IF EXISTS "Enable read access for all users" ON posts;
+DROP POLICY IF EXISTS "Read access with public/private logic" ON posts;
+DROP POLICY IF EXISTS "Enable update for users based on user_id" ON posts;
+DROP POLICY IF EXISTS "Enable delete for users based on user_id" ON posts;
+
+CREATE POLICY "Read access with public/private logic"
+ON posts
+FOR SELECT
+TO public
+USING (
+    NOT is_private
+    OR user_id = auth.uid()
+);
+
+CREATE POLICY "Enable update for users based on user_id"
+ON posts
+FOR UPDATE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+)
+WITH CHECK (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+
+CREATE POLICY "Enable delete for users based on user_id"
+ON posts
+FOR DELETE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+
+-- 🔥 CATEGORIES 테이블
+DROP POLICY IF EXISTS "Enable read access for all users" ON categories;
+DROP POLICY IF EXISTS "Enable update for users based on user_id" ON categories;
+DROP POLICY IF EXISTS "Enable delete for users based on user_id" ON categories;
+DROP POLICY IF EXISTS "Read access with public/private logic" ON categories;
+
+CREATE POLICY "Read access with public/private logic"
+ON categories
+FOR SELECT
+TO public
+USING (
+  true
+);
+
+CREATE POLICY "Enable update for users based on user_id"
+ON categories
+FOR UPDATE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+)
+WITH CHECK (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+
+CREATE POLICY "Enable delete for users based on user_id"
+ON categories
+FOR DELETE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+
+-- 🔥 SUBCATEGORIES 테이블
+DROP POLICY IF EXISTS "Enable read access for all users" ON subcategories;
+DROP POLICY IF EXISTS "Enable update for users based on user_id" ON subcategories;
+DROP POLICY IF EXISTS "Enable delete for users based on user_id" ON subcategories;
+DROP POLICY IF EXISTS "Read access with public/private logic" ON subcategories;
+
+CREATE POLICY "Read access with public/private logic"
+ON subcategories
+FOR SELECT
+TO public
+USING (
+  true
+);
+
+CREATE POLICY "Enable update for users based on user_id"
+ON subcategories
+FOR UPDATE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+)
+WITH CHECK (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+
+CREATE POLICY "Enable delete for users based on user_id"
+ON subcategories
+FOR DELETE
+TO public
+USING (
+  (SELECT auth.jwt()) ->> 'sub' = user_id::text
+);
+```
+
+### 카테고리, 서브카테고리 생성/수정/삭제
+
+구현 완료.....
+
+문제는 form이 6개나 나왔다.
+
+form을 어떻게 관리하는게 좋은지 zod 등을 통해서 공부 해야하는데;...ㅠㅠ
+
+카테고리는
+
+- 사이드바에서 생성버튼
+- 카테고리 옆에서 수정/삭제 버튼
+- 카테고리의 subcategories가 있으면 삭제불가
+
+서브카테고리는
+
+- 열려있는 사이드바에서 생성버튼
+- 서브카테고리 옆에서 수정/삭제 버튼
+- posts 중 해당 subcategory를 참조하는 posts가 하나라도 있으면 삭제불가
+- 생성/수정 시, url_slug가 없으면 slugify(이름)을 url_slug로
