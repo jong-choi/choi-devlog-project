@@ -18,14 +18,14 @@ export default function CategoryCreateForm({
 }: CategoryCreatePanelProps) {
   const [name, setName] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const { session } = useAuthStore(
+  const { isValid } = useAuthStore(
     useShallow((state) => ({
-      session: state.session,
+      isValid: state.isValid,
     }))
   );
-  const { setCategoryPending } = useSidebarStore(
+  const { setCtegoriesPending } = useSidebarStore(
     useShallow((state) => ({
-      setCategoryPending: state.setCategoryPending,
+      setCtegoriesPending: state.setCtegoriesPending,
     }))
   );
 
@@ -33,7 +33,7 @@ export default function CategoryCreateForm({
 
   const handleCreate = async () => {
     setIsSaving(true);
-    if (!session) {
+    if (!isValid) {
       notSavedToast();
       onClose();
       return setIsSaving(false);
@@ -44,7 +44,7 @@ export default function CategoryCreateForm({
         url_slug: slugify(name),
       });
       if (data) {
-        setCategoryPending(true);
+        setCtegoriesPending(true);
         toast.success("새 주제가 생성되었습니다.");
       } else if (error) {
         toast.error("주제 생성 실패", { description: error.message });

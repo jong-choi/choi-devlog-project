@@ -28,6 +28,12 @@ export default function PostUpdateForm({
   post: Post;
   onClose: () => void;
 }) {
+  const { setPostsPending } = useSidebarStore(
+    useShallow((state) => ({
+      setPostsPending: state.setPostsPending,
+    }))
+  );
+
   const [isPrivate, setIsPrivate] = useState<boolean>(post.is_private || false);
   const [urlSlug, setUrlSlug] = useState<string>(post.url_slug);
   const [shortDesc, setShortDesc] = useState<string>(
@@ -37,9 +43,9 @@ export default function PostUpdateForm({
     post.subcategory_id || ""
   );
 
-  const { session } = useAuthStore(
+  const { isValid } = useAuthStore(
     useShallow((state) => ({
-      session: state.session,
+      isValid: state.isValid,
     }))
   );
 
@@ -53,7 +59,7 @@ export default function PostUpdateForm({
 
   const handleUpdate = async () => {
     setIsSaving(true);
-    if (!session) {
+    if (!isValid) {
       notSavedToast();
       onClose();
       return setIsSaving(false);
@@ -67,6 +73,7 @@ export default function PostUpdateForm({
       });
       if (data) {
         toast.success("게시글이 수정되었습니다.");
+        setPostsPending(true);
       } else if (error) {
         toast.error("게시글 수정 실패", { description: error.message });
       }

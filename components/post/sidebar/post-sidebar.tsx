@@ -21,6 +21,7 @@ import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
 import CategoryCreateForm from "@/components/dialogs/create-forms/category-create-form";
 import PostUpdateForm from "@/components/dialogs/update-forms/post-update-form";
 import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
+import PostDeleteForm from "@/components/dialogs/delete-forms/post-delete-form";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -195,7 +196,9 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                           update: ({ onClose }) => (
                             <PostUpdateForm post={post} onClose={onClose} />
                           ),
-                          delete: () => <></>,
+                          delete: ({ onClose }) => (
+                            <PostDeleteForm post={post} onClose={onClose} />
+                          ),
                         }}
                       />
                     </div>

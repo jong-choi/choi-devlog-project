@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import {
   getClientSidebarCategory,
   getClientSidebarPrivatePosts,
+  getClientSidebarPublishedPosts,
 } from "@/app/post/fetchers/client/sidebar";
 
 export default function SidebarHydrator() {
@@ -21,7 +22,8 @@ export default function SidebarHydrator() {
     posts,
     post,
     publishedPostsLength,
-    categoryPending,
+    ctegoriesPending,
+    postsPending,
     setCategory,
     setCategories,
     setSubcategory,
@@ -30,7 +32,8 @@ export default function SidebarHydrator() {
     setOpenCategory,
     setLoaded,
     setMobileClosed,
-    setCategoryPending,
+    setCtegoriesPending,
+    setPostsPending,
   } = useSidebarStore(
     useShallow((state) => ({
       categories: state.categories,
@@ -41,7 +44,8 @@ export default function SidebarHydrator() {
         (post) => post.url_slug === decodeURIComponent(urlSlug)
       ),
       loading: state.loading,
-      categoryPending: state.categoryPending,
+      ctegoriesPending: state.ctegoriesPending,
+      postsPending: state.postsPending,
       setCategory: state.setCategory,
       setCategories: state.setCategories,
       setSubcategory: state.setSubcategory,
@@ -50,7 +54,8 @@ export default function SidebarHydrator() {
       setOpenCategory: state.setOpenCategory,
       setLoaded: state.setLoaded,
       setMobileClosed: state.setMobileClosed,
-      setCategoryPending: state.setCategoryPending,
+      setCtegoriesPending: state.setCtegoriesPending,
+      setPostsPending: state.setPostsPending,
     }))
   );
   const { uid } = useAuthStore(
@@ -61,20 +66,34 @@ export default function SidebarHydrator() {
 
   useEffect(() => setMobileClosed(), [setMobileClosed]);
 
-  // 카테고리/시리즈 생성할 때 다시 한번 더 가져오기
+  // 카테고리/시리즈 생성/수정/삭제할 때 다시 한번 더 가져오기
   useEffect(() => {
-    if (!categoryPending) return;
+    if (!ctegoriesPending) return;
     (async () => {
       const supabase = createClient();
       const { data } = await getClientSidebarCategory(supabase);
       if (data) {
         setCategories(data);
       }
-      setCategoryPending(false);
+      setCtegoriesPending(false);
     })();
-  }, [categoryPending, setCategories, setCategoryPending]);
+  }, [ctegoriesPending, setCategories, setCtegoriesPending]);
 
   const [privateChecked, setPriavateCheked] = useState(false);
+  // 게시글 생성/수정/삭제할 때 다시 한번 더 가져오기
+  useEffect(() => {
+    if (!postsPending) return;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await getClientSidebarPublishedPosts(supabase);
+      if (data) {
+        setPosts(data);
+      }
+      setPostsPending(false);
+      setPriavateCheked(false);
+    })();
+  }, [postsPending, setPosts, setPostsPending]);
+
   // 공개된 게시글 숫자가 변할 때에 한번 더 체크
   useEffect(() => {
     setPriavateCheked(false);
