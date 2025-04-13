@@ -190,11 +190,14 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                           {post.title}
                         </LinkLoader>
                       </WithSortableItem>
-                      <SidebarContentDropdown>
-                        {({ onClose }) => (
-                          <PostUpdateForm post={post} onClose={onClose} />
-                        )}
-                      </SidebarContentDropdown>
+                      <SidebarContentDropdown
+                        slots={{
+                          update: ({ onClose }) => (
+                            <PostUpdateForm post={post} onClose={onClose} />
+                          ),
+                          delete: () => <></>,
+                        }}
+                      />
                     </div>
                   ))
                 }

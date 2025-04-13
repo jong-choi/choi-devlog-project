@@ -6,13 +6,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@ui/dialog";
 import SidabarContentDropdownApp from "@/components/dialogs/sidebar-content-dropdown/sidabar-content-dropdown-app";
 
 type SidebarContentDropdownProps = {
-  children: (props: { onClose: () => void }) => ReactNode;
+  slots: {
+    update: (props: { onClose: () => void }) => ReactNode;
+    delete: (props: { onClose: () => void }) => ReactNode;
+  };
+};
+type Mode = keyof SidebarContentDropdownProps["slots"];
+const modeLabels: Record<Mode, string> = {
+  update: "수정",
+  delete: "삭제",
 };
 
-export function SidebarContentDropdown({
-  children,
-}: SidebarContentDropdownProps) {
-  const [updateOpen, setUpdateOpen] = useState(false);
+export function SidebarContentDropdown({ slots }: SidebarContentDropdownProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [mode, setMode] = useState<Mode>("update");
+  const setUpdateOpen = () => {
+    setDialogOpen(true);
+    setMode("update");
+  };
+  const setDeleteOpen = () => {
+    setDialogOpen(true);
+    setMode("delete");
+  };
 
   const { isSortable } = useLayoutStore(
     useShallow((state) => ({
@@ -20,31 +35,31 @@ export function SidebarContentDropdown({
     }))
   );
   useEffect(() => {
-    console.log(updateOpen);
-  }, [updateOpen]);
+    console.log(dialogOpen);
+  }, [dialogOpen]);
 
   useEffect(() => {
     // 다이알로그가 pointer-events: none을 넣는 것을 수동으로 클린업
-    if (!updateOpen) {
+    if (!dialogOpen) {
       document.body.style.pointerEvents = "auto";
       document.body.removeAttribute("inert");
     }
-  }, [updateOpen]);
+  }, [dialogOpen]);
 
   if (!isSortable) return null;
   return (
     <>
       <SidabarContentDropdownApp
-        setUpdateOpen={() => setUpdateOpen(true)}
-        setDeleteOpen={() => setUpdateOpen(true)}
+        setUpdateOpen={setUpdateOpen}
+        setDeleteOpen={setDeleteOpen}
       />
-      {updateOpen && (
-        <Dialog defaultOpen={true} onOpenChange={setUpdateOpen}>
+      {dialogOpen && (
+        <Dialog defaultOpen={true} onOpenChange={setDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>수정</DialogTitle>
+              <DialogTitle>{modeLabels[mode]}</DialogTitle>
             </DialogHeader>
-            {children({ onClose: () => setUpdateOpen(false) })}
+            {slots[mode]({ onClose: () => setDialogOpen(false) })}
           </DialogContent>
         </Dialog>
       )}

@@ -46,7 +46,12 @@ export function SidebarCategoryContent({
             {catagory.name}
           </button>
         </WithSortableItem>
-        <SidebarContentDropdown>{(_onClose) => <div />}</SidebarContentDropdown>
+        <SidebarContentDropdown
+          slots={{
+            update: () => <></>,
+            delete: () => <></>,
+          }}
+        />
       </div>
       {isOpened && (
         <div className="ml-2 mt-1 space-y-1">
@@ -74,9 +79,12 @@ export function SidebarCategoryContent({
                       {sub.name}
                     </button>
                   </WithSortableItem>
-                  <SidebarContentDropdown>
-                    {(_onClose) => <div />}
-                  </SidebarContentDropdown>
+                  <SidebarContentDropdown
+                    slots={{
+                      update: () => <></>,
+                      delete: () => <></>,
+                    }}
+                  />
                 </div>
               ))
             }
