@@ -1,5 +1,6 @@
 import { createCategory } from "@/app/post/actions";
 import { useAuthStore } from "@/providers/auth-provider";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import notSavedToast from "@/utils/not-saved-toast";
 import { slugify } from "@/utils/uploadingUtils";
 import { GlassButton } from "@ui/glass-button";
@@ -22,6 +23,11 @@ export default function CategoryCreateForm({
       session: state.session,
     }))
   );
+  const { setCategoryPending } = useSidebarStore(
+    useShallow((state) => ({
+      setCategoryPending: state.setCategoryPending,
+    }))
+  );
 
   const isChanged = !!name;
 
@@ -38,6 +44,7 @@ export default function CategoryCreateForm({
         url_slug: slugify(name),
       });
       if (data) {
+        setCategoryPending(true);
         toast.success("새 주제가 생성되었습니다.");
       } else if (error) {
         toast.error("주제 생성 실패", { description: error.message });

@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import { createClient } from "@/utils/supabase/client";
-import { Post } from "@/types/post";
-import { PostgrestResponse } from "@supabase/supabase-js";
 import { useAuthStore } from "@/providers/auth-provider";
 import { useParams } from "next/navigation";
+import {
+  getClientSidebarCategory,
+  getClientSidebarPrivatePosts,
+} from "@/app/post/fetchers/client/sidebar";
 
 export default function SidebarHydrator() {
   const params = useParams();
@@ -19,13 +21,16 @@ export default function SidebarHydrator() {
     posts,
     post,
     publishedPostsLength,
+    categoryPending,
     setCategory,
+    setCategories,
     setSubcategory,
     setPost,
     setPosts,
     setOpenCategory,
     setLoaded,
     setMobileClosed,
+    setCategoryPending,
   } = useSidebarStore(
     useShallow((state) => ({
       categories: state.categories,
@@ -36,13 +41,16 @@ export default function SidebarHydrator() {
         (post) => post.url_slug === decodeURIComponent(urlSlug)
       ),
       loading: state.loading,
+      categoryPending: state.categoryPending,
       setCategory: state.setCategory,
+      setCategories: state.setCategories,
       setSubcategory: state.setSubcategory,
       setPost: state.setPost,
       setPosts: state.setPosts,
       setOpenCategory: state.setOpenCategory,
       setLoaded: state.setLoaded,
       setMobileClosed: state.setMobileClosed,
+      setCategoryPending: state.setCategoryPending,
     }))
   );
   const { uid } = useAuthStore(
@@ -53,17 +61,32 @@ export default function SidebarHydrator() {
 
   useEffect(() => setMobileClosed(), [setMobileClosed]);
 
+  // 카테고리/시리즈 생성할 때 다시 한번 더 가져오기
+  useEffect(() => {
+    if (!categoryPending) return;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await getClientSidebarCategory(supabase);
+      if (data) {
+        setCategories(data);
+      }
+      setCategoryPending(false);
+    })();
+  }, [categoryPending, setCategories, setCategoryPending]);
+
   const [privateChecked, setPriavateCheked] = useState(false);
   // 공개된 게시글 숫자가 변할 때에 한번 더 체크
   useEffect(() => {
     setPriavateCheked(false);
   }, [publishedPostsLength]);
+
   useEffect(() => {
     if (!uid) return;
     if (privateChecked) return;
     void (async () => {
-      const privatePosts = await getPrivatePosts(); // supabase로 가져옴
-      const merged = [...(posts ?? []), ...(privatePosts ?? [])];
+      const supabase = createClient();
+      const { data } = await getClientSidebarPrivatePosts(supabase, uid); // supabase로 가져옴
+      const merged = [...(posts ?? []), ...(data ?? [])];
       const unique = Array.from(new Map(merged.map((p) => [p.id, p])).values());
       setPosts(unique);
       setPriavateCheked(true);
@@ -104,27 +127,3 @@ export default function SidebarHydrator() {
 
   return null;
 }
-
-export const getPrivatePosts = async (): Promise<Post[]> => {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const uid = user?.id ?? "";
-  const { data, error }: PostgrestResponse<Post> = await supabase
-    .from("posts")
-    .select(
-      "id, url_slug, title, short_description, is_private, order, subcategory_id"
-    )
-    .eq("is_private", true)
-    .eq("user_id", uid)
-    .is("deleted_at", null)
-    .order("order", { ascending: true });
-
-  if (error) {
-    console.error("Failed to fetch private posts:", error.message);
-    return [];
-  }
-
-  return data ?? [];
-};
