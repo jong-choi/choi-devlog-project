@@ -11,17 +11,15 @@ import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-catego
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
-
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 import { LinkLoader } from "@ui/route-loader";
 import { useEffect } from "react";
 import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
-
-import CategoryCreateForm from "@/components/dialogs/create-forms/category-create-form";
-import PostUpdateForm from "@/components/dialogs/update-forms/post-update-form";
 import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
-import PostDeleteForm from "@/components/dialogs/delete-forms/post-delete-form";
+import CategoryCreateForm from "@/components/dialogs/category-forms/category-create-form";
+import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
+import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -108,7 +106,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
 
             <div className="border-t pt-1">
               <div className="flex w-full justify-between">
-                <CreateDialog title={"분류"}>
+                <CreateDialog buttonTitle={"분류"} dialogTitle={"분류"}>
                   {({ onClose }) => <CategoryCreateForm onClose={onClose} />}
                 </CreateDialog>
                 <ToggleSortableButton />
@@ -209,8 +207,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
           </div>
         )}
       </div>
-
-      {/* 🌟 모바일 사이드바 (왼쪽, 오른쪽 공통 컨테이너) */}
+      {/* 모바일 사이드바 (왼쪽, 오른쪽 공통 컨테이너) */}
       <MobilePostSidebar posts={posts} categories={categories} />
     </div>
   );

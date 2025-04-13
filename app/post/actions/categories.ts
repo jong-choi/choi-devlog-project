@@ -70,18 +70,14 @@ export const updateCategory = createWithInvalidation(
 
 const _softDeleteCategory = async (
   category_id: string
-): Promise<
-  PostgrestSingleResponse<Database["public"]["Tables"]["categories"]["Row"]>
-> => {
+): Promise<PostgrestSingleResponse<null>> => {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
+
   const result = await supabase
     .from("categories")
     .update({ deleted_at: new Date().toISOString() }) // Soft Delete
-    .eq("id", category_id)
-    .is("deleted_at", null) // 이미 삭제되지 않은 항목만 처리
-    .select()
-    .single();
+    .eq("id", category_id);
 
   return result;
 };

@@ -12,7 +12,7 @@ export const getClientSidebarCategory = async (
         id,
         name,
         order,
-        subcategories(id, name, order)
+        subcategories(id, name, order, category_id, url_slug)
       `
     )
     .is("deleted_at", null)

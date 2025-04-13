@@ -12,14 +12,16 @@ import {
 } from "@ui/dialog";
 
 type CreateDialogAppProps = {
-  title?: string;
+  buttonTitle?: string;
+  dialogTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
 };
 
 export default function CreateDialogApp({
-  title,
+  buttonTitle,
+  dialogTitle,
   open,
   onOpenChange,
   children,
@@ -31,12 +33,12 @@ export default function CreateDialogApp({
           variant="ghost"
           className="h-6 px-1 text-color-muted hover:bg-glass-bg-60"
         >
-          <CreateNewTrigger title={title} />
+          <CreateNewTrigger title={buttonTitle} />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>새 분류</DialogTitle>
+          <DialogTitle>새 {dialogTitle}</DialogTitle>
         </DialogHeader>
         {children}
       </DialogContent>

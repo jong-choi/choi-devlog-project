@@ -17,14 +17,13 @@ import { Database } from "@/types/supabase";
  */
 export function slugify(title: string): string {
   return title
-    .normalize("NFD") // 유니코드 정규화 (예: é → e)
-    .replace(/[\u0300-\u036f]/g, "") // 발음 기호 제거
-    .replace(/[^a-zA-Z0-9\s-]/g, "") // 알파벳, 숫자, 공백, 하이픈만 남김
-    .trim() // 앞뒤 공백 제거
-    .replace(/\s+/g, "-") // 띄어쓰기를 하이픈(-)으로 변환
-    .toLowerCase(); // 소문자로 변환
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣\s-]/g, "") // 영어 소문자 + 숫자 + 한글 + 공백 + 하이픈만 남김
+    .replace(/\s+/g, "-") // 공백은 하이픈으로 변환
+    .replace(/-+/g, "-") // 중복 하이픈 제거
+    .replace(/^-+|-+$/g, ""); // 앞뒤 하이픈 제거
 }
-
 /**
  * 게시글에서 처음으로 발견한 Markdown 이미지의 URL을 추출합니다.
  *

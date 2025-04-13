@@ -1,12 +1,17 @@
 import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
 import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
-
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Category } from "@/types/post";
 import { useShallow } from "zustand/react/shallow";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
+import CategoryUpdateForm from "@/components/dialogs/category-forms/category-update-form";
+import CategoryDeleteForm from "@/components/dialogs/category-forms/category-delete-form";
+import SubcategoryUpdateForm from "@/components/dialogs/subcategory-forms/subcategory-update-form";
+import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
+import SubcategoryCreateForm from "@/components/dialogs/subcategory-forms/subcategory-create-form";
+import SubcategoryDeleteForm from "@/components/dialogs/subcategory-forms/subcategory-delete-form";
 
 export function SidebarCategoryContent({
   catagory,
@@ -25,8 +30,9 @@ export function SidebarCategoryContent({
     }))
   );
 
-  const { isOpened, toggleCategory } = useSidebarStore(
+  const { posts, isOpened, toggleCategory } = useSidebarStore(
     useShallow((state) => ({
+      posts: state.posts,
       isOpened: state.openedCategories[catagory.id] || false,
       toggleCategory: state.toggleCategory,
     }))
@@ -46,10 +52,20 @@ export function SidebarCategoryContent({
             {catagory.name}
           </button>
         </WithSortableItem>
+        {isOpened && (
+          <CreateDialog buttonTitle="시리즈" dialogTitle="시리즈">
+            {({ onClose }) => <SubcategoryCreateForm onClose={onClose} />}
+          </CreateDialog>
+        )}
         <SidebarContentDropdown
+          deleteDisabled={!!catagory.subcategories.length}
           slots={{
-            update: () => <></>,
-            delete: () => <></>,
+            update: ({ onClose }) => (
+              <CategoryUpdateForm onClose={onClose} category={catagory} />
+            ),
+            delete: ({ onClose }) => (
+              <CategoryDeleteForm category={catagory} onClose={onClose} />
+            ),
           }}
         />
       </div>
@@ -80,9 +96,22 @@ export function SidebarCategoryContent({
                     </button>
                   </WithSortableItem>
                   <SidebarContentDropdown
+                    deleteDisabled={
+                      !!posts?.find((post) => post.subcategory_id === sub.id)
+                    }
                     slots={{
-                      update: () => <></>,
-                      delete: () => <></>,
+                      update: ({ onClose }) => (
+                        <SubcategoryUpdateForm
+                          onClose={onClose}
+                          subcategory={sub}
+                        />
+                      ),
+                      delete: ({ onClose }) => (
+                        <SubcategoryDeleteForm
+                          subcategory={sub}
+                          onClose={onClose}
+                        />
+                      ),
                     }}
                   />
                 </div>

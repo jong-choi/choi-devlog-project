@@ -6,11 +6,16 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 import CreateDialogApp from "@/components/dialogs/create-dialog/create-dialog-app";
 
 type CreateDialogProps = {
-  title?: string;
+  buttonTitle?: string;
+  dialogTitle: string;
   children: (props: { onClose: () => void }) => ReactNode;
 };
 
-export function CreateDialog({ title, children }: CreateDialogProps) {
+export function CreateDialog({
+  buttonTitle,
+  dialogTitle,
+  children,
+}: CreateDialogProps) {
   const [open, setOpen] = useState(false);
   const { isSortable } = useLayoutStore(
     useShallow((state) => ({
@@ -20,7 +25,12 @@ export function CreateDialog({ title, children }: CreateDialogProps) {
 
   if (!isSortable) return <div />;
   return (
-    <CreateDialogApp title={title} open={open} onOpenChange={setOpen}>
+    <CreateDialogApp
+      buttonTitle={buttonTitle}
+      dialogTitle={dialogTitle}
+      open={open}
+      onOpenChange={setOpen}
+    >
       {children({ onClose: () => setOpen(false) })}
     </CreateDialogApp>
   );

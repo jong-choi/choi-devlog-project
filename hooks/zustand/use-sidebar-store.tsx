@@ -11,7 +11,7 @@ export interface SidebarState {
   openedCategories: Record<string, boolean>;
   mobileOpen: boolean;
   loading: boolean;
-  ctegoriesPending: boolean;
+  categoriesPending: boolean;
   postsPending: boolean;
   setCategory: (id: string | null) => void;
   setCategories: (categories: Category[]) => void;
@@ -23,7 +23,7 @@ export interface SidebarState {
   toggleMobileOpen: () => void;
   setLoaded: () => void;
   setMobileClosed: () => void;
-  setCtegoriesPending: (state: boolean) => void;
+  setCategoriesPending: (state: boolean) => void;
   setPostsPending: (state: boolean) => void;
 }
 
@@ -38,7 +38,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     openedCategories: {},
     mobileOpen: false,
     loading: true,
-    ctegoriesPending: false,
+    categoriesPending: false,
     postsPending: false,
     setCategory: (id) =>
       set({ selectedCategoryId: id, selectedSubcategoryId: null }),
@@ -67,7 +67,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     toggleMobileOpen: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
     setLoaded: () => set({ loading: false }),
     setMobileClosed: () => set({ mobileOpen: false }),
-    setCtegoriesPending: (state) => set({ ctegoriesPending: state }),
+    setCategoriesPending: (state) => set({ categoriesPending: state }),
     setPostsPending: (state) => set({ postsPending: state }),
     ...initialState, // 초기값 덮어쓰기
   }));

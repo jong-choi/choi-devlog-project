@@ -164,7 +164,7 @@ function SubcategorySelectScrollable({
       }}
     >
       <SelectTrigger id="subcategory-select" className="w-full">
-        <SelectValue placeholder="서브카테고리를 선택하세요" />
+        <SelectValue placeholder="시리즈를 선택하세요" />
       </SelectTrigger>
       <SelectContent>
         {categories ? (

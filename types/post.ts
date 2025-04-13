@@ -14,6 +14,8 @@ export type Subcategory = {
   id: string;
   name: string;
   order: number | null;
+  category_id: string | null;
+  url_slug: string;
 };
 
 export interface Category {

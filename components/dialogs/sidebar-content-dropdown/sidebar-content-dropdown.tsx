@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@ui/dialog";
 import SidabarContentDropdownApp from "@/components/dialogs/sidebar-content-dropdown/sidabar-content-dropdown-app";
 
 type SidebarContentDropdownProps = {
+  deleteDisabled?: boolean;
   slots: {
     update: (props: { onClose: () => void }) => ReactNode;
     delete: (props: { onClose: () => void }) => ReactNode;
@@ -17,7 +18,10 @@ const modeLabels: Record<Mode, string> = {
   delete: "삭제",
 };
 
-export function SidebarContentDropdown({ slots }: SidebarContentDropdownProps) {
+export function SidebarContentDropdown({
+  deleteDisabled = false,
+  slots,
+}: SidebarContentDropdownProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("update");
   const setUpdateOpen = () => {
@@ -34,9 +38,6 @@ export function SidebarContentDropdown({ slots }: SidebarContentDropdownProps) {
       isSortable: state.isSortable,
     }))
   );
-  useEffect(() => {
-    console.log(dialogOpen);
-  }, [dialogOpen]);
 
   useEffect(() => {
     // 다이알로그가 pointer-events: none을 넣는 것을 수동으로 클린업
@@ -52,6 +53,7 @@ export function SidebarContentDropdown({ slots }: SidebarContentDropdownProps) {
       <SidabarContentDropdownApp
         setUpdateOpen={setUpdateOpen}
         setDeleteOpen={setDeleteOpen}
+        deleteDisabled={deleteDisabled}
       />
       {dialogOpen && (
         <Dialog defaultOpen={true} onOpenChange={setDialogOpen}>

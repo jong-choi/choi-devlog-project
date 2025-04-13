@@ -12,9 +12,11 @@ import { MoreVertical } from "lucide-react";
 export default function SidabarDropdownApp({
   setUpdateOpen,
   setDeleteOpen,
+  deleteDisabled = false,
 }: {
   setUpdateOpen: () => void;
   setDeleteOpen: () => void;
+  deleteDisabled?: boolean;
 }) {
   return (
     <DropdownMenu>
@@ -27,12 +29,17 @@ export default function SidabarDropdownApp({
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="-mt-2">
+      <DropdownMenuContent className="-mt-2" align="start">
         <DropdownMenuItem className="cursor-pointer" onClick={setUpdateOpen}>
           수정
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={setDeleteOpen}>
-          삭제
+
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={setDeleteOpen}
+          disabled={deleteDisabled}
+        >
+          {deleteDisabled ? "삭제 불가" : "삭제"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

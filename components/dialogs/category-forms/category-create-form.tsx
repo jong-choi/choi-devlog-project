@@ -23,9 +23,9 @@ export default function CategoryCreateForm({
       isValid: state.isValid,
     }))
   );
-  const { setCtegoriesPending } = useSidebarStore(
+  const { setCategoriesPending } = useSidebarStore(
     useShallow((state) => ({
-      setCtegoriesPending: state.setCtegoriesPending,
+      setCategoriesPending: state.setCategoriesPending,
     }))
   );
 
@@ -44,7 +44,7 @@ export default function CategoryCreateForm({
         url_slug: slugify(name),
       });
       if (data) {
-        setCtegoriesPending(true);
+        setCategoriesPending(true);
         toast.success("새 주제가 생성되었습니다.");
       } else if (error) {
         toast.error("주제 생성 실패", { description: error.message });
