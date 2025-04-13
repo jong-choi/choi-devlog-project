@@ -15,6 +15,8 @@ export const getClientSidebarCategory = async (
         subcategories(id, name, order)
       `
     )
+    .is("deleted_at", null)
+    .is("subcategories.deleted_at", null)
     .order("order", { ascending: true })
     .order("order", { ascending: true, referencedTable: "subcategories" });
 
