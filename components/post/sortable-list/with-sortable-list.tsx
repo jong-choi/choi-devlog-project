@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
 import { SortableItem } from "@/components/post/sortable-list/sortable-list-container";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { OnUpdateFn } from "@/hooks/use-order-update-queue";
 
 export const SortableListContainerDynamic = dynamic(() =>
   import("@/components/post/sortable-list/sortable-list-container").then(
@@ -14,7 +15,7 @@ export const SortableListContainerDynamic = dynamic(() =>
 type Props<T extends SortableItem> = {
   items: T[];
   children: (items: T[]) => React.ReactNode;
-  onUpdate?: (items: SortableItem[]) => void | Promise<void>;
+  onUpdate?: OnUpdateFn<{ id: string; order: number }>;
 };
 
 export function WithSortableList<T extends SortableItem>({

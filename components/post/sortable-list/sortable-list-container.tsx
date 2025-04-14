@@ -15,7 +15,10 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { ReactNode, useEffect, useState } from "react";
-import { useOrderUpdateQueue } from "@/hooks/use-order-update-queue";
+import {
+  OnUpdateFn,
+  useOrderUpdateQueue,
+} from "@/hooks/use-order-update-queue";
 import { cn } from "@/lib/utils";
 
 export type SortableItem = { id: string; order: number | null };
@@ -23,7 +26,7 @@ export type SortableItem = { id: string; order: number | null };
 interface SortableListContainerProps<T extends SortableItem> {
   items: T[];
   children: (items: T[]) => ReactNode;
-  onUpdate?: (items: T[]) => void | Promise<void>;
+  onUpdate?: OnUpdateFn<{ id: string; order: number }>;
 }
 
 export function SortableListContainer<T extends SortableItem>({

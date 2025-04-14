@@ -2,15 +2,25 @@ import { useRef } from "react";
 import { debounce } from "lodash";
 import { SortableItem } from "@/components/post/sortable-list/sortable-list-container";
 import { toast } from "sonner";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { UpdateOrdersPayload } from "@/app/post/actions/sidebar";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { useShallow } from "zustand/react/shallow";
 
 export type OnUpdateFn<T extends SortableItem> = (
   changedItems: T[]
-) => void | Promise<void>;
+) => Promise<PostgrestSingleResponse<UpdateOrdersPayload>>;
 
 export const useOrderUpdateQueue = <T extends SortableItem>(
   onUpdate?: OnUpdateFn<T>
 ) => {
   const queueRef = useRef(new Map<string, T>());
+  const { setPostsPending, setCategoriesPending } = useSidebarStore(
+    useShallow((state) => ({
+      setPostsPending: state.setPostsPending,
+      setCategoriesPending: state.setCategoriesPending,
+    }))
+  );
 
   const addToQueue = (item: T) => {
     queueRef.current.set(item.id, item);
@@ -22,9 +32,22 @@ export const useOrderUpdateQueue = <T extends SortableItem>(
     if (changedItems.length > 0) {
       try {
         if (onUpdate) {
-          await onUpdate(changedItems);
-          console.log("✅ 변경된 order 저장 완료:", changedItems);
-          toast.success(`변경된 순서 저장 완료: ${changedItems.length}`);
+          const result = await onUpdate(changedItems);
+          if (result.error) {
+            toast.warning(
+              `${changedItems.length}개의 순서가 저장되지 않았습니다.`,
+              {
+                description: result.error.message,
+              }
+            );
+          } else if (result.data) {
+            toast.success(`변경된 순서 저장 완료: ${changedItems.length}`);
+            if (result.data.mode === "posts") {
+              setPostsPending(true);
+            } else {
+              setCategoriesPending(true);
+            }
+          }
         } else {
           toast.warning(
             `${changedItems.length}개의 순서가 저장되지 않았습니다.`,
@@ -34,7 +57,8 @@ export const useOrderUpdateQueue = <T extends SortableItem>(
           );
         }
       } catch (e) {
-        console.error("❌ 저장 실패", e);
+        toast.error("주제 생성에 실패하였습니다.");
+        console.error(e);
       }
       queueRef.current.clear();
     }

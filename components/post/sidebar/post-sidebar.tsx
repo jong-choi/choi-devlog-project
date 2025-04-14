@@ -161,9 +161,9 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                 items={posts.filter(
                   (post) => post.subcategory_id === selectedSubcategoryId
                 )}
-                onUpdate={(items) => {
-                  updateOrders({ mode: "posts", data: items });
-                }}
+                onUpdate={(items) =>
+                  updateOrders({ mode: "posts", data: items })
+                }
               >
                 {(sortedPosts) =>
                   sortedPosts.map((post) => (

@@ -5,7 +5,7 @@ import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-type UpdateOrdersPayload = {
+export type UpdateOrdersPayload = {
   mode: "categories" | "subcategories" | "posts";
   data: { id: string; order: number | null }[];
 };
