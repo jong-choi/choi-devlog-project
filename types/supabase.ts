@@ -113,9 +113,9 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          name?: string
+          name: string
           order?: number | null
-          url_slug?: string
+          url_slug: string
           user_id?: string | null
           velog_id?: string | null
         }
@@ -859,6 +859,18 @@ export type Database = {
       }
     }
     Functions: {
+      batch_update_orders_for_categories: {
+        Args: { data: Json }
+        Returns: Json
+      }
+      batch_update_orders_for_posts: {
+        Args: { data: Json }
+        Returns: Json
+      }
+      batch_update_orders_for_subcategories: {
+        Args: { data: Json }
+        Returns: Json
+      }
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown

@@ -14,7 +14,7 @@ export const SortableListContainerDynamic = dynamic(() =>
 type Props<T extends SortableItem> = {
   items: T[];
   children: (items: T[]) => React.ReactNode;
-  onUpdate?: (items: SortableItem[]) => void | Promise<void>; // ✅ 추가
+  onUpdate?: (items: SortableItem[]) => void | Promise<void>;
 };
 
 export function WithSortableList<T extends SortableItem>({

@@ -14,12 +14,12 @@ import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortabl
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
 import { LinkLoader } from "@ui/route-loader";
-import { useEffect } from "react";
 import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
 import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
 import CategoryCreateForm from "@/components/dialogs/category-forms/category-create-form";
 import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
 import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
+import { updateOrders } from "@/app/post/actions/sidebar";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -55,7 +55,6 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
       loading: state.loading,
     }))
   );
-  useEffect(() => {}, [posts.length]);
 
   return (
     <div
@@ -162,6 +161,9 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                 items={posts.filter(
                   (post) => post.subcategory_id === selectedSubcategoryId
                 )}
+                onUpdate={(items) => {
+                  updateOrders({ mode: "posts", data: items });
+                }}
               >
                 {(sortedPosts) =>
                   sortedPosts.map((post) => (
