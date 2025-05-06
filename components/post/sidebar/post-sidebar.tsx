@@ -20,17 +20,20 @@ import CategoryCreateForm from "@/components/dialogs/category-forms/category-cre
 import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
 import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
 import { updateOrders } from "@/app/post/actions/sidebar";
+import PostCreateForm from "@/components/dialogs/post-forms/post-create-form";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
     sidebarLeftCollapsed,
     sidebarRightCollapsed,
+    isSortable,
     setSidebarLeftCollapsed,
     setSidebarRightCollapsed,
   } = useLayoutStore(
     useShallow((state) => ({
       sidebarLeftCollapsed: state.sidebarLeftCollapsed,
       sidebarRightCollapsed: state.sidebarRightCollapsed,
+      isSortable: state.isSortable,
       setSidebarLeftCollapsed: state.setSidebarLeftCollapsed,
       setSidebarRightCollapsed: state.setSidebarRightCollapsed,
     }))
@@ -152,8 +155,20 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
               </p>
             )}
             {selectedSubcategoryName && (
-              <div className="font-extralight px-3 select-none">
-                {selectedSubcategoryName}
+              <div className="flex flex-col">
+                <div
+                  className={cn(
+                    "font-extralight px-3 select-none",
+                    isSortable && "flex-1 whitespace-nowrap overflow-hidden"
+                  )}
+                >
+                  {selectedSubcategoryName}
+                </div>
+                <div className="self-end">
+                  <CreateDialog buttonTitle="게시글" dialogTitle="게시글">
+                    {({ onClose }) => <PostCreateForm onClose={onClose} />}
+                  </CreateDialog>
+                </div>
               </div>
             )}
             {selectedSubcategoryId && (
@@ -175,7 +190,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                         <LinkLoader
                           href={`/post/${post.url_slug}`}
                           className={cn(
-                            "block px-3 py-2 rounded-lg text-sm transition ",
+                            "block px-3 py-2 rounded-lg text-sm transition flex-1",
                             selectedPostId === post.id
                               ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
                               : "text-gray-700 dark:text-gray-300"

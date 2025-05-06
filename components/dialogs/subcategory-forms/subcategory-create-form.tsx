@@ -37,7 +37,7 @@ export default function SubcategoryCreateForm({
 
   const payload = {
     name: name,
-    url_slug: slugify(urlSlug) || slugify(name),
+    url_slug: slugify(urlSlug) || slugify(name) || "new",
     category_id: categoryId,
   };
   const isComplete = Object.values(payload).every(Boolean);
