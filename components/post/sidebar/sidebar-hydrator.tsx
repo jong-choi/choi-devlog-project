@@ -20,7 +20,7 @@ export default function SidebarHydrator() {
   const {
     categories,
     posts,
-    post,
+    postByUrl,
     publishedPostsLength,
     categoriesPending,
     postsPending,
@@ -40,10 +40,9 @@ export default function SidebarHydrator() {
       posts: state.posts,
       publishedPostsLength: state.posts?.filter((post) => !post.is_private)
         .length,
-      post: state.posts?.find(
+      postByUrl: state.posts?.find(
         (post) => post.url_slug === decodeURIComponent(urlSlug)
       ),
-      loading: state.loading,
       categoriesPending: state.categoriesPending,
       postsPending: state.postsPending,
       setCategory: state.setCategory,
@@ -116,11 +115,11 @@ export default function SidebarHydrator() {
     if (!categories) return;
     let selectedCategoryId = categories[0]?.id ?? null;
 
-    if (post) {
-      setPost(post.id);
+    if (postByUrl) {
+      setPost(postByUrl.id);
       for (const category of categories) {
         const subcategory = category.subcategories.find(
-          (sub) => sub.id === post.subcategory_id
+          (sub) => sub.id === postByUrl.subcategory_id
         );
         if (subcategory) {
           selectedCategoryId = category.id;
@@ -136,7 +135,7 @@ export default function SidebarHydrator() {
     setLoaded();
   }, [
     categories,
-    post,
+    postByUrl,
     setCategory,
     setLoaded,
     setOpenCategory,
