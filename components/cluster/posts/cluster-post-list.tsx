@@ -52,7 +52,7 @@ export default function ClusterPostList() {
       if (nextIndex >= clusters.length) nextIndex = 0;
 
       const next = clusters[nextIndex];
-      if (!next.id || next.id === selectedCluster.id) return;
+      if (!next?.id || next.id === selectedCluster.id) return;
 
       isWaitingRef.current = true;
 
