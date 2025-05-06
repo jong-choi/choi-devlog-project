@@ -10,6 +10,7 @@ import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
 import notSavedToast from "@/utils/not-saved-toast";
 import { useAuthStore } from "@/providers/auth-provider";
+import { useRouter } from "next/navigation";
 
 export default function PostDeleteForm({
   post,
@@ -20,11 +21,14 @@ export default function PostDeleteForm({
 }) {
   const [confirmText, setConfirmText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const { setPostsPending } = useSidebarStore(
+  const { setPostsPending, selectedPostId, posts } = useSidebarStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
+      posts: state.posts,
+      selectedPostId: state.selectedPostId,
     }))
   );
+  const router = useRouter();
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
@@ -43,8 +47,19 @@ export default function PostDeleteForm({
       if (error) {
         toast.error("삭제 실패", { description: error.message });
       } else {
+        // 게시글 삭제 후 남아있는 게시글 중 하나로 이동
+        if (selectedPostId === post.id && posts?.length) {
+          for (let i = 1; i <= posts.length; i++) {
+            const targetPost = posts.at(-i);
+            if (targetPost && targetPost.id !== selectedPostId) {
+              router.push(`/post/${targetPost.url_slug}`);
+              break;
+            }
+          }
+        }
         toast.success("게시글이 삭제되었습니다.");
-        setPostsPending(true);
+        // 게시을 이동 후 posts가 업데이트 하도록 setTimeout
+        setTimeout(() => setPostsPending(true), 0);
       }
     } catch (e) {
       console.error(e);
