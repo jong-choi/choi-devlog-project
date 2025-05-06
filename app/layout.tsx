@@ -1,3 +1,5 @@
+export const revalidate = 31536000;
+
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/providers/auth-store-provider";
