@@ -1,3 +1,5 @@
+export const revalidate = 60 * 60 * 24 * 30;
+
 import {
   getSidebarPublishedPosts,
   getSidebarCategory,
