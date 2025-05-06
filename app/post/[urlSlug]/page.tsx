@@ -8,10 +8,6 @@ interface PageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  return [];
-}
-
 export default async function Page({ params }: PageProps) {
   const { urlSlug } = await params;
   const result = await getPostByUrlSlug({
