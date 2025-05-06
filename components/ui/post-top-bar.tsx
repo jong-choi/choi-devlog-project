@@ -12,12 +12,18 @@ export function TopBar() {
   );
 }
 
+export function LogoText() {
+  return (
+    <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+      scribbly<span className="text-indigo-500">.</span>
+    </h1>
+  );
+}
+
 export function Logo() {
   return (
     <LinkLoader href="/">
-      <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-        scribbly<span className="text-indigo-500">.</span>
-      </h1>
+      <LogoText />
     </LinkLoader>
   );
 }

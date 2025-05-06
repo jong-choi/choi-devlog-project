@@ -1,4 +1,4 @@
-import { Logo } from "@/components/ui/post-top-bar";
+import { LogoText } from "@/components/ui/post-top-bar";
 import { formatKoreanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { PostTags } from "@/types/graph";
@@ -35,7 +35,7 @@ export function PostCard({
             />
           ) : (
             <div className=" bg-glass-neutral w-full h-full flex justify-center items-center">
-              <Logo />
+              <LogoText />
             </div>
           )}
         </div>

@@ -53,7 +53,6 @@ export function ClusterHeaderBar({ clusters }: Props) {
   const handleWheel = (e: React.WheelEvent) => {
     if (scrollContainerRef.current) {
       // Prevent vertical scrolling
-      e.preventDefault();
       scrollContainerRef.current.scrollLeft += e.deltaY;
     }
   };
