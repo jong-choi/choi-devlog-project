@@ -16,22 +16,23 @@ export default async function Page() {
   // const { data: postListData } = await getClusterWithPostsById(
   //   (clusterData && clusterData[0].id) || ""
   // );
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const { data: clusterData } = await fetch(
-    "http://localhost:3000/api/map/clusters",
+    `${BASE_URL}/api/(fetchers)/map/clusters`,
     {
       next: { revalidate: 36000 },
     }
   ).then((res) => res.json());
 
   const { data: clusterSimData } = await fetch(
-    "http://localhost:3000/api/map/similarities?threshold=0.6",
+    `${BASE_URL}/api/(fetchers)/map/similarities?threshold=0.6`,
     {
       next: { revalidate: 36000 },
     }
   ).then((res) => res.json());
 
   const { data: postListData } = await fetch(
-    `http://localhost:3000/api/map/clusters/${clusterData?.[0]?.id ?? ""}`,
+    `${BASE_URL}/api/(fetchers)/map/clusters/${clusterData?.[0]?.id ?? ""}`,
     {
       next: { revalidate: 36000 },
     }
