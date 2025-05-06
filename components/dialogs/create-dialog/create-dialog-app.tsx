@@ -31,7 +31,7 @@ export default function CreateDialogApp({
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="h-6 px-1 text-color-muted hover:bg-glass-bg-60"
+          className="h-6 px-1 text-color-muted group-hover:bg-glass-bg-60 group"
         >
           <CreateNewTrigger title={buttonTitle} />
         </Button>
