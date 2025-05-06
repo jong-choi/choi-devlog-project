@@ -54,7 +54,12 @@ export function SidebarCategoryContent({
         </WithSortableItem>
         {isOpened && (
           <CreateDialog buttonTitle="시리즈" dialogTitle="시리즈">
-            {({ onClose }) => <SubcategoryCreateForm onClose={onClose} />}
+            {({ onClose }) => (
+              <SubcategoryCreateForm
+                onClose={onClose}
+                defaultCategoryId={catagory.id}
+              />
+            )}
           </CreateDialog>
         )}
         <SidebarContentDropdown

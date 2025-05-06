@@ -13,13 +13,15 @@ import { useShallow } from "zustand/react/shallow";
 
 type SubcategoryCreateFormProps = {
   onClose: () => void;
+  defaultCategoryId: string;
 };
 
 export default function SubcategoryCreateForm({
   onClose,
+  defaultCategoryId,
 }: SubcategoryCreateFormProps) {
   const [name, setName] = useState<string>("");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId);
   const [urlSlug, setUrlSlug] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const { isValid } = useAuthStore(
