@@ -17,11 +17,11 @@ export const getSeriesList = async (params?: GetSeriesListParams) => {
   ];
 
   if (params?.categoryId) {
-    tags.push(`subcategory:category:${params.categoryId}`);
+    tags.push(CACHE_TAGS.SUBCATEGORY.BY_CATEGORY_ID(params.categoryId));
   }
 
   if (params?.recommended) {
-    tags.push("subcategory:recommended");
+    tags.push(CACHE_TAGS.SUBCATEGORY.BY_RECOMMENDED());
   }
 
   return fetchWithCache<PostgrestResponse<Series>>({
@@ -37,6 +37,6 @@ export const getCategories = async () =>
     PostgrestResponse<Database["public"]["Tables"]["categories"]["Row"]>
   >({
     endpoint: ENDPOINT.categories.list,
-    tags: ["categories", "categories:all"],
+    tags: [CACHE_TAGS.CATEGORY.ALL()],
     revalidate: 60 * 60 * 24 * 30, // 30일 캐싱
   });
