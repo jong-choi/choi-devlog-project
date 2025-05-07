@@ -4,21 +4,31 @@ export const ENDPOINT = {
     clusterSimData: "/api/map/similarities",
     clusterWithPostsById: "/api/map/clusters/posts",
   },
+  posts: {
+    search: "/api/posts/search",
+  },
 };
 
-type QueryParams = Record<string, string | number | boolean | undefined>;
+export type QueryParams = Record<string, string | number | boolean | undefined>;
 
 type FetchFromApiOptions = {
   endpoint: string;
   params?: QueryParams;
   revalidate?: number;
   tags?: string[];
+  skipCache?: boolean;
 };
 
 export const fetchWithCache = async <T>(
   options: FetchFromApiOptions
 ): Promise<T> => {
-  const { endpoint, params, revalidate = 3600, tags = [] } = options;
+  const {
+    endpoint,
+    params,
+    revalidate = 3600,
+    tags = [],
+    skipCache = false,
+  } = options;
 
   const query = Object.entries(params ?? {})
     .filter(([, value]) => value !== undefined)
@@ -33,7 +43,7 @@ export const fetchWithCache = async <T>(
   }`;
 
   const res = await fetch(fullUrl, {
-    next: { revalidate, tags },
+    next: skipCache ? undefined : { revalidate, tags },
   });
 
   return res.json();
