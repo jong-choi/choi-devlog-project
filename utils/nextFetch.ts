@@ -7,6 +7,12 @@ export const ENDPOINT = {
   posts: {
     search: "/api/posts/search",
   },
+  series: {
+    list: "/api/series/list",
+  },
+  categories: {
+    list: "/api/categories",
+  },
 };
 
 export type QueryParams = Record<string, string | number | boolean | undefined>;
