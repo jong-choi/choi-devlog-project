@@ -162,7 +162,7 @@ export const fetchWithCache = async <T>(
       next: skipCache ? undefined : { revalidate, tags },
     });
 
-    const result = res.json();
+    const result = await res.json();
     return result;
   } catch (_e) {
     const error = new Error("Fetch Failed") as PostgrestError;
