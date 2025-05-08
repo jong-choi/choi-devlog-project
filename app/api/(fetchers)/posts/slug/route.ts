@@ -6,19 +6,16 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const urlSlug = searchParams.get("urlSlug");
 
-  if (!urlSlug) {
-    return new Response(JSON.stringify({ error: "Missing urlSlug" }), {
-      status: 400,
-    });
-  }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const { data: sessionData } = await supabase.auth.getSession();
-  const isLoggedIn = Boolean(sessionData.session);
+  const isLoggedIn = !!user;
 
   const result = await supabase
     .from("posts")
     .select("*")
-    .eq("url_slug", urlSlug)
+    .eq("url_slug", urlSlug ?? "")
     .is("deleted_at", null)
     .or(
       isLoggedIn
