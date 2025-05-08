@@ -9,6 +9,8 @@ export const ENDPOINT = {
   },
   series: {
     list: "/api/series/list",
+    postsBySeriesId: "/api/series/posts",
+    seriesByUrlSlug: "/api/series",
   },
   categories: {
     list: "/api/categories",
