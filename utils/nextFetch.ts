@@ -20,6 +20,10 @@ export const ENDPOINT = {
     summaryByPostId: "/api/ai/summary",
     recommendedByPostId: "/api/ai/recommended",
   },
+  sidebar: {
+    category: "/api/sidebar/categories",
+    posts: "/api/sidebar/posts",
+  },
 };
 
 export type QueryParams = Record<string, string | number | boolean | undefined>;
