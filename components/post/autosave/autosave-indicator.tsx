@@ -14,7 +14,6 @@ export default function AutosaveIndicator() {
   const {
     selectedPostId,
     setBeforeModification,
-    isAutoSaving,
     isAutoSaved,
     isUploading,
     isUploaded,
@@ -27,7 +26,6 @@ export default function AutosaveIndicator() {
     useShallow((state) => ({
       selectedPostId: state.selectedPostId,
       setBeforeModification: state.setBeforeModification,
-      isAutoSaving: state.isAutoSaving,
       isAutoSaved: state.isAutoSaved,
       isUploading: state.isUploading,
       isUploaded: state.isUploaded,
@@ -68,13 +66,7 @@ export default function AutosaveIndicator() {
     }
   }, [isUploaded]);
 
-  if (
-    !isLocalDBChecked &&
-    !isAutoSaving &&
-    !isUploading &&
-    !uploadedRecently &&
-    !isAutoSaved
-  ) {
+  if (!isLocalDBChecked && !isUploading && !uploadedRecently && !isAutoSaved) {
     return <></>;
   }
 
@@ -105,11 +97,6 @@ export default function AutosaveIndicator() {
             </div>
           </div>
         </>
-      ) : isAutoSaving ? (
-        <div className="flex gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>자동 저장 중...</span>
-        </div>
       ) : isUploading ? (
         <div className="flex gap-2">
           <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
