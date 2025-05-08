@@ -1,8 +1,7 @@
 "use server";
 
 import { Category, Post } from "@/types/post";
-import { CACHE_TAGS } from "@/utils/nextCache";
-import { ENDPOINT, fetchWithCache } from "@/utils/nextFetch";
+import { CACHE_TAGS, ENDPOINT, fetchWithCache } from "@/utils/nextCache";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
 export const getSidebarCategory = async () =>

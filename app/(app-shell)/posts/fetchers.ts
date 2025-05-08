@@ -1,8 +1,12 @@
 "use server";
 
 import { CardPost } from "@/types/post";
-import { CACHE_TAGS } from "@/utils/nextCache";
-import { ENDPOINT, fetchWithCache, QueryParams } from "@/utils/nextFetch";
+import {
+  CACHE_TAGS,
+  ENDPOINT,
+  fetchWithCache,
+  QueryParams,
+} from "@/utils/nextCache";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
 interface GetPublishedPostsParams extends QueryParams {

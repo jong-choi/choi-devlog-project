@@ -1,8 +1,12 @@
 "use server";
 import { Series } from "@/types/series";
 import { Database } from "@/types/supabase";
-import { CACHE_TAGS } from "@/utils/nextCache";
-import { ENDPOINT, fetchWithCache, QueryParams } from "@/utils/nextFetch";
+import {
+  CACHE_TAGS,
+  ENDPOINT,
+  fetchWithCache,
+  QueryParams,
+} from "@/utils/nextCache";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
 interface GetSeriesListParams extends QueryParams {

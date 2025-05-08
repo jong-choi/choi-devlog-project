@@ -1,8 +1,7 @@
 "use server";
 import { ClusterWithPosts } from "@/types/graph";
 import { Database } from "@/types/supabase";
-import { CACHE_TAGS } from "@/utils/nextCache";
-import { ENDPOINT, fetchWithCache } from "@/utils/nextFetch";
+import { CACHE_TAGS, ENDPOINT, fetchWithCache } from "@/utils/nextCache";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,

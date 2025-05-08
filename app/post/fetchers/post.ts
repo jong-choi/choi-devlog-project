@@ -1,6 +1,10 @@
 "use server";
-import { ENDPOINT, fetchWithCache, QueryParams } from "@/utils/nextFetch";
-import { CACHE_TAGS } from "@/utils/nextCache";
+import {
+  CACHE_TAGS,
+  ENDPOINT,
+  fetchWithCache,
+  QueryParams,
+} from "@/utils/nextCache";
 import { Database } from "@/types/supabase";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";

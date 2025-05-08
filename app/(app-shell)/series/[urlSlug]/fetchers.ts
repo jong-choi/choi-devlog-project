@@ -1,12 +1,11 @@
 "use server";
 import { Series } from "@/types/series";
-import { CACHE_TAGS } from "@/utils/nextCache";
 import { CardPost } from "@/types/post";
 import {
   PostgrestResponse,
   PostgrestSingleResponse,
 } from "@supabase/supabase-js";
-import { ENDPOINT, fetchWithCache } from "@/utils/nextFetch";
+import { CACHE_TAGS, ENDPOINT, fetchWithCache } from "@/utils/nextCache";
 
 export const getPostsBySeriesId = async (seriesId: string) => {
   return fetchWithCache<PostgrestResponse<CardPost>>({
