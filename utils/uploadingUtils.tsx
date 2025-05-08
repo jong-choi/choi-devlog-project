@@ -13,13 +13,12 @@ import { Database } from "@/types/supabase";
  *
  * @example
  * slugify("Hello World!"); // "hello-world"
- * slugify("안녕하세요! Next.js 배우기"); // "안녕하세요-nextjs-배우기"
  */
 export function slugify(title: string): string {
   return title
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9가-힣\s-]/g, "") // 영어 소문자 + 숫자 + 한글 + 공백 + 하이픈만 남김
+    .replace(/[^a-z0-9\s-]/g, "") // 영어 소문자 + 숫자 + 공백 + 하이픈만 남김
     .replace(/\s+/g, "-") // 공백은 하이픈으로 변환
     .replace(/-+/g, "-") // 중복 하이픈 제거
     .replace(/^-+|-+$/g, ""); // 앞뒤 하이픈 제거
