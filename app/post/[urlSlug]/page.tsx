@@ -1,3 +1,5 @@
+export const dynamic = "force-static";
+
 import { getPostByUrlSlug } from "@/app/post/fetchers";
 import PostPageRenderer from "@/components/post/page/page-renderer";
 import RedirectTo from "@ui/redirect-to";
