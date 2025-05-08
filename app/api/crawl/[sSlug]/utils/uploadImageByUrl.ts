@@ -9,7 +9,8 @@ export default async function uploadImageByUrl(
   imageUrl: string
 ): Promise<UploadResponse> {
   try {
-    const response = await fetch("http://localhost:3000/api/supabase/upload", {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const response = await fetch(`${baseUrl}/api/supabase/upload`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

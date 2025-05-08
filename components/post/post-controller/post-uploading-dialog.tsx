@@ -21,6 +21,7 @@ import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
 
 export function UploadingDialogTrigger() {
   const {
@@ -44,6 +45,12 @@ export function UploadingDialogTrigger() {
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
+    }))
+  );
+
+  const { setPostsPending } = useSidebarStore(
+    useShallow((state) => ({
+      setPostsPending: state.setPostsPending,
     }))
   );
 
@@ -84,6 +91,7 @@ export function UploadingDialogTrigger() {
       if (data) {
         toast.success("게시글을 업로드하였습니다.");
         setIsUploaded(true);
+        setPostsPending(true);
       } else {
         toast.error("게시글이 업데이트되지 않았습니다.");
       }
