@@ -15,6 +15,10 @@ export const ENDPOINT = {
   categories: {
     list: "/api/categories",
   },
+  ai: {
+    summaryByPostId: "/api/ai/summary",
+    recommendedByPostId: "/api/ai/recommended",
+  },
 };
 
 export type QueryParams = Record<string, string | number | boolean | undefined>;
