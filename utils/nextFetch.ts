@@ -6,6 +6,7 @@ export const ENDPOINT = {
   },
   posts: {
     search: "/api/posts/search",
+    byUrlSlug: "/api/posts/slug",
   },
   series: {
     list: "/api/series/list",
