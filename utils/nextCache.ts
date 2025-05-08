@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export const CACHE_TAGS = {
@@ -156,10 +156,23 @@ export const fetchWithCache = async <T>(
     headers["Cookie"] = cookieHeader;
   }
 
-  const res = await fetch(fullUrl, {
-    headers,
-    next: skipCache ? undefined : { revalidate, tags },
-  });
+  try {
+    const res = await fetch(fullUrl, {
+      headers,
+      next: skipCache ? undefined : { revalidate, tags },
+    });
 
-  return res.json();
+    const result = res.json();
+    return result;
+  } catch (_e) {
+    const error = new Error("Fetch Failed") as PostgrestError;
+
+    return {
+      data: null,
+      error,
+      count: null,
+      status: 400,
+      statusText: "Fetch Failed",
+    } as T;
+  }
 };
