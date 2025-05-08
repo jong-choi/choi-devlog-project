@@ -1,3 +1,6 @@
+export const dynamicParams = true;
+export const revalidate = 360000;
+
 import { getPostByUrlSlug } from "@/app/post/fetchers";
 import PostPageRenderer from "@/components/post/page/page-renderer";
 import RedirectTo from "@ui/redirect-to";
