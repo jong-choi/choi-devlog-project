@@ -21,6 +21,7 @@ import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
 import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
 import { updateOrders } from "@/app/post/actions/sidebar";
 import PostCreateForm from "@/components/dialogs/post-forms/post-create-form";
+import { Suspense } from "react";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -99,11 +100,13 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
               <div className="flex h-full max-w-32">
                 <Logo />
               </div>
-              <SearchInput
-                className="py-0 bg-glass-bg-20 shadow-none border h-6"
-                withButton={false}
-                onSidebar={true}
-              />
+              <Suspense>
+                <SearchInput
+                  className="py-0 bg-glass-bg-20 shadow-none border h-6"
+                  withButton={false}
+                  onSidebar={true}
+                />
+              </Suspense>
             </div>
 
             <div className="border-t pt-1">

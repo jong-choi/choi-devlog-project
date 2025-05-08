@@ -9,6 +9,7 @@ import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import InfiniteScrollPosts from "@/components/posts/infinite-scroll/infinite-scroll-posts";
 import { CardPost } from "@/types/post";
 import { PostCard } from "@/components/posts/post-card";
+import { Suspense } from "react";
 
 interface PostsPageRendererProps {
   keyword?: string;
@@ -22,7 +23,9 @@ export default function PostsPageRenderer({
   const isSearching = !!keyword;
   return (
     <PageContainer>
-      <SearchInput />
+      <Suspense>
+        <SearchInput />
+      </Suspense>
       {isSearching && (
         <p className="flex gap-2 flex-col">
           <LinkLoader
