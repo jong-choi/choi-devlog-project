@@ -1,4 +1,4 @@
-export const revalidate = 60 * 60 * 24 * 30;
+export const dynamic = "force-static";
 
 import { getPostByUrlSlug } from "@/app/post/fetchers";
 import PostPageRenderer from "@/components/post/page/page-renderer";
