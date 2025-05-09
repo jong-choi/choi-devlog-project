@@ -118,6 +118,12 @@ const _createPost = async (
     supabaseClient: supabase,
     table: "posts",
   });
+
+  if (payload.is_private) {
+    payload.released_at = null;
+  } else if (payload.is_private === false && !payload.released_at) {
+    payload.released_at = new Date().toISOString();
+  }
   // 새로운 게시글 생성
   const result = await supabase
     .from("posts")
@@ -156,6 +162,13 @@ const _updatePost = async (
       id: post_id,
     });
     payload.url_slug = uniqueSlug;
+  }
+
+  payload.updated_at = new Date().toISOString();
+  if (payload.is_private) {
+    payload.released_at = null;
+  } else if (payload.is_private === false && !payload.released_at) {
+    payload.released_at = new Date().toISOString();
   }
 
   const result = await supabase

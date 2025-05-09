@@ -27,9 +27,9 @@ export default async function AutosaveStoreWrapper({
         draftPostData: {
           title: data?.title || "",
           body: data?.body || "",
-          is_private: false,
-          released_at: new Date().toISOString(),
-          short_description: "",
+          is_private: data?.is_private || false,
+          released_at: data?.released_at || null,
+          short_description: data?.short_description || "",
           subcategory_id:
             data?.subcategory_id ||
             subcategoryId ||

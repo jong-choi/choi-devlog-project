@@ -57,7 +57,6 @@ export default function PostCreateForm({ onClose }: { onClose: () => void }) {
     url_slug: slugify(urlSlug) || slugify(title) || "new",
     is_private: isPrivate,
     subcategory_id: subcategoryId,
-    released_at: new Date().toISOString(),
   };
   const isChanged = title && subcategoryId;
 

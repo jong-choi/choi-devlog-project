@@ -72,7 +72,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
                 <TitleEditor defaultValue={data?.title || ""} />
               </div>
               <div className="text-end text-xs">
-                {formatKoreanDate(data?.released_at || "")}
+                {data?.released_at ? formatKoreanDate(data?.released_at) : ""}
               </div>
               <hr />
             </div>

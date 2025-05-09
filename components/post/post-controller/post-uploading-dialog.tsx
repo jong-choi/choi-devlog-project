@@ -61,7 +61,6 @@ export function UploadingDialogTrigger() {
     const draft = {
       body,
       title,
-      released_at: new Date().toISOString(),
       short_description:
         draftPostData.short_description || extractTextFromMarkdown(body) || "",
       thumbnail:
