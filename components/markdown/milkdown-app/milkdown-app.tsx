@@ -67,26 +67,30 @@ const MilkdownEditor = ({
 
   useEffect(() => {
     if (!isFocused && crepeRef.current) {
-      crepeRef.current.editor.action((ctx) => {
-        const view = ctx.get(editorViewCtx);
-        const parser = ctx.get(parserCtx);
-        const doc = parser(markdown);
-        if (!doc) return;
+      try {
+        crepeRef.current.editor.action((ctx) => {
+          const view = ctx.get(editorViewCtx);
+          const parser = ctx.get(parserCtx);
+          const doc = parser(markdown);
+          if (!doc) return;
 
-        const state = view.state;
-        const selection = state.selection;
-        const { from } = selection;
+          const state = view.state;
+          const selection = state.selection;
+          const { from } = selection;
 
-        let tr = state.tr;
-        tr = tr.replace(
-          0,
-          state.doc.content.size,
-          new Slice(doc.content, 0, 0)
-        );
-        tr = tr.setSelection(Selection.near(tr.doc.resolve(from)));
+          let tr = state.tr;
+          tr = tr.replace(
+            0,
+            state.doc.content.size,
+            new Slice(doc.content, 0, 0)
+          );
+          tr = tr.setSelection(Selection.near(tr.doc.resolve(from)));
 
-        view.dispatch(tr);
-      });
+          view.dispatch(tr);
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, [isFocused, markdown]);
 
