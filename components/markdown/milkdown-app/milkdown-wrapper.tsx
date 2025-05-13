@@ -123,7 +123,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
         )}
       >
         <div
-          className={cn(!isMilkdownOn && "h-0 w-0 opacity-0")}
+          className={cn(!isMilkdownOn && isRawOn && "h-0 w-0 opacity-0")}
           onFocus={() => setFocused("milkdown")}
         >
           <MilkdownEditor
@@ -134,7 +134,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
           />
         </div>
         <div
-          className={cn(!isRawOn && "h-0 w-0 opacity-0")}
+          className={cn(isMilkdownOn && !isRawOn && "h-0 w-0 opacity-0")}
           onFocus={() => setFocused("codemirror")}
         >
           <MarkdownRawEditor

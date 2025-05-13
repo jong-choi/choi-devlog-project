@@ -14,8 +14,9 @@ const MilkdownWrapper = dynamic(
 );
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
-  const { isEditMode, isFullMode } = useLayoutStore(
+  const { isMounted, isEditMode, isFullMode } = useLayoutStore(
     useShallow((state) => ({
+      isMounted: state.isMounted,
       isEditMode: state.isEditMode,
       isFullMode: state.isRawOn && state.isMilkdownOn,
     }))
@@ -26,10 +27,11 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
       <div className={cn(isFullMode && "hidden", isEditMode && "opacity-0")}>
         <MilkdownPreview markdown={markdown} />
       </div>
-      {isEditMode && (
+      {isMounted && (
         <div
           className={cn(
-            isFullMode ? "fixed inset-0 top-56 z-10" : "absolute inset-0 z-10"
+            isFullMode && "fixed inset-0 top-56 z-10",
+            isEditMode ? "absolute inset-0 z-10" : "w-0 h-0 opacity-0"
           )}
         >
           <MilkdownWrapper markdown={markdown} />

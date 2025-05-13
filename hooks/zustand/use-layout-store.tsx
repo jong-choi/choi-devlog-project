@@ -9,6 +9,7 @@ export interface LayoutState {
   isMilkdownOn: boolean;
   isRawOn: boolean;
   isSortable: boolean;
+  isMounted: boolean;
   setSidebarLeftCollapsed: (state: boolean) => void;
   setSidebarRightCollapsed: (state: boolean) => void;
   setRightPanelOpen: (open: boolean) => void;
@@ -29,12 +30,13 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
     isMilkdownOn: false,
     isRawOn: false,
     isSortable: false,
+    isMounted: false,
     setSidebarLeftCollapsed: (state) => set({ sidebarLeftCollapsed: state }),
     setSidebarRightCollapsed: (state) => set({ sidebarRightCollapsed: state }),
     setRightPanelOpen: (open) => set({ rightPanelOpen: open }),
     setRightPanelMode: (mode) => set({ rightPanelMode: mode }),
     setIsEditMode: (value) => {
-      set({ isEditMode: value });
+      set({ isEditMode: value, isMounted: true });
     },
     setIsMarkdown: (value) => {
       set({ isMilkdownOn: value });
