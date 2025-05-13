@@ -17,7 +17,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
   const { isEditMode, isFullMode } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
-      isFullMode: state.isRawOn && state.isMarkdownOn,
+      isFullMode: state.isRawOn && state.isMilkdownOn,
     }))
   );
 

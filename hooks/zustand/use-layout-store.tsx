@@ -6,7 +6,7 @@ export interface LayoutState {
   rightPanelOpen: boolean;
   rightPanelMode: "summary" | "recommend";
   isEditMode: boolean;
-  isMarkdownOn: boolean;
+  isMilkdownOn: boolean;
   isRawOn: boolean;
   isSortable: boolean;
   setSidebarLeftCollapsed: (state: boolean) => void;
@@ -26,7 +26,7 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
     rightPanelOpen: true,
     rightPanelMode: "summary",
     isEditMode: false,
-    isMarkdownOn: false,
+    isMilkdownOn: false,
     isRawOn: false,
     isSortable: false,
     setSidebarLeftCollapsed: (state) => set({ sidebarLeftCollapsed: state }),
@@ -37,7 +37,7 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
       set({ isEditMode: value });
     },
     setIsMarkdown: (value) => {
-      set({ isMarkdownOn: value });
+      set({ isMilkdownOn: value });
     },
     setIsRaw: (value) => {
       set({ isRawOn: value });

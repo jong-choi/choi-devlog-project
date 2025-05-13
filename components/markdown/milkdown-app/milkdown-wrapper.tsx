@@ -34,9 +34,9 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       setRecentAutoSavedData: state.setRecentAutoSavedData,
     }))
   );
-  const { isMarkdownOn, isRawOn } = useLayoutStore(
+  const { isMilkdownOn, isRawOn } = useLayoutStore(
     useShallow((state) => ({
-      isMarkdownOn: state.isMarkdownOn,
+      isMilkdownOn: state.isMilkdownOn,
       isRawOn: state.isRawOn,
     }))
   );
@@ -119,11 +119,11 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     <MilkdownProvider>
       <div
         className={cn(
-          isMarkdownOn && isRawOn && "w-full grid grid-cols-2 absolute left-0"
+          isMilkdownOn && isRawOn && "w-full grid grid-cols-2 absolute left-0"
         )}
       >
         <div
-          className={cn(!isMarkdownOn && "h-0 w-0 opacity-0")}
+          className={cn(!isMilkdownOn && "h-0 w-0 opacity-0")}
           onFocus={() => setFocused("milkdown")}
         >
           <MilkdownEditor

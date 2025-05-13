@@ -23,15 +23,15 @@ export default function ToggleEditButton() {
 
   const {
     isEditMode,
-    isMarkdownOn,
+    isMilkdownOn,
     isRawOn,
     setIsEditMode,
-    setIsMarkdown: setIsMarkdownOn,
+    setIsMarkdown: setisMilkdownOn,
     setIsRaw: setIsRawOn,
   } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
-      isMarkdownOn: state.isMarkdownOn,
+      isMilkdownOn: state.isMilkdownOn,
       isRawOn: state.isRawOn,
       setIsEditMode: state.setIsEditMode,
       setIsMarkdown: state.setIsMarkdown,
@@ -59,7 +59,7 @@ export default function ToggleEditButton() {
 
   useEffect(() => {
     if (!isEditMode) return;
-    if (isMarkdownOn && isRawOn) {
+    if (isMilkdownOn && isRawOn) {
       if (layoutSnapshot.length) return;
       setLayoutSnaphot([
         sidebarLeftCollapsed,
@@ -78,7 +78,7 @@ export default function ToggleEditButton() {
     }
   }, [
     isEditMode,
-    isMarkdownOn,
+    isMilkdownOn,
     isRawOn,
     layoutSnapshot,
     sidebarLeftCollapsed,
@@ -108,12 +108,12 @@ export default function ToggleEditButton() {
   ]);
 
   useEffect(() => {
-    if (isMarkdownOn || isRawOn) {
+    if (isMilkdownOn || isRawOn) {
       setIsEditMode(true);
     } else {
       setIsEditMode(false);
     }
-  }, [isMarkdownOn, isRawOn, setIsEditMode]);
+  }, [isMilkdownOn, isRawOn, setIsEditMode]);
 
   const editLabel = isValid ? "편집 모드" : "게스트 모드";
 
@@ -125,13 +125,13 @@ export default function ToggleEditButton() {
       <div className="flex divide-x overflow-hidden rounded-full border text-[8px] font-medium">
         <button
           onClick={() => {
-            if (isMarkdownOn) return setIsMarkdownOn(false);
-            setIsMarkdownOn(true);
+            if (isMilkdownOn) return setisMilkdownOn(false);
+            setisMilkdownOn(true);
             setIsRawOn(false);
           }}
           className={cn(
             "w-12 md:w-6 text-center transition-colors",
-            isMarkdownOn
+            isMilkdownOn
               ? "bg-lime-200 dark:bg-white dark:text-neutral-900"
               : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700"
           )}
@@ -142,7 +142,7 @@ export default function ToggleEditButton() {
           onClick={() => {
             if (isRawOn) return setIsRawOn(false);
             setIsRawOn(true);
-            setIsMarkdownOn(false);
+            setisMilkdownOn(false);
           }}
           className={cn(
             "w-6 text-center transition-colors hidden md:block",
@@ -155,17 +155,17 @@ export default function ToggleEditButton() {
         </button>
         <button
           onClick={() => {
-            if (isRawOn && isMarkdownOn) {
+            if (isRawOn && isMilkdownOn) {
               setIsRawOn(false);
-              setIsMarkdownOn(false);
+              setisMilkdownOn(false);
             } else {
               setIsRawOn(true);
-              setIsMarkdownOn(true);
+              setisMilkdownOn(true);
             }
           }}
           className={cn(
             "w-6 transition-colors hidden md:flex items-center justify-center",
-            isRawOn && isMarkdownOn
+            isRawOn && isMilkdownOn
               ? "bg-lime-200 dark:bg-white dark:text-neutral-900"
               : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700"
           )}
