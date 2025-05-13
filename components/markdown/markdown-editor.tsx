@@ -24,15 +24,21 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
 
   return (
     <div className="markdown-body w-full relative">
-      <div className={cn(isFullMode && "hidden", isEditMode && "opacity-0")}>
+      <div
+        className={cn(isFullMode && "hidden", isEditMode && "opacity-0")}
+        aria-hidden={isEditMode || isFullMode}
+      >
         <MilkdownPreview markdown={markdown} />
       </div>
       {isMounted && (
         <div
           className={cn(
             isFullMode && "fixed inset-0 top-56 z-10",
-            isEditMode ? "absolute inset-0 z-10" : "w-0 h-0 opacity-0"
+            isEditMode
+              ? "absolute inset-0 z-10"
+              : "w-0 h-0 opacity-0 pointer-events-none"
           )}
+          aria-hidden={!isEditMode}
         >
           <MilkdownWrapper markdown={markdown} />
         </div>
