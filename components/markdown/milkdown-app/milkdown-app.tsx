@@ -12,11 +12,13 @@ const MilkdownEditor = ({
   setMarkdown,
   onImageUpload,
   isFocused,
+  isOn,
 }: {
   markdown: string;
   setMarkdown: (markdown: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
   isFocused: boolean;
+  isOn: boolean;
 }) => {
   const uploadImageToServer = async (_file: File) => {
     return "";
@@ -25,6 +27,7 @@ const MilkdownEditor = ({
   const crepeRef = useRef<Crepe | null>(null);
 
   const [body, setBody] = useState<string>(markdown);
+
   useEffect(() => {
     if (isFocused) {
       setMarkdown(body);
@@ -94,7 +97,7 @@ const MilkdownEditor = ({
     }
   }, [isFocused, markdown]);
 
-  return <Milkdown />;
+  return isOn && <Milkdown />;
 };
 
 export default MilkdownEditor;

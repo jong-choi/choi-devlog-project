@@ -119,18 +119,16 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     <MilkdownProvider>
       <div
         className={cn(
-          isMarkdownOn && isRawOn && "grid grid-cols-2 absolute left-0"
+          isMarkdownOn && isRawOn && "w-full grid grid-cols-2 absolute left-0"
         )}
       >
-        <div
-          className={cn(isMarkdownOn ? "block" : "hidden")}
-          onFocus={() => setFocused("milkdown")}
-        >
+        <div onFocus={() => setFocused("milkdown")}>
           <MilkdownEditor
             setMarkdown={setBody}
             markdown={body}
             onImageUpload={imageUploadHandler}
             isFocused={focused === "milkdown"}
+            isOn={isMarkdownOn}
           />
         </div>
         <div
