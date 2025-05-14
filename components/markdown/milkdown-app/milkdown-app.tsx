@@ -57,7 +57,8 @@ const MilkdownEditor = ({
     crepe.on((listener) => {
       listener.markdownUpdated((_, updatedMarkdown, prevMarkdown) => {
         if (updatedMarkdown !== prevMarkdown) {
-          setBody(updatedMarkdown);
+          const cleaned = updatedMarkdown.replace(/<br\s*\/?>/gi, "&nbsp;");
+          setBody(cleaned);
         }
       });
     });
