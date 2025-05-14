@@ -86,7 +86,13 @@ const MilkdownEditor = ({
             state.doc.content.size,
             new Slice(doc.content, 0, 0)
           );
-          tr = tr.setSelection(Selection.near(tr.doc.resolve(from)));
+
+          if (tr.doc.content.size === 0) {
+            tr = tr.setSelection(Selection.atStart(tr.doc));
+          } else {
+            const safePos = Math.min(from, tr.doc.content.size - 1);
+            tr = tr.setSelection(Selection.near(tr.doc.resolve(safePos)));
+          }
 
           view.dispatch(tr);
         });
