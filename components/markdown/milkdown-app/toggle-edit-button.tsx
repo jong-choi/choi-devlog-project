@@ -26,7 +26,7 @@ export default function ToggleEditButton() {
     isMilkdownOn,
     isRawOn,
     setIsEditMode,
-    setIsMarkdown: setisMilkdownOn,
+    setIsMilkdown: setisMilkdownOn,
     setIsRaw: setIsRawOn,
   } = useLayoutStore(
     useShallow((state) => ({
@@ -34,7 +34,7 @@ export default function ToggleEditButton() {
       isMilkdownOn: state.isMilkdownOn,
       isRawOn: state.isRawOn,
       setIsEditMode: state.setIsEditMode,
-      setIsMarkdown: state.setIsMarkdown,
+      setIsMilkdown: state.setIsMilkdown,
       setIsRaw: state.setIsRaw,
     }))
   );

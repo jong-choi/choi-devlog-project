@@ -40,7 +40,7 @@ export default function AutosaveIndicator() {
     useShallow((state) => ({
       setIsEditMode: state.setIsEditMode,
       isEditting: state.isMilkdownOn || state.isRawOn,
-      setIsMilkdown: state.setIsMarkdown,
+      setIsMilkdown: state.setIsMilkdown,
     }))
   );
 

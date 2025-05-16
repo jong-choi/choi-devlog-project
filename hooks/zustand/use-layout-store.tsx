@@ -15,7 +15,7 @@ export interface LayoutState {
   setRightPanelOpen: (open: boolean) => void;
   setRightPanelMode: (mode: "summary" | "recommend") => void;
   setIsEditMode: (value: boolean) => void;
-  setIsMarkdown: (value: boolean) => void;
+  setIsMilkdown: (value: boolean) => void;
   setIsRaw: (value: boolean) => void;
   toggleIsSortable: () => void;
 }
@@ -38,7 +38,7 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
     setIsEditMode: (value) => {
       set({ isEditMode: value, isMounted: true });
     },
-    setIsMarkdown: (value) => {
+    setIsMilkdown: (value) => {
       set({ isMilkdownOn: value });
     },
     setIsRaw: (value) => {

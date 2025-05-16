@@ -30,11 +30,11 @@ export default function PostCreateForm({ onClose }: { onClose: () => void }) {
       setPostsPending: state.setPostsPending,
     }))
   );
-  const { isEditMode, setIsEditMode, setIsMarkdown } = useLayoutStore(
+  const { isEditMode, setIsEditMode, setIsMilkdown } = useLayoutStore(
     useShallow((state) => ({
       isEditMode: state.isEditMode,
       setIsEditMode: state.setIsEditMode,
-      setIsMarkdown: state.setIsMarkdown,
+      setIsMilkdown: state.setIsMilkdown,
     }))
   );
   const [title, setTitle] = useState<string>("");
@@ -74,7 +74,7 @@ export default function PostCreateForm({ onClose }: { onClose: () => void }) {
         setPostsPending(true);
         if (!isEditMode) {
           setIsEditMode(true);
-          setIsMarkdown(true);
+          setIsMilkdown(true);
         }
         toast.success("게시글이 생성되었습니다.");
       } else if (error) {
