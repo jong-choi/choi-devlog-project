@@ -12,7 +12,9 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);
-  const [focused, setFocused] = useState<"milkdown" | "codemirror">("milkdown");
+  const [focused, setFocused] = useState<"milkdown" | "codemirror" | null>(
+    null
+  );
   const [snapshot, setSnapshot] = useState("");
 
   const {
@@ -52,6 +54,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     if (!isLoadingDraftBody) return;
     // '자동저장된 파일을 반영하기'를 적용하고 트리거를 false로
     if (recentAutoSavedBody) {
+      setFocused(null);
       setBody(recentAutoSavedBody);
     }
     setIsLoadingDraftBody(false);
@@ -138,7 +141,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
             setMarkdown={setBody}
             markdown={body}
             onImageUpload={imageUploadHandler}
-            isFocused={focused === "milkdown" && isLoadingDraftBody}
+            isFocused={focused === "milkdown"}
           />
         </div>
         <div
