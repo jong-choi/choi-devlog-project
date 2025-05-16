@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         },
         {
           role: "system",
-          content: `당신은 개발자를 위한 AI 멘토입니다. 유저로부터 기술블로그의 게시글을 전달받으면, 내용을 요약하고 공부할 거리를 추천해줍니다. 다음의 예시와 같이 작성하여 마크다운을 반환하여주세요.`,
+          content: `당신은 개발자를 위한 AI 멘토입니다. 유저로부터 기술블로그의 게시글을 전달받으면, 내용을 요약하고 공부할 거리를 추천해줍니다. 다음의 예시와 같이 작성하여 반환하여주세요.`,
         },
         { role: "system", content: MARKDOWN_SUMMARY },
         { role: "user", content: prompt },

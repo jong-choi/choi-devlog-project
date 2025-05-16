@@ -11,13 +11,16 @@ async function generateSummary(
   body: string
 ): Promise<SummaryResponse> {
   try {
-    const response = await fetch("/api/summary", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ title, body }),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/summary`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, body }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to generate summary: ${response.statusText}`);

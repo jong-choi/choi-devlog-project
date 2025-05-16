@@ -26,11 +26,14 @@ const _createTagsByPostId = async (payload: {
     throw new Error("태그 생성 실패: 인증되지 않은 사용자");
   }
   const { id, summary, post_id } = payload;
-  const tagResponse = await fetch("/api/summary/tags", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, summary, post_id }),
-  });
+  const tagResponse = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/summary/tags`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, summary, post_id }),
+    }
+  );
 
   const tagResult = await tagResponse.json();
   if (!tagResponse.ok) {

@@ -26,6 +26,7 @@ export default async function AIPanelWrapper({
       summary = aiData.summary;
       summaryId = aiData.id;
     }
+
     const { data: postsData } = await getRecommendedListByPostId(data.id);
 
     if (postsData) {

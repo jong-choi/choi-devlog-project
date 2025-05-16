@@ -14,7 +14,10 @@ import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list
 import { simsToPosts } from "@/utils/uploadingUtils";
 import { useShallow } from "zustand/react/shallow";
 import { createAISummary, createTagsByPostId } from "@/app/post/actions";
-import { getRecommendedListByPostId } from "@/app/post/fetchers";
+import {
+  getRecommendedListByPostId,
+  revalidateAIAummaryByPostId,
+} from "@/app/post/fetchers";
 
 export default function AIPanel() {
   const {
@@ -125,7 +128,7 @@ export default function AIPanel() {
       summary: AIData.summary,
     });
 
-    if (!TagsData || TagsData.post_id) {
+    if (!TagsData || !TagsData.post_id) {
       toast.error("태그를 생성하지 못하였습니다.");
       return setIsLoading(false);
     }
@@ -142,6 +145,7 @@ export default function AIPanel() {
     setSummary(AIData.summary);
     setSummaryId(AIData!.id);
 
+    await revalidateAIAummaryByPostId(postId);
     toast.success("요약 생성에 성공하였습니다.");
     return setIsLoading(false);
   };

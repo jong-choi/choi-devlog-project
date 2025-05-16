@@ -35,6 +35,7 @@ const _createAISummary = async (
         summary_id: result.data.id,
         vector,
       })
+      .select()
       .single();
   }
 

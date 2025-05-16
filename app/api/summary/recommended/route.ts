@@ -1,14 +1,6 @@
-// 추천 게시글 불러오는 로직
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
-// const res = await fetch("/api/summary/recommended", {
-//   method: "POST",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-//   body: JSON.stringify({ postId }),
-// });
 export async function POST(req: Request) {
   const supabase = await createClient(undefined, true);
 
@@ -100,7 +92,9 @@ export async function POST(req: Request) {
 
     const { data } = await supabase
       .from("post_similarities")
-      .insert(sims)
+      .upsert(sims, {
+        onConflict: "source_post_id, target_post_id",
+      })
       .select();
 
     return NextResponse.json({
@@ -156,8 +150,6 @@ function findTopSimilarPosts(
   // sourceData와 targetData 벡터 유사도 계산
   const similarities = targetData.map((target) => ({
     target_post_id: target.post_id,
-    target_title: target.posts.title,
-    target_url_slug: target.posts.url_slug,
     similarity: cosineSimilarity(sourceData.vector, target.vector),
   }));
 
@@ -167,15 +159,14 @@ function findTopSimilarPosts(
     .slice(0, 10);
 
   // 결과 포맷 변환
-  const res = top10.map((item) => ({
-    source_post_id: sourceData.post_id,
-    source_title: sourceData.posts.title,
-    source_url_slug: sourceData.posts.url_slug,
-    target_post_id: item.target_post_id,
-    target_title: item.target_title,
-    target_url_slug: item.target_url_slug,
-    similarity: item.similarity,
-  }));
+  const res = top10.map((item) => {
+    const [a, b] = [sourceData.post_id, item.target_post_id].sort(); // 단방향 제약 추가
+    return {
+      source_post_id: a,
+      target_post_id: b,
+      similarity: item.similarity,
+    };
+  });
 
   return res;
 }

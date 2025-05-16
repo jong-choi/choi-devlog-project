@@ -95,10 +95,13 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     const formData = new FormData();
     formData.append("image", image);
 
-    const response = await fetch("/api/uploads", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/uploads`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to upload image");

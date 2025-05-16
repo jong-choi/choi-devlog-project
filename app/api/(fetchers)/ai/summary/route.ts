@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     .select("*")
     .eq("post_id", post_id ?? "")
     .order("created_at", { ascending: false })
+    .limit(1)
     .single();
 
   return Response.json(result);
