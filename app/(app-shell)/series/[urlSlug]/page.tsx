@@ -8,11 +8,29 @@ import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { PageContainer } from "@ui/glass-container";
 import { LinkLoader } from "@ui/route-loader";
+import { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{
     urlSlug: string;
   }>;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { urlSlug } = await params;
+  const { data } = await getSeriesByUrlSlug(decodeURIComponent(urlSlug));
+  if (data?.name) {
+    return {
+      title: `시리즈 - ${data.name}`,
+      description: `"${data.name}"의 게시글 목록입니다.`,
+    };
+  }
+
+  return {
+    title: "시리즈",
+  };
 }
 
 export default async function Page({ params }: PageProps) {

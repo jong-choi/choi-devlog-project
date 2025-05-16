@@ -10,14 +10,18 @@ import { RouteLoader } from "@ui/route-loader";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://choi-devlog-project.vercel.app"),
-  title: "Scribbly",
+  title: {
+    default: "Scribbly",
+    template: "Scribbly | %s",
+  },
   description: "프론트엔드 개발자의 휘갈긴 기술 블로그 Scribbly",
   keywords: ["Next.js", "React", "Supabase", "프론트엔드"],
-  authors: [
-    { name: "jong-Choi", url: "https://choi-devlog-project.vercel.app" },
-  ],
+  authors: [{ name: "jong-Choi", url: "/" }],
   creator: "jong-Choi",
   publisher: "jong-Choi",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -36,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Scribbly",
     description: "프론트엔드 개발자의 휘갈긴 기술 블로그 Scribbly",
-    url: "https://choi-devlog-project.vercel.app",
+    url: "/",
     siteName: "Scribbly - 기술 블로그",
     images: [
       {

@@ -9,6 +9,14 @@ import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
 
 import { TopBar } from "@/components/ui/post-top-bar";
 import { ClusterPostsProvider } from "@/providers/cluster-posts-store-provider";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "지식의 여정",
+    description: "Scribbly의 게시글을 유사도에 맞게 한 눈에 모아보세요.",
+  };
+}
 
 export default async function Page() {
   const { data: clusterData } = await getClusterData();
