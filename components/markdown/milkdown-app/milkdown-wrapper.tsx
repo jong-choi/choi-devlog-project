@@ -138,7 +138,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
             setMarkdown={setBody}
             markdown={body}
             onImageUpload={imageUploadHandler}
-            isFocused={focused === "milkdown"}
+            isFocused={focused === "milkdown" && isLoadingDraftBody}
           />
         </div>
         <div

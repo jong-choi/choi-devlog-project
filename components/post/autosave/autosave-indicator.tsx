@@ -36,9 +36,11 @@ export default function AutosaveIndicator() {
       setBeforeUploading: state.setBeforeUploading,
     }))
   );
-  const { setIsEditMode } = useLayoutStore(
+  const { setIsEditMode, isEditting, setIsMilkdown } = useLayoutStore(
     useShallow((state) => ({
       setIsEditMode: state.setIsEditMode,
+      isEditting: state.isMilkdownOn || state.isRawOn,
+      setIsMilkdown: state.setIsMarkdown,
     }))
   );
 
@@ -46,6 +48,9 @@ export default function AutosaveIndicator() {
     setIsLoadingDraftBody(true);
     setIsLoadingDraftTitle(true);
     setIsEditMode(true);
+    if (!isEditting) {
+      setIsMilkdown(true);
+    }
     setBeforeUploading();
     // setBeforeModification();
   };
