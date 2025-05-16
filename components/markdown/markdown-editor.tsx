@@ -23,7 +23,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
   );
 
   return (
-    <div className="markdown-body w-full relative">
+    <div className="markdown-body w-full relative pb-28">
       <div
         className={cn(isFullMode && "hidden", isEditMode && "opacity-0")}
         aria-hidden={isEditMode || isFullMode}
