@@ -36,7 +36,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
             isFullMode && "fixed inset-0 top-56 z-10",
             isEditMode
               ? "absolute inset-0 z-10"
-              : "w-0 h-0 opacity-0 pointer-events-none"
+              : "w-0 h-0 opacity-0 overflow-hidden pointer-events-none"
           )}
           aria-hidden={!isEditMode}
         >
