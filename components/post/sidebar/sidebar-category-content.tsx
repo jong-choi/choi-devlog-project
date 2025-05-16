@@ -12,6 +12,7 @@ import SubcategoryUpdateForm from "@/components/dialogs/subcategory-forms/subcat
 import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
 import SubcategoryCreateForm from "@/components/dialogs/subcategory-forms/subcategory-create-form";
 import SubcategoryDeleteForm from "@/components/dialogs/subcategory-forms/subcategory-delete-form";
+import { updateOrders } from "@/app/post/actions/sidebar";
 
 export function SidebarCategoryContent({
   catagory,
@@ -76,7 +77,12 @@ export function SidebarCategoryContent({
       </div>
       {isOpened && (
         <div className="ml-2 mt-1 space-y-1">
-          <WithSortableList items={catagory.subcategories}>
+          <WithSortableList
+            items={catagory.subcategories}
+            onUpdate={(items) =>
+              updateOrders({ mode: "subcategories", data: items })
+            }
+          >
             {(sortedSubs) =>
               sortedSubs.map((sub) => (
                 <div

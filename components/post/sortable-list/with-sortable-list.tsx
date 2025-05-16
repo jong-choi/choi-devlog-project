@@ -15,13 +15,13 @@ export const SortableListContainerDynamic = dynamic(() =>
 type Props<T extends SortableItem> = {
   items: T[];
   children: (items: T[]) => React.ReactNode;
-  onUpdate?: OnUpdateFn<{ id: string; order: number }>;
+  onUpdate: OnUpdateFn<{ id: string; order: number }>;
 };
 
 export function WithSortableList<T extends SortableItem>({
   items,
   children,
-  onUpdate, // ✅ 받기
+  onUpdate,
 }: Props<T>) {
   const isSortable = useLayoutStore(useShallow((s) => s.isSortable));
 

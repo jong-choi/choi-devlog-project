@@ -119,7 +119,12 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
               {loading ? (
                 <SidebarSkeleton />
               ) : (
-                <WithSortableList items={categories}>
+                <WithSortableList
+                  items={categories}
+                  onUpdate={(items) =>
+                    updateOrders({ mode: "categories", data: items })
+                  }
+                >
                   {(categories) =>
                     categories.map((cat) => (
                       <SidebarCategoryContent

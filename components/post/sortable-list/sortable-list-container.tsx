@@ -26,7 +26,7 @@ export type SortableItem = { id: string; order: number | null };
 interface SortableListContainerProps<T extends SortableItem> {
   items: T[];
   children: (items: T[]) => ReactNode;
-  onUpdate?: OnUpdateFn<{ id: string; order: number }>;
+  onUpdate: OnUpdateFn<{ id: string; order: number }>;
 }
 
 export function SortableListContainer<T extends SortableItem>({
