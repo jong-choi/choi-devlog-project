@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useShallow } from "zustand/react/shallow";
@@ -12,10 +12,11 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   const [body, setBody] = useState<string>(markdown);
+  const debouncedBody = useDebounce(body);
   const [focused, setFocused] = useState<"milkdown" | "codemirror" | null>(
     null
   );
-  const [snapshot, setSnapshot] = useState("");
+  const [snapshot, setSnapshot] = useState<string>();
 
   const {
     isLoadingDraftBody,
@@ -36,6 +37,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       setRecentAutoSavedData: state.setRecentAutoSavedData,
     }))
   );
+
   const { isMilkdownOn, isRawOn } = useLayoutStore(
     useShallow((state) => ({
       isMilkdownOn: state.isMilkdownOn,
@@ -60,66 +62,52 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     setIsLoadingDraftBody(false);
   }, [isLoadingDraftBody, setIsLoadingDraftBody, recentAutoSavedBody]);
 
-  const debouncedBody = useDebounce(body);
-
-  // 최초 로딩시에 milkdown이 markdown을 자동으로 파싱하면서 업데이트가 발생하는 문제.
-  // 디바운스의 원리를 이용하여 파싱이 끝난 직후의 debouncedbody를 snapshot으로 남겨둠
   useEffect(() => {
-    if (snapshot) return;
+    // 밀크다운 최초 파싱 전
     if (!debouncedBody) return;
-    if (debouncedBody !== markdown) {
-      setSnapshot(debouncedBody);
-    }
-  }, [debouncedBody, snapshot, markdown]);
-
-  // (초기로딩 제외한) 업데이트가 발생하여 debouncedBody가 수정되면 이를 반영하고 setIsAutoSaving을 트리거
-  useEffect(() => {
-    if (!snapshot) return;
-    if (debouncedBody === snapshot) return;
-    if (postId === selectedPostId) {
+    // 밀크다운 최초 파싱 직후
+    if (snapshot === undefined) return setSnapshot(debouncedBody);
+    // 밀크다운 수정사항 발생
+    if (debouncedBody !== snapshot && postId === selectedPostId) {
       setRecentAutoSavedData({ body: debouncedBody });
       setIsAutoSaving(true);
     }
   }, [
     debouncedBody,
-    body,
+    snapshot,
+    markdown,
     postId,
     selectedPostId,
-    setIsAutoSaving,
     setRecentAutoSavedData,
-    snapshot,
+    setIsAutoSaving,
   ]);
 
-  async function imageUploadHandler(image: File) {
-    if (!isValid) {
-      // 로그아웃 상태에서는 Blob으로 이미지를 반환
-      return await fileToBlob(image);
-    }
-    const formData = new FormData();
-    formData.append("image", image);
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/uploads`,
-      {
-        method: "POST",
-        body: formData,
+  const imageUploadHandler = useCallback(
+    async (image: File) => {
+      if (!isValid) {
+        return await fileToBlob(image);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to upload image");
-    }
+      const formData = new FormData();
+      formData.append("image", image);
 
-    const { url } = await response.json();
-    return url;
-  }
-  async function fileToBlob(file: File): Promise<string> {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file); // Base64 변환
-      reader.onloadend = () => resolve(reader.result as string);
-    });
-  }
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/uploads`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const { url } = await response.json();
+      return url;
+    },
+    [isValid]
+  );
 
   return (
     <MilkdownProvider>
@@ -162,4 +150,12 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
       </div>
     </MilkdownProvider>
   );
+}
+
+async function fileToBlob(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file); // Base64 변환
+    reader.onloadend = () => resolve(reader.result as string);
+  });
 }
