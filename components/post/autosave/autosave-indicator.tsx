@@ -108,7 +108,7 @@ export default function AutosaveIndicator() {
       ) : uploadedRecently !== recentAutoSavedData?.timestamp && isAutoSaved ? (
         <>
           <div className="flex gap-2 items-center text-blue-500">
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="w-4 h-4 text-green-500" />
             <span>임시 저장됨</span>
             <span className="text-blue-300 ">
               ({formatKoreanDate(recentAutoSavedData?.timestamp)})
