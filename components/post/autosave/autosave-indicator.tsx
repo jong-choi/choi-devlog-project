@@ -61,15 +61,13 @@ export default function AutosaveIndicator() {
     setBeforeModification();
   };
 
-  const [uploadedRecently, setUploadedRecently] = useState(false);
+  const [uploadedRecently, setUploadedRecently] = useState<number>();
 
   useEffect(() => {
     if (isUploaded) {
-      setUploadedRecently(true);
-      const timer = setTimeout(() => setUploadedRecently(false), 2000);
-      return () => clearTimeout(timer);
+      setUploadedRecently(recentAutoSavedData?.timestamp);
     }
-  }, [isUploaded]);
+  }, [isUploaded, recentAutoSavedData?.timestamp]);
 
   if (!isLocalDBChecked && !isUploading && !uploadedRecently && !isAutoSaved) {
     return <></>;
@@ -103,23 +101,29 @@ export default function AutosaveIndicator() {
           </div>
         </>
       ) : isUploading ? (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
           <span>업로드 중...</span>
         </div>
-      ) : isAutoSaved ? (
+      ) : uploadedRecently !== recentAutoSavedData?.timestamp && isAutoSaved ? (
         <>
-          <div className="flex gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+          <div className="flex gap-2 items-center text-blue-500">
+            <CheckCircle className="w-4 h-4" />
             <span>임시 저장됨</span>
-            <span className="text-blue-300">
+            <span className="text-blue-300 ">
               ({formatKoreanDate(recentAutoSavedData?.timestamp)})
             </span>
           </div>
           <UploadingDialogTrigger />
         </>
       ) : (
-        <span></span>
+        <div className="flex gap-2 items-center text-color-base">
+          <CheckCircle className="w-4 h-4" />
+          <span>업로드 완료</span>
+          <span className="text-color-muted">
+            ({formatKoreanDate(uploadedRecently)})
+          </span>
+        </div>
       )}
     </div>
   );
