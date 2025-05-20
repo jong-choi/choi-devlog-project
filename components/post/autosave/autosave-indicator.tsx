@@ -107,11 +107,6 @@ export default function AutosaveIndicator() {
           <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
           <span>업로드 중...</span>
         </div>
-      ) : uploadedRecently ? (
-        <div className="flex gap-2">
-          <CheckCircle className="w-4 h-4 text-blue-500" />
-          <span>업로드 완료</span>
-        </div>
       ) : isAutoSaved ? (
         <>
           <div className="flex gap-2">
