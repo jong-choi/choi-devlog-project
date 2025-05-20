@@ -112,6 +112,9 @@ export default function AutosaveIndicator() {
           <div className="flex gap-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
             <span>임시 저장됨</span>
+            <span className="text-blue-300">
+              ({formatKoreanDate(recentAutoSavedData?.timestamp)})
+            </span>
           </div>
           <UploadingDialogTrigger />
         </>
