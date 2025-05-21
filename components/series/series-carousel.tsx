@@ -9,6 +9,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@ui/carousel";
+import { ClockFading } from "lucide-react";
 import Image from "next/image";
 
 export default function SeriesCarousel({
@@ -78,7 +79,8 @@ export const SeriesCard = ({
           </div>
         )}
         {series.latest_post_date && (
-          <div className="flex gap-1 text-sm text-zinc-200 mt-1">
+          <div className="flex gap-1 text-sm text-zinc-200 mt-1 items-center">
+            <ClockFading size={14} />
             <span>
               {formatKoreanDate(series.latest_post_date || "").split(" ")[0]}
             </span>
