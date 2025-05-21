@@ -5,6 +5,7 @@ export const CACHE_TAGS = {
   CATEGORY: { ALL: () => "categories" },
   SUBCATEGORY: {
     ALL: () => "subcategories",
+    HOME: () => "subcategories:home",
     BY_CATEGORY_ID: (categoryId: string = "") =>
       "subcategories:by_category:" + categoryId,
     BY_RECOMMENDED: () => "subcategories:by_recommended",

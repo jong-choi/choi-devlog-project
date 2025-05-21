@@ -97,6 +97,25 @@ export const getUniqueSlug = async ({
   return slug;
 };
 
+const updateSubcategoryThumbnail = async (
+  supabase: SupabaseClient<Database>,
+  subcategoryId: string,
+  thumbnail: string
+) => {
+  const result = await supabase
+    .from("subcategories")
+    .select()
+    .eq("id", subcategoryId)
+    .single();
+  if (result.data && !result.data.thumbnail) {
+    await supabase
+      .from("subcategories")
+      .update({ thumbnail })
+      .eq("id", subcategoryId);
+  }
+  revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
+};
+
 const _createPost = async (
   payload: Omit<Database["public"]["Tables"]["posts"]["Insert"], "order">
 ): Promise<
@@ -134,6 +153,14 @@ const _createPost = async (
     .select()
     .single();
 
+  if (result.data && result.data.subcategory_id && result.data.thumbnail) {
+    updateSubcategoryThumbnail(
+      supabase,
+      result.data.subcategory_id,
+      result.data.thumbnail
+    );
+  }
+
   return result;
 };
 
@@ -145,6 +172,7 @@ export const createPost = createWithInvalidation(
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
   }
 );
 
@@ -181,6 +209,14 @@ const _updatePost = async (
     .select()
     .single();
 
+  if (result.data && result.data.subcategory_id && result.data.thumbnail) {
+    updateSubcategoryThumbnail(
+      supabase,
+      result.data.subcategory_id,
+      result.data.thumbnail
+    );
+  }
+
   return result;
 };
 
@@ -192,6 +228,7 @@ export const updatePost = createWithInvalidation(
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
   }
 );
 
@@ -221,5 +258,6 @@ export const softDeletePost = createWithInvalidation(
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
+    revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
   }
 );

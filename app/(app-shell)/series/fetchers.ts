@@ -15,9 +15,10 @@ interface GetSeriesListParams extends QueryParams {
 }
 
 export const getSeriesList = async (params?: GetSeriesListParams) => {
-  const tags = [
+  const tags: string[] = [
     "subcategories_with_published_meta",
     CACHE_TAGS.SUBCATEGORY.ALL(),
+    CACHE_TAGS.SUBCATEGORY.HOME(),
   ];
 
   if (params?.categoryId) {
