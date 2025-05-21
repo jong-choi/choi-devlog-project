@@ -9,6 +9,8 @@ import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
 import SeriesApp from "@/components/series/series-app";
 import { SectionLinkText } from "@ui/glass-button";
 import { getSeriesList } from "@/app/(app-shell)/series/fetchers";
+import { LogoBigText } from "@ui/post-top-bar";
+import { LinkLoader } from "@ui/route-loader";
 
 export default async function Page() {
   const { data: recentPosts } = await getPublishedPosts({ page: 0 });
@@ -17,18 +19,32 @@ export default async function Page() {
     <>
       {/* 상단 블로그 소개 */}
       <GlassBox className="w-full" mobileTransperency>
-        <h2 className="text-2xl font-extrabold tracking-tighter text-shadow pb-2">
-          소개
-        </h2>
-        <div className="">
-          <p className="">
-            Next.js 좋아하는 프론트엔드 개발자입니다.{" "}
-            <span>블로그 개발기 보러가기</span>
+        <LogoBigText />
+        <div className="mt-2">
+          <p className="whitespace-pre-wrap">
+            {`프론트엔드 개발을 공부하며 작성하는 블로그입니다.\n주로 Next.js와 관련된 게시글을 올립니다.`}
           </p>
 
-          <div className="mt-4 text-sm text-right flex flex-col gap-1">
-            <p className="">마크다운...좋아하세요? 마크다운 에디터</p>
-            <p className="">깃허브 @bluecoolgod80</p>
+          <div className="mt-4 text-xs text-left flex flex-col gap-1">
+            <hr />
+            <span>
+              블로그 개발기{" "}
+              <LinkLoader
+                href={"/series/nextjs-dev-blog"}
+                className="text-color-muted hover:text-color-base hover:underline"
+              >
+                보러가기
+              </LinkLoader>
+            </span>
+            <span>
+              GitHub{" "}
+              <LinkLoader
+                href={"https://github.com/jong-Choi/choi-devlog-project"}
+                className="text-color-muted hover:text-color-base hover:underline"
+              >
+                @jong-Choi
+              </LinkLoader>
+            </span>
           </div>
         </div>
       </GlassBox>
