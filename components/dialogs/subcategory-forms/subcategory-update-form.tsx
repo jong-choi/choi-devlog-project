@@ -111,7 +111,7 @@ export default function SubcategoryUpdateForm({
           loading={isSaving}
           onClick={handleCreate}
         >
-          생성
+          수정
         </GlassButton>
       </div>
     </div>
