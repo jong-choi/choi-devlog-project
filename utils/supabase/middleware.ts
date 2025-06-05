@@ -57,7 +57,7 @@ export const updateSession = async (request: NextRequest) => {
 
     const allowedOrigins = [
       "http://localhost:3000",
-      "https://develog.me.uk",
+      "https://devlog.me.uk",
       "https://choi-devlog-project.vercel.app",
     ];
 
