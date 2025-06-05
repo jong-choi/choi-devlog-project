@@ -6,7 +6,7 @@ import sharp from "sharp";
 
 export async function POST(req: Request) {
   const cookiesStore = await cookies();
-  const supabase = await createClient(cookiesStore);
+  const supabase = await createClient(cookiesStore, true);
   const user = await supabase.auth.getUser();
   if (!user.data) {
     console.error("로그인되지 않은 사용자:");
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
   try {
     const formData = await req.formData();
     const file = formData.get("image") as File;
