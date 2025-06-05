@@ -1,17 +1,23 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { DBSCAN } from "density-clustering";
 import { cosineSimilarity, summaryParser } from "@/utils/api/analysis-utils";
-import { Database } from "@/types/supabase";
 import { generateClusterTitleAndSummary } from "@/app/api/similarity/cluster/generate/utils";
-
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET() {
   try {
+    const cookiesStore = await cookies();
+    const supabase = await createClient(cookiesStore);
+    const user = await supabase.auth.getUser();
+    if (!user.data) {
+      console.error("로그인되지 않은 사용자:");
+      return NextResponse.json(
+        { error: "사용자 정보 불러오기 실패" },
+        { status: 500 }
+      );
+    }
+
     // 1. 인공지능 요약에서 벡터 데이터를 가져옵니다.
     const { data, error } = await supabase
       .from("ai_summaries_with_vectors")
@@ -120,6 +126,18 @@ export async function GET() {
           clusterData.summaries
         );
 
+        if (!result.vector.length) {
+          console.error("벡터 생성 실패:", result.title);
+          console.log();
+          return NextResponse.json(
+            {
+              error: "벡터 생성 실패:",
+              cluster: result,
+              clusterData: clusterData,
+            },
+            { status: 500 }
+          );
+        }
         clusterData.result = result;
         allClusters.push(clusterData);
       }
@@ -153,7 +171,17 @@ export async function GET() {
     if (insertError) {
       console.error("삽입 실패:", insertError);
       return NextResponse.json(
-        { error: "군집을 군집 테이블에 삽입 실패" },
+        {
+          error: "군집을 군집 테이블에 삽입 실패",
+          clusters: allClusters.map((cluster) => ({
+            title: cluster.result.title,
+            summary: cluster.result.summary,
+            keywords: cluster.result.keywords,
+            vector: cluster.result.vector,
+            quality: cluster.quality,
+            post_ids: cluster.post_ids,
+          })),
+        },
         { status: 500 }
       );
     }

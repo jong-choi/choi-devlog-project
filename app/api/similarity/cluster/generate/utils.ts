@@ -31,7 +31,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     title: "PWA 개발",
     summary:
       "이 군집은 Next.js와 Firebase를 활용한 PWA 웹앱 개발 과정을 다룹니다.",
-    tags: "[pwa, next js, firebase, quiz]",
+    keywords: "[pwa, next js, firebase, quiz]",
   };
 
   let parsedGptRes = {
@@ -55,7 +55,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     }
 
     const completion = await openai.chat.completions.create({
-      model: "chatgpt-4o-latest",
+      model: "gpt-4-1106-preview",
       messages: [
         {
           role: "system",
@@ -75,7 +75,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
     try {
       parsedGptRes = JSON.parse(
-        gptRes!.replaceAll("```json\n", "").replaceAll("```", "")
+        gptRes!.replaceAll("```json", "").replaceAll("```", "")
       ) as {
         title: string;
         summary: string;
