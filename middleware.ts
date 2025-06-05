@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  return await updateSession(request);
+  return await updateSession(request, allowedOrigins);
 }
 
 export const config = {

@@ -4,7 +4,10 @@ import { Database } from "@/types/supabase";
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-export const updateSession = async (request: NextRequest) => {
+export const updateSession = async (
+  request: NextRequest,
+  allowedOrigins: string[]
+) => {
   // This `try/catch` block is only here for the interactive tutorial.
   // Feel free to remove once you have Supabase connected.
   try {
@@ -54,12 +57,6 @@ export const updateSession = async (request: NextRequest) => {
     if (request.nextUrl.pathname === "/login" && !user.error) {
       return NextResponse.redirect(new URL("/", request.url));
     }
-
-    const allowedOrigins = [
-      "http://localhost:3000",
-      "https://devlog.me.uk",
-      "https://choi-devlog-project.vercel.app",
-    ];
 
     const requestOrigin = request.headers.get("origin");
 
