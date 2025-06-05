@@ -1,7 +1,34 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://devlog.me.uk",
+    "https://choi-devlog-project.vercel.app",
+  ];
+
+  const requestOrigin = request.headers.get("origin");
+  // 👉 preflight OPTIONS 요청 처리
+  if (request.method === "OPTIONS") {
+    const response = new NextResponse(null, { status: 204 });
+
+    if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+      response.headers.set("Access-Control-Allow-Origin", requestOrigin);
+      response.headers.set(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      response.headers.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      response.headers.set("Access-Control-Allow-Credentials", "true");
+    }
+
+    return response;
+  }
+
   return await updateSession(request);
 }
 
