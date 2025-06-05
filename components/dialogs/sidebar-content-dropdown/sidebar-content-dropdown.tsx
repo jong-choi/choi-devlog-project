@@ -57,7 +57,7 @@ export function SidebarContentDropdown({
       />
       {dialogOpen && (
         <Dialog defaultOpen={true} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent aria-describedby="sidebar-dropdown">
             <DialogHeader>
               <DialogTitle>{modeLabels[mode]}</DialogTitle>
             </DialogHeader>

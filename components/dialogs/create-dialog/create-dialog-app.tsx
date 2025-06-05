@@ -36,7 +36,7 @@ export default function CreateDialogApp({
           <CreateNewTrigger title={buttonTitle} />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby="create-dialog">
         <DialogHeader>
           <DialogTitle>새 {dialogTitle}</DialogTitle>
         </DialogHeader>

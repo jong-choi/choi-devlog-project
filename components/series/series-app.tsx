@@ -28,7 +28,10 @@ export default function SeriesApp({ seriesList }: { seriesList: Series[] }) {
             if (!open) setSelectedSeries(null);
           }}
         >
-          <DrawerContent className=" z-50 bg-color-hover dark:bg-zinc-800 p-0 ">
+          <DrawerContent
+            className=" z-50 bg-color-hover dark:bg-zinc-800 p-0"
+            aria-describedby="series-drawer"
+          >
             <div className="relative h-full w-full flex flex-col ">
               <button
                 onClick={() => setSelectedSeries(null)}

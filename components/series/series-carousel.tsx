@@ -61,7 +61,7 @@ export const SeriesCard = ({
         sizes="192px"
         fill
         className="object-cover"
-        priority={index <= 5}
+        priority={index <= 3}
       />
     )}
     <div
