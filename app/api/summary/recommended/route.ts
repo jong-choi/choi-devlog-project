@@ -1,8 +1,18 @@
 import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const supabase = await createClient(undefined, true);
+  const cookiesStore = await cookies();
+  const supabase = await createClient(cookiesStore);
+  const user = await supabase.auth.getUser();
+  if (!user.data) {
+    console.error("로그인되지 않은 사용자:");
+    return NextResponse.json(
+      { error: "사용자 정보 불러오기 실패" },
+      { status: 500 }
+    );
+  }
 
   try {
     const { postId } = await req.json();

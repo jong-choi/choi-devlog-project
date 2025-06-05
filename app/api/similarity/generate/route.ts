@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
 import { cosineSimilarity } from "@/utils/api/analysis-utils";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 
 export async function POST() {
+  const cookiesStore = await cookies();
+  const supabase = await createClient(cookiesStore);
+  const user = await supabase.auth.getUser();
+  if (!user.data) {
+    console.error("로그인되지 않은 사용자:");
+    return NextResponse.json(
+      { error: "사용자 정보 불러오기 실패" },
+      { status: 500 }
+    );
+  }
   try {
     // 1. 요약 벡터 전체 불러오기
     const { data: summaries, error } = await supabase

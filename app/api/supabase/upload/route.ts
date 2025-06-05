@@ -1,5 +1,6 @@
 import fetchImage from "@/app/api/supabase/upload/utils/fetchImage";
 import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // 요청 바디 타입 정의
@@ -9,6 +10,16 @@ interface UploadRequestBody {
 
 // velog의 이미지 주소를 받아서 supabase 스토리지에 업로드하는 API
 export async function POST(req: NextRequest) {
+  const cookiesStore = await cookies();
+  const supabase = await createClient(cookiesStore);
+  const user = await supabase.auth.getUser();
+  if (!user.data) {
+    console.error("로그인되지 않은 사용자:");
+    return NextResponse.json(
+      { error: "사용자 정보 불러오기 실패" },
+      { status: 500 }
+    );
+  }
   try {
     // 요청에서 JSON 데이터 파싱
     const body: UploadRequestBody = await req.json();
@@ -21,9 +32,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Supabase 클라이언트 생성
-    const supabase = await createClient(undefined, true);
 
     // Velog 이미지 기본 URL
     const baseUrl = "https://velog.velcdn.com/images/bluecoolgod80/";

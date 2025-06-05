@@ -1,18 +1,24 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { OpenAI } from "openai";
 import { summaryParser } from "@/utils/api/analysis-utils";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export async function POST(req: Request) {
+  const cookiesStore = await cookies();
+  const supabase = await createClient(cookiesStore);
+  const user = await supabase.auth.getUser();
+  if (!user.data) {
+    console.error("로그인되지 않은 사용자:");
+    return NextResponse.json(
+      { error: "사용자 정보 불러오기 실패" },
+      { status: 500 }
+    );
+  }
   try {
     const { id, summary, post_id } = (await req.json()) ?? {};
     const failedPosts: string[] = [];
@@ -29,7 +35,9 @@ export async function POST(req: Request) {
         .from("ai_summaries")
         .select("id, summary, post_id")
         .is("deleted_at", null)
+        // @ts-expect-error : 임시로 null
         .neq("summary", null);
+      // @ts-expect-error : 임시로 null
       summaries = data;
       loadError = error;
     }
