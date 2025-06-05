@@ -55,6 +55,27 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://develog.me.uk",
+      "https://choi-devlog-project.vercel.app",
+    ];
+
+    const requestOrigin = request.headers.get("origin");
+
+    if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+      response.headers.set("Access-Control-Allow-Origin", requestOrigin);
+      response.headers.set(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      response.headers.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      response.headers.set("Access-Control-Allow-Credentials", "true"); // 필요 시
+    }
+
     return response;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {

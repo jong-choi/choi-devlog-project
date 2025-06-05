@@ -1,31 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-
-  const origin = request.headers.get("origin");
-  const allowedOrigins = [
-    "https://devlog.me.uk",
-    "https://choi-devlog-project.vercel.app",
-    "https://localhost:3000",
-  ];
-
-  if (origin && allowedOrigins.includes(origin)) {
-    response.headers.set("Access-Control-Allow-Origin", origin);
-  }
-  response.headers.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-  response.headers.set("Access-Control-Allow-Credentials", "true");
-
   return await updateSession(request);
 }
+
 export const config = {
   matcher: [
     /*
