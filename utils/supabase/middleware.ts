@@ -73,7 +73,6 @@ export const updateSession = async (request: NextRequest) => {
         "Access-Control-Allow-Headers",
         "Content-Type, Authorization"
       );
-      response.headers.set("Access-Control-Allow-Credentials", "true"); // 필요 시
     }
 
     return response;
