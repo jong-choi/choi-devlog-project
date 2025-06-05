@@ -50,11 +50,8 @@ export async function POST(req: Request) {
       .data.publicUrl;
 
     return NextResponse.json({ url: imageUrl });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: e }, { status: 500 });
   }
 }
