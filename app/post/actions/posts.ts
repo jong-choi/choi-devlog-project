@@ -228,6 +228,7 @@ export const updatePost = createWithInvalidation(
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
+    revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.id));
     revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
   }
 );
