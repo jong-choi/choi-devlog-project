@@ -4,7 +4,7 @@ import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
 import { createClient as createClientClient } from "@/utils/supabase/client";
 import { createClient } from "@/utils/supabase/server";
 import { PostgrestSingleResponse, SupabaseClient } from "@supabase/supabase-js";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const _createTagsByPostId = async (payload: {
@@ -230,6 +230,7 @@ export const updatePost = createWithInvalidation(
     revalidateTag(CACHE_TAGS.POST.ALL());
     revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.id));
     revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
+    revalidatePath(`/post/${result.data?.url_slug}`, "page");
   }
 );
 
