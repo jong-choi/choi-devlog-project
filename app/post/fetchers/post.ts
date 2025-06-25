@@ -22,7 +22,7 @@ export const getPostByUrlSlug = async (
   >({
     endpoint: ENDPOINT.posts.byUrlSlug,
     params,
-    tags: [CACHE_TAGS.POST.ALL(), CACHE_TAGS.POST.BY_URL_SLUG(params.urlSlug)],
+    tags: [CACHE_TAGS.POST.BY_URL_SLUG(params.urlSlug)],
     revalidate: 60 * 60 * 24 * 7,
     cookieStore,
   });
