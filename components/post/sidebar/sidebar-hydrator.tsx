@@ -99,7 +99,7 @@ export default function SidebarHydrator() {
   }, [publishedPostsLength]);
 
   useEffect(() => {
-    if (!uid) return;
+    if (!uid || !posts?.length) return;
     if (privateChecked) return;
     void (async () => {
       const supabase = createClient();
@@ -112,7 +112,17 @@ export default function SidebarHydrator() {
   }, [uid, posts, setPosts, privateChecked]);
 
   useEffect(() => {
-    if (!categories) return;
+    if (!posts?.length) {
+      (async () => {
+        const supabase = createClient();
+        const { data } = await getClientSidebarPublishedPosts(supabase);
+        setPosts(data);
+      })();
+    }
+  }, [posts, setPosts]);
+
+  useEffect(() => {
+    if (!categories || !posts?.length) return;
     let selectedCategoryId = categories[0]?.id ?? null;
 
     if (postByUrl) {
@@ -136,10 +146,12 @@ export default function SidebarHydrator() {
   }, [
     categories,
     postByUrl,
+    posts?.length,
     setCategory,
     setLoaded,
     setOpenCategory,
     setPost,
+    setPosts,
     setSubcategory,
   ]);
 

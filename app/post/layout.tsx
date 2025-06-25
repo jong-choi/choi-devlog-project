@@ -1,7 +1,4 @@
-import {
-  getSidebarPublishedPosts,
-  getSidebarCategory,
-} from "@/app/post/fetchers";
+import { getSidebarCategory } from "@/app/post/fetchers";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
@@ -16,12 +13,10 @@ export default async function PostRootLayout({
 }: PostRootLayoutProps) {
   const { data } = await getSidebarCategory();
   const categories = data || [];
-  const { data: PostsData } = await getSidebarPublishedPosts();
-  const posts = PostsData || [];
 
   return (
     <LayoutStoreProvider>
-      <PostSidebarWrapper categories={categories} posts={posts}>
+      <PostSidebarWrapper categories={categories}>
         <div className="flex h-screen">
           <Sidebar />
           <SidebarHydrator />
