@@ -1,8 +1,4 @@
-import {
-  getClusterData,
-  getClusterSimData,
-  getClusterWithPostsById,
-} from "@/app/map/fetchers";
+import { getClusterData, getClusterWithPostsById } from "@/app/map/fetchers";
 import ClusterGraphApp from "@/components/cluster/graph/cluster-graph-app";
 import { ClusterHeaderBar } from "@/components/cluster/posts/cluster-header-bar";
 import ClusterPostList from "@/components/cluster/posts/cluster-post-list";
@@ -20,7 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const { data: clusterData } = await getClusterData();
-  const { data: clusterSimData } = await getClusterSimData();
   const { data: postListData } = await getClusterWithPostsById(
     (clusterData && clusterData[0].id) || ""
   );
@@ -36,10 +31,7 @@ export default async function Page() {
         }}
       >
         <aside className="absolute inset-0 w-full z-0">
-          <ClusterGraphApp
-            nodes={clusterData || []}
-            rawLinks={clusterSimData || []}
-          />
+          <ClusterGraphApp nodes={clusterData || []} />
         </aside>
         <div className="relative flex-1 flex w-full pt-[40vh] md:pt-0 md:w-1/2  min-h-0 self-end xl:mr-52">
           <div className="w-full flex py-4">

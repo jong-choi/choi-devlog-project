@@ -49,3 +49,10 @@ export const getClusterWithPostsById = async (id: string) =>
     tags: ["clusters_with_published_posts", CACHE_TAGS.CLUSTER.BY_ID(id)],
     revalidate: 60 * 60 * 24 * 30,
   });
+
+export const getClusterJSDOM = async () =>
+  fetchWithCache<{ html: string; error?: string }>({
+    endpoint: ENDPOINT.map.clusterJSDOM,
+    tags: [CACHE_TAGS.CLUSTER.ALL()],
+    revalidate: 60 * 60 * 24 * 30,
+  });

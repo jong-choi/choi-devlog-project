@@ -88,6 +88,7 @@ export const ENDPOINT = {
   map: {
     clusterData: "/api/map/clusters",
     clusterSimData: "/api/map/similarities",
+    clusterJSDOM: "/api/map/jsdom",
     clusterWithPostsById: "/api/map/clusters/posts",
   },
   posts: {
