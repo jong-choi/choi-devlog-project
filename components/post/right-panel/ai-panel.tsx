@@ -11,13 +11,9 @@ import { toast } from "sonner";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import AIModeButton from "@/components/post/right-panel/ai-mode-button";
 import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
-import { simsToPosts } from "@/utils/uploadingUtils";
 import { useShallow } from "zustand/react/shallow";
 import { createAISummary, createTagsByPostId } from "@/app/post/actions";
-import {
-  getRecommendedListByPostId,
-  revalidateAIAummaryByPostId,
-} from "@/app/post/fetchers";
+import { revalidateAIAummaryByPostId } from "@/app/post/fetchers";
 
 export default function AIPanel() {
   const {

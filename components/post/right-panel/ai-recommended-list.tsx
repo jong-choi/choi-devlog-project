@@ -66,6 +66,7 @@ export default function AiRecommendedList({
       const { data: postsData } = await getRecommendedListByPostId(postId);
       setRecommendedPosts(simsToPosts(postsData || []));
     } catch (error) {
+      console.error(error);
       toast.error("추천 게시글 분석에 실패했습니다.");
     } finally {
       setIsLoading(false);

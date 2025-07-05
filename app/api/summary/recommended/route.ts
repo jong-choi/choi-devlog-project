@@ -18,12 +18,6 @@ export async function POST(req: Request) {
   try {
     const { postId } = await req.json();
 
-    // 데이터가 있는지 확인
-    const { data: recommendedData } = await supabase
-      .from("post_similarities")
-      .select("*")
-      .eq("source_post_id", postId);
-
     const { data: sourceNestedData } = await supabase
       .from("ai_summaries")
       .select(
