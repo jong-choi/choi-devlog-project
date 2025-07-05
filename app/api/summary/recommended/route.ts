@@ -6,8 +6,9 @@ export async function POST(req: Request) {
   const cookiesStore = await cookies();
   const supabase = await createClient(cookiesStore);
   const user = await supabase.auth.getUser();
+
   if (!user.data) {
-    console.error("로그인되지 않은 사용자:");
+    console.error("로그인되지 않은 사용자");
     return NextResponse.json(
       { error: "사용자 정보 불러오기 실패" },
       { status: 500 }
@@ -22,13 +23,6 @@ export async function POST(req: Request) {
       .from("post_similarities")
       .select("*")
       .eq("source_post_id", postId);
-
-    if (recommendedData && recommendedData.length) {
-      return NextResponse.json({
-        message: "이미 추천 게시글 데이터가 있습니다",
-        data: recommendedData,
-      });
-    }
 
     const { data: sourceNestedData } = await supabase
       .from("ai_summaries")
@@ -51,6 +45,7 @@ export async function POST(req: Request) {
 
     // AI 요약이 없는 상황
     if (!sourceNestedData) {
+      console.error("AI 요약 데이터가 없음");
       return NextResponse.json(
         { error: "AI 요약을 먼저 생성하세요." },
         { status: 500 }
@@ -83,6 +78,7 @@ export async function POST(req: Request) {
       .or("is_private.is.null,is_private.eq.false", { foreignTable: "posts" });
 
     if (!targetNestedata) {
+      console.error("타겟 AI 요약 데이터 조회 실패");
       return NextResponse.json(
         { error: "요약 목록를 불러오는데 오류가 발생하였습니다." },
         { status: 500 }
@@ -100,12 +96,28 @@ export async function POST(req: Request) {
     // @ts-expect-error: Supabase가 posts 데이터를 배열로 반환하는 경우가 있어서 첫 번째 요소를 사용
     const sims = findTopSimilarPosts(sourceData, targetData);
 
-    const { data } = await supabase
+    if (!sims || sims.length === 0) {
+      console.error("유사도 계산 결과가 비어있음");
+      return NextResponse.json(
+        { error: "유사한 계산을 할 수 없습니다." },
+        { status: 500 }
+      );
+    }
+
+    const { data, error } = await supabase
       .from("post_similarities")
       .upsert(sims, {
         onConflict: "source_post_id, target_post_id",
       })
       .select();
+
+    if (error) {
+      console.error("DB 저장 오류:", error);
+      return NextResponse.json(
+        { error: "추천 게시글 저장 중 오류가 발생하였습니다." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       message: "추천 게시글을 생성하였습니다",

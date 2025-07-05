@@ -26,7 +26,6 @@ export default function AIPanel() {
     recommendedPosts,
     setSummary,
     setSummaryId,
-    setRecommendedPosts,
     isLoading,
     setIsLoading,
   } = useSummary(
@@ -36,7 +35,6 @@ export default function AIPanel() {
       recommendedPosts: state.recommendedPosts,
       setSummary: state.setSummary,
       setSummaryId: state.setSummaryId,
-      setRecommendedPosts: state.setRecommendedPosts,
       isLoading: state.loading,
       setIsLoading: state.setLoading,
     }))
@@ -133,15 +131,6 @@ export default function AIPanel() {
       return setIsLoading(false);
     }
 
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/summary/recommended`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ postId }),
-    }).then(() => toast.success("추천 게시글 분석이 완료되었습니다."));
-    const { data: postsData } = await getRecommendedListByPostId(postId);
-    setRecommendedPosts(simsToPosts(postsData || []));
     setSummary(AIData.summary);
     setSummaryId(AIData!.id);
 
@@ -184,7 +173,11 @@ export default function AIPanel() {
           <AiMarkdownWrapper>{summary}</AiMarkdownWrapper>
         )}
         {rightPanelMode === "recommend" && (
-          <AiRecommendedList posts={recommendedPosts} />
+          <AiRecommendedList
+            posts={recommendedPosts}
+            isSummary={!!summary}
+            postId={postId}
+          />
         )}
       </section>
     </MainContainer>
