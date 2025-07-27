@@ -9,15 +9,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@ui/carousel";
+import { LinkLoader } from "@ui/route-loader";
 import { ClockFading } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function SeriesCarousel({
   seriesList,
-  setSeries,
 }: {
   seriesList: Series[];
-  setSeries?: (series: Series) => void;
 }) {
   return (
     <div className="w-full flex flex-col">
@@ -31,7 +31,7 @@ export default function SeriesCarousel({
             >
               <div
                 className="cursor-pointer"
-                onClick={() => setSeries && setSeries(series)}
+                // onClick={() => setSeries && setSeries(series)}
               >
                 <SeriesCard series={series} index={index} />
               </div>
@@ -52,41 +52,114 @@ export const SeriesCard = ({
 }: {
   series: Series;
   index: number;
-}) => (
-  <div className="relative h-48 w-48 flex-shrink-0 overflow-hidden shadow-glass">
-    {series.thumbnail && (
-      <Image
-        src={series.thumbnail}
-        alt={series.name!}
-        sizes="192px"
-        fill
-        className="object-cover"
-        priority={index <= 3}
-      />
-    )}
+}) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleClick = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  return (
     <div
-      className={cn(
-        "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/50 to-black/90  p-4 text-white break-keep",
-        !series.thumbnail && "bg-slate-300 dark:bg-slate-700 text-color-base"
-      )}
+      className="relative h-48 w-48 flex-shrink-0 cursor-pointer perspective-1000"
+      onClick={handleClick}
     >
-      <h3 className="font-bold text-lg line-clamp-2 mb-auto">{series.name}</h3>
-      <div className="w-full flex flex-col items-end">
-        {series.post_count && (
-          <div className="flex gap-1 text-sm text-zinc-200">
-            <span>{series.post_count}개의 게시글</span>
-            <span></span>
-          </div>
+      <div
+        className={cn(
+          "relative w-full h-full transition-transform duration-700 transform-style-preserve-3d",
+          isFlipped && "rotate-y-180"
         )}
-        {series.latest_post_date && (
-          <div className="flex gap-1 text-sm text-zinc-200 mt-1 items-center">
-            <ClockFading size={14} />
-            <span>
-              {formatKoreanDate(series.latest_post_date || "").split(" ")[0]}
-            </span>
+      >
+        {/* 앞면 */}
+        <div className="absolute inset-0 backface-hidden">
+          <div className="relative h-full w-full overflow-hidden shadow-glass">
+            {series.thumbnail && (
+              <Image
+                src={series.thumbnail}
+                alt={series.name!}
+                sizes="192px"
+                fill
+                className="object-cover"
+                priority={index <= 3}
+              />
+            )}
+            <div
+              className={cn(
+                "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/50 to-black/90 p-4 text-white break-keep",
+                !series.thumbnail &&
+                  "bg-slate-300 dark:bg-slate-700 text-color-base"
+              )}
+            >
+              <h3 className="font-bold text-lg line-clamp-2 mb-auto">
+                {series.name}
+              </h3>
+              <div className="w-full flex flex-col items-end">
+                {series.post_count && (
+                  <div className="flex gap-1 text-sm text-zinc-200">
+                    <span>{series.post_count}개의 게시글</span>
+                    <span></span>
+                  </div>
+                )}
+                {series.latest_post_date && (
+                  <div className="flex gap-1 text-sm text-zinc-200 mt-1 items-center">
+                    <ClockFading size={14} />
+                    <span>
+                      {
+                        formatKoreanDate(series.latest_post_date || "").split(
+                          " "
+                        )[0]
+                      }
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* 뒷면 */}
+        <div className="absolute inset-0 backface-hidden rotate-y-180">
+          <div className="relative h-full w-full overflow-hidden shadow-glass">
+            {series.thumbnail && (
+              <Image
+                src={series.thumbnail}
+                alt={series.name!}
+                sizes="192px"
+                fill
+                className="object-cover"
+                priority={index <= 3}
+              />
+            )}
+            <div
+              className={cn(
+                "absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-white/80 to-white/95 p-4 text-gray-800 break-keep",
+                !series.thumbnail &&
+                  "bg-slate-100 dark:bg-slate-200 text-gray-800"
+              )}
+            >
+              <div className="mb-auto">
+                <h3 className="font-bold text-lg line-clamp-2">
+                  {series.name}
+                </h3>
+                <div className="w-full flex flex-col items-start">
+                  {series.post_count && (
+                    <div className="flex gap-1 text-sm text-gray-600">
+                      <span className="line-clamp-4">{series.description}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="w-full flex flex-col items-end">
+                <LinkLoader href={"/series/" + series.url_slug} className="">
+                  <button className="w-full text-slate-700 border shadow-md border-blue-500/20 font-bold bg-blue-50 hover:bg-blue-100 transition-colors duration-300 px-3 py-1 text-sm">
+                    보러 가기
+                  </button>
+                </LinkLoader>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

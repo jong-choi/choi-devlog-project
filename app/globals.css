@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 3D 카드 뒤집기 애니메이션 */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
 body {
   font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica,
     Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
