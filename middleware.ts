@@ -4,6 +4,7 @@ import { updateSession } from "@/utils/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const allowedOrigins = [
     "http://localhost:3000",
+    "https://blog.jongchoi.com",
     "https://devlog.me.uk",
     "https://choi-devlog-project.vercel.app",
   ];
