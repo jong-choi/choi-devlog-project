@@ -11,19 +11,28 @@ import {
   getClientSidebarPrivatePosts,
   getClientSidebarPublishedPosts,
 } from "@/app/post/fetchers/client/sidebar";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function SidebarHydrator() {
   const params = useParams();
   const rawSlug = params?.urlSlug;
   const urlSlug =
     typeof rawSlug === "string" ? decodeURIComponent(rawSlug) : "";
+
+  const { postsPending, setPostsPending, setMobileClosed } = useLayoutStore(
+    useShallow((state) => ({
+      postsPending: state.postsPending,
+      setPostsPending: state.setPostsPending,
+      setMobileClosed: state.setMobileClosed,
+    }))
+  );
+
   const {
     categories,
     posts,
     postByUrl,
     publishedPostsLength,
     categoriesPending,
-    postsPending,
     setCategory,
     setCategories,
     setSubcategory,
@@ -31,9 +40,7 @@ export default function SidebarHydrator() {
     setPosts,
     setOpenCategory,
     setLoaded,
-    setMobileClosed,
     setCategoriesPending,
-    setPostsPending,
   } = useSidebarStore(
     useShallow((state) => ({
       categories: state.categories,
@@ -44,7 +51,6 @@ export default function SidebarHydrator() {
         (post) => post.url_slug === decodeURIComponent(urlSlug)
       ),
       categoriesPending: state.categoriesPending,
-      postsPending: state.postsPending,
       setCategory: state.setCategory,
       setCategories: state.setCategories,
       setSubcategory: state.setSubcategory,
@@ -52,9 +58,7 @@ export default function SidebarHydrator() {
       setPosts: state.setPosts,
       setOpenCategory: state.setOpenCategory,
       setLoaded: state.setLoaded,
-      setMobileClosed: state.setMobileClosed,
       setCategoriesPending: state.setCategoriesPending,
-      setPostsPending: state.setPostsPending,
     }))
   );
   const { uid } = useAuthStore(

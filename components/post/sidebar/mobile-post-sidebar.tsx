@@ -22,27 +22,29 @@ export function MobilePostSidebar({
   posts: Post[];
   categories: Category[];
 }) {
-  const setSidebarRightCollapsed = useLayoutStore(
-    (state) => state.setSidebarRightCollapsed
-  );
-
   const {
     selectedSubcategoryId,
     selectedSubcategoryName,
     selectedPostId,
-    mobileOpen,
     setSubcategory,
-    toggleMobileOpen,
   } = useSidebarStore(
     useShallow((state) => ({
       selectedSubcategoryId: state.selectedSubcategoryId,
       selectedSubcategoryName: state.selectedSubcategoryName,
       selectedPostId: state.selectedPostId,
-      mobileOpen: state.mobileOpen,
       setSubcategory: state.setSubcategory,
-      toggleMobileOpen: state.toggleMobileOpen,
     }))
   );
+
+  const { mobileOpen, toggleMobileOpen, setSidebarRightCollapsed } =
+    useLayoutStore(
+      useShallow((state) => ({
+        mobileOpen: state.mobileOpen,
+        toggleMobileOpen: state.toggleMobileOpen,
+        setSidebarRightCollapsed: state.setSidebarRightCollapsed,
+      }))
+    );
+
   return (
     <div
       className={cn(

@@ -6,6 +6,7 @@ import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { UpdateOrdersPayload } from "@/app/post/actions/sidebar";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { useShallow } from "zustand/react/shallow";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export type OnUpdateFn<T extends SortableItem> = (
   changedItems: T[]
@@ -15,10 +16,16 @@ export const useOrderUpdateQueue = <T extends SortableItem>(
   onUpdate?: OnUpdateFn<T>
 ) => {
   const queueRef = useRef(new Map<string, T>());
-  const { setPostsPending, setCategoriesPending } = useSidebarStore(
+
+  const { setCategoriesPending } = useSidebarStore(
+    useShallow((state) => ({
+      setCategoriesPending: state.setCategoriesPending,
+    }))
+  );
+
+  const { setPostsPending } = useLayoutStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
-      setCategoriesPending: state.setCategoriesPending,
     }))
   );
 

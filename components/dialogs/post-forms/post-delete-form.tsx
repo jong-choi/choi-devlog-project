@@ -11,6 +11,7 @@ import { useShallow } from "zustand/react/shallow";
 import notSavedToast from "@/utils/not-saved-toast";
 import { useAuthStore } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export default function PostDeleteForm({
   post,
@@ -21,11 +22,15 @@ export default function PostDeleteForm({
 }) {
   const [confirmText, setConfirmText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const { setPostsPending, selectedPostId, posts } = useSidebarStore(
+  const { selectedPostId, posts } = useSidebarStore(
     useShallow((state) => ({
-      setPostsPending: state.setPostsPending,
       posts: state.posts,
       selectedPostId: state.selectedPostId,
+    }))
+  );
+  const { setPostsPending } = useLayoutStore(
+    useShallow((state) => ({
+      setPostsPending: state.setPostsPending,
     }))
   );
   const router = useRouter();

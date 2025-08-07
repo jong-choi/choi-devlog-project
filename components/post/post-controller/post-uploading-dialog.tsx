@@ -21,7 +21,7 @@ import { createPost, updatePost } from "@/app/post/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export function UploadingDialogTrigger() {
   const {
@@ -48,7 +48,7 @@ export function UploadingDialogTrigger() {
     }))
   );
 
-  const { setPostsPending } = useSidebarStore(
+  const { setPostsPending } = useLayoutStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
     }))

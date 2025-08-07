@@ -10,6 +10,8 @@ export interface LayoutState {
   isRawOn: boolean;
   isSortable: boolean;
   isMounted: boolean;
+  postsPending: boolean;
+  mobileOpen: boolean;
   setSidebarLeftCollapsed: (state: boolean) => void;
   setSidebarRightCollapsed: (state: boolean) => void;
   setRightPanelOpen: (open: boolean) => void;
@@ -18,6 +20,9 @@ export interface LayoutState {
   setIsMilkdown: (value: boolean) => void;
   setIsRaw: (value: boolean) => void;
   toggleIsSortable: () => void;
+  setPostsPending: (state: boolean) => void;
+  toggleMobileOpen: () => void;
+  setMobileClosed: () => void;
 }
 
 export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
@@ -31,6 +36,8 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
     isRawOn: false,
     isSortable: false,
     isMounted: false,
+    postsPending: false,
+    mobileOpen: false,
     setSidebarLeftCollapsed: (state) => set({ sidebarLeftCollapsed: state }),
     setSidebarRightCollapsed: (state) => set({ sidebarRightCollapsed: state }),
     setRightPanelOpen: (open) => set({ rightPanelOpen: open }),
@@ -48,5 +55,8 @@ export const createLayoutStore = (initialState?: Partial<LayoutState>) =>
       set((state) => {
         return { isSortable: !state.isSortable };
       }),
+    setPostsPending: (state) => set({ postsPending: state }),
+    toggleMobileOpen: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
+    setMobileClosed: () => set({ mobileOpen: false }),
     ...initialState, // 초기값 덮어쓰기
   }));

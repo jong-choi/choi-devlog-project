@@ -1,5 +1,6 @@
 import { updatePost } from "@/app/post/actions";
 import { useAuthStore } from "@/providers/auth-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { Post } from "@/types/post";
 import notSavedToast from "@/utils/not-saved-toast";
@@ -28,7 +29,7 @@ export default function PostUpdateForm({
   post: Post;
   onClose: () => void;
 }) {
-  const { setPostsPending } = useSidebarStore(
+  const { setPostsPending } = useLayoutStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
     }))

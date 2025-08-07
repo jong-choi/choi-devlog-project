@@ -1,21 +1,24 @@
+import {
+  getSidebarCategory,
+  getSidebarPublishedPosts,
+} from "@/app/post/fetchers";
 import { SidebarState } from "@/hooks/zustand/use-sidebar-store";
 import { SidebarStoreProvider } from "@/providers/sidebar-store-provider";
-import { Category } from "@/types/post";
 
 interface PostSidebarProps {
-  categories: Category[];
   children: React.ReactNode;
 }
 
 export default async function PostSidebarWrapper({
-  categories,
   children,
 }: PostSidebarProps) {
-  const initialState: Partial<SidebarState> = {
-    categories: categories,
-    posts: [],
-  };
+  const { data: categories } = await getSidebarCategory();
+  const { data: posts } = await getSidebarPublishedPosts();
 
+  const initialState: Partial<SidebarState> = {
+    posts: posts || [],
+    categories: categories || [],
+  };
   return (
     <SidebarStoreProvider initialState={initialState}>
       {children}

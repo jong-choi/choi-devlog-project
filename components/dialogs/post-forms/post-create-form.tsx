@@ -24,19 +24,21 @@ import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 
 export default function PostCreateForm({ onClose }: { onClose: () => void }) {
-  const { selectedSubcategoryId, setPostsPending } = useSidebarStore(
+  const { selectedSubcategoryId } = useSidebarStore(
     useShallow((state) => ({
       selectedSubcategoryId: state.selectedSubcategoryId,
-      setPostsPending: state.setPostsPending,
     }))
   );
-  const { isEditMode, setIsEditMode, setIsMilkdown } = useLayoutStore(
-    useShallow((state) => ({
-      isEditMode: state.isEditMode,
-      setIsEditMode: state.setIsEditMode,
-      setIsMilkdown: state.setIsMilkdown,
-    }))
-  );
+
+  const { isEditMode, setIsEditMode, setIsMilkdown, setPostsPending } =
+    useLayoutStore(
+      useShallow((state) => ({
+        isEditMode: state.isEditMode,
+        setIsEditMode: state.setIsEditMode,
+        setIsMilkdown: state.setIsMilkdown,
+        setPostsPending: state.setPostsPending,
+      }))
+    );
   const [title, setTitle] = useState<string>("");
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const [urlSlug, setUrlSlug] = useState<string>("");
