@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@next/bundle-analyzer": "^15.4.5",
+    "@next/bundle-analyzer": "^15.4.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/d3": "^7.4.3",
