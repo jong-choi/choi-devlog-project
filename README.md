@@ -11,6 +11,7 @@ URL : [devlog.me.uk](https://devlog.me.uk/)\
 
 프로젝트 시작일 : 2025.03.12\
 프로젝트 1차 배포 : 2025.05.07
+프로젝트 자체 호스팅 : 2025.08.10 (VPS : Oracle Cloud Infrastructure)
 
 ## 프로젝트 목표
 
@@ -80,3 +81,13 @@ URL : [devlog.me.uk](https://devlog.me.uk/)\
 
 - 게시글 페이지를 왼쪽에 게시글 목록(SNB) / 가운데에 게시글 / 오른쪽엔 인공지능 요약 패널(Aside)의 3단 레이아웃으로 구성하였다.
 - 양측 사이드를 반투명한 패널로하여 Glassmorphism으로 구현하였고, Frosted Glass를 강조하기 위해 배경에는 움직이는 도형을 추가하였다.
+
+## 배포
+
+![원격 배포 이미지](/public/remote-deploy.png)
+
+- 배포는 GitHub Actions를 이용한 SSH 원격 배포 방식을 적용하였다.
+- 이와 같은 방식의 이점은
+  1. Webhook이나 Jenkins를 사용하는 방식과 달리 별도의 서버가 필요없고, GitHub 레포지토리 내에서 환경변수 등을 관리할 수 있어 간편하다.
+  2. 일반적인 GitHub Actions의 Hosted-Runner보다 빠른 속도로 빌드를 진행할 수 있다.(Oracle Cloud Infrastructure의 무료 인스턴스는 GitHub Actions 무료 플랜보다 성능이 좋음 / 캐시된 npm 패키지가 서버에 남아있어 패키지 설치 시간 절감 / Docker 이미지를 업로드하거나 다운로드하는 시간 절감 + 서버 비용 감소)
+  3. Blue/Green 배포 패턴 등 로드 밸런싱이 필요한 작업들은 VPS와 Nginx에서 처리해야 하는 경우가 많다. 따라서 GitHub Actions의 러너는 최소한의 작업만 하고, 나머지는 VPS에서 처리하는 것이 유지보수와 확장면에서 편리하다.
