@@ -1,0 +1,31 @@
+# Docker Compose 프로덕션 설정 파일
+# 이 파일은 Next.js 애플리케이션을 프로덕션 환경에서 실행하기 위한 설정입니다.
+
+services:
+  blog-app:
+    container_name: blog-app
+    build:
+      context: .
+      dockerfile: prod.Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+        NEXT_PUBLIC_AUTH_REDIRECT_TO: ${NEXT_PUBLIC_AUTH_REDIRECT_TO}
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+        LOGIN_PIN_NUMBER: ${LOGIN_PIN_NUMBER}
+        NEXT_PUBLIC_VALID_EMAIL_CONFIRMED_AT: ${NEXT_PUBLIC_VALID_EMAIL_CONFIRMED_AT}
+        VALID_USER_CREATED_AT: ${VALID_USER_CREATED_AT}
+
+    restart: always
+
+    ports:
+      - 3031:3000
+
+    networks:
+      - npm-network
+
+networks:
+  npm-network:
+    external: true

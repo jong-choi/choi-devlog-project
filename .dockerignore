@@ -1,0 +1,14 @@
+# 빌드에 불필요한 파일들 제외
+.git/
+.gitignore
+.github/
+.vscode/
+__test__/
+README.md
+compose.prod.yaml
+prod.Dockerfile
+eslint.config.mjs
+vitest.config.mts
+.env
+.next/
+# node_modules는 package manager로 설치하므로 제외하지 않음

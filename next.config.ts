@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
   },
+  output: "standalone",
 };
 
 export default withBundleAnalyzer(nextConfig);
