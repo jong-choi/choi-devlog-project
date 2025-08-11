@@ -11,4 +11,4 @@ eslint.config.mjs
 vitest.config.mts
 .env
 .next/
-# node_modules는 package manager로 설치하므로 제외하지 않음
+node_modules/
