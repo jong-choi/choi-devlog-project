@@ -9,7 +9,9 @@ import { RouteLoadingProvider } from "@/providers/route-loading-provider";
 import { RouteLoader } from "@ui/route-loader";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://choi-devlog-project.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://blog.jongchoi.com"
+  ),
   title: {
     default: "Scribbly",
     template: "Scribbly | %s",
