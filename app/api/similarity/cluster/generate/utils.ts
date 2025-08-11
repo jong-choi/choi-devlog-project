@@ -55,7 +55,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-1106-preview",
+      model: "gpt-4o-2024-11-20",
       messages: [
         {
           role: "system",

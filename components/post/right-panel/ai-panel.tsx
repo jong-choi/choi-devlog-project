@@ -151,7 +151,9 @@ export default function AIPanel() {
         onClick={onClick}
         variant="outline"
         size="sm"
-        className={cn(summaryId || isLoading ? "hidden" : "h-fit py-0.5")}
+        className={cn(
+          (summaryId && !isValid) || isLoading ? "hidden" : "h-fit py-0.5"
+        )}
       >
         AI 요약 생성하기
       </Button>
