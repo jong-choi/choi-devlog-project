@@ -1,5 +1,5 @@
 import { checkpointer } from "@/app/api/chat/_controllers/graph/graph";
-import { sessionStore } from "@/app/api/chat/_controllers/utils/sessionStore";
+import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function handleDelete(_request: NextRequest, sessionId: string) {

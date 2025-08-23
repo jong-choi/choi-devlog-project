@@ -11,4 +11,8 @@ export const LangNodeName = {
   blog: "blogSearchNode",
 } as const;
 
-export type LangNodeKeys = keyof typeof LangNodeName | "";
+export type LangNodeKeys =
+  | keyof typeof LangNodeName
+  | ""
+  | "summary"
+  | "recomment";

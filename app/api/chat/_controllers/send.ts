@@ -1,5 +1,5 @@
 import { LangNodeKeys } from "@/app/api/chat/_controllers/types/chat";
-import { sessionStore } from "@/app/api/chat/_controllers/utils/sessionStore";
+import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 import { HumanMessage } from "@langchain/core/messages";
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
