@@ -8,11 +8,10 @@ export const LangNodeName = {
   decision: "decisionNode",
   chat: "chatNode",
   google: "googleNode",
-  blog: "blogSearchNode",
 } as const;
 
 export type LangNodeKeys =
   | keyof typeof LangNodeName
   | ""
   | "summary"
-  | "recomment";
+  | "recommend";

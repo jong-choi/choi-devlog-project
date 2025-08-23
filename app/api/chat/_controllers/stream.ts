@@ -41,8 +41,12 @@ export async function handleStream(request: NextRequest, sessionId: string) {
         const encoder = new TextEncoder();
         const app = buildGraph();
 
+        console.log(inputs.routeType);
         // 1) summary 라우트: 즉시 사용자에게 이벤트 전송
-        if (inputs.routeType === "summary" || "recommend") {
+        if (
+          inputs.routeType === "summary" ||
+          inputs.routeType === "recommend"
+        ) {
           try {
             // 1) DB에서 결과 조회 (요구사항에 맞게 구현)
             const content = "임의의 문자열";
@@ -64,6 +68,13 @@ export async function handleStream(request: NextRequest, sessionId: string) {
           } finally {
             controller.close();
           }
+          return new Response(stream, {
+            headers: {
+              "Content-Type": "text/event-stream",
+              "Cache-Control": "no-cache",
+              Connection: "keep-alive",
+            },
+          });
         }
 
         try {

@@ -34,7 +34,7 @@ export function buildGraph() {
     new StateGraph(SessionMessagesAnnotation)
       // decision: chat | google | END 로만 이동
       .addNode(LangNodeName.decision, decisionNode, {
-        ends: [LangNodeName.chat, LangNodeName.google, LangNodeName.blog, END],
+        ends: [LangNodeName.chat, LangNodeName.google, END],
       })
       // chat/google: 처리 후 decision으로 복귀
       .addNode(LangNodeName.chat, chatNode, { ends: [LangNodeName.decision] })
