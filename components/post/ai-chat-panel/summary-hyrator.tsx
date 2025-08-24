@@ -1,8 +1,9 @@
 "use client";
-import { useSummary } from "@/providers/summary-store-provider";
-import { Database } from "@/types/supabase";
+
 import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { useSummary } from "@/providers/summary-store-provider";
+import { Database } from "@/types/supabase";
 
 interface ChatHeaderProps {
   summary: string;
@@ -12,7 +13,7 @@ interface ChatHeaderProps {
   postId: string;
 }
 
-export function SummaryHydrator({
+export default function SummaryHydrator({
   summary,
   recommendedPosts,
   postId,
@@ -24,7 +25,7 @@ export function SummaryHydrator({
         setSummaryId: state.setSummaryId,
         setRecommended: state.setRecommendedPosts,
       };
-    })
+    }),
   );
 
   useEffect(() => {

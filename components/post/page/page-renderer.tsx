@@ -1,22 +1,22 @@
-import { Separator } from "@radix-ui/react-separator";
-import MarkdownEditor from "@/components/markdown/markdown-editor";
-import { SidebarTrigger } from "@ui/sidebar-trigger";
-import PostBreadcrumb from "@/components/post/post-breadcrumb";
-import TitleEditor from "@/components/post/title-editor";
+import { Lock } from "lucide-react";
 import {
   getAISummaryByPostId,
   getRecommendedListByPostId,
   getSidebarCategory,
 } from "@/app/post/fetchers";
-import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
-import AutosaveApp from "@/components/post/autosave/autosave-app";
+import MarkdownEditor from "@/components/markdown/markdown-editor";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
-import { formatKoreanDate } from "@/lib/date";
-import MainPostSectionContainer from "@/components/post/main-post-section-container";
-import { Lock } from "lucide-react";
+import SummaryHydrator from "@/components/post/ai-chat-panel/summary-hyrator";
 import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
+import AutosaveApp from "@/components/post/autosave/autosave-app";
+import MainPostSectionContainer from "@/components/post/main-post-section-container";
+import PostBreadcrumb from "@/components/post/post-breadcrumb";
+import TitleEditor from "@/components/post/title-editor";
+import { formatKoreanDate } from "@/lib/date";
 import { Database } from "@/types/supabase";
-import { SummaryHydrator } from "@/components/post/ai-chat-panel/summary-hyrator";
+import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
+import { Separator } from "@radix-ui/react-separator";
+import { SidebarTrigger } from "@ui/sidebar-trigger";
 
 interface PageProps {
   data: Database["public"]["Tables"]["posts"]["Row"];
@@ -26,7 +26,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
   const { data: categoryData } = await getSidebarCategory();
   const { category, subcategory } = findCategoryAndSubcategoryById(
     categoryData,
-    data.subcategory_id
+    data.subcategory_id,
   );
 
   const { data: summaryData } = await getAISummaryByPostId(data.id);

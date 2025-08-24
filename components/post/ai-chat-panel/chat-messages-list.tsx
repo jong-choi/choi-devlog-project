@@ -1,12 +1,10 @@
 import { useEffect, useRef } from "react";
-import React from "react";
-import { ChatMessageComponent } from "./chat-message";
-import { useChatStore } from "@/providers/chat-store-provider";
-import { useShallow } from "zustand/react/shallow";
 import { Loader2 } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
+import ChatMessageComponent from "@/components/post/ai-chat-panel/chat-message";
+import { useChatStore } from "@/providers/chat-store-provider";
 
-export const ChatMessagesList = React.memo(() => {
-  // 전역 상태에서 직접 구독 (props drilling 제거)
+export default function ChatMessagesList() {
   const messages = useChatStore(useShallow((state) => state.messages));
   const listRef = useRef<HTMLDivElement | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -54,6 +52,4 @@ export const ChatMessagesList = React.memo(() => {
       </div>
     </div>
   );
-});
-
-ChatMessagesList.displayName = "ChatMessagesList";
+}

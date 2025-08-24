@@ -1,19 +1,26 @@
 import { useMemo } from "react";
-import { useChatStore } from "@/providers/chat-store-provider";
 import { useShallow } from "zustand/react/shallow";
-import { useSummary } from "@/providers/summary-store-provider";
 import { useChatSession } from "@/hooks/use-chat-session";
+import { cn } from "@/lib/utils";
+import { useChatStore } from "@/providers/chat-store-provider";
+import { useSummary } from "@/providers/summary-store-provider";
 
-export default function ChatFloatingButtons() {
+interface ChatFloatingButtonsProps {
+  isLoading: boolean;
+}
+
+export default function ChatFloatingButtons({
+  isLoading,
+}: ChatFloatingButtonsProps) {
   const { addMessage } = useChatStore(
     useShallow((state) => ({
       addMessage: state.addMessage,
-    }))
+    })),
   );
   const { ensureSession, syncToServer } = useChatSession();
 
   const recommendedPosts = useSummary(
-    useShallow((state) => state.recommendedPosts)
+    useShallow((state) => state.recommendedPosts),
   );
   const isRecommendedPosts = !!recommendedPosts.length;
 
@@ -49,10 +56,16 @@ export default function ChatFloatingButtons() {
   };
 
   return (
-    <div className="absolute -top-10 left-0 px-6 flex gap-2">
+    <div
+      className={cn(
+        "absolute -top-10 left-0 px-6 flex gap-2",
+        isLoading && "hidden",
+      )}
+    >
       {isRecommendedPosts && (
         <button
           onClick={onRecommendClick}
+          disabled={isLoading}
           className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-color-muted/50 text-neutral-600 text-xs font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-200 whitespace-nowrap dark:bg-neutral-800/30 dark:hover:bg-neutral-800/50 dark:text-neutral-300 disabled:opacity-50"
         >
           연관 게시물 추천해줘

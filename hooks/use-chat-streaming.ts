@@ -1,11 +1,11 @@
-import { useRef, useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
-import { useChatStore } from "@/providers/chat-store-provider";
-import { useChunkProcessor } from "@/hooks/use-chunk-processor";
 import { useChatSession } from "@/hooks/use-chat-session";
-import type { ChatEventPayload, MessageRequest } from "@/types/chat";
+import { useChunkProcessor } from "@/hooks/use-chunk-processor";
+import { useChatStore } from "@/providers/chat-store-provider";
 import { useSummary } from "@/providers/summary-store-provider";
+import type { ChatEventPayload, MessageRequest } from "@/types/chat";
 
 export function useChatStreaming() {
   const postId = useSummary((state) => state.summaryId);
@@ -14,7 +14,7 @@ export function useChatStreaming() {
       addMessage: state.addMessage,
       setIsLoading: state.setIsLoading,
       routeType: state.routeType,
-    }))
+    })),
   );
 
   const { ensureSession } = useChatSession();
@@ -22,6 +22,7 @@ export function useChatStreaming() {
     useChunkProcessor();
 
   const eventSourceRef = useRef<EventSource | null>(null);
+  const isResettingRef = useRef(false);
 
   // EventSource 연결 종료
   const closeStream = useCallback(() => {
@@ -32,8 +33,17 @@ export function useChatStreaming() {
     clearChunkQueue();
   }, [clearChunkQueue]);
 
+  // 강제 리셋 (resetSession에서 사용)
+  const forceReset = useCallback(() => {
+    isResettingRef.current = true;
+    closeStream();
+    setIsLoading(false);
+    isResettingRef.current = false;
+  }, [closeStream, setIsLoading]);
+
   // 어시스턴트 메시지 시작
   const handleStartAssistant = useCallback(() => {
+    if (isResettingRef.current) return;
     addMessage({
       id: crypto.randomUUID(),
       role: "assistant",
@@ -82,15 +92,27 @@ export function useChatStreaming() {
         // 이벤트 핸들러 설정
         es.onmessage = (evt) => {
           try {
+            // 리셋 중이거나 EventSource가 닫혔으면 무시
+            if (
+              isResettingRef.current ||
+              es.readyState === EventSource.CLOSED
+            ) {
+              return;
+            }
+
             const payload = JSON.parse(evt.data) as ChatEventPayload;
 
             if (payload.event === "on_chat_model_start") {
               handleStartAssistant();
             } else if (payload.event === "on_chat_model_stream") {
               const delta = payload?.chunk?.content ?? "";
-              if (delta) addChunkToQueue(delta);
+              if (delta && !isResettingRef.current) {
+                addChunkToQueue(delta);
+              }
             } else if (payload.event === "on_chat_model_end") {
-              finishStreaming();
+              if (!isResettingRef.current) {
+                finishStreaming();
+              }
               es.close();
               eventSourceRef.current = null;
             }
@@ -101,11 +123,13 @@ export function useChatStreaming() {
 
         // 에러 핸들러 설정
         es.onerror = () => {
-          setIsLoading(false);
+          if (!isResettingRef.current) {
+            setIsLoading(false);
+            toast.error("연결이 끊어졌습니다.");
+          }
           es.close();
           eventSourceRef.current = null;
           clearChunkQueue();
-          toast.error("연결이 끊어졌습니다.");
         };
       } catch (error) {
         setIsLoading(false);
@@ -124,11 +148,12 @@ export function useChatStreaming() {
       addChunkToQueue,
       finishStreaming,
       clearChunkQueue,
-    ]
+    ],
   );
 
   return {
     sendMessage,
     closeStream,
+    forceReset,
   };
 }

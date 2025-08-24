@@ -5,7 +5,10 @@ interface ChatHeaderProps {
   onTogglePanel: () => void;
 }
 
-export function ChatHeader({ rightPanelOpen, onTogglePanel }: ChatHeaderProps) {
+export default function ChatHeader({
+  rightPanelOpen,
+  onTogglePanel,
+}: ChatHeaderProps) {
   return (
     <div className="px-4 py-2 flex gap-5 items-center">
       <button

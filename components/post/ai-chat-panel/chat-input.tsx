@@ -1,15 +1,18 @@
 import { useCallback, useRef, useState } from "react";
+import { Loader2, Send } from "lucide-react";
 import { Button } from "@ui/button";
 import { Textarea } from "@ui/textarea";
 import { cn } from "@/lib/utils";
-import { Loader2, Send } from "lucide-react";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
 }
 
-export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
+export default function ChatInput({
+  onSendMessage,
+  isLoading,
+}: ChatInputProps) {
   const [hasText, setHasText] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const adjustTextareaHeight = useCallback(() => {
@@ -66,10 +69,9 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           className={cn(
             "min-h-[44px] resize-none rounded-xl border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 overflow-hidden",
             "placeholder:text-neutral-400 dark:placeholder:text-neutral-500 text-sm leading-6 text-neutral-900 dark:text-neutral-100",
-            "py-3 px-4 pr-12"
+            "py-3 px-4 pr-12",
           )}
           style={{ height: "auto" }}
-          disabled={isLoading}
           onKeyDown={handleKeyDown}
         />
         <Button
@@ -79,7 +81,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           className={cn(
             "absolute right-2 bottom-2 h-8 w-8 rounded-lg",
             "bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-600",
-            "transition-colors duration-200"
+            "transition-colors duration-200",
           )}
         >
           {isLoading ? (
