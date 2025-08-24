@@ -41,6 +41,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
       <SummaryHydrator
         summary={summaryData?.summary ?? ""}
         recommendedPosts={recommendedPosts ?? []}
+        postId={data.id}
       />
       <main
         id="메인레퍼"

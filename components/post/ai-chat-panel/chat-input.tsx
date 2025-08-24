@@ -12,7 +12,6 @@ interface ChatInputProps {
 export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   const [hasText, setHasText] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
   const adjustTextareaHeight = useCallback(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";

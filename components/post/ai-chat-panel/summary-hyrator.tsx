@@ -9,24 +9,28 @@ interface ChatHeaderProps {
   recommendedPosts: Array<
     Database["public"]["Views"]["post_similarities_with_target_info"]["Row"]
   >;
+  postId: string;
 }
 
 export function SummaryHydrator({
   summary,
   recommendedPosts,
+  postId,
 }: ChatHeaderProps) {
-  const { setSummary, setRecommended } = useSummary(
+  const { setSummary, setSummaryId, setRecommended } = useSummary(
     useShallow((state) => {
       return {
         setSummary: state.setSummary,
+        setSummaryId: state.setSummaryId,
         setRecommended: state.setRecommendedPosts,
       };
     })
   );
 
   useEffect(() => {
+    setSummaryId(postId);
     setSummary(summary);
-  }, [setSummary, summary]);
+  }, [postId, setSummary, setSummaryId, summary]);
 
   useEffect(() => {
     const recommended = recommendedPosts.map((sim) => {

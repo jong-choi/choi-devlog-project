@@ -21,6 +21,7 @@ export async function handleSend(request: NextRequest, sessionId: string) {
       state: {
         messages: [new HumanMessage(body.message)],
         routeType,
+        postId: body.postId,
       },
     });
 

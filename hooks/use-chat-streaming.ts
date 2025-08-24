@@ -5,8 +5,10 @@ import { useChatStore } from "@/providers/chat-store-provider";
 import { useChunkProcessor } from "@/hooks/use-chunk-processor";
 import { useChatSession } from "@/hooks/use-chat-session";
 import type { ChatEventPayload, MessageRequest } from "@/types/chat";
+import { useSummary } from "@/providers/summary-store-provider";
 
 export function useChatStreaming() {
+  const postId = useSummary((state) => state.summaryId);
   const { addMessage, setIsLoading, routeType } = useChatStore(
     useShallow((state) => ({
       addMessage: state.addMessage,
@@ -61,8 +63,9 @@ export function useChatStreaming() {
         const requestBody: MessageRequest = {
           message: message.trim(),
           type: routeType,
+          postId: postId || "",
         };
-        
+
         const res = await fetch(`/api/chat/${sessionId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -115,6 +118,7 @@ export function useChatStreaming() {
       addMessage,
       ensureSession,
       routeType,
+      postId,
       closeStream,
       handleStartAssistant,
       addChunkToQueue,

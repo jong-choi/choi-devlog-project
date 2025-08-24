@@ -49,6 +49,7 @@ export interface SessionErrorResponse {
 export interface MessageRequest {
   message: string;
   type: RouteType;
+  postId?: string;
 }
 
 // 메시지 전송 응답 타입

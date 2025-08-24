@@ -25,6 +25,11 @@ export const SessionMessagesAnnotation = Annotation.Root({
     default: () => "chat",
     reducer: (_, update) => update,
   }),
+  // 현재 게시글 ID
+  postId: Annotation<string | undefined>({
+    default: () => undefined,
+    reducer: (_, update) => update,
+  }),
 });
 
 export const checkpointer = new MemorySaver();
