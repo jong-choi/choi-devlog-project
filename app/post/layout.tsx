@@ -23,11 +23,11 @@ export default async function PostRootLayout({
         </PostSidebarWrapper>
         <SummaryProvider>
           {children}
-          <RightPanelWrapper>
-            <ChatStoreProvider>
+          <ChatStoreProvider>
+            <RightPanelWrapper>
               <AIChatPanel />
-            </ChatStoreProvider>
-          </RightPanelWrapper>
+            </RightPanelWrapper>
+          </ChatStoreProvider>
         </SummaryProvider>
       </div>
     </LayoutStoreProvider>

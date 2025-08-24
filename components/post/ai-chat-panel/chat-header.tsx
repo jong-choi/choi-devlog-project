@@ -14,10 +14,14 @@ export function ChatHeader({ rightPanelOpen, onTogglePanel }: ChatHeaderProps) {
       >
         {!rightPanelOpen ? "<" : ">"}
       </button>
-
-      <div className="flex items-center gap-2">
-        <MessageCircle className="w-4 h-4" />
-        <span className="text-sm font-semibold tracking-tight">AI 채팅</span>
+      <div className="flex flex-col">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="w-4 h-4" />
+          <span className="text-sm font-semibold tracking-tight">AI 채팅</span>
+        </div>
+        <span className="text-[8px] font-light tracking-tight text-color-muted">
+          MODEL : NAVER HyperCLOVA X SEED 1.5B-Q4_K_M
+        </span>
       </div>
     </div>
   );
