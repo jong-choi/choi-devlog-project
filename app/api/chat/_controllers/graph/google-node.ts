@@ -1,20 +1,30 @@
 import { SystemMessage } from "@langchain/core/messages";
-import { Command, MessagesAnnotation } from "@langchain/langgraph";
+import { Command } from "@langchain/langgraph";
 import { LangNodeName } from "@/types/chat";
+import { SessionMessagesAnnotation } from "./graph";
+import { z } from "zod";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_SEARCH_API_KEY!;
 const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;
-type item = {
-  title: string;
-  snippet: string;
-};
+const MEX_RESULTS_LEN = 8;
+const ItemSchema = z.object({
+  title: z.string(),
+  snippet: z.string(),
+});
 
-export async function googleNode(state: typeof MessagesAnnotation.State) {
+const ItemArraySchema = z.array(ItemSchema);
+
+type Item = z.infer<typeof ItemSchema>;
+type State = typeof SessionMessagesAnnotation.State;
+type NextState = Partial<State>;
+
+export async function googleNode(state: State) {
   const lastUserMessage = state.messages
     .filter((msg) => msg.getType() === "human")
     .pop();
 
   const query = lastUserMessage?.content;
+  let nextState: NextState = {};
 
   if (typeof query !== "string") {
     return {
@@ -26,29 +36,41 @@ export async function googleNode(state: typeof MessagesAnnotation.State) {
     key: GOOGLE_API_KEY,
     cx: GOOGLE_CX,
     q: query,
-    num: "10",
+    num: String(MEX_RESULTS_LEN),
     fields: "items(title,snippet),searchInformation(totalResults)",
   });
   const url = `https://www.googleapis.com/customsearch/v1?${params}`;
-  const res = await fetch(url);
+
+  const res: Response = await fetch(url);
 
   if (!res.ok) {
-    return {
-      routeType: "" as const,
+    console.log("Google API response not ok:", res.status, res.statusText);
+    nextState = {
+      messages: [new SystemMessage("일시적인 오류로 검색에 실패하였습니다.")],
+      routeType: "simpleChat",
     };
+    return new Command({
+      goto: LangNodeName.routing,
+      update: nextState,
+    });
   }
 
   const data = await res.json();
 
-  const items = data.items as Array<item>;
+  let items: Array<Item>;
+  try {
+    items = ItemArraySchema.parse(data.items);
+  } catch {
+    items = [];
+  }
 
-  const nextState = {
+  nextState = {
     messages: [new SystemMessage(JSON.stringify(items))],
-    routeType: "chat" as const,
+    routeType: "simpleChat",
   };
 
   return new Command({
-    goto: LangNodeName.decision,
+    goto: LangNodeName.routing,
     update: nextState,
   });
 }

@@ -11,6 +11,8 @@ export const chatEventHander = ({
   const event = chunk.event;
   const encoder = new TextEncoder();
 
+  console.log(event);
+
   if (event === "on_chat_model_start") {
     data = { event, name: "chatNode" };
   } else if (event === "on_chat_model_stream") {

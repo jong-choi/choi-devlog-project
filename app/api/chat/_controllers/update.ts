@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
 import { buildGraph } from "@/app/api/chat/_controllers/graph/graph";
-import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import {
+  HumanMessage,
+  AIMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import type { ChatMessage } from "@/types/chat";
 
 interface UpdateRequest {
@@ -18,6 +22,10 @@ export async function handleUpdate(request: NextRequest, sessionId: string) {
         return new HumanMessage(message.content);
       } else if (message.role === "assistant") {
         return new AIMessage(message.content);
+      } else if (message.role === "system") {
+        return new SystemMessage(message.content);
+      } else {
+        return new HumanMessage(message.content);
       }
     });
 

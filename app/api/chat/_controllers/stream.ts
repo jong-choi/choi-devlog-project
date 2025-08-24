@@ -41,14 +41,13 @@ export async function handleStream(request: NextRequest, sessionId: string) {
         const encoder = new TextEncoder();
         const app = buildGraph();
 
-        // 1) summary 라우트: 즉시 사용자에게 이벤트 전송
+        // 구현되지 않은 기능들 바이패스
         if (
           inputs.routeType === "summary" ||
           inputs.routeType === "recommend"
         ) {
           try {
-            // 1) DB에서 결과 조회 (요구사항에 맞게 구현)
-            const content = "임의의 문자열";
+            const content = "아직 구현되지 않은 기능입니다.";
 
             bipassEventHander({
               controller,

@@ -2,7 +2,7 @@
 
 export type ChatMessage = {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
 };
 
@@ -11,16 +11,15 @@ export type RouteType = "chat" | "google" | "summary" | "recommend";
 
 // 백엔드에서 사용하는 LangGraph 관련 타입들
 export const LangNodeName = {
-  decision: "decisionNode",
-  chat: "chatNode",
+  routing: "routingNode",
+  chat: "contextChatNode",
+  simpleChat: "chatNode",
   google: "googleNode",
   summary: "summaryNode",
   recommend: "recommendNode",
 } as const;
 
-export type LangNodeKeys =
-  | keyof typeof LangNodeName
-  | "";
+export type LangNodeKeys = keyof typeof LangNodeName | "";
 
 // LangChain GraphState (백엔드용)
 export interface GraphState {

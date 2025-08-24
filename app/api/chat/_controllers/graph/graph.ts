@@ -1,10 +1,8 @@
+import { simpleChatNode } from "@/app/api/chat/_controllers/graph/simple-chat-node";
 import { chatNode } from "@/app/api/chat/_controllers/graph/chat-node";
-import { decisionNode } from "@/app/api/chat/_controllers/graph/decision-node";
+import { routingNode } from "@/app/api/chat/_controllers/graph/routing-node";
 import { googleNode } from "@/app/api/chat/_controllers/graph/google-node";
-import {
-  LangNodeKeys,
-  LangNodeName,
-} from "@/types/chat";
+import { LangNodeKeys, LangNodeName } from "@/types/chat";
 import { BaseMessage } from "@langchain/core/messages";
 import {
   Annotation,
@@ -35,18 +33,24 @@ export const SessionMessagesAnnotation = Annotation.Root({
 export const checkpointer = new MemorySaver();
 
 export function buildGraph() {
-  return (
-    new StateGraph(SessionMessagesAnnotation)
-      // decision: chat | google | END 로만 이동
-      .addNode(LangNodeName.decision, decisionNode, {
-        ends: [LangNodeName.chat, LangNodeName.google, END],
-      })
-      // chat/google: 처리 후 decision으로 복귀
-      .addNode(LangNodeName.chat, chatNode, { ends: [LangNodeName.decision] })
-      .addNode(LangNodeName.google, googleNode, {
-        ends: [LangNodeName.decision],
-      })
-      .addEdge(START, LangNodeName.decision)
-      .compile({ checkpointer })
-  );
+  return new StateGraph(SessionMessagesAnnotation)
+    .addNode(LangNodeName.routing, routingNode, {
+      ends: [
+        LangNodeName.chat,
+        LangNodeName.google,
+        LangNodeName.simpleChat,
+        END,
+      ],
+    })
+    .addNode(LangNodeName.chat, chatNode, {
+      ends: [LangNodeName.routing],
+    })
+    .addNode(LangNodeName.simpleChat, simpleChatNode, {
+      ends: [LangNodeName.routing],
+    })
+    .addNode(LangNodeName.google, googleNode, {
+      ends: [LangNodeName.routing],
+    })
+    .addEdge(START, LangNodeName.routing)
+    .compile({ checkpointer });
 }
