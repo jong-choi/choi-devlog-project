@@ -4,7 +4,7 @@ import {
   MAX_MESSAGES_LEN,
 } from "@/app/api/chat/_controllers/utils/model";
 import { getAISummaryByPostId } from "@/app/post/fetchers/ai";
-import { AIMessage } from "@langchain/core/messages";
+import { AIMessage, SystemMessage } from "@langchain/core/messages";
 
 import { Command } from "@langchain/langgraph";
 import { SessionMessagesAnnotation } from "./graph";
@@ -13,7 +13,7 @@ import { SessionMessagesAnnotation } from "./graph";
 export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
   const contextMessages = state.messages.slice(0 - MAX_MESSAGES_LEN);
   const systemPrompt = [
-    new AIMessage(
+    new SystemMessage(
       `당신은 프론트엔드 기술블로그의 관리 챗봇입니다. 당신은 프론트엔드에 대한 전문지식이 뛰어납니다. React, Next.js, 자바스크립트, 타입스크립트, 알고리즘.`
     ),
   ];
@@ -25,7 +25,7 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
       if (summaryResponse.data?.summary) {
         systemPrompt.push(
           new AIMessage(
-            `다음은 현재 게시글의 요약입니다: ${summaryResponse.data.summary}`
+            `사용자님께서 보고 계신 게시글을 요약해드리겠습니다!\n\n ${summaryResponse.data.summary}`
           )
         );
       }
