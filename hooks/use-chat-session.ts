@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useChatStore } from "@/providers/chat-store-provider";
-import type { SessionResponse } from "@/types/chat";
+import type { SessionResponse, ChatMessage } from "@/types/chat";
 
 export function useChatSession() {
   const { sessionId, setSessionId, clearMessages } = useChatStore(
@@ -58,10 +58,26 @@ export function useChatSession() {
     }
   }, [sessionId]);
 
+  // 서버 상태 동기화
+  const syncToServer = useCallback(async (messages: ChatMessage[]) => {
+    if (!sessionId) return;
+
+    try {
+      await fetch(`/api/chat/${sessionId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages }),
+      });
+    } catch (error) {
+      console.error("Failed to sync messages to server:", error);
+    }
+  }, [sessionId]);
+
   return {
     sessionId,
     ensureSession,
     resetSession,
     cleanupSession,
+    syncToServer,
   };
 }
