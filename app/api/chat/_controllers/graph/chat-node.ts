@@ -1,12 +1,11 @@
-import { LangNodeName } from "@/types/chat";
+import { SystemMessage } from "@langchain/core/messages";
+import { Command } from "@langchain/langgraph";
 import {
-  llmModel,
   MAX_MESSAGES_LEN,
+  llmModel,
 } from "@/app/api/chat/_controllers/utils/model";
 import { getAISummaryByPostId } from "@/app/post/fetchers/ai";
-import { AIMessage, SystemMessage } from "@langchain/core/messages";
-
-import { Command } from "@langchain/langgraph";
+import { LangNodeName } from "@/types/chat";
 import { SessionMessagesAnnotation } from "./graph";
 
 // 게시글 요약문을 기반으로 대화함
@@ -14,7 +13,7 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
   const contextMessages = state.messages.slice(0 - MAX_MESSAGES_LEN);
   const systemPrompt = [
     new SystemMessage(
-      `당신은 프론트엔드 기술블로그의 관리 챗봇입니다. 당신은 프론트엔드에 대한 전문지식이 뛰어납니다. React, Next.js, 자바스크립트, 타입스크립트, 알고리즘.`
+      `당신은 프론트엔드 기술블로그의 관리 챗봇입니다. 블로그의 주제는 React, Next.js, 자바스크립트, 타입스크립트, 알고리즘.`,
     ),
   ];
 
@@ -22,11 +21,12 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
     try {
       // 요약 게시글이 있을 때 시스템 프롬프트에 추가
       const summaryResponse = await getAISummaryByPostId(state.postId);
+      console.log(summaryResponse);
       if (summaryResponse.data?.summary) {
-        systemPrompt.push(
-          new AIMessage(
-            `사용자님께서 보고 계신 게시글을 요약해드리겠습니다!\n\n ${summaryResponse.data.summary}`
-          )
+        systemPrompt.unshift(
+          new SystemMessage(
+            `사용자가 보고 있는 게시글을 요약해드리겠습니다!\n\n ${summaryResponse.data.summary}`,
+          ),
         );
       }
     } catch (error) {
