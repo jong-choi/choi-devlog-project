@@ -12,7 +12,7 @@ export default function AiMarkdownWrapper({
   className,
 }: ReactMarkdownWrapperProps) {
   return (
-    <div className={cn("p-[12px] new-york-small", className || "")}>
+    <div className={cn("p-[12px] new-york-small break-words", className || "")}>
       <ReactMarkdownApp>{children}</ReactMarkdownApp>
     </div>
   );

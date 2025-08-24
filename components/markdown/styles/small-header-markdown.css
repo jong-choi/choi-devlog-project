@@ -55,6 +55,22 @@
     opacity: 0;
     margin-top: 1rem;
   }
+
+  &,
+  & * {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  & pre,
+  & code,
+  & pre code {
+    white-space: pre-wrap !important;
+  }
+
+  & pre {
+    max-width: 100%;
+  }
 }
 
 @keyframes fadeIn {
