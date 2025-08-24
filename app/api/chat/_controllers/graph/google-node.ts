@@ -1,6 +1,6 @@
 import { SystemMessage } from "@langchain/core/messages";
 import { Command, MessagesAnnotation } from "@langchain/langgraph";
-import { LangNodeName } from "../types/chat";
+import { LangNodeName } from "@/types/chat";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_SEARCH_API_KEY!;
 const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;

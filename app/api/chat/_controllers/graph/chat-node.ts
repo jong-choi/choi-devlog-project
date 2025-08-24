@@ -1,4 +1,4 @@
-import { LangNodeName } from "@/app/api/chat/_controllers/types/chat";
+import { LangNodeName } from "@/types/chat";
 import { llmModel } from "@/app/api/chat/_controllers/utils/model";
 
 import { Command, MessagesAnnotation } from "@langchain/langgraph";

@@ -1,26 +1,29 @@
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 import { RefreshCw } from "lucide-react";
-import { RefObject, useState } from "react";
-
-type RouteType = "chat" | "google" | "summary" | "recommend";
+import { useChatStore } from "@/providers/chat-store-provider";
+import { useShallow } from "zustand/react/shallow";
+import React from "react";
 
 interface RouteTypeSelectorProps {
-  routeTypeRef: RefObject<RouteType>;
   onResetSession: () => void;
   isLoading: boolean;
 }
 
-export function RouteTypeSelector({
-  routeTypeRef,
+export const RouteTypeSelector = React.memo<RouteTypeSelectorProps>(({
   onResetSession,
   isLoading,
-}: RouteTypeSelectorProps) {
-  const [routeType, setRouteType] = useState("chat");
+}) => {
+  const { routeType, setRouteType } = useChatStore(
+    useShallow((state) => ({
+      routeType: state.routeType,
+      setRouteType: state.setRouteType,
+    }))
+  );
+
   const handleToggle = () => {
     const newType = routeType === "google" ? "chat" : "google";
     setRouteType(newType);
-    routeTypeRef.current = newType;
   };
 
   const displayText =
@@ -54,4 +57,6 @@ export function RouteTypeSelector({
       </Button>
     </div>
   );
-}
+});
+
+RouteTypeSelector.displayName = "RouteTypeSelector";

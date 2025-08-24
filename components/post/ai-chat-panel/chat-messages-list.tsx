@@ -1,20 +1,16 @@
 import { useEffect, useRef } from "react";
-import { ChatMessage } from "./chat-message";
+import React from "react";
+import { ChatMessageComponent } from "./chat-message";
+import { useChatStore } from "@/providers/chat-store-provider";
+import { useShallow } from "zustand/react/shallow";
+import { Loader2 } from "lucide-react";
 
-type ChatMessageType = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-};
-
-interface ChatMessagesListProps {
-  messages: ChatMessageType[];
-}
-
-export function ChatMessagesList({ messages }: ChatMessagesListProps) {
+export const ChatMessagesList = React.memo(() => {
+  // 전역 상태에서 직접 구독 (props drilling 제거)
+  const messages = useChatStore(useShallow((state) => state.messages));
   const listRef = useRef<HTMLDivElement | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-
+  const isLoading = useChatStore((state) => state.isLoading);
   useEffect(() => {
     if (!lastMessageRef.current || !listRef.current) return;
 
@@ -45,10 +41,19 @@ export function ChatMessagesList({ messages }: ChatMessagesListProps) {
             key={message.id}
             ref={index === messages.length - 1 ? lastMessageRef : null}
           >
-            <ChatMessage message={message} />
+            {!!message.content.length && (
+              <ChatMessageComponent message={message} />
+            )}
+            {isLoading &&
+              index === messages.length - 1 &&
+              (message.role === "user" || !message.content.length) && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
           </div>
         ))}
       </div>
     </div>
   );
-}
+});
+
+ChatMessagesList.displayName = "ChatMessagesList";

@@ -2,6 +2,7 @@ import { checkpointer } from "@/app/api/chat/_controllers/graph/graph";
 import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import type { SessionResponse, SessionErrorResponse } from "@/types/chat";
 const SESSION_IDLE_TIMEOUT_MS = 1000 * 60 * 2; // 세션은 2분간 유지
 
 export async function handleConnect() {
@@ -13,14 +14,15 @@ export async function handleConnect() {
       sessionStore.delete(id);
     });
 
-    return NextResponse.json({
+    const response: SessionResponse = {
       success: true,
       data: { sessionId: id },
-    });
+    };
+    return NextResponse.json(response);
   } catch (_error) {
-    return NextResponse.json(
-      { error: "Failed to create session" },
-      { status: 500 }
-    );
+    const errorResponse: SessionErrorResponse = {
+      error: "Failed to create session",
+    };
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

@@ -4,7 +4,7 @@ import { googleNode } from "@/app/api/chat/_controllers/graph/google-node";
 import {
   LangNodeKeys,
   LangNodeName,
-} from "@/app/api/chat/_controllers/types/chat";
+} from "@/types/chat";
 import { BaseMessage } from "@langchain/core/messages";
 import {
   Annotation,
