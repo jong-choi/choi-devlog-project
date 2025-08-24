@@ -20,7 +20,7 @@ export async function generateMetadata({
 
 export default async function SearchPage({ searchParams }: PageProps) {
   const keyword = decodeURIComponent((await searchParams).keyword);
-  if (!keyword) return redirect("/posts");
+  if (!keyword) return redirect("/post");
 
   const { data: postLists } = await getPublishedPosts({ page: 0, keyword });
   return <PostsPageRenderer keyword={keyword} initialPosts={postLists || []} />;

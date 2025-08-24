@@ -24,7 +24,6 @@ export const chatEventHander = ({
   } else if (event === "on_chat_model_end") {
     data = { event, name: "chatNode" };
   } else {
-    console.log(chunk);
   }
   if (data) {
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));

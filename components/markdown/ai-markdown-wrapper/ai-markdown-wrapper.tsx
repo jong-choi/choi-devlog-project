@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import "@/components/markdown/styles/github-markdown.css";
 import "@/components/markdown/styles/small-header-markdown.css";
 import ReactMarkdownApp from "@/components/markdown/react-markdown-app";
 
@@ -13,9 +12,7 @@ export default function AiMarkdownWrapper({
   className,
 }: ReactMarkdownWrapperProps) {
   return (
-    <div
-      className={cn("p-[12px] markdown-body new-york-small", className || "")}
-    >
+    <div className={cn("p-[12px] new-york-small", className || "")}>
       <ReactMarkdownApp>{children}</ReactMarkdownApp>
     </div>
   );

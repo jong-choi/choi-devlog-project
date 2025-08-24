@@ -12,8 +12,6 @@ import {
   getRecommendedListByPostId,
   revalidateAIAummaryByPostId,
 } from "@/app/post/fetchers";
-import { simsToPosts } from "@/utils/uploadingUtils";
-import { useSummary } from "@/providers/summary-store-provider";
 
 export default function AiRecommendedList({
   posts,
@@ -29,12 +27,6 @@ export default function AiRecommendedList({
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
-    }))
-  );
-
-  const { setRecommendedPosts } = useSummary(
-    useShallow((state) => ({
-      setRecommendedPosts: state.setRecommendedPosts,
     }))
   );
 
@@ -64,7 +56,7 @@ export default function AiRecommendedList({
       toast.success("추천 게시글 분석이 완료되었습니다.");
       await revalidateAIAummaryByPostId(postId);
       const { data: postsData } = await getRecommendedListByPostId(postId);
-      setRecommendedPosts(simsToPosts(postsData || []));
+      console.log(postsData);
     } catch (error) {
       console.error(error);
       toast.error("추천 게시글 분석에 실패했습니다.");

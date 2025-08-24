@@ -40,7 +40,7 @@ export default function PostsPageRenderer({
         </p>
       )}
       {initialPosts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id + "initial"} post={post} />
       ))}
       <InfinitePostsStoreProvider
         initialState={{

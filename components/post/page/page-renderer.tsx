@@ -3,19 +3,20 @@ import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
-import { getSidebarCategory } from "@/app/post/fetchers";
+import {
+  getAISummaryByPostId,
+  getRecommendedListByPostId,
+  getSidebarCategory,
+} from "@/app/post/fetchers";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
-import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
-import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
-import AIPanel from "@/components/post/right-panel/ai-panel";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
 import { formatKoreanDate } from "@/lib/date";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import { Lock } from "lucide-react";
 import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
-
 import { Database } from "@/types/supabase";
+import { SummaryHydrator } from "@/components/post/ai-chat-panel/summary-hyrator";
 
 interface PageProps {
   data: Database["public"]["Tables"]["posts"]["Row"];
@@ -28,12 +29,19 @@ export default async function PostPageRenderer({ data }: PageProps) {
     data.subcategory_id
   );
 
+  const { data: summaryData } = await getAISummaryByPostId(data.id);
+  const { data: recommendedPosts } = await getRecommendedListByPostId(data.id);
+
   return (
     <AutosaveStoreWrapper
       data={data}
       subcategoryId={data.subcategory_id}
       categoryData={categoryData}
     >
+      <SummaryHydrator
+        summary={summaryData?.summary ?? ""}
+        recommendedPosts={recommendedPosts ?? []}
+      />
       <main
         id="메인레퍼"
         className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
@@ -80,11 +88,6 @@ export default async function PostPageRenderer({ data }: PageProps) {
           </div>
         </MainPostSectionContainer>
       </main>
-      <AIPanelWrapper data={data}>
-        <RightPanelWrapper>
-          <AIPanel />
-        </RightPanelWrapper>
-      </AIPanelWrapper>
     </AutosaveStoreWrapper>
   );
 }

@@ -41,7 +41,6 @@ export async function googleNode(state: typeof MessagesAnnotation.State) {
   const data = await res.json();
 
   const items = data.items as Array<item>;
-  console.log(items);
 
   const nextState = {
     messages: [new SystemMessage(JSON.stringify(items))],

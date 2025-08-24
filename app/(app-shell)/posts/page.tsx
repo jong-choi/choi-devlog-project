@@ -1,6 +1,7 @@
-import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
-import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
+// import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
+// import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -10,7 +11,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PostsPage() {
-  const { data: postLists } = await getPublishedPosts({ page: 0 });
+  redirect("/post");
+  // const { data: postLists } = await getPublishedPosts({ page: 0 });
 
-  return <PostsPageRenderer initialPosts={postLists || []} />;
+  // return <PostsPageRenderer initialPosts={postLists || []} />;
 }

@@ -7,7 +7,6 @@ export async function decisionNode(
   state: typeof SessionMessagesAnnotation.State
 ) {
   const route = state.routeType;
-  console.log("state", route);
   if (!route) {
     return new Command({
       goto: END,

@@ -1,3 +1,4 @@
+// deprecated
 "use client";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { useAuthStore } from "@/providers/auth-provider";
@@ -10,7 +11,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 import AIModeButton from "@/components/post/right-panel/ai-mode-button";
-import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
+// import AiRecommendedList from "@/components/post/right-panel/ai-recommended-list";
 import { useShallow } from "zustand/react/shallow";
 import { createAISummary, createTagsByPostId } from "@/app/post/actions";
 import { revalidateAIAummaryByPostId } from "@/app/post/fetchers";
@@ -19,7 +20,7 @@ export default function AIPanel() {
   const {
     summary,
     summaryId,
-    recommendedPosts,
+    // recommendedPosts,
     setSummary,
     setSummaryId,
     isLoading,
@@ -28,7 +29,7 @@ export default function AIPanel() {
     useShallow((state) => ({
       summary: state.summary,
       summaryId: state.summaryId,
-      recommendedPosts: state.recommendedPosts,
+      // recommendedPosts: state.recommendedPosts,
       setSummary: state.setSummary,
       setSummaryId: state.setSummaryId,
       isLoading: state.loading,
@@ -170,13 +171,13 @@ export default function AIPanel() {
         {rightPanelMode === "summary" && (
           <AiMarkdownWrapper>{summary}</AiMarkdownWrapper>
         )}
-        {rightPanelMode === "recommend" && (
+        {/* {rightPanelMode === "recommend" && (
           <AiRecommendedList
             posts={recommendedPosts}
             isSummary={!!summary}
             postId={postId}
           />
-        )}
+        )} */}
       </section>
     </MainContainer>
   );

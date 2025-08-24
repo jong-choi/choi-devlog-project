@@ -41,7 +41,6 @@ export async function handleStream(request: NextRequest, sessionId: string) {
         const encoder = new TextEncoder();
         const app = buildGraph();
 
-        console.log(inputs.routeType);
         // 1) summary 라우트: 즉시 사용자에게 이벤트 전송
         if (
           inputs.routeType === "summary" ||
