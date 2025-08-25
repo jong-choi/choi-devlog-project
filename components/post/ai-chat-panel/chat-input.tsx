@@ -14,6 +14,7 @@ export default function ChatInput({
   isLoading,
 }: ChatInputProps) {
   const [hasText, setHasText] = useState<boolean>(false);
+  const [isComposing, setIsComposing] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const adjustTextareaHeight = useCallback(() => {
     if (textareaRef.current) {
@@ -52,10 +53,18 @@ export default function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !isComposing) {
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
   };
 
   return (
@@ -73,6 +82,8 @@ export default function ChatInput({
           )}
           style={{ height: "auto" }}
           onKeyDown={handleKeyDown}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
         />
         <Button
           type="submit"
