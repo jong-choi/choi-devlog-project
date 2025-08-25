@@ -1,6 +1,6 @@
 import { sessionStore } from "./session-store";
 
-const RATE_LIMIT = 5;
+const RATE_LIMIT = 10;
 
 export type RateLimitResult = {
   allowed: boolean;

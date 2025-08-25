@@ -81,6 +81,12 @@ export function useChatStreaming() {
 
         if (!res.ok) {
           if (res.status === 429) {
+            addMessage({
+              id: Math.random().toFixed(5),
+              role: "assistant",
+              content:
+                "게스트 모드 사용량을 초과하였습니다. 잠시 후 다시 시도해주세요.",
+            });
             throw new Error("게스트 모드 사용량을 초과하였습니다.");
           }
           throw new Error("메시지 전송에 실패했습니다.");
@@ -128,6 +134,11 @@ export function useChatStreaming() {
           if (es !== eventSourceRef.current) return;
           setIsLoading(false);
           toast.error("연결이 끊어졌습니다.");
+          addMessage({
+            id: Math.random().toFixed(5),
+            role: "assistant",
+            content: "연결이 끊어졌습니다.",
+          });
           es.close();
           eventSourceRef.current = null;
           clearChunkQueue();
@@ -139,6 +150,11 @@ export function useChatStreaming() {
             ? error.message
             : "메시지 전송에 실패했습니다.";
         toast.error(errorMessage);
+        addMessage({
+          id: Math.random().toFixed(5),
+          role: "assistant",
+          content: "에러가 발생하였습니다. (" + errorMessage + ")",
+        });
       }
     },
     [
