@@ -5,6 +5,7 @@ import { checkRateLimit } from "@/app/api/chat/_controllers/utils/rate-limit";
 import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 import type { MessageRequest, MessageResponse } from "@/types/chat";
 import { createClient } from "@/utils/supabase/server";
+import { resetIdleTimer } from "./connect";
 
 export async function handleSend(request: NextRequest, sessionId: string) {
   try {
@@ -33,7 +34,7 @@ export async function handleSend(request: NextRequest, sessionId: string) {
         { status: 429 },
       );
     }
-
+    const d = 0.5 + Math.floor(Math.random() * 3);
     const routeType = body.type || "chat";
     sessionStore.set({
       id: sessionId,
@@ -42,8 +43,9 @@ export async function handleSend(request: NextRequest, sessionId: string) {
         routeType,
         postId: body.postId,
       },
-      count: rateLimitResult.currentCount + 1,
+      count: rateLimitResult.currentCount + d,
     });
+    resetIdleTimer(sessionId);
 
     const response: MessageResponse = {
       success: true,

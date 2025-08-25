@@ -1,9 +1,17 @@
+import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { checkpointer } from "@/app/api/chat/_controllers/graph/graph";
 import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
-import { randomUUID } from "crypto";
-import { NextResponse } from "next/server";
-import type { SessionResponse, SessionErrorResponse } from "@/types/chat";
-const SESSION_IDLE_TIMEOUT_MS = 1000 * 60 * 2; // 세션은 2분간 유지
+import type { SessionErrorResponse, SessionResponse } from "@/types/chat";
+
+const SESSION_IDLE_TIMEOUT_MS = 1000 * 60 * 5; // 5분
+
+export const resetIdleTimer = (id: string) => {
+  sessionStore.setIdleTimer(id, SESSION_IDLE_TIMEOUT_MS, () => {
+    checkpointer.deleteThread(id);
+    sessionStore.delete(id);
+  });
+};
 
 export async function handleConnect() {
   try {
