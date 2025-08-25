@@ -21,7 +21,7 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
     try {
       // 요약 게시글이 있을 때 시스템 프롬프트에 추가
       const summaryResponse = await getAISummaryByPostId(state.postId);
-      console.log(summaryResponse);
+
       if (summaryResponse.data?.summary) {
         systemPrompt.unshift(
           new SystemMessage(

@@ -82,7 +82,12 @@ export function useChatStreaming() {
           body: JSON.stringify(requestBody),
         });
 
-        if (!res.ok) throw new Error("메시지 전송 실패");
+        if (!res.ok) {
+          if (res.status === 429) {
+            throw new Error("게스트 모드 사용량을 초과하였습니다.");
+          }
+          throw new Error("메시지 전송에 실패했습니다.");
+        }
 
         // 기존 스트림 종료 후 새 스트림 시작
         closeStream();
@@ -133,8 +138,11 @@ export function useChatStreaming() {
         };
       } catch (error) {
         setIsLoading(false);
-        console.error("메시지 전송 에러:", error);
-        toast.error("메시지 전송에 실패했습니다.");
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "메시지 전송에 실패했습니다.";
+        toast.error(errorMessage);
       }
     },
     [

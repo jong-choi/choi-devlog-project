@@ -1,8 +1,10 @@
-import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
-import { HumanMessage } from "@langchain/core/messages";
-import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
+import { HumanMessage } from "@langchain/core/messages";
+import { checkRateLimit } from "@/app/api/chat/_controllers/utils/rate-limit";
+import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 import type { MessageRequest, MessageResponse } from "@/types/chat";
+import { createClient } from "@/utils/supabase/server";
 
 export async function handleSend(request: NextRequest, sessionId: string) {
   try {
@@ -11,7 +13,24 @@ export async function handleSend(request: NextRequest, sessionId: string) {
     if (!body) {
       return NextResponse.json(
         { error: "message is required" },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    // 인증 상태 확인
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const rateLimitResult = checkRateLimit(sessionId);
+
+    if (!user && !rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: "비회원 사용량을 초과하였습니다.",
+        },
+        { status: 429 },
       );
     }
 
@@ -23,6 +42,7 @@ export async function handleSend(request: NextRequest, sessionId: string) {
         routeType,
         postId: body.postId,
       },
+      count: rateLimitResult.currentCount + 1,
     });
 
     const response: MessageResponse = {

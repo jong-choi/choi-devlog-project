@@ -4,6 +4,7 @@ export type Session = {
   id: string;
   state?: typeof SessionMessagesAnnotation.State;
   idleTimer?: ReturnType<typeof setTimeout>;
+  count?: number;
 };
 
 class SessionStore {
