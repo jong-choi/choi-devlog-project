@@ -45,7 +45,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
       />
       <main
         id="메인레퍼"
-        className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
+        className="flex flex-1 flex-col h-full min-w-0 bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
       >
         <header
           data-component-name="main-header"
