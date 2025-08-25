@@ -24,14 +24,6 @@ export const chatEventHander = ({
   const event = chunk.event;
 
   if (event === "on_chat_model_start") {
-    if (chunk.metadata.langgraph_node === "contextChatNode") {
-      emitEvent({
-        controller,
-        name: "chatNode",
-        event: "status",
-        message: "대화를 이어나가는 중",
-      });
-    }
     emitEvent({ controller, name: "chatNode", event });
   } else if (event === "on_chat_model_stream") {
     emitEvent({
@@ -57,6 +49,16 @@ export const chatEventHander = ({
           name: "googleNode",
           event: "status",
           message: "검색 완료",
+        });
+      }
+    }
+    if (chunk.metadata.langgraph_node === "fetchSummaryNode") {
+      if (chunk.event === "on_chain_start") {
+        emitEvent({
+          controller,
+          name: "fetchSummaryNode",
+          event: "status",
+          message: "게시글을 확인하는 중",
         });
       }
     }

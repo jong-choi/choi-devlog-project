@@ -2,7 +2,7 @@ import { SessionMessagesAnnotation } from "@/app/api/chat/_controllers/graph/gra
 
 export type Session = {
   id: string;
-  state?: typeof SessionMessagesAnnotation.State;
+  state?: Partial<typeof SessionMessagesAnnotation.State>;
   idleTimer?: ReturnType<typeof setTimeout>;
   count?: number;
 };

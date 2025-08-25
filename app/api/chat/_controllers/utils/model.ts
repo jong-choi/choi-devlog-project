@@ -3,11 +3,11 @@ import { ChatOllama } from "@langchain/ollama";
 const MODEL_NAME =
   "hf.co/rippertnt/HyperCLOVAX-SEED-Text-Instruct-1.5B-Q4_K_M-GGUF:Q4_K_M";
 
-export const MAX_MESSAGES_LEN = 7;
+export const MAX_MESSAGES_LEN = 5;
 
 const fetchWithSecretKey = (
   url: RequestInfo | URL,
-  options: RequestInit | undefined = {}
+  options: RequestInit | undefined = {},
 ) => {
   options.headers = {
     ...options.headers,

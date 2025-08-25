@@ -1,17 +1,17 @@
-import { simpleChatNode } from "@/app/api/chat/_controllers/graph/simple-chat-node";
-import { chatNode } from "@/app/api/chat/_controllers/graph/chat-node";
-import { routingNode } from "@/app/api/chat/_controllers/graph/routing-node";
-import { googleNode } from "@/app/api/chat/_controllers/graph/google-node";
-import { LangNodeKeys, LangNodeName } from "@/types/chat";
 import { BaseMessage } from "@langchain/core/messages";
 import {
   Annotation,
   END,
   MemorySaver,
-  messagesStateReducer,
   START,
   StateGraph,
+  messagesStateReducer,
 } from "@langchain/langgraph";
+import { chatNode } from "@/app/api/chat/_controllers/graph/chat-node";
+import { googleNode } from "@/app/api/chat/_controllers/graph/google-node";
+import { routingNode } from "@/app/api/chat/_controllers/graph/routing-node";
+import { LangNodeKeys, LangNodeName } from "@/types/chat";
+import { fetchSummaryNode } from "./fetch-summary-node";
 
 export const SessionMessagesAnnotation = Annotation.Root({
   messages: Annotation<BaseMessage[]>({
@@ -28,6 +28,10 @@ export const SessionMessagesAnnotation = Annotation.Root({
     default: () => undefined,
     reducer: (_, update) => update,
   }),
+  postSummary: Annotation<{ id: string; summary: string } | null>({
+    default: () => null,
+    reducer: (_, update) => update,
+  }),
 });
 
 export const checkpointer = new MemorySaver();
@@ -38,14 +42,14 @@ export function buildGraph() {
       ends: [
         LangNodeName.chat,
         LangNodeName.google,
-        LangNodeName.simpleChat,
+        LangNodeName.fetchSummary,
         END,
       ],
     })
-    .addNode(LangNodeName.chat, chatNode, {
+    .addNode(LangNodeName.fetchSummary, fetchSummaryNode, {
       ends: [LangNodeName.routing],
     })
-    .addNode(LangNodeName.simpleChat, simpleChatNode, {
+    .addNode(LangNodeName.chat, chatNode, {
       ends: [LangNodeName.routing],
     })
     .addNode(LangNodeName.google, googleNode, {

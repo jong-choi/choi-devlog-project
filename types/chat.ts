@@ -12,10 +12,10 @@ export type RouteType = "chat" | "google" | "summary" | "recommend";
 // 백엔드에서 사용하는 LangGraph 관련 타입들
 export const LangNodeName = {
   routing: "routingNode",
-  chat: "contextChatNode",
-  simpleChat: "chatNode",
+  chat: "chatNode",
   google: "googleNode",
   summary: "summaryNode",
+  fetchSummary: "fetchSummaryNode",
   recommend: "recommendNode",
 } as const;
 

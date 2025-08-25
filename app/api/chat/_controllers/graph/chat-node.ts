@@ -1,10 +1,13 @@
-import { SystemMessage } from "@langchain/core/messages";
+import {
+  AIMessage,
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import {
   MAX_MESSAGES_LEN,
   llmModel,
 } from "@/app/api/chat/_controllers/utils/model";
-import { getAISummaryByPostId } from "@/app/post/fetchers/ai";
 import { LangNodeName } from "@/types/chat";
 import { SessionMessagesAnnotation } from "./graph";
 
@@ -17,22 +20,20 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
     ),
   ];
 
-  if (state.postId) {
+  if (state.postSummary) {
     try {
-      // 요약 게시글이 있을 때 시스템 프롬프트에 추가
-      const summaryResponse = await getAISummaryByPostId(state.postId);
-
-      if (summaryResponse.data?.summary) {
-        systemPrompt.unshift(
-          new SystemMessage(
-            `사용자가 보고 있는 게시글을 요약해드리겠습니다!\n\n ${summaryResponse.data.summary}`,
-          ),
-        );
-      }
+      systemPrompt.push(new HumanMessage(`지금 내가 보는 게시글을 요약해줘.`));
+      systemPrompt.push(
+        new AIMessage(
+          `사용자님께서 보고 있는 게시글입니다!\n\n ${state.postSummary.summary}`,
+        ),
+      );
     } catch (error) {
       console.error("Failed to load summary:", error);
     }
   }
+  systemPrompt.push(new HumanMessage(`다음에는 7줄 이내로 요약해줘.`));
+  systemPrompt.push(new AIMessage(`네 알겠습니다.`));
 
   // 최신 대화 n개 + 시스템 프롬프트
   const aiMessage = await llmModel.invoke([

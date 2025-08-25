@@ -1,12 +1,12 @@
+import { z } from "zod";
 import { SystemMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import { LangNodeName } from "@/types/chat";
 import { SessionMessagesAnnotation } from "./graph";
-import { z } from "zod";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_SEARCH_API_KEY!;
 const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;
-const MEX_RESULTS_LEN = 8;
+const MEX_RESULTS_LEN = 6;
 const ItemSchema = z.object({
   title: z.string(),
   snippet: z.string(),
@@ -47,7 +47,7 @@ export async function googleNode(state: State) {
     console.log("Google API response not ok:", res.status, res.statusText);
     nextState = {
       messages: [new SystemMessage("일시적인 오류로 검색에 실패하였습니다.")],
-      routeType: "simpleChat",
+      routeType: "chat",
     };
     return new Command({
       goto: LangNodeName.routing,
@@ -66,7 +66,7 @@ export async function googleNode(state: State) {
 
   nextState = {
     messages: [new SystemMessage(JSON.stringify(items))],
-    routeType: "simpleChat",
+    routeType: "chat",
   };
 
   return new Command({
