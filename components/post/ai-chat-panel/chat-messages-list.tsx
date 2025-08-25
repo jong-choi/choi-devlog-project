@@ -5,10 +5,15 @@ import ChatMessageComponent from "@/components/post/ai-chat-panel/chat-message";
 import { useChatStore } from "@/providers/chat-store-provider";
 
 export default function ChatMessagesList() {
-  const messages = useChatStore(useShallow((state) => state.messages));
+  const { messages, isLoading, statusMessage } = useChatStore(
+    useShallow((state) => ({
+      messages: state.messages,
+      isLoading: state.isLoading,
+      statusMessage: state.statusMessage,
+    })),
+  );
   const listRef = useRef<HTMLDivElement | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const isLoading = useChatStore((state) => state.isLoading);
   useEffect(() => {
     if (!lastMessageRef.current || !listRef.current) return;
 
@@ -45,7 +50,12 @@ export default function ChatMessagesList() {
             {isLoading &&
               index === messages.length - 1 &&
               (message.role === "user" || !message.content.length) && (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <div className="flex items-center gap-2 text-muted-foreground opacity-70">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {statusMessage && (
+                    <span className="text-[10px]">{statusMessage}</span>
+                  )}
+                </div>
               )}
           </div>
         ))}

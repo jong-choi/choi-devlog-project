@@ -9,11 +9,19 @@ import type { ChatEventPayload, MessageRequest } from "@/types/chat";
 
 export function useChatStreaming() {
   const postId = useSummary((state) => state.summaryId);
-  const { addMessage, setIsLoading, routeType } = useChatStore(
+  const {
+    addMessage,
+    setIsLoading,
+    routeType,
+    setStatusMessage,
+    clearStatusMessage,
+  } = useChatStore(
     useShallow((state) => ({
       addMessage: state.addMessage,
       setIsLoading: state.setIsLoading,
       routeType: state.routeType,
+      setStatusMessage: state.setStatusMessage,
+      clearStatusMessage: state.clearStatusMessage,
     })),
   );
 
@@ -22,9 +30,7 @@ export function useChatStreaming() {
     useChunkProcessor();
 
   const eventSourceRef = useRef<EventSource | null>(null);
-  const isResettingRef = useRef(false);
 
-  // EventSource 연결 종료
   const closeStream = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -33,17 +39,12 @@ export function useChatStreaming() {
     clearChunkQueue();
   }, [clearChunkQueue]);
 
-  // 강제 리셋 (resetSession에서 사용)
   const forceReset = useCallback(() => {
-    isResettingRef.current = true;
     closeStream();
     setIsLoading(false);
-    isResettingRef.current = false;
   }, [closeStream, setIsLoading]);
 
-  // 어시스턴트 메시지 시작
   const handleStartAssistant = useCallback(() => {
-    if (isResettingRef.current) return;
     addMessage({
       id: crypto.randomUUID(),
       role: "assistant",
@@ -51,7 +52,6 @@ export function useChatStreaming() {
     });
   }, [addMessage]);
 
-  // 메시지 전송
   const sendMessage = useCallback(
     async (message: string) => {
       if (!message.trim()) return;
@@ -59,17 +59,14 @@ export function useChatStreaming() {
       setIsLoading(true);
 
       try {
-        // 사용자 메시지 추가
         addMessage({
           id: crypto.randomUUID(),
           role: "user",
           content: message.trim(),
         });
 
-        // 세션 확보
         const sessionId = await ensureSession();
 
-        // 메시지 전송
         const requestBody: MessageRequest = {
           message: message.trim(),
           type: routeType,
@@ -89,17 +86,14 @@ export function useChatStreaming() {
           throw new Error("메시지 전송에 실패했습니다.");
         }
 
-        // 기존 스트림 종료 후 새 스트림 시작
         closeStream();
         const es = new EventSource(`/api/chat/${sessionId}`);
         eventSourceRef.current = es;
 
-        // 이벤트 핸들러 설정
         es.onmessage = (evt) => {
           try {
-            // 리셋 중이거나 EventSource가 닫혔으면 무시
             if (
-              isResettingRef.current ||
+              es !== eventSourceRef.current ||
               es.readyState === EventSource.CLOSED
             ) {
               return;
@@ -111,27 +105,29 @@ export function useChatStreaming() {
               handleStartAssistant();
             } else if (payload.event === "on_chat_model_stream") {
               const delta = payload?.chunk?.content ?? "";
-              if (delta && !isResettingRef.current) {
+              if (delta) {
                 addChunkToQueue(delta);
               }
             } else if (payload.event === "on_chat_model_end") {
-              if (!isResettingRef.current) {
-                finishStreaming();
-              }
+              finishStreaming();
+              clearStatusMessage();
               es.close();
               eventSourceRef.current = null;
+            } else if (payload.event === "status") {
+              const statusMsg = payload.message ?? "";
+              if (statusMsg) {
+                setStatusMessage(statusMsg);
+              }
             }
           } catch (error) {
             console.error("스트림 파싱 에러:", error);
           }
         };
 
-        // 에러 핸들러 설정
         es.onerror = () => {
-          if (!isResettingRef.current) {
-            setIsLoading(false);
-            toast.error("연결이 끊어졌습니다.");
-          }
+          if (es !== eventSourceRef.current) return;
+          setIsLoading(false);
+          toast.error("연결이 끊어졌습니다.");
           es.close();
           eventSourceRef.current = null;
           clearChunkQueue();
@@ -156,6 +152,8 @@ export function useChatStreaming() {
       addChunkToQueue,
       finishStreaming,
       clearChunkQueue,
+      setStatusMessage,
+      clearStatusMessage,
     ],
   );
 
