@@ -29,7 +29,7 @@ export const chatEventHander = ({
         controller,
         name: "chatNode",
         event: "status",
-        message: "게시글 요약을 봄",
+        message: "대화를 이어나가는 중",
       });
     }
     emitEvent({ controller, name: "chatNode", event });
