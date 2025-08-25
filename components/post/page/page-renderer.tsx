@@ -1,4 +1,6 @@
 import { Lock } from "lucide-react";
+import { Separator } from "@radix-ui/react-separator";
+import { SidebarTrigger } from "@ui/sidebar-trigger";
 import {
   getAISummaryByPostId,
   getRecommendedListByPostId,
@@ -15,8 +17,6 @@ import TitleEditor from "@/components/post/title-editor";
 import { formatKoreanDate } from "@/lib/date";
 import { Database } from "@/types/supabase";
 import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
-import { Separator } from "@radix-ui/react-separator";
-import { SidebarTrigger } from "@ui/sidebar-trigger";
 
 interface PageProps {
   data: Database["public"]["Tables"]["posts"]["Row"];
@@ -63,7 +63,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
               title={data?.title}
             />
           </div>
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex items-center gap-2 px-4 lg:mr-10 xl:mr-0">
             <ToggleEditButton />
           </div>
         </header>
