@@ -1,11 +1,11 @@
-import { buildGraph } from "@/app/api/chat/_controllers/graph/graph";
-import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
-import { AIMessage } from "@langchain/core/messages";
 import { NextRequest, NextResponse } from "next/server";
+import { AIMessage } from "@langchain/core/messages";
+import { buildGraph } from "@/app/api/chat/_controllers/graph/graph";
 import {
   bipassEventHander,
   chatEventHander,
 } from "@/app/api/chat/_controllers/utils/chat-event";
+import { sessionStore } from "@/app/api/chat/_controllers/utils/session-store";
 
 export async function handleStream(request: NextRequest, sessionId: string) {
   try {
@@ -22,7 +22,7 @@ export async function handleStream(request: NextRequest, sessionId: string) {
             message: "전송할 메시지가 없음",
           };
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
           );
           controller.close();
         },
@@ -56,12 +56,12 @@ export async function handleStream(request: NextRequest, sessionId: string) {
 
             await app.updateState(
               { configurable: { thread_id: sessionId } },
-              { messages: [new AIMessage(content)], routeType: "" as const }
+              { messages: [new AIMessage(content)], routeType: "" as const },
             );
           } catch {
             const data = { event: "error", message: "stream error" };
             controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+              encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
             );
           } finally {
             controller.close();
@@ -79,13 +79,14 @@ export async function handleStream(request: NextRequest, sessionId: string) {
           for await (const chunk of app.streamEvents(inputs, {
             version: "v2",
             configurable: { thread_id: sessionId },
+            durability: "exit", // 랭그래프 종료 시점에만 상태 업데이트
           })) {
             chatEventHander({ controller, chunk });
           }
         } catch (_error) {
           const data = { event: "error", message: "stream error" };
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
           );
         } finally {
           controller.close();
@@ -103,7 +104,7 @@ export async function handleStream(request: NextRequest, sessionId: string) {
   } catch (_error) {
     return NextResponse.json(
       { error: "Failed to get stream" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
