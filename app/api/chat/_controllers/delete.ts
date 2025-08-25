@@ -8,7 +8,7 @@ export async function handleDelete(_request: NextRequest, sessionId: string) {
     checkpointer.deleteThread(sessionId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error("Delete session error:", error); //디버깅
     return NextResponse.json(
       { error: "Failed to delete session" },
       { status: 500 }

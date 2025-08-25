@@ -13,6 +13,7 @@ import { SessionMessagesAnnotation } from "./graph";
 
 // 게시글 요약문을 기반으로 대화함
 export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
+  console.log("Chat node started with messages:", state.messages.length); //디버깅
   const contextMessages = state.messages.slice(0 - MAX_MESSAGES_LEN);
   const systemPrompt = [
     new SystemMessage(
@@ -29,26 +30,34 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
         ),
       );
     } catch (error) {
-      console.error("Failed to load summary:", error);
+      console.error("Failed to load summary:", error); //디버깅
     }
   }
   systemPrompt.push(new HumanMessage(`다음에는 7줄 이내로 요약해줘.`));
   systemPrompt.push(new AIMessage(`네 알겠습니다.`));
 
   // 최신 대화 n개 + 시스템 프롬프트
-  const aiMessage = await llmModel.invoke([
-    ...systemPrompt,
-    ...contextMessages,
-  ]);
+  try {
+    console.log("Invoking LLM model with", systemPrompt.length + contextMessages.length, "messages"); //디버깅
+    const aiMessage = await llmModel.invoke([
+      ...systemPrompt,
+      ...contextMessages,
+    ]);
+    console.log("LLM response received"); //디버깅
+    
+    const nextState = {
+      ...state,
+      routeType: "" as const,
+      messages: [aiMessage],
+    };
 
-  const nextState = {
-    ...state,
-    routeType: "" as const,
-    messages: [aiMessage],
-  };
+    return new Command({
+      goto: LangNodeName.routing,
+      update: nextState,
+    });
+  } catch (error) {
+    console.error("LLM invocation error:", error); //디버깅
+    throw error;
+  }
 
-  return new Command({
-    goto: LangNodeName.routing,
-    update: nextState,
-  });
 }

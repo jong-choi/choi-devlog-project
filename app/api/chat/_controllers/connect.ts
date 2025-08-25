@@ -7,10 +7,15 @@ import type { SessionErrorResponse, SessionResponse } from "@/types/chat";
 const SESSION_IDLE_TIMEOUT_MS = 1000 * 60 * 5; // 5분
 
 export const resetIdleTimer = (id: string) => {
-  sessionStore.setIdleTimer(id, SESSION_IDLE_TIMEOUT_MS, () => {
-    checkpointer.deleteThread(id);
-    sessionStore.delete(id);
-  });
+  try {
+    sessionStore.setIdleTimer(id, SESSION_IDLE_TIMEOUT_MS, () => {
+      console.log("Session expired, cleaning up:", id); //디버깅
+      checkpointer.deleteThread(id);
+      sessionStore.delete(id);
+    });
+  } catch (error) {
+    console.error("Reset idle timer error:", error); //디버깅
+  }
 };
 
 export async function handleConnect() {
@@ -28,6 +33,7 @@ export async function handleConnect() {
     };
     return NextResponse.json(response);
   } catch (_error) {
+    console.error("Session creation error:", _error); //디버깅
     const errorResponse: SessionErrorResponse = {
       error: "Failed to create session",
     };

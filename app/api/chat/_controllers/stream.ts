@@ -85,6 +85,7 @@ export async function handleStream(request: NextRequest, sessionId: string) {
           }
         } catch (_error) {
           const data = { event: "error", message: "stream error" };
+          console.error(_error);
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
           );

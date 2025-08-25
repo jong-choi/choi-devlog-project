@@ -23,8 +23,10 @@ export async function handleSend(request: NextRequest, sessionId: string) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    console.log("User auth status:", user ? "authenticated" : "guest"); //디버깅
 
     const rateLimitResult = checkRateLimit(sessionId);
+    console.log("Rate limit result for session", sessionId, ":", rateLimitResult); //디버깅
 
     if (!user && !rateLimitResult.allowed) {
       return NextResponse.json(
@@ -53,7 +55,7 @@ export async function handleSend(request: NextRequest, sessionId: string) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error(error);
+    console.error("Send message error:", error); //디버깅
     return NextResponse.json({ error }, { status: 500 });
   }
 }

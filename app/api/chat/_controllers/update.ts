@@ -39,7 +39,7 @@ export async function handleUpdate(request: NextRequest, sessionId: string) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Update state error:", error);
+    console.error("Update state error:", error); //디버깅
     return new Response(JSON.stringify({ error: "Failed to update state" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
