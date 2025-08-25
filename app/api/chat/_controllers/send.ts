@@ -23,10 +23,8 @@ export async function handleSend(request: NextRequest, sessionId: string) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log("User auth status:", user ? "authenticated" : "guest"); //디버깅
 
     const rateLimitResult = checkRateLimit(sessionId);
-    console.log("Rate limit result for session", sessionId, ":", rateLimitResult); //디버깅
 
     if (!user && !rateLimitResult.allowed) {
       return NextResponse.json(

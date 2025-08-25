@@ -16,8 +16,16 @@ const fetchWithSecretKey = (
   return fetch(url, options);
 };
 
+// 환경변수 확인
+const OLLAMA_HOST = process.env.ORACLE_OLLAMA_HOST;
+if (!OLLAMA_HOST) {
+  console.error("ORACLE_OLLAMA_HOST environment variable is not set"); //디버깅
+  throw new Error("ORACLE_OLLAMA_HOST environment variable is required");
+}
+
+
 export const llmModel = new ChatOllama({
-  baseUrl: `${process.env.ORACLE_OLLAMA_HOST}`,
+  baseUrl: OLLAMA_HOST,
   model: MODEL_NAME,
   streaming: true,
   fetch: fetchWithSecretKey,

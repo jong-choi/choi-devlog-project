@@ -9,7 +9,6 @@ const SESSION_IDLE_TIMEOUT_MS = 1000 * 60 * 5; // 5분
 export const resetIdleTimer = (id: string) => {
   try {
     sessionStore.setIdleTimer(id, SESSION_IDLE_TIMEOUT_MS, () => {
-      console.log("Session expired, cleaning up:", id); //디버깅
       checkpointer.deleteThread(id);
       sessionStore.delete(id);
     });

@@ -19,7 +19,6 @@ type State = typeof SessionMessagesAnnotation.State;
 type NextState = Partial<State>;
 
 export async function googleNode(state: State) {
-  console.log("Google node started"); //디버깅
   const lastUserMessage = state.messages
     .filter((msg) => msg.getType() === "human")
     .pop();
@@ -28,13 +27,11 @@ export async function googleNode(state: State) {
   let nextState: NextState = {};
 
   if (typeof query !== "string") {
-    console.log("Invalid query type, ending google search"); //디버깅
     return {
       routeType: "" as const,
     };
   }
   
-  console.log("Google search query:", query); //디버깅
 
   const params = new URLSearchParams({
     key: GOOGLE_API_KEY,
@@ -45,7 +42,6 @@ export async function googleNode(state: State) {
   });
   const url = `https://www.googleapis.com/customsearch/v1?${params}`;
 
-  console.log("Calling Google API"); //디버깅
   const res: Response = await fetch(url);
 
   if (!res.ok) {
@@ -65,7 +61,6 @@ export async function googleNode(state: State) {
   let items: Array<Item>;
   try {
     items = ItemArraySchema.parse(data.items);
-    console.log("Google search results:", items.length, "items"); //디버깅
   } catch (error) {
     console.error("Failed to parse Google search results:", error); //디버깅
     items = [];

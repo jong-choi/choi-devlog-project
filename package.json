@@ -1,6 +1,6 @@
 {
   "name": "next-js-blog",
-  "version": "0.7.06",
+  "version": "0.7.07",
   "private": true,
   "browserslist": [
     "> 0.5%",
