@@ -1,27 +1,27 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { useShallow } from "zustand/react/shallow";
+import { Suspense } from "react";
 import { Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { Logo } from "@/components/ui/post-top-bar";
-import SearchInput from "@/components/posts/infinite-scroll/search-input";
+import { useShallow } from "zustand/react/shallow";
+import { LinkLoader } from "@ui/route-loader";
+import { updateOrders } from "@/app/post/actions/sidebar";
+import CategoryCreateForm from "@/components/dialogs/category-forms/category-create-form";
+import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
+import PostCreateForm from "@/components/dialogs/post-forms/post-create-form";
+import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
+import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
+import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
 import { MobilePostSidebar } from "@/components/post/sidebar/mobile-post-sidebar";
 import { SidebarCategoryContent } from "@/components/post/sidebar/sidebar-category-content";
-import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
-import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
-import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
-import { useLayoutStore } from "@/providers/layout-store-provider";
 import { SidebarSkeleton } from "@/components/post/sidebar/sidebar-skelton";
-import { LinkLoader } from "@ui/route-loader";
-import { CreateDialog } from "@/components/dialogs/create-dialog/create-dialog";
-import { SidebarContentDropdown } from "@/components/dialogs/sidebar-content-dropdown/sidebar-content-dropdown";
-import CategoryCreateForm from "@/components/dialogs/category-forms/category-create-form";
-import PostUpdateForm from "@/components/dialogs/post-forms/post-update-form";
-import PostDeleteForm from "@/components/dialogs/post-forms/post-delete-form";
-import { updateOrders } from "@/app/post/actions/sidebar";
-import PostCreateForm from "@/components/dialogs/post-forms/post-create-form";
-import { Suspense } from "react";
+import ToggleSortableButton from "@/components/post/sortable-list/toggle-sortable-button";
+import { WithSortableItem } from "@/components/post/sortable-list/with-sortable-item";
+import { WithSortableList } from "@/components/post/sortable-list/with-sortable-list";
+import SearchInput from "@/components/posts/infinite-scroll/search-input";
+import { Logo } from "@/components/ui/post-top-bar";
+import { cn } from "@/lib/utils";
+import { useLayoutStore } from "@/providers/layout-store-provider";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
 
 export function Sidebar({ inset = false }: { inset?: boolean }) {
   const {
@@ -37,11 +37,12 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
       isSortable: state.isSortable,
       setSidebarLeftCollapsed: state.setSidebarLeftCollapsed,
       setSidebarRightCollapsed: state.setSidebarRightCollapsed,
-    }))
+    })),
   );
 
   const {
     posts,
+    recentPosts,
     categories,
     selectedSubcategoryId,
     selectedSubcategoryName,
@@ -51,20 +52,21 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
   } = useSidebarStore(
     useShallow((state) => ({
       posts: state.posts || [],
+      recentPosts: state.recentPosts || [],
       categories: state.categories || [],
       selectedSubcategoryId: state.selectedSubcategoryId,
       selectedSubcategoryName: state.selectedSubcategoryName,
       selectedPostId: state.selectedPostId,
       setSubcategory: state.setSubcategory,
       loading: state.loading,
-    }))
+    })),
   );
 
   return (
     <div
       className={cn(
         "inline-flex h-full bg-transparent backdrop-blur-sm transition-colors flex-col md:flex-row z-50",
-        inset ?? "gap-4 p-4"
+        inset ?? "gap-4 p-4",
       )}
     >
       {/* 왼쪽 사이드바 */}
@@ -73,7 +75,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
           "hidden md:flex flex-col border-gray-200 dark:border-gray-700 transition-all duration-300 relative overflow-x-hidden ",
           sidebarLeftCollapsed ? "w-6 cursor-pointer" : "w-64",
           inset ??
-            "rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700"
+            "rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700",
         )}
         onClick={() => {
           if (sidebarLeftCollapsed) {
@@ -151,23 +153,18 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
             ? inset
               ? "w-0 -ml-4"
               : "w-0 opacity-20"
-            : "w-64"
+            : "w-64",
         )}
       >
         {!sidebarRightCollapsed && (
           <div className="p-4 w-64 overflow-auto space-y-1 scrollbar flex flex-col">
             {!selectedSubcategoryId && loading && <SidebarSkeleton />}
-            {!selectedSubcategoryId && !loading && (
-              <p className="text-sm text-gray-400 dark:text-gray-500">
-                서브 카테고리를 선택해주세요.
-              </p>
-            )}
             {selectedSubcategoryName && (
               <div className="flex flex-col">
                 <div
                   className={cn(
                     "font-extralight px-3 select-none",
-                    isSortable && "flex-1 whitespace-nowrap overflow-hidden"
+                    isSortable && "flex-1 whitespace-nowrap overflow-hidden",
                   )}
                 >
                   {selectedSubcategoryName}
@@ -179,10 +176,40 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                 </div>
               </div>
             )}
+            {!selectedSubcategoryId && !loading && (
+              <>
+                <div
+                  className={cn(
+                    "font-extralight px-3 select-none",
+                    isSortable && "flex-1 whitespace-nowrap overflow-hidden",
+                  )}
+                >
+                  Recent Bits and Bobs...
+                </div>
+                {recentPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="flex justify-between items-center w-full"
+                  >
+                    <LinkLoader
+                      href={`/post/${post.url_slug}`}
+                      className={cn(
+                        "block px-3 py-2 rounded-lg text-sm transition flex-1",
+                        selectedPostId === post.id
+                          ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
+                          : "text-gray-700 dark:text-gray-300",
+                      )}
+                    >
+                      {post.title}
+                    </LinkLoader>
+                  </div>
+                ))}
+              </>
+            )}
             {selectedSubcategoryId && (
               <WithSortableList
                 items={posts.filter(
-                  (post) => post.subcategory_id === selectedSubcategoryId
+                  (post) => post.subcategory_id === selectedSubcategoryId,
                 )}
                 onUpdate={(items) =>
                   updateOrders({ mode: "posts", data: items })
@@ -201,7 +228,7 @@ export function Sidebar({ inset = false }: { inset?: boolean }) {
                             "block px-3 py-2 rounded-lg text-sm transition flex-1",
                             selectedPostId === post.id
                               ? "text-gray-900 dark:text-white font-semibold bg-glass-bg dark:bg-black"
-                              : "text-gray-700 dark:text-gray-300"
+                              : "text-gray-700 dark:text-gray-300",
                           )}
                         >
                           {post.is_private && (

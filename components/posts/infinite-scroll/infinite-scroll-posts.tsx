@@ -1,12 +1,24 @@
 "use client";
 
-import { PostCard } from "@/components/posts/post-card";
 import { useInfinitePostsStore } from "@/providers/infinite-posts-provider";
 import { useEffect, useRef } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { ScrollCard } from "@/components/posts/infinite-scroll/scroll-card";
 
 export default function InfiniteScrollPosts() {
-  const { posts, fetchNextPage, loading, hasMore } = useInfinitePostsStore(
-    (store) => store
+  const { fetchNextPage, loading, hasMore } = useInfinitePostsStore(
+    useShallow((store) => {
+      return {
+        fetchNextPage: store.fetchNextPage,
+        loading: store.loading,
+        hasMore: store.hasMore,
+      };
+    })
+  );
+  const ids = useInfinitePostsStore(
+    useShallow((store) => {
+      return store.posts.map((post) => post.id);
+    })
   );
   const observerRef = useRef<HTMLDivElement>(null);
 
@@ -29,8 +41,8 @@ export default function InfiniteScrollPosts() {
 
   return (
     <>
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+      {ids.map((id) => (
+        <ScrollCard key={id} id={id || ""} />
       ))}
       {loading && <div className="text-center text-color-base">Loading...</div>}
       {!hasMore && (

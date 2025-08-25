@@ -1,16 +1,16 @@
+import { SectionLinkText } from "@ui/glass-button";
 import {
   GlassBox,
   SectionContainer,
   SectionInnerContainer,
 } from "@ui/glass-container";
-import { LatestPostsSection } from "@/components/main/latest-posts-section";
-import ClusterGraphSection from "@/components/main/cluster-graph-section";
-import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
-import SeriesApp from "@/components/series/series-app";
-import { SectionLinkText } from "@ui/glass-button";
-import { getSeriesList } from "@/app/(app-shell)/series/fetchers";
 import { LogoBigText } from "@ui/post-top-bar";
 import { LinkLoader } from "@ui/route-loader";
+import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
+import { getSeriesList } from "@/app/(app-shell)/series/fetchers";
+import ClusterGraphSection from "@/components/main/cluster-graph-section";
+import { LatestPostsSection } from "@/components/main/latest-posts-section";
+import SeriesApp from "@/components/series/series-app";
 
 export default async function Page() {
   const { data: recentPosts } = await getPublishedPosts({ page: 0 });
@@ -56,7 +56,7 @@ export default async function Page() {
       {/* 최신글 */}
       <SectionContainer title={"최신글"}>
         <LatestPostsSection posts={recentPosts || []} limit={5} />
-        <SectionLinkText href="/posts">더 보기</SectionLinkText>
+        <SectionLinkText href="/post">더 보기</SectionLinkText>
       </SectionContainer>
       {/* 리스트 섹션 */}
       <SectionContainer

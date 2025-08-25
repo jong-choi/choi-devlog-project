@@ -1,21 +1,22 @@
+import { Lock } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
-import MarkdownEditor from "@/components/markdown/markdown-editor";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
+import {
+  getAISummaryByPostId,
+  getRecommendedListByPostId,
+  getSidebarCategory,
+} from "@/app/post/fetchers";
+import MarkdownEditor from "@/components/markdown/markdown-editor";
+import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
+import SummaryHydrator from "@/components/post/ai-chat-panel/summary-hyrator";
+import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
+import AutosaveApp from "@/components/post/autosave/autosave-app";
+import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
 import TitleEditor from "@/components/post/title-editor";
-import { getSidebarCategory } from "@/app/post/fetchers";
-import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
-import AIPanelWrapper from "@/components/post/right-panel/ai-panel-wrapper";
-import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
-import AIPanel from "@/components/post/right-panel/ai-panel";
-import AutosaveApp from "@/components/post/autosave/autosave-app";
-import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
 import { formatKoreanDate } from "@/lib/date";
-import MainPostSectionContainer from "@/components/post/main-post-section-container";
-import { Lock } from "lucide-react";
-import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
-
 import { Database } from "@/types/supabase";
+import { findCategoryAndSubcategoryById } from "@/utils/uploadingUtils";
 
 interface PageProps {
   data: Database["public"]["Tables"]["posts"]["Row"];
@@ -25,8 +26,11 @@ export default async function PostPageRenderer({ data }: PageProps) {
   const { data: categoryData } = await getSidebarCategory();
   const { category, subcategory } = findCategoryAndSubcategoryById(
     categoryData,
-    data.subcategory_id
+    data.subcategory_id,
   );
+
+  const { data: summaryData } = await getAISummaryByPostId(data.id);
+  const { data: recommendedPosts } = await getRecommendedListByPostId(data.id);
 
   return (
     <AutosaveStoreWrapper
@@ -34,9 +38,14 @@ export default async function PostPageRenderer({ data }: PageProps) {
       subcategoryId={data.subcategory_id}
       categoryData={categoryData}
     >
+      <SummaryHydrator
+        summary={summaryData?.summary ?? ""}
+        recommendedPosts={recommendedPosts ?? []}
+        postId={data.id}
+      />
       <main
         id="메인레퍼"
-        className="flex flex-1 flex-col h-full bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
+        className="flex flex-1 flex-col h-full min-w-0 bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
       >
         <header
           data-component-name="main-header"
@@ -54,7 +63,7 @@ export default async function PostPageRenderer({ data }: PageProps) {
               title={data?.title}
             />
           </div>
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex items-center gap-2 px-4 lg:mr-10 xl:mr-0">
             <ToggleEditButton />
           </div>
         </header>
@@ -80,11 +89,6 @@ export default async function PostPageRenderer({ data }: PageProps) {
           </div>
         </MainPostSectionContainer>
       </main>
-      <AIPanelWrapper data={data}>
-        <RightPanelWrapper>
-          <AIPanel />
-        </RightPanelWrapper>
-      </AIPanelWrapper>
     </AutosaveStoreWrapper>
   );
 }

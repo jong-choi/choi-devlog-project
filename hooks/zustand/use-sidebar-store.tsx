@@ -1,5 +1,5 @@
-import { Category, Post } from "@/types/post";
 import { createStore } from "zustand";
+import { CardPost, Category, Post } from "@/types/post";
 
 export interface SidebarState {
   categories: Category[] | null;
@@ -11,6 +11,7 @@ export interface SidebarState {
   openedCategories: Record<string, boolean>;
   loading: boolean;
   categoriesPending: boolean;
+  recentPosts: CardPost[] | null;
   setCategory: (id: string | null) => void;
   setCategories: (categories: Category[]) => void;
   setSubcategory: (subcategory: { id: string; name: string } | null) => void;
@@ -20,6 +21,7 @@ export interface SidebarState {
   toggleCategory: (categoryId: string) => void;
   setLoaded: () => void;
   setCategoriesPending: (state: boolean) => void;
+  setRecentPosts: (recentsPosts: CardPost[] | null) => void;
 }
 
 export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
@@ -33,6 +35,7 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
     openedCategories: {},
     loading: true,
     categoriesPending: false,
+    recentPosts: null,
     setCategory: (id) =>
       set({ selectedCategoryId: id, selectedSubcategoryId: null }),
     setCategories: (categories) => set({ categories }),
@@ -59,5 +62,6 @@ export const createSidebarStore = (initialState?: Partial<SidebarState>) =>
       })),
     setLoaded: () => set({ loading: false }),
     setCategoriesPending: (state) => set({ categoriesPending: state }),
+    setRecentPosts: (state) => ({ recentPosts: state }),
     ...initialState, // 초기값 덮어쓰기
   }));

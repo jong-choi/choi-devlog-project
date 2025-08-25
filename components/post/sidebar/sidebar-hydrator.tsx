@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { useShallow } from "zustand/react/shallow";
-import { createClient } from "@/utils/supabase/client";
-import { useAuthStore } from "@/providers/auth-provider";
 import { useParams } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
 import {
   getClientSidebarCategory,
   getClientSidebarPrivatePosts,
   getClientSidebarPublishedPosts,
 } from "@/app/post/fetchers/client/sidebar";
+import { useAuthStore } from "@/providers/auth-provider";
 import { useLayoutStore } from "@/providers/layout-store-provider";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SidebarHydrator() {
   const params = useParams();
@@ -24,7 +24,7 @@ export default function SidebarHydrator() {
       postsPending: state.postsPending,
       setPostsPending: state.setPostsPending,
       setMobileClosed: state.setMobileClosed,
-    }))
+    })),
   );
 
   const {
@@ -48,7 +48,7 @@ export default function SidebarHydrator() {
       publishedPostsLength: state.posts?.filter((post) => !post.is_private)
         .length,
       postByUrl: state.posts?.find(
-        (post) => post.url_slug === decodeURIComponent(urlSlug)
+        (post) => post.url_slug === decodeURIComponent(urlSlug),
       ),
       categoriesPending: state.categoriesPending,
       setCategory: state.setCategory,
@@ -59,12 +59,12 @@ export default function SidebarHydrator() {
       setOpenCategory: state.setOpenCategory,
       setLoaded: state.setLoaded,
       setCategoriesPending: state.setCategoriesPending,
-    }))
+    })),
   );
   const { uid } = useAuthStore(
     useShallow((state) => ({
       uid: state.user?.id,
-    }))
+    })),
   );
 
   useEffect(() => setMobileClosed(), [setMobileClosed]);
@@ -133,7 +133,7 @@ export default function SidebarHydrator() {
       setPost(postByUrl.id);
       for (const category of categories) {
         const subcategory = category.subcategories.find(
-          (sub) => sub.id === postByUrl.subcategory_id
+          (sub) => sub.id === postByUrl.subcategory_id,
         );
         if (subcategory) {
           selectedCategoryId = category.id;

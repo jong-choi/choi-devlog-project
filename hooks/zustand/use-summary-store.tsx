@@ -1,14 +1,18 @@
-import { Post } from "@/types/post";
 import { createStore } from "zustand";
+type RecommendedPost = {
+  id: string;
+  title: string;
+  urlSlug: string;
+};
 
 export interface SummaryState {
   summaryId: string | null;
   summary: string;
-  recommendedPosts: Post[];
+  recommendedPosts: RecommendedPost[];
   loading: boolean;
   setSummary: (summary: string) => void;
   setSummaryId: (summaryId: string) => void;
-  setRecommendedPosts: (recommendedPosts: Post[]) => void;
+  setRecommendedPosts: (recommendedPosts: RecommendedPost[]) => void;
   setLoading: (isLoading: boolean) => void;
 }
 
