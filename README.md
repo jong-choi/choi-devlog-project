@@ -42,11 +42,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### WYSWYG 에디터 / 자동저장
 
-<video controls style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;" poster="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/9dae3106-6e55-4cdf-8bc5-01c8bb02f48d-Screenshot_2025-06-07_08-20-45.png">
-  <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/edit-h264.mp4" type="video/mp4">
-  <img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/9dae3106-6e55-4cdf-8bc5-01c8bb02f48d-Screenshot_2025-06-07_08-20-45.png" alt="WYSIWYG Editor Demo" style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;">
-</video>
-
+  <img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;">
 - [마크다운 편집 프레임워크 Milkdown](https://milkdown.dev/)을 이용하여 WYSWYG으로 편집이 가능하도록 하였습니다.
 - 게시글은 [react-remark](https://github.com/remarkjs/react-remark)를 이용하여 view모드를 SSR로 구현하였습니다.
 - 게시글을 실시간으로 편집할 때에는 IndexedDB를 이용해 로컬에 임시 저장됩니다.
@@ -104,18 +100,9 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 ### 채팅 및 인터넷 검색
 
 <div style="display: flex; justify-content: center; flex-wrap: wrap; margin: 20px auto;">
-  <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-summary.png">
-    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-summary.mp4" type="video/mp4">
-    <img src="./public/docs/chat-summary.png" alt="Chat Summary Demo" style="max-height: 300px; width: auto;">
-  </video>
-  <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-search.png">
-    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-search.mp4" type="video/mp4">
-    <img src="./public/docs/chat-search.png" alt="Chat Search Demo" style="max-height: 300px; width: auto;">
-  </video>
-  <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-simple.png">
-    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-simple.mp4" type="video/mp4">
-    <img src="./public/docs/chat-simple.png" alt="Chat Simple Demo" style="max-height: 300px; width: auto;">
-  </video>
+  <img src="./public/docs/chat-summary.gif" alt="Chat Summary Demo" style="max-height: 300px; width: auto;">
+  <img src="./public/docs/chat-search.gif" alt="Chat search Demo" style="max-height: 300px; width: auto;">
+  <img src="./public/docs/chat-simple.gif" alt="Chat simple Demo" style="max-height: 300px; width: auto;">
 </div>
 
 - 채팅을 시작하면 인공지능 언어 모델이 사용자가 보고 있는 게시글의 요약을 확인한 후 응답을 생성합니다.
