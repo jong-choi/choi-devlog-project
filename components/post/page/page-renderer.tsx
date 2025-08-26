@@ -116,7 +116,7 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
           </header>
           <AutosaveApp />
           <MainPostSectionContainer>
-            <div className="main-post-section">
+            <div className="main-post-section min-w-0">
               <div className="px-4 sm:px-14 mb-5 flex flex-col gap-2">
                 <div className="text-xs">{subcategory?.name}</div>
                 <div className="flex gap-1">
