@@ -1,5 +1,6 @@
 import { Lock } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
+import { Logo } from "@ui/post-top-bar";
 import { SidebarTrigger } from "@ui/sidebar-trigger";
 import {
   getAISummaryByPostId,
@@ -81,6 +82,7 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
   return (
     <>
       <SidebarCloseOnMount />
+
       <SelectionInitializer selection={selection} />
       <AutosaveStoreWrapper
         data={data}
@@ -102,16 +104,22 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
           >
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
-              />
-              <PostBreadcrumb
-                category={category}
-                subcategory={subcategory}
-                title={data?.title}
-              />
+              <div className="flex md:hidden gap-2 item">
+                <Logo />
+              </div>
+              <div className="hidden md:flex">
+                <Separator
+                  orientation="vertical"
+                  className="mr-2 data-[orientation=vertical]:h-4"
+                />
+                <PostBreadcrumb
+                  category={category}
+                  subcategory={subcategory}
+                  title={data?.title}
+                />
+              </div>
             </div>
+
             <div className="flex items-center gap-2 px-4 lg:mr-10 xl:mr-0">
               <ToggleEditButton />
             </div>
