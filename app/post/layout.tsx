@@ -16,16 +16,20 @@ export default async function PostRootLayout({
 }: PostRootLayoutProps) {
   return (
     <LayoutStoreProvider>
-      <div className="flex h-screen">
+      <div className="flex">
         <PostSidebarWrapper>
-          <Sidebar />
+          <div className="h-dvh sticky top-0 z-30">
+            <Sidebar />
+          </div>
           <PrivatePostsHydrator />
           <SummaryProvider>
             {children}
             <ChatStoreProvider>
-              <RightPanelWrapper>
-                <AIChatPanel />
-              </RightPanelWrapper>
+              <div className="h-dvh sticky top-0 z-30">
+                <RightPanelWrapper>
+                  <AIChatPanel />
+                </RightPanelWrapper>
+              </div>
             </ChatStoreProvider>
           </SummaryProvider>
         </PostSidebarWrapper>

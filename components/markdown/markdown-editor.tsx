@@ -1,16 +1,17 @@
 "use client";
-import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
+
 import dynamic from "next/dynamic";
-import "@/components/markdown/styles/github-markdown.css";
+import { useShallow } from "zustand/react/shallow";
 import "@milkdown/crepe/theme/common/style.css";
+import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
+import "@/components/markdown/styles/github-markdown.css";
 // https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
 import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
-import { useShallow } from "zustand/react/shallow";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
 const MilkdownWrapper = dynamic(
-  () => import("@/components/markdown/milkdown-app/milkdown-wrapper")
+  () => import("@/components/markdown/milkdown-app/milkdown-wrapper"),
 );
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
@@ -19,13 +20,13 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
       isMounted: state.isMounted,
       isEditMode: state.isEditMode,
       isFullMode: state.isRawOn && state.isMilkdownOn,
-    }))
+    })),
   );
 
   return (
     <div className="markdown-body w-full relative pb-28">
       <div
-        className={cn(isFullMode && "hidden", isEditMode && "opacity-0")}
+        className={cn(isEditMode && "opacity-0")}
         aria-hidden={isEditMode || isFullMode}
       >
         <MilkdownPreview markdown={markdown} />
@@ -36,7 +37,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
             isFullMode && "fixed inset-0 top-56 z-10",
             isEditMode
               ? "absolute inset-0 z-10"
-              : "w-0 h-0 opacity-0 overflow-hidden pointer-events-none"
+              : "w-0 h-0 opacity-0 overflow-hidden pointer-events-none",
           )}
           aria-hidden={!isEditMode}
         >
