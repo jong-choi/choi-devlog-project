@@ -43,7 +43,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 ### WYSWYG 에디터 / 자동저장
 
 <video controls style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;" poster="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/9dae3106-6e55-4cdf-8bc5-01c8bb02f48d-Screenshot_2025-06-07_08-20-45.png">
-  <source src="./public/docs/edit-h264.mp4" type="video/mp4">
+  <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/edit-h264.mp4" type="video/mp4">
   <img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/9dae3106-6e55-4cdf-8bc5-01c8bb02f48d-Screenshot_2025-06-07_08-20-45.png" alt="WYSIWYG Editor Demo" style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;">
 </video>
 
@@ -105,15 +105,15 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 <div style="display: flex; justify-content: center; flex-wrap: wrap; margin: 20px auto;">
   <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-summary.png">
-    <source src="./public/docs/chat-summary.mp4" type="video/mp4">
+    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-summary.mp4" type="video/mp4">
     <img src="./public/docs/chat-summary.png" alt="Chat Summary Demo" style="max-height: 300px; width: auto;">
   </video>
   <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-search.png">
-    <source src="./public/docs/chat-search.mp4" type="video/mp4">
+    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-search.mp4" type="video/mp4">
     <img src="./public/docs/chat-search.png" alt="Chat Search Demo" style="max-height: 300px; width: auto;">
   </video>
   <video controls style="max-height: 300px; width: auto; " poster="./public/docs/chat-simple.png">
-    <source src="./public/docs/chat-simple.mp4" type="video/mp4">
+    <source src="https://raw.githubusercontent.com/jong-Choi/choi-devlog-project/main/public/docs/chat-simple.mp4" type="video/mp4">
     <img src="./public/docs/chat-simple.png" alt="Chat Simple Demo" style="max-height: 300px; width: auto;">
   </video>
 </div>
