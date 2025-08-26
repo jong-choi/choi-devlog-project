@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
+import { handleDelete } from "@/app/api/chat/_controllers/delete";
 import { handleSend } from "@/app/api/chat/_controllers/send";
 import { handleStream } from "@/app/api/chat/_controllers/stream";
-import { handleDelete } from "@/app/api/chat/_controllers/delete";
-import { handleUpdate } from "../_controllers/update";
+import { handleUpdate } from "@/app/api/chat/_controllers/update";
 
 type Params = {
   params: Promise<{
