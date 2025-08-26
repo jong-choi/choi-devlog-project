@@ -1,24 +1,25 @@
 "use client";
+
+import { useEffect } from "react";
+import { Columns2 } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/providers/auth-provider";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useLayoutStore } from "@/providers/layout-store-provider";
-import { useEffect } from "react";
-import { useShallow } from "zustand/react/shallow";
-import { Columns2 } from "lucide-react";
-import { useAuthStore } from "@/providers/auth-provider";
 
 export default function ToggleEditButton() {
   const { layoutSnapshot, setLayoutSnaphot } = useAutosave(
     useShallow((state) => ({
       layoutSnapshot: state.layoutSnapshot,
       setLayoutSnaphot: state.setLayoutSnaphot,
-    }))
+    })),
   );
 
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
-    }))
+    })),
   );
 
   const {
@@ -36,7 +37,7 @@ export default function ToggleEditButton() {
       setIsEditMode: state.setIsEditMode,
       setIsMilkdown: state.setIsMilkdown,
       setIsRaw: state.setIsRaw,
-    }))
+    })),
   );
 
   const {
@@ -54,7 +55,7 @@ export default function ToggleEditButton() {
       sidebarLeftCollapsed: state.sidebarLeftCollapsed,
       sidebarRightCollapsed: state.sidebarRightCollapsed,
       rightPanelOpen: state.rightPanelOpen,
-    }))
+    })),
   );
 
   useEffect(() => {
@@ -118,8 +119,8 @@ export default function ToggleEditButton() {
   const editLabel = isValid ? "편집 모드" : "게스트 모드";
 
   return (
-    <div className="flex items-center gap-1">
-      <div className="text-[12px] font-semibold hidden md:flex">
+    <div className="flex items-center gap-1 flex-shrink-0 sm:mr-5 xl:mr-0">
+      <div className="text-[12px] font-semibold hidden md:flex flex-shrink-0">
         {isEditMode ? editLabel : "편집 꺼짐"}
       </div>
       <div className="flex divide-x overflow-hidden rounded-full border text-[8px] font-medium">
@@ -133,7 +134,7 @@ export default function ToggleEditButton() {
             "w-12 md:w-6 text-center transition-colors",
             isMilkdownOn
               ? "bg-lime-200 dark:bg-white dark:text-neutral-900"
-              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700"
+              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700",
           )}
         >
           MD
@@ -148,7 +149,7 @@ export default function ToggleEditButton() {
             "w-6 text-center transition-colors hidden md:block",
             isRawOn
               ? "bg-lime-200 dark:bg-white dark:text-neutral-900"
-              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700"
+              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700",
           )}
         >
           RAW
@@ -167,7 +168,7 @@ export default function ToggleEditButton() {
             "w-6 transition-colors hidden md:flex items-center justify-center",
             isRawOn && isMilkdownOn
               ? "bg-lime-200 dark:bg-white dark:text-neutral-900"
-              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700"
+              : "hover:bg-slate-100 text-color-base dark:hover:bg-neutral-700",
           )}
         >
           <Columns2 className="w-3 h-3 mr-1" />
