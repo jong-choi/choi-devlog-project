@@ -1,10 +1,3 @@
-/* rehype에 줄바꿈 적용  */
-.markdown-preview pre code {
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-
 .milkdown .markdown-preview {
   ul,
   ol,
@@ -351,18 +344,21 @@
   --crepe-color-inline-area: #cacaca;
 
   /* --crepe-font-title: Rubik, Cambria, "Times New Roman", Times, serif; */
-  --crepe-font-title: ui-sans-serif, -apple-system, system-ui, Segoe UI,
-    Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji,
-    Segoe UI Symbol;
-  --crepe-font-default: ui-sans-serif, -apple-system, system-ui, Segoe UI,
-    Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji,
-    Segoe UI Symbol;
-  --crepe-font-code: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+  --crepe-font-title:
+    ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica,
+    Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+  --crepe-font-default:
+    ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica,
+    Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+  --crepe-font-code:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
 
-  --crepe-shadow-1: 0px 1px 2px 0px rgba(255, 255, 255, 0.3),
+  --crepe-shadow-1:
+    0px 1px 2px 0px rgba(255, 255, 255, 0.3),
     0px 1px 3px 1px rgba(255, 255, 255, 0.15);
-  --crepe-shadow-2: 0px 1px 2px 0px rgba(255, 255, 255, 0.3),
+  --crepe-shadow-2:
+    0px 1px 2px 0px rgba(255, 255, 255, 0.3),
     0px 2px 6px 2px rgba(255, 255, 255, 0.15);
 }
 
@@ -390,8 +386,9 @@
 }
 
 .cm-scroller {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace !important;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace !important;
   font-size: 14px;
   font-weight: 500;
   font-feature-settings: normal;

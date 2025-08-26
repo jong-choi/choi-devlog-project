@@ -4,6 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
+pre,
+code,
+pre code {
+  white-space: pre-wrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+}
+
 /* 3D 카드 뒤집기 애니메이션 */
 .transform-style-preserve-3d {
   transform-style: preserve-3d;
