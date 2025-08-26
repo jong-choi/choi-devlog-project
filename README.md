@@ -1,6 +1,6 @@
 # 기술블로그 scribbly
 
-<img src="./public/docs/overview.png" alt="overview" style="max-width: 400px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="./public/docs/overview.png" alt="overview" width="400" /></p>
 
 WYSIWYG으로 작성하고, 인공지능으로 게시글을 분류하는 프론트엔드 기술블로그입니다.
 
@@ -42,7 +42,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### WYSWYG 에디터 / 자동저장
 
-  <img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" style="max-width: 600px; width: 100%; height: auto; display: block; margin: 0 auto;">
+<p align="center"><img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" width="600" /></p>
 - [마크다운 편집 프레임워크 Milkdown](https://milkdown.dev/)을 이용하여 WYSWYG으로 편집이 가능하도록 하였습니다.
 - 게시글은 [react-remark](https://github.com/remarkjs/react-remark)를 이용하여 view모드를 SSR로 구현하였습니다.
 - 게시글을 실시간으로 편집할 때에는 IndexedDB를 이용해 로컬에 임시 저장됩니다.
@@ -50,7 +50,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### 사이드바 DND
 
-<img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/6f910d8a-a159-4426-bb29-12b13aa87f7d-Screenshot_2025-06-07_08-25-07.png" alt="사이드바 DND" style="max-width: 600px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/6f910d8a-a159-4426-bb29-12b13aa87f7d-Screenshot_2025-06-07_08-25-07.png" alt="사이드바 DND" width="600" /></p>
 
 사이드바 역시 '편집' 모드를 토글하면 새로운 기능이 활성화됩니다.
 
@@ -61,21 +61,21 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### AI 요약
 
-<img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/f8361b08-7026-4048-94b5-334179e804e8-Screenshot_2025-06-07_08-30-40.png" alt="AI 요약" style="max-width: 600px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/f8361b08-7026-4048-94b5-334179e804e8-Screenshot_2025-06-07_08-30-40.png" alt="AI 요약" width="600" /></p>
 
 - OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
 - 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
 
 ### 지식 여정 지도
 
-<img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/78b872a8-7613-4128-957c-5a1417e22fc5-Screenshot_2025-06-07_08-34-31.png" alt="지식 여정 지도" style="max-width: 600px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/78b872a8-7613-4128-957c-5a1417e22fc5-Screenshot_2025-06-07_08-34-31.png" alt="지식 여정 지도" width="600" /></p>
 
 - 게시글 요약들을 DBSCAN으로 분류한 지도입니다.
 - 각 군집 간의 유사도도 함께 표시하여 지금까지 학습한 내용들과 그 연관성을 지도로 확인할 수 있습니다.
 
 ### 검색
 
-<img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/d7a7820c-597d-42eb-81c1-618855ff4111-Screenshot_2025-06-07_08-37-14.png" alt="검색" style="max-width: 600px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/d7a7820c-597d-42eb-81c1-618855ff4111-Screenshot_2025-06-07_08-37-14.png" alt="검색" width="600" /></p>
 
 - PostgresSQL의 Text Full Search를 이용하여 어절 단위 검색 및 스니펫을 지원하여 게시글 검색의 정확도를 높였습니다.
 
@@ -83,34 +83,26 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### AI 요약 및 추천 게시글 분석
 
-<div style="display: flex; gap: 20px; margin: 20px auto; align-items: flex-start;">
-  <div style="flex: 1; justify-content:center;  display: flex; gap: 10px;">
-    <img src="./public/docs/ai-summary.png" alt="AI Summary" style="max-height: 300px; width: auto;">
-    <img src="./public/docs/ai-recommend.png" alt="AI Recommend" style="max-height: 300px; width: auto;">
-  </div>
-  <div style="flex: 1;">
-    <ul style="margin: 0 auto;">
-      <li>OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.</li>
-      <li>요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.</li>
-      <li>코사인 유사도를 통해 검색된 추천 게시글이 서버에 저장되어 있으며, 추천 게시글 버튼을 누르면 서버에 저장된 추천 게시글이 채팅창에 추가됩니다.</li>
-    </ul>
-  </div>
-</div>
+|                                                                         |                                                                             |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| <img src="./public/docs/ai-summary.png" alt="AI Summary" width="300" /> | <img src="./public/docs/ai-recommend.png" alt="AI Recommend" width="300" /> |
+
+- OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
+- 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
+- 코사인 유사도를 통해 검색된 추천 게시글이 서버에 저장되어 있으며, 추천 게시글 버튼을 누르면 서버에 저장된 추천 게시글이 채팅창에 추가됩니다.
 
 ### 채팅 및 인터넷 검색
 
-<div style="display: flex; justify-content: center; flex-wrap: wrap; margin: 20px auto;">
-  <img src="./public/docs/chat-summary.gif" alt="Chat Summary Demo" style="max-height: 300px; width: auto;">
-  <img src="./public/docs/chat-search.gif" alt="Chat search Demo" style="max-height: 300px; width: auto;">
-  <img src="./public/docs/chat-simple.gif" alt="Chat simple Demo" style="max-height: 300px; width: auto;">
-</div>
+|                                                                                  |                                                                                |                                                                                |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| <img src="./public/docs/chat-summary.gif" alt="Chat Summary Demo" width="300" /> | <img src="./public/docs/chat-search.gif" alt="Chat search Demo" width="300" /> | <img src="./public/docs/chat-simple.gif" alt="Chat simple Demo" width="300" /> |
 
 - 채팅을 시작하면 인공지능 언어 모델이 사용자가 보고 있는 게시글의 요약을 확인한 후 응답을 생성합니다.
 - "검색 켜기" 버튼을 눌러 검색 모드로 전환할 수 있으며, 사용자가 입력한 내용을 구글에서 검색한 후, 검색 결과를 참고하여 응답을 생성합니다.
 
 #### 랭그래프 에이전트
 
-<img src="./public/docs/langraph-diagram.png" alt="overview" style="max-width: 300px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="./public/docs/langraph-diagram.png" alt="overview" width="300" /></p>
 
 - 빠른 응답 속도를 고려하여 인공지능 언어모델은 HyperCLOVA X SEED 1.5B를 양자화한 모델을 사용하였습니다.
   <details><summary><strong>Micro LLM 비교</strong></summary>
@@ -147,7 +139,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ## 배포
 
-<img src="./public/docs/remote-deploy.png" alt="원격 배포 이미지" style="max-width: 400px; height: auto; display: block; margin: 0 auto;" />
+<p align="center"><img src="./public/docs/remote-deploy.png" alt="원격 배포 이미지" width="400" /></p>
 
 - 배포는 GitHub Actions를 이용한 SSH 원격 배포 방식을 적용하였습니다.
 - 이와 같은 방식의 이점은
