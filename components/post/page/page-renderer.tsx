@@ -14,6 +14,7 @@ import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
 import MainPostSectionContainer from "@/components/post/main-post-section-container";
 import PostBreadcrumb from "@/components/post/post-breadcrumb";
+import MobileCloseOnMount from "@/components/post/sidebar/mobile-close-on-mount";
 import SelectionInitializer from "@/components/post/sidebar/selection-initializer";
 import TitleEditor from "@/components/post/title-editor";
 import { formatKoreanDate } from "@/lib/date";
@@ -79,6 +80,7 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
 
   return (
     <>
+      <MobileCloseOnMount />
       <SelectionInitializer selection={selection} />
       <AutosaveStoreWrapper
         data={data}

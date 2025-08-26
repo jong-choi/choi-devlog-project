@@ -1,6 +1,5 @@
 import AIChatPanel from "@/components/post/ai-chat-panel/ai-chat-panel";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
-import MobileCloseOnMount from "@/components/post/sidebar/mobile-close-on-mount";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
 import PrivatePostsHydrator from "@/components/post/sidebar/private-posts-hydrator";
@@ -21,7 +20,6 @@ export default async function PostRootLayout({
         <PostSidebarWrapper>
           <Sidebar />
           <PrivatePostsHydrator />
-          <MobileCloseOnMount />
           <SummaryProvider>
             {children}
             <ChatStoreProvider>
