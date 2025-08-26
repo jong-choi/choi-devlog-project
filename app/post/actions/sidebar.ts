@@ -1,9 +1,10 @@
 "use server";
-import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
-import { createClient } from "@/utils/supabase/server";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
+
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
+import { createClient } from "@/utils/supabase/server";
 
 export type UpdateOrdersPayload = {
   mode: "categories" | "subcategories" | "posts";
@@ -11,7 +12,7 @@ export type UpdateOrdersPayload = {
 };
 
 export const _updateOrders = async (
-  payload: UpdateOrdersPayload
+  payload: UpdateOrdersPayload,
 ): Promise<PostgrestSingleResponse<UpdateOrdersPayload>> => {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
@@ -27,7 +28,7 @@ export const _updateOrders = async (
   const parsedData =
     typeof result.data === "string"
       ? JSON.parse(result.data)
-      : result.data ?? [];
+      : (result.data ?? []);
 
   return {
     ...result,
@@ -46,5 +47,29 @@ export const updateOrders = createWithInvalidation(
     } else if (result.data?.mode) {
       revalidateTag(CACHE_TAGS.SIDEBAR.CATEGORY());
     }
-  }
+  },
 );
+
+// 비밀글 조회: 로그인된 사용자 기준으로만 반환
+export const fetchPrivatePosts = async () => {
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  const result = await supabase
+    .from("posts")
+    .select(
+      "id, url_slug, title, short_description, is_private, order, subcategory_id",
+    )
+    .eq("is_private", true)
+    .eq("user_id", user.id)
+    .is("deleted_at", null)
+    .order("order", { ascending: true });
+
+  return result.data ?? [];
+};

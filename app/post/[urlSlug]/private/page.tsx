@@ -1,10 +1,10 @@
-export const dynamic = "force-dynamic";
-
-import { getPostByUrlSlug } from "@/app/post/fetchers";
-import PostPageRenderer from "@/components/post/page/page-renderer";
-import RedirectTo from "@ui/redirect-to";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import RedirectTo from "@ui/redirect-to";
+import { getPostByUrlSlug } from "@/app/post/fetchers";
+import PostPageRenderer from "@/components/post/page/page-renderer";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{
@@ -19,7 +19,7 @@ export default async function Page({ params }: PageProps) {
     {
       urlSlug: decodeURIComponent(urlSlug),
     },
-    cookieStore
+    cookieStore,
   );
 
   const { data } = result;
@@ -30,5 +30,5 @@ export default async function Page({ params }: PageProps) {
     return redirect(`/post/${urlSlug}`);
   }
 
-  return <PostPageRenderer data={data} />;
+  return <PostPageRenderer data={data} urlSlug={decodeURIComponent(urlSlug)} />;
 }

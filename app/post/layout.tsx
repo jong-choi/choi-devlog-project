@@ -1,8 +1,9 @@
 import AIChatPanel from "@/components/post/ai-chat-panel/ai-chat-panel";
 import { RightPanelWrapper } from "@/components/post/right-panel/right-panel-wrapper";
+import MobileCloseOnMount from "@/components/post/sidebar/mobile-close-on-mount";
 import { Sidebar } from "@/components/post/sidebar/post-sidebar";
 import PostSidebarWrapper from "@/components/post/sidebar/post-sidebar-wrapper";
-import SidebarHydrator from "@/components/post/sidebar/sidebar-hydrator";
+import PrivatePostsHydrator from "@/components/post/sidebar/private-posts-hydrator";
 import { ChatStoreProvider } from "@/providers/chat-store-provider";
 import { LayoutStoreProvider } from "@/providers/layout-store-provider";
 import { SummaryProvider } from "@/providers/summary-store-provider";
@@ -19,16 +20,17 @@ export default async function PostRootLayout({
       <div className="flex h-screen">
         <PostSidebarWrapper>
           <Sidebar />
-          <SidebarHydrator />
+          <PrivatePostsHydrator />
+          <MobileCloseOnMount />
+          <SummaryProvider>
+            {children}
+            <ChatStoreProvider>
+              <RightPanelWrapper>
+                <AIChatPanel />
+              </RightPanelWrapper>
+            </ChatStoreProvider>
+          </SummaryProvider>
         </PostSidebarWrapper>
-        <SummaryProvider>
-          {children}
-          <ChatStoreProvider>
-            <RightPanelWrapper>
-              <AIChatPanel />
-            </RightPanelWrapper>
-          </ChatStoreProvider>
-        </SummaryProvider>
       </div>
     </LayoutStoreProvider>
   );

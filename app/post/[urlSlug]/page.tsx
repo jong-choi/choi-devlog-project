@@ -1,9 +1,9 @@
-export const dynamic = "force-static";
-
+import { Metadata } from "next";
+import RedirectTo from "@ui/redirect-to";
 import { getPostByUrlSlug } from "@/app/post/fetchers";
 import PostPageRenderer from "@/components/post/page/page-renderer";
-import RedirectTo from "@ui/redirect-to";
-import { Metadata } from "next";
+
+export const dynamic = "force-static";
 
 interface PageProps {
   params: Promise<{
@@ -37,5 +37,5 @@ export default async function Page({ params }: PageProps) {
     return <RedirectTo to={`/post/${urlSlug}/private`} />;
   }
 
-  return <PostPageRenderer data={data} />;
+  return <PostPageRenderer data={data} urlSlug={decodeURIComponent(urlSlug)} />;
 }

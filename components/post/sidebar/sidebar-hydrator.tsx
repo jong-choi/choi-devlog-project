@@ -13,6 +13,7 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { createClient } from "@/utils/supabase/client";
 
+// (deprecated) : 더 이상 사용하지 않음. mutation 코드들 참고용으로 남겨둠.
 // 클라이언트 측 부수효과들
 // - parms를 읽어 선택된 게시글을 만들어주는 사이드 이펙트
 // - 서버측 ssg로 저장된 서버 상태를 클라이언트 측에서 mutation하는 사이드 이펙트(낙관적 업데이트)
