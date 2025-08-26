@@ -1,6 +1,10 @@
 .new-york-small {
   font-size: 14px;
 
+  & pre:has(.hljs) {
+    background-color: #1e1e1e !important;
+  }
+
   & a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;

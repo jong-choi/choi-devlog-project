@@ -13,6 +13,9 @@ import { useLayoutStore } from "@/providers/layout-store-provider";
 import { useSidebarStore } from "@/providers/sidebar-store-provider";
 import { createClient } from "@/utils/supabase/client";
 
+// 클라이언트 측 부수효과들
+// - parms를 읽어 선택된 게시글을 만들어주는 사이드 이펙트
+// - 서버측 ssg로 저장된 서버 상태를 클라이언트 측에서 mutation하는 사이드 이펙트(낙관적 업데이트)
 export default function SidebarHydrator() {
   const params = useParams();
   const rawSlug = params?.urlSlug;
@@ -116,6 +119,7 @@ export default function SidebarHydrator() {
   }, [uid, posts, setPosts, privateChecked]);
 
   useEffect(() => {
+    // 버그 방지용
     if (!posts?.length) {
       (async () => {
         const supabase = createClient();

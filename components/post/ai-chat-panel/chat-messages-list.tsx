@@ -14,6 +14,11 @@ export default function ChatMessagesList() {
   );
   const listRef = useRef<HTMLDivElement | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+
+  const lastMessage = messages.at(-1);
+  const shouldHideLoader =
+    !isLoading || (lastMessage?.role === "assistant" && lastMessage?.content);
+
   useEffect(() => {
     if (!lastMessageRef.current || !listRef.current) return;
 
@@ -47,18 +52,14 @@ export default function ChatMessagesList() {
             {!!message.content.length && (
               <ChatMessageComponent message={message} />
             )}
-            {isLoading &&
-              index === messages.length - 1 &&
-              (message.role === "user" || !message.content.length) && (
-                <div className="flex items-center gap-2 text-muted-foreground opacity-70">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {statusMessage && (
-                    <span className="text-[10px]">{statusMessage}</span>
-                  )}
-                </div>
-              )}
           </div>
         ))}
+        {!shouldHideLoader && (
+          <div className="flex items-center gap-2 text-muted-foreground opacity-70">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-[10px]">{statusMessage}</span>
+          </div>
+        )}
       </div>
     </div>
   );
