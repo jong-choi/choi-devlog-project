@@ -119,8 +119,8 @@ export default function ToggleEditButton() {
   const editLabel = isValid ? "편집 모드" : "게스트 모드";
 
   return (
-    <div className="flex items-center gap-1 flex-shrink-0 sm:mr-5 xl:mr-0">
-      <div className="text-[12px] font-semibold hidden md:flex flex-shrink-0">
+    <div className="flex items-center gap-1 flex-shrink-0 sm:mr-7 lg:mr-0">
+      <div className="text-[12px] font-semibold hidden lg:flex flex-shrink-0">
         {isEditMode ? editLabel : "편집 꺼짐"}
       </div>
       <div className="flex divide-x overflow-hidden rounded-full border text-[8px] font-medium">
