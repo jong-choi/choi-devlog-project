@@ -80,7 +80,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### 라우팅 모델
 
-<p align="center"><img src="./public/docs/langgraph-v2/langraph-diagram.png" alt="overview" width="300" /></p>
+<p align="center"><img src="./public/docs/langgraph-v2/langraph-diagram.png" alt="overview" width="500" /></p>
 
 도구 호출을 지원하지 않는 Micro-LLM 활용을 고려하여 두 개의 소형 LLM을 활용한 라우팅 노드 방식으로 구성하였습니다.\
 중앙집중화된 구조로 새로운 기능들을 추가하기에 용이하며, 라우팅 노드의 에이전트가 슈퍼바이저 역할을 할 수 있는 이점이 있습니다.
