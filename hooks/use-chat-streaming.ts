@@ -112,6 +112,7 @@ export function useChatStreaming() {
 
             if (payload.event === "on_chat_model_start") {
               handleStartAssistant();
+              setStatusMessage("답변하는 중");
             } else if (payload.event === "on_chat_model_stream") {
               const delta = payload?.chunk?.content ?? "";
               if (delta) {

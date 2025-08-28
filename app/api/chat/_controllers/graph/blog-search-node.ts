@@ -1,0 +1,130 @@
+import { SystemMessage } from "@langchain/core/messages";
+import { Command } from "@langchain/langgraph";
+import { LangNodeName } from "@/types/chat";
+import { CardPost } from "@/types/post";
+import { SessionMessagesAnnotation } from "./graph";
+
+const MAX_RESULTS_LEN = 15;
+
+type BlogSearchResult = {
+  data: CardPost[];
+};
+
+type State = typeof SessionMessagesAnnotation.State;
+type NextState = Partial<State>;
+
+export async function blogSearchNode(state: State) {
+  if (state.routingQuery === null) {
+    return {
+      routeType: "chat" as const,
+    };
+  }
+
+  let nextState: NextState = {
+    routingQuery: null,
+  };
+  const allPosts: CardPost[] = [];
+
+  // 단일 검색어 또는 다중 검색어 처리
+  const queries = Array.isArray(state.routingQuery)
+    ? state.routingQuery
+    : [state.routingQuery];
+
+  const limitPerQuery = Math.ceil(MAX_RESULTS_LEN / queries.length);
+
+  for (const query of queries) {
+    const params = new URLSearchParams({
+      keyword: query,
+      limit: String(limitPerQuery),
+    });
+    const url = `/api/posts/search?${params}`;
+
+    try {
+      const res: Response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${url}`,
+      );
+
+      if (!res.ok) {
+        console.error(
+          "Blog search API response not ok:",
+          res.status,
+          res.statusText,
+        );
+        continue;
+      }
+
+      const data: BlogSearchResult = await res.json();
+      const posts = data.data || [];
+      allPosts.push(...posts);
+    } catch (error) {
+      console.error("Blog search error for query:", query, error);
+      continue;
+    }
+  }
+
+  const uniquePosts = allPosts.filter(
+    (post, index, array) => array.findIndex((p) => p.id === post.id) === index,
+  );
+
+  if (uniquePosts.length === 0) {
+    const queryText = Array.isArray(state.routingQuery)
+      ? state.routingQuery.join(", ")
+      : state.routingQuery;
+
+    nextState = {
+      ...nextState,
+      messages: [
+        new SystemMessage(
+          `"${queryText}"에 대한 블로그 검색 결과를 찾을 수 없습니다.`,
+        ),
+      ],
+      routeType: "chat",
+    };
+    return new Command({
+      goto: LangNodeName.routing,
+      update: nextState,
+    });
+  }
+
+  const queryText = Array.isArray(state.routingQuery)
+    ? state.routingQuery.join(", ")
+    : state.routingQuery;
+
+  // 검색 결과를 정리하여 시스템 메시지로 전달
+  const searchResultsMessage = `블로그에서 "${queryText}" 검색 결과를 찾았습니다:
+
+${uniquePosts
+  .map(
+    (post, index) =>
+      `${index + 1}. **${post.title}**
+   - 요약: ${post.short_description}
+   - 링크: ${process.env.NEXT_PUBLIC_BASE_URL}/post/${post.url_slug}
+   - 발행일: ${new Date(post.released_at || "").toLocaleDateString("ko-KR")}
+   - 관련 내용: ${post.snippet}
+   - 태그: ${post.tags?.map((tag) => `#${tag}`).join(" ")}
+`,
+  )
+  .join("\n")}
+
+## 응답 가이드라인
+위 검색 결과를 바탕으로 사용자의 질문에 답변할 때:
+1. 가장 관련성이 높은 게시글들을 4개~6개 정도 선정하여 언급하세요.
+2. 간략한 정보와 함께, 링크를 통해 확인하도록 권하세요
+3. 마무리는 간단하게.
+
+## 예시 검색결과 형태
+1. **React Hook 완전 정복하기** 게시글에서는 useState, useEffect 등의 기본 훅부터 커스텀 훅 작성법까지 자세히 다루고 있습니다. [자세히 보기](링크)
+
+2. **Next.js와 React 최적화 팁** 게시글에서는 성능 최적화와 관련된 실무 경험을 공유하고 있습니다. [자세히 보기](링크)"`;
+
+  nextState = {
+    ...nextState,
+    messages: [new SystemMessage(searchResultsMessage)],
+    routeType: "chat",
+  };
+
+  return new Command({
+    goto: LangNodeName.routing,
+    update: nextState,
+  });
+}

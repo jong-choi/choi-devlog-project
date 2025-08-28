@@ -6,27 +6,20 @@ export type ChatMessage = {
   content: string;
 };
 
-// 백엔드 LangNodeKeys와 호환되도록 타입 정의
-export const routeKeys = [
-  "chat",
-  "google",
-  "summary",
-  "recommend",
-  "end",
-] as const;
-export type RouteType = (typeof routeKeys)[number];
-
 // 백엔드에서 사용하는 LangGraph 관련 타입들
 export const LangNodeName = {
   routing: "routingNode",
   chat: "chatNode",
   google: "googleNode",
+  blogSearch: "blogSearchNode",
   summary: "fetchSummaryNode",
   recommend: "recommendNode",
   end: "__end__",
 } as const;
 
-export type LangNodeKeys = keyof typeof LangNodeName | "";
+export const routeKeys = Object.keys(LangNodeName);
+
+export type RouteType = keyof typeof LangNodeName | "";
 
 // LangChain GraphState (백엔드용)
 export interface GraphState {

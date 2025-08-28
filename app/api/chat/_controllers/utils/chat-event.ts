@@ -53,13 +53,30 @@ export const chatEventHander = ({
       });
     }
   }
+  if (chunk.metadata.langgraph_node === "blogSearchNode") {
+    if (chunk.event === "on_chain_start") {
+      emitEvent({
+        controller,
+        name: "blogSearchNode",
+        event: "status",
+        message: "블로그 검색 중",
+      });
+    } else if (chunk.event === "on_chain_end") {
+      emitEvent({
+        controller,
+        name: "blogSearchNode",
+        event: "status",
+        message: "블로그 검색 완료",
+      });
+    }
+  }
   if (chunk.metadata.langgraph_node === "fetchSummaryNode") {
     if (chunk.event === "on_chain_start") {
       emitEvent({
         controller,
         name: "fetchSummaryNode",
         event: "status",
-        message: "게시글을 동기화 하는 중",
+        message: "게시글 요약",
       });
     }
   }

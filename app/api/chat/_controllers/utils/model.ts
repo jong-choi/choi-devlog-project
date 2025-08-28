@@ -18,7 +18,7 @@ export const llmModel = new ChatGoogle({
 
 export const routingModel = new ChatGoogle({
   model: "gemma-3-4b-it",
-  maxOutputTokens: 20,
+  maxOutputTokens: 200,
   apiKey: GOOGLE_API_KEY,
   streaming: false,
 });

@@ -7,10 +7,11 @@ import {
   StateGraph,
   messagesStateReducer,
 } from "@langchain/langgraph";
+import { blogSearchNode } from "@/app/api/chat/_controllers/graph/blog-search-node";
 import { chatNode } from "@/app/api/chat/_controllers/graph/chat-node";
 import { googleNode } from "@/app/api/chat/_controllers/graph/google-node";
 import { routingNode } from "@/app/api/chat/_controllers/graph/routing-node";
-import { LangNodeKeys, LangNodeName } from "@/types/chat";
+import { LangNodeName, RouteType } from "@/types/chat";
 import { fetchSummaryNode } from "./fetch-summary-node";
 
 export const SessionMessagesAnnotation = Annotation.Root({
@@ -18,12 +19,14 @@ export const SessionMessagesAnnotation = Annotation.Root({
     default: () => [],
     reducer: messagesStateReducer,
   }),
-  // 노드 이름
-  routeType: Annotation<LangNodeKeys>({
+  routeType: Annotation<RouteType>({
     default: () => "chat",
     reducer: (_, update) => update,
   }),
-  // 현재 게시글 ID
+  routingQuery: Annotation<string | string[] | null>({
+    default: () => null,
+    reducer: (_, update) => update,
+  }),
   postId: Annotation<string | undefined>({
     default: () => undefined,
     reducer: (_, update) => update,
@@ -39,7 +42,13 @@ export const checkpointer = new MemorySaver();
 export function buildGraph() {
   return new StateGraph(SessionMessagesAnnotation)
     .addNode(LangNodeName.routing, routingNode, {
-      ends: [LangNodeName.chat, LangNodeName.google, LangNodeName.summary, END],
+      ends: [
+        LangNodeName.chat,
+        LangNodeName.google,
+        LangNodeName.summary,
+        LangNodeName.blogSearch,
+        END,
+      ],
     })
     .addNode(LangNodeName.summary, fetchSummaryNode, {
       ends: [LangNodeName.routing],
@@ -48,6 +57,9 @@ export function buildGraph() {
       ends: [LangNodeName.routing],
     })
     .addNode(LangNodeName.google, googleNode, {
+      ends: [LangNodeName.routing],
+    })
+    .addNode(LangNodeName.blogSearch, blogSearchNode, {
       ends: [LangNodeName.routing],
     })
     .addEdge(START, LangNodeName.routing)

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import ChatFloatingButtons from "@/components/post/ai-chat-panel/chat-floating-buttons";
 import ChatInput from "@/components/post/ai-chat-panel/chat-input";
 import ChatResetButton from "@/components/post/ai-chat-panel/chat-reset-button";
+import StatusMessage from "@/components/post/ai-chat-panel/status-message";
 import { useChatSession } from "@/hooks/use-chat-session";
 import { useChatStreaming } from "@/hooks/use-chat-streaming";
 import { useChatStore } from "@/providers/chat-store-provider";
@@ -25,7 +26,8 @@ function ChatBottom() {
   return (
     <div className="relative flex-shrink-0 bg-white dark:bg-neutral-900/80 border-t border-neutral-200 dark:border-neutral-700 p-4">
       <ChatFloatingButtons isLoading={isLoading} />
-      <div className="flex items-center justify-end mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <StatusMessage />
         <ChatResetButton
           onResetSession={handleResetSession}
           isLoading={isLoading}

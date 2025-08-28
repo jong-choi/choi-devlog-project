@@ -1,23 +1,17 @@
 import { useEffect, useRef } from "react";
-import { Loader2 } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import ChatMessageComponent from "@/components/post/ai-chat-panel/chat-message";
 import { useChatStore } from "@/providers/chat-store-provider";
 
 export default function ChatMessagesList() {
-  const { messages, isLoading, statusMessage } = useChatStore(
+  const { messages } = useChatStore(
     useShallow((state) => ({
       messages: state.messages,
       isLoading: state.isLoading,
-      statusMessage: state.statusMessage,
     })),
   );
   const listRef = useRef<HTMLDivElement | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-
-  const lastMessage = messages.at(-1);
-  const shouldHideLoader =
-    !isLoading || (lastMessage?.role === "assistant" && lastMessage?.content);
 
   useEffect(() => {
     if (!lastMessageRef.current || !listRef.current) return;
@@ -54,12 +48,6 @@ export default function ChatMessagesList() {
             )}
           </div>
         ))}
-        {!shouldHideLoader && (
-          <div className="flex items-center gap-2 text-muted-foreground opacity-70">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-[10px]">{statusMessage}</span>
-          </div>
-        )}
       </div>
     </div>
   );

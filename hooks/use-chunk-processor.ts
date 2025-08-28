@@ -17,7 +17,7 @@ export function useChunkProcessor() {
 
   // 청크를 순차적으로 처리하는 함수
   const processNextChunk = useCallback(
-    ({ onDone, delay = 300 }: { onDone?: () => void; delay?: number } = {}) => {
+    ({ onDone, delay = 200 }: { onDone?: () => void; delay?: number } = {}) => {
       if (chunkQueueRef.current.length === 0) {
         isProcessingRef.current = false;
         onDone?.();
