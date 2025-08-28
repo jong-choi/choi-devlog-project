@@ -42,7 +42,8 @@ export function useChatStreaming() {
   const forceReset = useCallback(() => {
     closeStream();
     setIsLoading(false);
-  }, [closeStream, setIsLoading]);
+    clearStatusMessage();
+  }, [clearStatusMessage, closeStream, setIsLoading]);
 
   const handleStartAssistant = useCallback(() => {
     addMessage({
