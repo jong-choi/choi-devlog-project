@@ -9,7 +9,7 @@ const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;
 const MEX_RESULTS_LEN = 10;
 const ItemSchema = z.object({
   title: z.string(),
-  snippet: z.string(),
+  snippet: z.string().optional(),
 });
 
 const ItemArraySchema = z.array(ItemSchema);

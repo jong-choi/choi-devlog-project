@@ -4,7 +4,7 @@ import { LangNodeName } from "@/types/chat";
 import { CardPost } from "@/types/post";
 import { SessionMessagesAnnotation } from "./graph";
 
-const MAX_RESULTS_LEN = 15;
+const MAX_RESULTS_LEN = 25;
 
 type BlogSearchResult = {
   data: CardPost[];
