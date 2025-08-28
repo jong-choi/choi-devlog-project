@@ -1,6 +1,3 @@
-# Docker Compose 프로덕션 설정 파일
-# 이 파일은 Next.js 애플리케이션을 프로덕션 환경에서 실행하기 위한 설정입니다.
-
 services:
   blog-app:
     container_name: blog-app
@@ -21,6 +18,7 @@ services:
         LLM_SECRET_KEY: ${LLM_SECRET_KEY}
         GOOGLE_SEARCH_API_KEY: ${GOOGLE_SEARCH_API_KEY}
         GOOGLE_SEARCH_CX: ${GOOGLE_SEARCH_CX}
+        GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
 
     restart: always
 
