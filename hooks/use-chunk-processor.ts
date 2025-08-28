@@ -1,15 +1,15 @@
-import { useRef, useCallback } from 'react';
-import { useShallow } from 'zustand/react/shallow';
-import { useChatStore } from '@/providers/chat-store-provider';
+import { useCallback, useRef } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useChatStore } from "@/providers/chat-store-provider";
 
 export function useChunkProcessor() {
   const { updateLastMessage, setIsLoading } = useChatStore(
     useShallow((state) => ({
       updateLastMessage: state.updateLastMessage,
       setIsLoading: state.setIsLoading,
-    }))
+    })),
   );
-  
+
   // 청크 처리 관련 refs
   const chunkQueueRef = useRef<string[]>([]);
   const isProcessingRef = useRef(false);
@@ -31,10 +31,10 @@ export function useChunkProcessor() {
 
       processingTimeoutRef.current = setTimeout(
         () => processNextChunk({ onDone, delay }),
-        delay
+        delay,
       );
     },
-    [updateLastMessage]
+    [updateLastMessage],
   );
 
   // 청크를 큐에 추가하고 처리 시작
@@ -46,7 +46,7 @@ export function useChunkProcessor() {
         processNextChunk();
       }
     },
-    [processNextChunk]
+    [processNextChunk],
   );
 
   // 스트리밍 완료 처리

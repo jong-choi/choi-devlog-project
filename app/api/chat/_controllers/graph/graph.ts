@@ -39,14 +39,9 @@ export const checkpointer = new MemorySaver();
 export function buildGraph() {
   return new StateGraph(SessionMessagesAnnotation)
     .addNode(LangNodeName.routing, routingNode, {
-      ends: [
-        LangNodeName.chat,
-        LangNodeName.google,
-        LangNodeName.fetchSummary,
-        END,
-      ],
+      ends: [LangNodeName.chat, LangNodeName.google, LangNodeName.summary, END],
     })
-    .addNode(LangNodeName.fetchSummary, fetchSummaryNode, {
+    .addNode(LangNodeName.summary, fetchSummaryNode, {
       ends: [LangNodeName.routing],
     })
     .addNode(LangNodeName.chat, chatNode, {

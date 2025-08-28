@@ -1,3 +1,4 @@
+import { SystemMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import { getAISummaryByPostId } from "@/app/post/fetchers/ai";
 import { LangNodeName } from "@/types/chat";
@@ -9,9 +10,13 @@ export async function fetchSummaryNode(
 ) {
   const nextState: Partial<typeof state> = {
     ...state,
+    routeType: "chat",
     postSummary: null,
   };
-  if (!state.postId) {
+
+  const currentPostId = state.postId || null;
+  const prevPostId = state.postSummary?.id || null;
+  if (!state.postId || currentPostId == prevPostId) {
     return new Command({
       goto: LangNodeName.routing,
       update: nextState,
@@ -27,6 +32,11 @@ export async function fetchSummaryNode(
         id: post_id || state.postId,
         summary,
       };
+      nextState.messages = [
+        new SystemMessage(
+          `사용자님께서 현재 보고 있는 게시글에 대한 요약입니다. \n\n ${summary}`,
+        ),
+      ];
     }
 
     return new Command({

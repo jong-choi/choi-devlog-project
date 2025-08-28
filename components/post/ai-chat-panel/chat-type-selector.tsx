@@ -1,3 +1,4 @@
+// (deprecated) - 슈퍼비전 형태로
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/providers/chat-store-provider";
@@ -11,7 +12,7 @@ export default function ChatTypeSelector() {
   );
 
   const handleToggle = () => {
-    const newType = routeType === "google" ? "chat" : "google";
+    const newType = routeType === "google" ? null : "google";
     setRouteType(newType);
   };
 

@@ -1,20 +1,7 @@
-import { ChatOllama } from "@langchain/ollama";
+import { ChatGoogle } from "@langchain/google-gauth";
 
-const MODEL_NAME =
-  "hf.co/rippertnt/HyperCLOVAX-SEED-Text-Instruct-1.5B-Q4_K_M-GGUF:Q4_K_M";
-
-export const MAX_MESSAGES_LEN = 5;
-
-const fetchWithSecretKey = (
-  url: RequestInfo | URL,
-  options: RequestInit | undefined = {},
-) => {
-  options.headers = {
-    ...options.headers,
-    "LLM-SECRET-KEY": process.env.LLM_SECRET_KEY || "",
-  };
-  return fetch(url, options);
-};
+export const MAX_MESSAGES_LEN = 10;
+const GOOGLE_API_KEY = process.env.GOOGLE_AI_API_KEY;
 
 // 환경변수 확인
 const OLLAMA_HOST = process.env.ORACLE_OLLAMA_HOST;
@@ -23,11 +10,15 @@ if (!OLLAMA_HOST) {
   throw new Error("ORACLE_OLLAMA_HOST environment variable is required");
 }
 
+export const llmModel = new ChatGoogle({
+  model: "gemma-3-27b-it",
+  maxOutputTokens: 2048,
+  apiKey: GOOGLE_API_KEY,
+});
 
-export const llmModel = new ChatOllama({
-  baseUrl: OLLAMA_HOST,
-  model: MODEL_NAME,
-  streaming: true,
-  fetch: fetchWithSecretKey,
-  numPredict: 2000, // 최대 토큰 수 제한 걸어서 무한반복이슈 중단
+export const routingModel = new ChatGoogle({
+  model: "gemma-3-4b-it",
+  maxOutputTokens: 20,
+  apiKey: GOOGLE_API_KEY,
+  streaming: false,
 });

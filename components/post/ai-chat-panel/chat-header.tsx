@@ -23,7 +23,7 @@ export default function ChatHeader({
           <span className="text-sm font-semibold tracking-tight">AI 채팅</span>
         </div>
         <span className="text-[8px] font-light tracking-tight text-color-muted">
-          MODEL : NAVER HyperCLOVA X SEED 1.5B-Q4_K_M
+          MODEL : gemma-3-27b-it
         </span>
       </div>
     </div>

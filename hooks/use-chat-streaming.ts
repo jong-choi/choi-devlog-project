@@ -70,9 +70,11 @@ export function useChatStreaming() {
 
         const requestBody: MessageRequest = {
           message: message.trim(),
-          type: routeType,
           postId: postId || "",
         };
+        if (routeType) {
+          requestBody.type = routeType;
+        }
 
         const res = await fetch(`/api/chat/${sessionId}`, {
           method: "POST",

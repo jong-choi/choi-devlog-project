@@ -35,7 +35,7 @@ export async function handleSend(request: NextRequest, sessionId: string) {
       );
     }
     const d = 0.5 + Math.floor(Math.random() * 3);
-    const routeType = body.type || "chat";
+    const routeType = body.type || "";
     sessionStore.set({
       id: sessionId,
       state: {

@@ -17,8 +17,8 @@ export interface ChatState {
   sessionId: string;
   setSessionId: (id: string) => void;
 
-  routeType: RouteType;
-  setRouteType: (type: RouteType) => void;
+  routeType: RouteType | null;
+  setRouteType: (type: RouteType | null) => void;
 }
 
 export const createChatStore = (initialState?: Partial<ChatState>) =>
@@ -35,7 +35,13 @@ export const createChatStore = (initialState?: Partial<ChatState>) =>
         const lastMessage = state.messages[state.messages.length - 1];
         if (!lastMessage || lastMessage.role !== "assistant") return {};
 
-        const newContent = (lastMessage.content ?? "") + content;
+        let newContent = (lastMessage.content ?? "") + content;
+
+        // 메시지가 ", " 또는 ". "로 시작하면 제거
+        if (lastMessage.content.length <= 5) {
+          newContent = newContent.replace(/^(\.|,| )/, "");
+        }
+
         if (lastMessage.content === newContent) return {};
 
         const updatedMessages = [...state.messages];
@@ -58,7 +64,7 @@ export const createChatStore = (initialState?: Partial<ChatState>) =>
     sessionId: "",
     setSessionId: (id) => set({ sessionId: id }),
 
-    routeType: "chat",
+    routeType: null,
     setRouteType: (type) => set({ routeType: type }),
 
     ...initialState,

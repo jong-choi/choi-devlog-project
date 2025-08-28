@@ -6,7 +6,7 @@ import { SessionMessagesAnnotation } from "./graph";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_SEARCH_API_KEY!;
 const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;
-const MEX_RESULTS_LEN = 6;
+const MEX_RESULTS_LEN = 10;
 const ItemSchema = z.object({
   title: z.string(),
   snippet: z.string(),
@@ -31,7 +31,6 @@ export async function googleNode(state: State) {
       routeType: "" as const,
     };
   }
-  
 
   const params = new URLSearchParams({
     key: GOOGLE_API_KEY,

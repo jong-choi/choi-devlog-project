@@ -83,9 +83,9 @@ export async function handleStream(request: NextRequest, sessionId: string) {
           })) {
             chatEventHander({ controller, chunk });
           }
-        } catch (_error) {
+        } catch (error) {
           const data = { event: "error", message: "stream error" };
-          console.error(_error);
+          console.error("Error on streaming", error);
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
           );
