@@ -1,18 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
 import "@milkdown/crepe/theme/common/style.css";
 import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
+import MilkdownWrapper from "@/components/markdown/milkdown-app/milkdown-wrapper";
 import "@/components/markdown/styles/github-markdown.css";
 // https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
 import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
 import { useLayoutStore } from "@/providers/layout-store-provider";
-
-const MilkdownWrapper = dynamic(
-  () => import("@/components/markdown/milkdown-app/milkdown-wrapper"),
-);
 
 export default function MarkdownEditor({ markdown }: { markdown: string }) {
   const { isMounted, isEditMode, isFullMode } = useLayoutStore(

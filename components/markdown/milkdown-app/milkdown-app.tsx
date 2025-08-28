@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Crepe } from "@milkdown/crepe";
-import { Milkdown, useEditor } from "@milkdown/react";
 import { EditorView } from "@codemirror/view";
+import { Crepe } from "@milkdown/crepe";
 import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
 import { Slice } from "@milkdown/kit/prose/model";
 import { Selection } from "@milkdown/kit/prose/state";
+import { Milkdown, useEditor } from "@milkdown/react";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 const MilkdownEditor = ({
@@ -84,7 +84,7 @@ const MilkdownEditor = ({
           tr = tr.replace(
             0,
             state.doc.content.size,
-            new Slice(doc.content, 0, 0)
+            new Slice(doc.content, 0, 0),
           );
 
           if (tr.doc.content.size === 0) {
