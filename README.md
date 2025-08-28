@@ -33,13 +33,13 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 - 편집 모드로 넘어가기 위한 토글 버튼을 둬, 편집 도구를 동적으로 impot하도록하여 로딩 성능 최적화
 - Supabase로 백엔드를 구축하여 빠르게 기능을 구현하고, Next.js 15 라우트 핸들러로 데이터를 정적 캐싱하여 사용
 - Open AI의 GPT, text-embedding 모델을 사용하여 게시글을 요약하고, DBSCAN 방식으로 분류
-- Micro LLM을 활용한 챗봇을 통해 게시글 요약 및 추천 기능을 통합하고, 게시글 검색 및 웹 검색 기능을 추가하여 학습에 활용
+- LangChain.js를 활용한 챗봇을 통해 게시글 요약 및 추천 기능을 통합하고, 게시글 검색 및 웹 검색 기능을 추가하여 학습에 활용
 
 ## 기술 스택
 
-- Next.js 15 (App Router, RSC)
-- Supabase (Auth, Storage, Database)
-- Vercel (배포)
+- Next.js 15 (App Router, React 19),
+- LangGraph.js, Milkdown (Remark, Codemirror)
+- Supabase (PostgresSQL)
 - Zustand, Tailwind CSS, Shadcn/ui 등
 
 ## 주요 기능
