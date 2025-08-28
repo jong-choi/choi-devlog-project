@@ -38,16 +38,18 @@ export default function ChatMessagesList() {
         ref={listRef}
         className="flex-1 overflow-y-auto pb-12 space-y-3 scrollbar-hidden"
       >
-        {messages.map((message, index) => (
-          <div
-            key={message.id}
-            ref={index === messages.length - 1 ? lastMessageRef : null}
-          >
-            {!!message.content.length && (
-              <ChatMessageComponent message={message} />
-            )}
-          </div>
-        ))}
+        {messages.map((message, index) => {
+          const isLastMessage = index === messages.length - 1;
+
+          return (
+            <ChatMessageComponent
+              key={message.id}
+              message={message}
+              isLastMessage={isLastMessage}
+              ref={isLastMessage ? lastMessageRef : null}
+            />
+          );
+        })}
       </div>
     </div>
   );

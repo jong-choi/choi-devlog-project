@@ -1,13 +1,23 @@
 .new-york-small {
   font-size: 14px;
 
+  & strong {
+    font-weight: 600;
+  }
+
   & pre:has(.hljs) {
     background-color: #1e1e1e !important;
   }
 
+  & a {
+    text-decoration: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    transition: all 0.2s ease-in-out;
+    padding-bottom: 1px;
+  }
   & a:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    border-bottom-color: rgba(128, 128, 128, 0.8);
+    text-decoration: none;
   }
 
   & p {
@@ -18,10 +28,11 @@
   & ul {
     margin-left: 0.3rem;
     padding: 0.2rem 0;
+    list-style-type: disc;
   }
 
   & ul > li {
-    margin-left: 0.3rem;
+    margin-left: 0.7rem;
     padding: 0.2rem 0;
   }
 
