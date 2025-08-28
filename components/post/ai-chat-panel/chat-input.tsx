@@ -76,7 +76,7 @@ export default function ChatInput({
           rows={1}
           placeholder="메시지를 입력하세요..."
           className={cn(
-            "min-h-[44px] resize-none rounded-xl border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 overflow-hidden",
+            "min-h-[46px] resize-none rounded-xl border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 overflow-hidden",
             "placeholder:text-neutral-400 dark:placeholder:text-neutral-500 text-sm leading-6 text-neutral-900 dark:text-neutral-100",
             "py-3 px-4 pr-12",
           )}
@@ -91,7 +91,7 @@ export default function ChatInput({
           size="icon"
           className={cn(
             "absolute right-2 bottom-2 h-8 w-8 rounded-lg",
-            "bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-600",
+            "bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-600",
             "transition-colors duration-200",
           )}
         >

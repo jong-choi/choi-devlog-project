@@ -26,14 +26,17 @@ function ChatBottom() {
   return (
     <div className="relative flex-shrink-0 bg-white dark:bg-neutral-900/80 border-t border-neutral-200 dark:border-neutral-700 p-4">
       <ChatFloatingButtons isLoading={isLoading} onSendMessage={sendMessage} />
-      <div className="flex items-center justify-between mb-4">
-        <StatusMessage />
-        <ChatResetButton
-          onResetSession={handleResetSession}
-          isLoading={isLoading}
-        />
+
+      <div className="flex flex-col gap-2">
+        <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+        <div className="flex items-center justify-between">
+          <StatusMessage />
+          <ChatResetButton
+            onResetSession={handleResetSession}
+            isLoading={isLoading}
+          />
+        </div>
       </div>
-      <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
     </div>
   );
 }
