@@ -52,7 +52,6 @@ export async function routingNode(
               typeof decision.query === "string" ||
               Array.isArray(decision.query)
             ) {
-              console.log(decision.query);
               routingQuery = decision.query;
             }
           }

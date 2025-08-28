@@ -11,9 +11,13 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 ## 프로젝트 기간
 
 프로젝트 시작일 : 2025.03.12\
-프로젝트 1차 배포 : 2025.05.07\
-프로젝트 자체 호스팅 : 2025.08.10 (VPS : Oracle Cloud Infrastructure)\
-프로젝트 1차 업데이트 : 2025.08.26 - 챗봇 기능을 추가하고, 기존 AI 요약 기능과 통합
+프로젝트 1차 배포 : 2025.05.07
+
+> 2025.08.10 - 프로젝트를 셀프 호스팅 (VPS : Oracle Cloud Infrastructure)
+
+> 2025.08.26 - 챗봇 기능을 추가하고, AI 요약 기능과 통합
+
+> 2025.08.28 - 챗봇 모델을 HYPERCLOVA X Seed 1.5b에서 Gemma3 4b, 27b로 변경
 
 ## 프로젝트 목표
 
@@ -59,13 +63,6 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 사이드바의 ui에는 [dnd-kit](https://dndkit.com/)과 [shadcn](https://ui.shadcn.com/)이 사용되었습니다.
 
-### AI 요약
-
-<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/f8361b08-7026-4048-94b5-334179e804e8-Screenshot_2025-06-07_08-30-40.png" alt="AI 요약" width="600" /></p>
-
-- OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
-- 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
-
 ### 지식 여정 지도
 
 <p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/78b872a8-7613-4128-957c-5a1417e22fc5-Screenshot_2025-06-07_08-34-31.png" alt="지식 여정 지도" width="600" /></p>
@@ -81,28 +78,64 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ## 챗봇
 
+### 라우팅 모델
+
+<p align="center"><img src="./public/docs/langgraph-v2/langraph-diagram.png" alt="overview" width="300" /></p>
+
+도구 호출을 지원하지 않는 Micro-LLM 활용을 고려하여 두 개의 소형 LLM을 활용한 라우팅 노드 방식으로 구성하였습니다.\
+중앙집중화된 구조로 새로운 기능들을 추가하기에 용이하며, 라우팅 노드의 에이전트가 슈퍼바이저 역할을 할 수 있는 이점이 있습니다.
+
+- 소형 모델인 Gemma3 4B가 사용자의 요청을 파악하고 필요한 노드를 선택합니다.
+- 선택된 노드에서 Google 검색, 게시글 조회 등의 기능을 수행하고 결과를 저장합니다.
+- Gemma3 27B가 사용자의 요청과 저장된 상태를 토대로 적절한 응답을 생성하여 응답합니다.
+- 서버에서는 SSE(Server-Sent-Event)로 진행 상태를 메시지로 전송합니다.
+
 ### AI 요약 및 추천 게시글 분석
 
-|                                                                         |                                                                             |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| <img src="./public/docs/ai-summary.png" alt="AI Summary" width="300" /> | <img src="./public/docs/ai-recommend.png" alt="AI Recommend" width="300" /> |
+|                                                                                       |                                                                                           |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| <img src="./public/docs/langgraph-v2/ai-summary.png" alt="AI Summary" height="500" /> | <img src="./public/docs/langgraph-v2/ai-recommend.png" alt="AI Recommend" height="500" /> |
 
 - OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
 - 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
 - 코사인 유사도를 통해 검색된 추천 게시글이 서버에 저장되어 있으며, 추천 게시글 버튼을 누르면 서버에 저장된 추천 게시글이 채팅창에 추가됩니다.
+- 챗봇은 응답을 생성하기 전, 게시글의 정보가 필요하다고 판단되면 서버에 저장된 요약 게시글을 조회하고 응답을 생성합니다.
+
+### 게시글 기반 대화
+
+|                                                                                      |                                                                                          |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| <img src="./public/docs/langgraph-v2/chat-1-simple.gif" alt="AI Chat" width="300" /> | <img src="./public/docs/langgraph-v2/chat-2-summary.gif" alt="AI Summary" width="300" /> |
+
+- 가벼운 대화에서 게시글을 조회하지 않고 빠르게 응답합니다.
+- 사용자의 질문 맥락에 따라 게시글을 조회해야 한다고 판단하면 DB에서 게시글 요약을 확인한 후 답변을 이어나갑니다.
+
+### 인터넷 검색 및 게시글 검색
+
+|                                                                                           |                                                                                               |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| <img src="./public/docs/langgraph-v2/chat-3-blog-search.gif" alt="AI Blog" width="300" /> | <img src="./public/docs/langgraph-v2/chat-4-google-search.gif" alt="AI Google" width="300" /> |
+
+- 사용자의 질문 의도를 이해하고 다양한 검색어로 검색을 시도합니다.
+- 최신 정보나 정확한 정보가 필요한 게시글에서는 구글 검색을 시도합니다.
+- 블로그 게시물에 대한 질문인 경우에는 여러 키워드로 검색을 시도합니다.
+- 검색이 끝난 후 맥락에 맞게 정리하여 사용자에게 응답합니다.
+
+<details>
+<summary>2025-08-28 이전 버전 내용 : HYPERCLOVA X Seed 셀프 호스팅</summary>
 
 ### 채팅 및 인터넷 검색
 
-|                                                                                  |                                                                                |                                                                                |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| <img src="./public/docs/chat-summary.gif" alt="Chat Summary Demo" width="300" /> | <img src="./public/docs/chat-search.gif" alt="Chat search Demo" width="300" /> | <img src="./public/docs/chat-simple.gif" alt="Chat simple Demo" width="300" /> |
+|                                                                                               |                                                                                             |                                                                                             |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| <img src="./public/docs/langgraph-v1/chat-summary.gif" alt="Chat Summary Demo" width="300" /> | <img src="./public/docs/langgraph-v1/chat-search.gif" alt="Chat search Demo" width="300" /> | <img src="./public/docs/langgraph-v1/chat-simple.gif" alt="Chat simple Demo" width="300" /> |
 
 - 채팅을 시작하면 인공지능 언어 모델이 사용자가 보고 있는 게시글의 요약을 확인한 후 응답을 생성합니다.
 - "검색 켜기" 버튼을 눌러 검색 모드로 전환할 수 있으며, 사용자가 입력한 내용을 구글에서 검색한 후, 검색 결과를 참고하여 응답을 생성합니다.
 
 #### 랭그래프 에이전트
 
-<p align="center"><img src="./public/docs/langraph-diagram.png" alt="overview" width="300" /></p>
+<p align="center"><img src="./public/docs/langgraph-v1/langraph-diagram.png" alt="overview" width="300" /></p>
 
 - 빠른 응답 속도를 고려하여 인공지능 언어모델은 HyperCLOVA X SEED 1.5B를 양자화한 모델을 사용하였습니다.
   <details><summary><strong>Micro LLM 비교</strong></summary>
@@ -140,6 +173,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 - Tool Calls를 지원하지 않는 LLM 모델의 기능을 보완하기 위해 LangGraph를 이용하여 다양한 기능을 가진 노드를 보조 도구로 활용할 수 있도록 하였습니다.
 - 그래프의 모든 노드는 RoutingNode를 이용하여 연결되고 실행됩니다. 새로운 노드를 추가하고 관리하기 용이해지는 이점이 있습니다.
+
+</details>
 
 ## UI/UX
 
