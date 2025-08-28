@@ -7,10 +7,12 @@ import { useSummary } from "@/providers/summary-store-provider";
 
 interface ChatFloatingButtonsProps {
   isLoading: boolean;
+  onSendMessage: (message: string) => void;
 }
 
 export default function ChatFloatingButtons({
   isLoading,
+  onSendMessage,
 }: ChatFloatingButtonsProps) {
   const { addMessage } = useChatStore(
     useShallow((state) => ({
@@ -55,6 +57,11 @@ export default function ChatFloatingButtons({
     await syncToServer([userMessage, assistantMessage]);
   };
 
+  const BlogSearchMessage = "Next.js 관련 게시물 검색해줘";
+  const onBlogSearchClick = () => {
+    onSendMessage(BlogSearchMessage);
+  };
+
   return (
     <div
       className={cn(
@@ -71,6 +78,13 @@ export default function ChatFloatingButtons({
           연관 게시물 추천해줘
         </button>
       )}
+      <button
+        onClick={onBlogSearchClick}
+        disabled={isLoading}
+        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-color-muted/50 text-neutral-600 text-xs font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-200 whitespace-nowrap dark:bg-neutral-800/30 dark:hover:bg-neutral-800/50 dark:text-neutral-300 disabled:opacity-50"
+      >
+        {BlogSearchMessage}
+      </button>
     </div>
   );
 }

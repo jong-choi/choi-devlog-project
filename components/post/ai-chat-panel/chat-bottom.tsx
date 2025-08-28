@@ -25,7 +25,7 @@ function ChatBottom() {
 
   return (
     <div className="relative flex-shrink-0 bg-white dark:bg-neutral-900/80 border-t border-neutral-200 dark:border-neutral-700 p-4">
-      <ChatFloatingButtons isLoading={isLoading} />
+      <ChatFloatingButtons isLoading={isLoading} onSendMessage={sendMessage} />
       <div className="flex items-center justify-between mb-4">
         <StatusMessage />
         <ChatResetButton
