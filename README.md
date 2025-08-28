@@ -46,7 +46,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### WYSWYG 에디터 / 자동저장
 
-<p align="center"><img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" width="600" /></p>
+<p align="center"><img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" width="800" /></p>
 - [마크다운 편집 프레임워크 Milkdown](https://milkdown.dev/)을 이용하여 WYSWYG으로 편집이 가능하도록 하였습니다.
 - 게시글은 [react-remark](https://github.com/remarkjs/react-remark)를 이용하여 view모드를 SSR로 구현하였습니다.
 - 게시글을 실시간으로 편집할 때에는 IndexedDB를 이용해 로컬에 임시 저장됩니다.
@@ -54,7 +54,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### 사이드바 DND
 
-<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/6f910d8a-a159-4426-bb29-12b13aa87f7d-Screenshot_2025-06-07_08-25-07.png" alt="사이드바 DND" width="600" /></p>
+<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/6f910d8a-a159-4426-bb29-12b13aa87f7d-Screenshot_2025-06-07_08-25-07.png" alt="사이드바 DND" width="500" /></p>
 
 사이드바 역시 '편집' 모드를 토글하면 새로운 기능이 활성화됩니다.
 
@@ -92,9 +92,9 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### AI 요약 및 추천 게시글 분석
 
-|                                                                                       |                                                                                           |
+| 게시글 요약                                                                           | 추천 게시글                                                                               |
 | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| <img src="./public/docs/langgraph-v2/ai-summary.png" alt="AI Summary" height="500" /> | <img src="./public/docs/langgraph-v2/ai-recommend.png" alt="AI Recommend" height="500" /> |
+| <img src="./public/docs/langgraph-v2/ai-summary.png" alt="AI Summary" height="400" /> | <img src="./public/docs/langgraph-v2/ai-recommend.png" alt="AI Recommend" height="400" /> |
 
 - OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
 - 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
@@ -103,18 +103,18 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 ### 게시글 기반 대화
 
-|                                                                                      |                                                                                          |
-| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| <img src="./public/docs/langgraph-v2/chat-1-simple.gif" alt="AI Chat" width="300" /> | <img src="./public/docs/langgraph-v2/chat-2-summary.gif" alt="AI Summary" width="300" /> |
+| 일반 대화                                                                             | 게시글 기반 대화                                                                           |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| <img src="./public/docs/langgraph-v2/chat-1-simple.gif" alt="AI Chat" width="300"  /> | <img src="./public/docs/langgraph-v2/chat-2-summary.gif" alt="AI Summary" width="300"   /> |
 
 - 가벼운 대화에서 게시글을 조회하지 않고 빠르게 응답합니다.
 - 사용자의 질문 맥락에 따라 게시글을 조회해야 한다고 판단하면 DB에서 게시글 요약을 확인한 후 답변을 이어나갑니다.
 
-### 인터넷 검색 및 게시글 검색
+### 게시글 검색 및 Google 검색
 
-|                                                                                           |                                                                                               |
-| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| <img src="./public/docs/langgraph-v2/chat-3-blog-search.gif" alt="AI Blog" width="300" /> | <img src="./public/docs/langgraph-v2/chat-4-google-search.gif" alt="AI Google" width="300" /> |
+| 게시글 검색                                                                               | Google 검색                                                                                    |
+| ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| <img src="./public/docs/langgraph-v2/chat-3-blog-search.gif" alt="AI Blog" width="300" /> | <img src="./public/docs/langgraph-v2/chat-4-google-search.gif" alt="AI Google" width="300"  /> |
 
 - 사용자의 질문 의도를 이해하고 다양한 검색어로 검색을 시도합니다.
 - 최신 정보나 정확한 정보가 필요한 게시글에서는 구글 검색을 시도합니다.
