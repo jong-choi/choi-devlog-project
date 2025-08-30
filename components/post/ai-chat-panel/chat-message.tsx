@@ -1,6 +1,7 @@
 import React, { RefObject, useEffect, useState } from "react";
 import AiMarkdownWrapper from "@/components/markdown/ai-markdown-wrapper/ai-markdown-wrapper";
 import { cn } from "@/lib/utils";
+import { useChatStore } from "@/providers/chat-store-provider";
 import type { ChatMessage } from "@/types/chat";
 
 interface ChatMessageProps {
@@ -16,12 +17,13 @@ function ChatMessageComponent({
 }: ChatMessageProps) {
   // const messgeRef = useRef<HTMLDivElement>(null);
   const [minHeight, setMinHeight] = useState(0);
+  const isLoading = useChatStore((state) => state.isLoading);
 
   useEffect(() => {
-    if (!ref || !ref.current || !isLastMessage) return;
+    if (!ref || !ref.current || !isLastMessage || !isLoading) return;
 
     const resizeObserver = new ResizeObserver(() => {
-      if (ref.current) {
+      if (ref.current && isLoading) {
         const currentHeight = ref.current.offsetHeight;
         setMinHeight((prev) => Math.max(prev, currentHeight));
       }
@@ -32,7 +34,7 @@ function ChatMessageComponent({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [isLastMessage, ref]);
+  }, [isLastMessage, isLoading, ref]);
 
   return (
     <div
