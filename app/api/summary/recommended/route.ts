@@ -174,15 +174,29 @@ function findTopSimilarPosts(
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 10);
 
-  // 결과 포맷 변환
-  const res = top10.map((item) => {
-    const [a, b] = [sourceData.post_id, item.target_post_id].sort(); // 단방향 제약 추가
-    return {
-      source_post_id: a,
-      target_post_id: b,
-      similarity: item.similarity,
-    };
-  });
+  // 중복 제거를 위해 Set 사용
+  const seenPairs = new Set<string>();
+  const res = top10
+    .map((item) => {
+      const [a, b] = [sourceData.post_id, item.target_post_id].sort();
+      const pairKey = `${a}-${b}`;
+      
+      if (seenPairs.has(pairKey)) {
+        return null; // 중복된 쌍은 제외
+      }
+      
+      seenPairs.add(pairKey);
+      return {
+        source_post_id: a,
+        target_post_id: b,
+        similarity: item.similarity,
+      };
+    })
+    .filter((item) => item !== null) as Array<{
+      source_post_id: string;
+      target_post_id: string;
+      similarity: number;
+    }>;
 
   return res;
 }
