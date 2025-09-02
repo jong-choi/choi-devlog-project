@@ -9,7 +9,10 @@ import {
   getSidebarPublishedPosts,
 } from "@/app/post/fetchers";
 import MarkdownEditor from "@/components/markdown/markdown-editor";
+import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
 import ToggleEditButton from "@/components/markdown/milkdown-app/toggle-edit-button";
+import "@/components/markdown/styles/github-markdown.css";
+import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import SummaryHydrator from "@/components/post/ai-chat-panel/summary-hyrator";
 import AutosaveStoreWrapper from "@/components/post/autosave-store-wrapper";
 import AutosaveApp from "@/components/post/autosave/autosave-app";
@@ -144,7 +147,9 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
                 </div>
                 <hr />
               </div>
-              <MarkdownEditor markdown={data?.body || ""} />
+              <MarkdownEditor markdown={data?.body || ""}>
+                <MilkdownPreview markdown={data?.body || ""} />
+              </MarkdownEditor>
             </div>
           </MainPostSectionContainer>
         </main>

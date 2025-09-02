@@ -2,15 +2,17 @@
 
 import { useShallow } from "zustand/react/shallow";
 import "@milkdown/crepe/theme/common/style.css";
-import MilkdownPreview from "@/components/markdown/milkdown-app/milkdown-preview";
 import MilkdownWrapper from "@/components/markdown/milkdown-app/milkdown-wrapper";
-import "@/components/markdown/styles/github-markdown.css";
-// https://github.com/Milkdown/milkdown/tree/main/packages/crepe/src/theme
-import "@/components/markdown/styles/milkdown-crepe-theme.css";
 import { cn } from "@/lib/utils";
 import { useLayoutStore } from "@/providers/layout-store-provider";
 
-export default function MarkdownEditor({ markdown }: { markdown: string }) {
+export default function MarkdownEditor({
+  markdown,
+  children,
+}: {
+  markdown: string;
+  children: React.ReactNode;
+}) {
   const { isMounted, isEditMode, isFullMode } = useLayoutStore(
     useShallow((state) => ({
       isMounted: state.isMounted,
@@ -25,7 +27,7 @@ export default function MarkdownEditor({ markdown }: { markdown: string }) {
         className={cn(isEditMode && "opacity-0")}
         aria-hidden={isEditMode || isFullMode}
       >
-        <MilkdownPreview markdown={markdown} />
+        {children}
       </div>
       {isMounted && (
         <div
