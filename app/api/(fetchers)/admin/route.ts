@@ -85,7 +85,7 @@ export async function GET() {
 }
 
 export async function POST() {
-  revalidatePath("/api/(fetchers)/admin");
+  revalidatePath("/api/admin");
 
   return Response.json({ revalidated: true, now: Date.now() });
 }

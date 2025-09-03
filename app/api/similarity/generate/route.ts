@@ -62,7 +62,6 @@ export async function POST() {
       .from("post_similarities")
       .upsert(pairs, {
         onConflict: "source_post_id,target_post_id",
-        ignoreDuplicates: true,
       });
 
     if (insertError) {

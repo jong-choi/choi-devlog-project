@@ -4,7 +4,6 @@ import { createStore } from "zustand";
 
 export interface AdminTableFilters {
   hasSummary: string;
-  combine: string;
   sortBy: "created_at" | "summaryExistence" | string;
   sortOrder: string;
 }
@@ -19,7 +18,6 @@ export interface AdminTableState {
 
 const initialFilters: AdminTableFilters = {
   hasSummary: "",
-  combine: "AND",
   sortBy: "created_at",
   sortOrder: "desc",
 };
