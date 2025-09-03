@@ -36,6 +36,10 @@ export default function AdminPostsTable({ allPosts }: AdminPostsTableProps) {
         const aCount = a.post_similarities[0]?.count || 0;
         const bCount = b.post_similarities[0]?.count || 0;
         compareValue = aCount - bCount;
+      } else if (filters.sortBy === "summaryExistence") {
+        const aSummary = !!a.ai_summaries ? 1 : 0;
+        const bSummary = !!b.ai_summaries ? 1 : 0;
+        compareValue = aSummary - bSummary;
       }
 
       return filters.sortOrder === "asc" ? compareValue : -compareValue;

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { AdminPostData } from "@/app/api/(fetchers)/admin/route";
 import AdminActionButtons from "./admin-action-buttons";
@@ -10,12 +9,6 @@ type AdminPostTableRowProps = {
 };
 
 export default function AdminPostTableRow({ post }: AdminPostTableRowProps) {
-  useEffect(() => {
-    if (post.ai_summaries) {
-      console.log(post.ai_summaries);
-    }
-  }, [post.ai_summaries]);
-
   return (
     <tr key={post.id} className="hover:bg-gray-50">
       <td className="px-6 py-4 whitespace-nowrap">
