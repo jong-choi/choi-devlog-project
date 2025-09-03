@@ -1,7 +1,7 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { Database } from "@/types/supabase";
 import { cosineSimilarity } from "@/utils/api/analysis-utils";
-import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 
 export async function POST() {
@@ -12,7 +12,7 @@ export async function POST() {
     console.error("로그인되지 않은 사용자:");
     return NextResponse.json(
       { error: "사용자 정보 불러오기 실패" },
-      { status: 500 }
+      { status: 500 },
     );
   }
   try {
@@ -26,7 +26,7 @@ export async function POST() {
       console.error("데이터 로딩 실패:", error);
       return NextResponse.json(
         { error: "벡터 데이터를 불러올 수 없습니다." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -40,13 +40,15 @@ export async function POST() {
         const b = summaries[j];
 
         if (!a.post_id || !b.post_id) continue;
+        if (a.post_id === b.post_id) continue;
 
         const sim = cosineSimilarity(
           JSON.parse(a.vector!),
-          JSON.parse(b.vector!)
+          JSON.parse(b.vector!),
         );
 
         const [source_post_id, target_post_id] = [a.post_id, b.post_id].sort();
+
         pairs.push({
           created_at: new Date().toISOString(),
           similarity: sim,
@@ -58,7 +60,9 @@ export async function POST() {
 
     const { error: insertError } = await supabase
       .from("post_similarities")
-      .insert(pairs);
+      .upsert(pairs, {
+        onConflict: "source_post_id,target_post_id",
+      });
 
     if (insertError) {
       console.error("삽입 실패:", insertError);

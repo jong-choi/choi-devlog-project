@@ -5,7 +5,7 @@ import { cosineSimilarity, summaryParser } from "@/utils/api/analysis-utils";
 import { generateClusterTitleAndSummary } from "@/app/api/similarity/cluster/generate/utils";
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET() {
+export async function POST() {
   try {
     const cookiesStore = await cookies();
     const supabase = await createClient(cookiesStore);
