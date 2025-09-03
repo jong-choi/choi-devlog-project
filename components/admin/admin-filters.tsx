@@ -1,16 +1,19 @@
-type Filters = {
-  hasSummary: string;
-  combine: string;
-  sortBy: string;
-  sortOrder: string;
-};
+"use client";
 
-type AdminFiltersProps = {
-  filters: Filters;
-  onFilterChange: (key: string, value: string | number) => void;
-};
+import { useShallow } from "zustand/react/shallow";
+import { useAdminTableStore } from "@/providers/admin-table-store-provider";
 
-export default function AdminFilters({ filters, onFilterChange }: AdminFiltersProps) {
+export default function AdminFilters() {
+  const filters = useAdminTableStore(useShallow((state) => state.filters));
+  const setFilters = useAdminTableStore((state) => state.setFilters);
+
+  const onFilterChange = (key: string, value: string | number) => {
+    setFilters({
+      ...filters,
+      [key]: value,
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">필터</h2>

@@ -15,15 +15,9 @@ type PostData = {
 
 type AdminPostTableRowProps = {
   post: PostData;
-  revalidateCacheTags: (tags: string[]) => Promise<void>;
-  onDataRefresh: () => Promise<void>;
 };
 
-export default function AdminPostTableRow({
-  post,
-  revalidateCacheTags,
-  onDataRefresh,
-}: AdminPostTableRowProps) {
+export default function AdminPostTableRow({ post }: AdminPostTableRowProps) {
   return (
     <tr key={post.id} className="hover:bg-gray-50">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -43,23 +37,13 @@ export default function AdminPostTableRow({
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <div className="flex items-center gap-2">
           <span>{post.ai_summaries[0]?.count || 0}</span>
-          <AdminActionButtons
-            post={post}
-            type="summary"
-            revalidateCacheTags={revalidateCacheTags}
-            onDataRefresh={onDataRefresh}
-          />
+          <AdminActionButtons post={post} type="summary" />
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <div className="flex items-center gap-2">
           <span>{post.post_similarities[0]?.count || 0}</span>
-          <AdminActionButtons
-            post={post}
-            type="similarity"
-            revalidateCacheTags={revalidateCacheTags}
-            onDataRefresh={onDataRefresh}
-          />
+          <AdminActionButtons post={post} type="similarity" />
         </div>
       </td>
     </tr>
