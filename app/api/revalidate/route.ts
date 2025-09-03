@@ -8,7 +8,7 @@ type RevalidateRequestBody = {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient(undefined, true);
+    const supabase = await createClient();
 
     // 로그인 된 유저만 사용 가능
     const {
