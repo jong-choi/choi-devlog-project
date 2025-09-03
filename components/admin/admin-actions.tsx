@@ -4,14 +4,11 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useRevalidator } from "@/hooks/use-revalidator";
 import { CACHE_TAGS } from "@/utils/nextCache";
 
-type AdminActionsProps = {
-  revalidateCacheTags: (tags: string[]) => Promise<void>;
-  onDataRefresh: () => Promise<void>;
-};
-
-export default function AdminActions({ revalidateCacheTags, onDataRefresh }: AdminActionsProps) {
+export default function AdminActions() {
+  const revalidateCacheTags = useRevalidator();
   const [generatingAllSimilarity, setGeneratingAllSimilarity] = useState(false);
   const [generatingClusters, setGeneratingClusters] = useState(false);
 
@@ -33,7 +30,6 @@ export default function AdminActions({ revalidateCacheTags, onDataRefresh }: Adm
       await revalidateCacheTags([CACHE_TAGS.POST.ALL()]);
 
       toast.success(`추천 게시글 생성 완료 (${data.count}개 유사도 계산)`);
-      await onDataRefresh();
     } catch (error) {
       console.error(error);
       toast.error("추천 게시글 생성 중 오류가 발생했습니다.");
@@ -62,7 +58,6 @@ export default function AdminActions({ revalidateCacheTags, onDataRefresh }: Adm
       toast.success(
         `게시글 군집 생성 완료 (${data.count}개 군집 생성, ${data.clusteredPostCount}개 게시글 군집화)`,
       );
-      await onDataRefresh();
     } catch (error) {
       console.error(error);
       toast.error("게시글 군집 생성 중 오류가 발생했습니다.");

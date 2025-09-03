@@ -1,4 +1,8 @@
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+
+export const revalidate = 60 * 60 * 24 * 7; //7일 캐싱
+//revalidatePath("/api/admin")로 리발리데이트;
 
 export async function GET() {
   const supabase = await createClient(undefined, true);
@@ -62,4 +66,10 @@ export async function GET() {
   });
 
   return Response.json({ data: postsWithCounts ?? [], total: count ?? 0 });
+}
+
+export async function POST() {
+  revalidatePath("/api/(fetchers)/admin");
+
+  return Response.json({ revalidated: true, now: Date.now() });
 }

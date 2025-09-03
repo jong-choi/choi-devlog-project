@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { createAISummary, createTagsByPostId } from "@/app/post/actions";
+import { Button } from "@/components/ui/button";
+import { useRevalidator } from "@/hooks/use-revalidator";
 import { CACHE_TAGS } from "@/utils/nextCache";
 
 type PostData = {
@@ -20,16 +21,14 @@ type PostData = {
 type AdminActionButtonsProps = {
   post: PostData;
   type: "summary" | "similarity";
-  revalidateCacheTags: (tags: string[]) => Promise<void>;
-  onDataRefresh: () => Promise<void>;
 };
 
 export default function AdminActionButtons({
   post,
   type,
-  revalidateCacheTags,
-  onDataRefresh,
 }: AdminActionButtonsProps) {
+  const revalidateCacheTags = useRevalidator();
+
   const [loading, setLoading] = useState(false);
 
   const createSummary = async (title: string, body: string) => {
@@ -109,8 +108,6 @@ export default function AdminActionButtons({
         CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id),
       ]);
       toast.success("요약 생성에 성공하였습니다.");
-
-      await onDataRefresh();
     } catch (error) {
       console.error(error);
       toast.error("요약 생성 중 오류가 발생했습니다.");
@@ -142,7 +139,6 @@ export default function AdminActionButtons({
       await revalidateCacheTags([CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id)]);
 
       toast.success("추천 게시글 생성에 성공했습니다.");
-      await onDataRefresh();
     } catch (error) {
       console.error("추천 게시글 생성 오류:", error);
       toast.error("추천 게시글 생성 중 오류가 발생했습니다.");
@@ -151,7 +147,8 @@ export default function AdminActionButtons({
     }
   };
 
-  const handleClick = type === "summary" ? handleCreateSummary : handleCreateSimilarity;
+  const handleClick =
+    type === "summary" ? handleCreateSummary : handleCreateSimilarity;
   const buttonText = type === "summary" ? "요약" : "추천";
 
   return (
@@ -162,11 +159,7 @@ export default function AdminActionButtons({
       disabled={loading}
       className="h-6 text-xs"
     >
-      {loading ? (
-        <Loader2 className="w-3 h-3 animate-spin" />
-      ) : (
-        buttonText
-      )}
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : buttonText}
     </Button>
   );
 }
