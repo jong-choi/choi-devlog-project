@@ -9,6 +9,14 @@ import { CACHE_TAGS } from "@/utils/nextCache";
 
 export default function AdminActions() {
   const revalidateCacheTags = useRevalidator();
+  const revalidateAdminAPI = async () => {
+    await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
   const [generatingAllSimilarity, setGeneratingAllSimilarity] = useState(false);
   const [generatingClusters, setGeneratingClusters] = useState(false);
 
@@ -54,6 +62,7 @@ export default function AdminActions() {
       const data = await response.json();
 
       await revalidateCacheTags([CACHE_TAGS.CLUSTER.ALL()]);
+      await revalidateAdminAPI();
 
       toast.success(
         `게시글 군집 생성 완료 (${data.count}개 군집 생성, ${data.clusteredPostCount}개 게시글 군집화)`,
