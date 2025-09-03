@@ -3,25 +3,63 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET() {
   const supabase = await createClient(undefined, true);
 
-  const { data, error, count } = await supabase.from("published_posts").select(
+  const {
+    data: posts,
+    error: postsError,
+    count,
+  } = await supabase.from("published_posts").select(
     `
       id,
       title,
       url_slug,
       created_at,
-      ai_summaries(count),
-      post_similarities:post_similarities!source_post_id(count)
+      ai_summaries(count)
     `,
     { count: "exact" },
   );
 
-  if (error) {
-    console.error("Supabase 데이터 가져오기 오류:", error);
-    return Response.json({ error }, { status: 500 });
+  if (postsError) {
+    console.error("Supabase 게시글 데이터 가져오기 오류:", postsError);
+    return Response.json({ error: postsError }, { status: 500 });
   }
 
-  return Response.json({
-    data: data ?? [],
-    total: count ?? 0,
+  // 각 게시글별로 정확한 추천(유사도) 개수를 조회
+  const similarityCountMap = new Map<string, number>();
+  if (posts && posts.length > 0) {
+    const countResults = await Promise.all(
+      posts.map((post) =>
+        supabase
+          .from("post_similarities_with_target_info")
+          .select("target_post_id", { head: true, count: "exact" })
+          .eq("source_post_id", post.id as string),
+      ),
+    );
+
+    countResults.forEach((res, idx) => {
+      const postId = posts[idx]?.id;
+      if (res.error) {
+        console.error(
+          "유사도 개수 조회 오류 (post_id=",
+          postId,
+          "):",
+          res.error,
+        );
+      }
+      if (postId) {
+        similarityCountMap.set(postId, res.count ?? 0);
+      }
+    });
+  }
+
+  // posts 데이터에 정확한 similarity count 추가
+  const postsWithCounts = posts?.map((post) => {
+    const postId = typeof post.id === "string" ? post.id : undefined;
+    const countVal = postId ? (similarityCountMap.get(postId) ?? 0) : 0;
+    return {
+      ...post,
+      post_similarities: [{ count: countVal }],
+    };
   });
+
+  return Response.json({ data: postsWithCounts ?? [], total: count ?? 0 });
 }
