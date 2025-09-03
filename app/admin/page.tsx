@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createAISummary, createTagsByPostId } from "@/app/post/actions";
 import { Button } from "@/components/ui/button";
+import { CACHE_TAGS } from "@/utils/nextCache";
 
 type PostData = {
   id: string;
@@ -50,6 +51,23 @@ export default function AdminPage() {
       setLoading(false);
     }
   }, []);
+
+  const revalidateCacheTags = async (cacheTags: string[]) => {
+    try {
+      await fetch("/api/revalidate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tags: cacheTags,
+        }),
+      });
+    } catch (error) {
+      console.error("캐시 재검증 중 오류:", error);
+      toast.error("캐시 재검증 중 오류가 발생했습니다.");
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -180,7 +198,12 @@ export default function AdminPage() {
         return;
       }
 
+      await revalidateCacheTags([
+        CACHE_TAGS.POST.BY_URL_SLUG(postData.url_slug),
+        CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id),
+      ]);
       toast.success("요약 생성에 성공하였습니다.");
+
       await fetchPosts(); // 데이터 새로고침
     } catch (error) {
       console.error(error);
@@ -204,6 +227,9 @@ export default function AdminPage() {
       }
 
       const data = await response.json();
+
+      await revalidateCacheTags([CACHE_TAGS.POST.ALL()]);
+
       toast.success(`추천 게시글 생성 완료 (${data.count}개 유사도 계산)`);
       await fetchPosts(); // 데이터 새로고침
     } catch (error) {
@@ -228,6 +254,9 @@ export default function AdminPage() {
       }
 
       const data = await response.json();
+
+      await revalidateCacheTags([CACHE_TAGS.CLUSTER.ALL()]);
+
       toast.success(
         `게시글 군집 생성 완료 (${data.count}개 군집 생성, ${data.clusteredPostCount}개 게시글 군집화)`,
       );
@@ -259,6 +288,9 @@ export default function AdminPage() {
       }
 
       await response.json();
+
+      await revalidateCacheTags([CACHE_TAGS.AI_SUMMARY.BY_POST_ID(postId)]);
+
       toast.success("추천 게시글 생성에 성공했습니다.");
       await fetchPosts(); // 데이터 새로고침
     } catch (error) {
