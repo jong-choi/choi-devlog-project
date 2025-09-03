@@ -2,21 +2,12 @@
 
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { AdminPostData } from "@/app/api/(fetchers)/admin/route";
 import { useAdminTableStore } from "@/providers/admin-table-store-provider";
 import AdminPostTableRow from "./admin-post-table-row";
 
-type PostData = {
-  id: string;
-  title: string;
-  url_slug: string;
-  created_at: string;
-  body?: string;
-  ai_summaries: { count?: number }[];
-  post_similarities: { count?: number }[];
-};
-
 type AdminPostsTableProps = {
-  allPosts: PostData[];
+  allPosts: AdminPostData[];
 };
 
 export default function AdminPostsTable({ allPosts }: AdminPostsTableProps) {
@@ -28,7 +19,7 @@ export default function AdminPostsTable({ allPosts }: AdminPostsTableProps) {
     // 필터링
     if (filters.hasSummary) {
       result = result.filter((post) => {
-        const hasSummary = (post.ai_summaries[0]?.count || 0) > 0;
+        const hasSummary = !!post.ai_summaries;
         return filters.hasSummary === "true" ? hasSummary : !hasSummary;
       });
     }
@@ -38,8 +29,8 @@ export default function AdminPostsTable({ allPosts }: AdminPostsTableProps) {
       let compareValue = 0;
 
       if (filters.sortBy === "created_at") {
-        const aDate = new Date(a.created_at).getTime();
-        const bDate = new Date(b.created_at).getTime();
+        const aDate = new Date(a.created_at || "").getTime();
+        const bDate = new Date(b.created_at || "").getTime();
         compareValue = aDate - bDate;
       } else if (filters.sortBy === "recommendation_count") {
         const aCount = a.post_similarities[0]?.count || 0;
