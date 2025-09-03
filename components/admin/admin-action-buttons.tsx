@@ -48,7 +48,10 @@ export default function AdminActionButtons({
     setLoading(true);
 
     try {
-      if (!post.url_slug) throw new Error("url_slug가 없습니다.");
+      if (!post.url_slug || !post.id) {
+        throw new Error("게시글 정보가 없습니다.");
+      }
+
       const postResponse = await fetch(
         `/api/posts/slug?urlSlug=${encodeURIComponent(post.url_slug)}`,
       );
@@ -95,7 +98,6 @@ export default function AdminActionButtons({
         return;
       }
 
-      if (!post.id) throw new Error("게시글 id가 없습니다.");
       await revalidateCacheTags([
         CACHE_TAGS.POST.BY_URL_SLUG(postData.url_slug),
         CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id),
@@ -113,6 +115,7 @@ export default function AdminActionButtons({
     setLoading(true);
 
     try {
+      if (!post.id) throw new Error("게시글 id가 없습니다.");
       const response = await fetch("/api/summary/recommended", {
         method: "POST",
         headers: {
@@ -129,7 +132,6 @@ export default function AdminActionButtons({
 
       await response.json();
 
-      if (!post.id) throw new Error("게시글 id가 없습니다.");
       await revalidateCacheTags([CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id)]);
 
       toast.success("추천 게시글 생성에 성공했습니다.");
