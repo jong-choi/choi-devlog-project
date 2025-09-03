@@ -36,6 +36,7 @@ export default function AdminActions() {
       const data = await response.json();
 
       await revalidateCacheTags([CACHE_TAGS.POST.ALL()]);
+      await revalidateAdminAPI();
 
       toast.success(`추천 게시글 생성 완료 (${data.count}개 유사도 계산)`);
     } catch (error) {
@@ -62,7 +63,6 @@ export default function AdminActions() {
       const data = await response.json();
 
       await revalidateCacheTags([CACHE_TAGS.CLUSTER.ALL()]);
-      await revalidateAdminAPI();
 
       toast.success(
         `게시글 군집 생성 완료 (${data.count}개 군집 생성, ${data.clusteredPostCount}개 게시글 군집화)`,
