@@ -1,6 +1,21 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 
+export type AdminPostData = {
+  id: string | null;
+  title: string | null;
+  url_slug: string | null;
+  created_at: string | null;
+  body?: string;
+  ai_summaries: { id: string } | null;
+  post_similarities: { count: number }[];
+};
+
+export type AdminPostRes = {
+  data: AdminPostData[];
+  total: number;
+};
+
 export const revalidate = 60 * 60 * 24 * 7; //7일 캐싱
 //revalidatePath("/api/admin")로 리발리데이트;
 
@@ -17,9 +32,8 @@ export async function GET() {
       title,
       url_slug,
       created_at,
-      ai_summaries(count)
+      ai_summaries ( id ) 
     `,
-    { count: "exact" },
   );
 
   if (postsError) {
@@ -65,7 +79,9 @@ export async function GET() {
     };
   });
 
-  return Response.json({ data: postsWithCounts ?? [], total: count ?? 0 });
+  const res: AdminPostRes = { data: postsWithCounts ?? [], total: count ?? 0 };
+
+  return Response.json(res);
 }
 
 export async function POST() {

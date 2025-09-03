@@ -1,17 +1,17 @@
 "use server";
-import { Database } from "@/types/supabase";
-import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
 
-import { createClient } from "@/utils/supabase/server";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { Database } from "@/types/supabase";
+import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
+import { createClient } from "@/utils/supabase/server";
 
 const _createAISummary = async (
   payload: Omit<
     Database["public"]["Tables"]["ai_summaries"]["Insert"],
     "vector"
-  > & { vector: number[] | null }
+  > & { vector: number[] | null },
 ): Promise<
   PostgrestSingleResponse<
     Database["public"]["Tables"]["ai_summaries"]["Insert"]
@@ -22,7 +22,7 @@ const _createAISummary = async (
   const { vector, ...rest } = payload;
   const result = await supabase
     .from("ai_summaries")
-    .insert(rest)
+    .upsert(rest, { onConflict: "post_id" })
     .select()
     .single();
 
@@ -31,12 +31,17 @@ const _createAISummary = async (
     vecResult = await supabase
       .from("ai_summary_vectors")
       //@ts-expect-error : vector값이 불일치
-      .insert({
-        summary_id: result.data.id,
-        vector,
-      })
+      .upsert(
+        {
+          summary_id: result.data.id,
+          vector,
+        },
+        { onConflict: "summary_id" },
+      )
       .select()
       .single();
+  } else {
+    console.error(result.error);
   }
 
   if (vecResult && !vecResult?.data) {
@@ -50,5 +55,5 @@ export const createAISummary = createWithInvalidation(
   _createAISummary,
   async (result) => {
     revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.post_id || ""));
-  }
+  },
 );

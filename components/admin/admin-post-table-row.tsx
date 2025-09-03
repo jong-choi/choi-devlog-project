@@ -1,23 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { AdminPostData } from "@/app/api/(fetchers)/admin/route";
 import AdminActionButtons from "./admin-action-buttons";
 
-type PostData = {
-  id: string;
-  title: string;
-  url_slug: string;
-  created_at: string;
-  body?: string;
-  ai_summaries: { count?: number }[];
-  post_similarities: { count?: number }[];
-};
-
 type AdminPostTableRowProps = {
-  post: PostData;
+  post: AdminPostData;
 };
 
 export default function AdminPostTableRow({ post }: AdminPostTableRowProps) {
+  useEffect(() => {
+    if (post.ai_summaries) {
+      console.log(post.ai_summaries);
+    }
+  }, [post.ai_summaries]);
+
   return (
     <tr key={post.id} className="hover:bg-gray-50">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -32,11 +30,11 @@ export default function AdminPostTableRow({ post }: AdminPostTableRowProps) {
         {post.url_slug}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {new Date(post.created_at).toLocaleDateString("ko-KR")}
+        {new Date(post.created_at || "").toLocaleDateString("ko-KR")}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <div className="flex items-center gap-2">
-          <span>{post.ai_summaries[0]?.count || 0}</span>
+          <span>{!!post.ai_summaries ? "존재함" : "없음"}</span>
           <AdminActionButtons post={post} type="summary" />
         </div>
       </td>
