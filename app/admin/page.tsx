@@ -29,6 +29,7 @@ export default function AdminPage() {
     [key: string]: { summary: boolean; similarity: boolean };
   }>({});
   const [generatingAllSimilarity, setGeneratingAllSimilarity] = useState(false);
+  const [generatingClusters, setGeneratingClusters] = useState(false);
   const [filters, setFilters] = useState({
     hasSummary: "",
     combine: "or",
@@ -213,6 +214,32 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateClusters = async () => {
+    setGeneratingClusters(true);
+
+    try {
+      const response = await fetch("/api/similarity/cluster/generate", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        toast.error("게시글 군집 생성에 실패했습니다.");
+        return;
+      }
+
+      const data = await response.json();
+      toast.success(
+        `게시글 군집 생성 완료 (${data.count}개 군집 생성, ${data.clusteredPostCount}개 게시글 군집화)`,
+      );
+      await fetchPosts(); // 데이터 새로고침
+    } catch (error) {
+      console.error(error);
+      toast.error("게시글 군집 생성 중 오류가 발생했습니다.");
+    } finally {
+      setGeneratingClusters(false);
+    }
+  };
+
   const handleCreateSimilarity = async (postId: string) => {
     setPostLoading(postId, "similarity", true);
 
@@ -295,21 +322,38 @@ export default function AdminPage() {
           <h2 className="text-xl font-semibold">
             게시글 목록 (총 {filteredAndSortedPosts.length}개)
           </h2>
-          <Button
-            onClick={handleCreateAllSimilarity}
-            variant="default"
-            disabled={generatingAllSimilarity}
-            className="px-6 py-2"
-          >
-            {generatingAllSimilarity ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                유사도 생성 중...
-              </>
-            ) : (
-              "모든 게시글 유사도 생성"
-            )}
-          </Button>
+          <div>
+            <Button
+              onClick={handleCreateClusters}
+              variant="default"
+              disabled={generatingClusters}
+              className="px-6 py-2"
+            >
+              {generatingClusters ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  게시글 군집 생성중...
+                </>
+              ) : (
+                "게시글 군집 생성하기"
+              )}
+            </Button>
+            <Button
+              onClick={handleCreateAllSimilarity}
+              variant="default"
+              disabled={generatingAllSimilarity}
+              className="px-6 py-2"
+            >
+              {generatingAllSimilarity ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  유사도 생성 중...
+                </>
+              ) : (
+                "모든 게시글 유사도 생성"
+              )}
+            </Button>
+          </div>
         </div>
 
         {loading ? (
