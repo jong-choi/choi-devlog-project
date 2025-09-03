@@ -16,7 +16,7 @@ export type AdminPostRes = {
   total: number;
 };
 
-export const revalidate = 60 * 60 * 24 * 7; //7일 캐싱
+export const revalidate = 604800; //7일 캐싱
 //revalidatePath("/api/admin")로 리발리데이트;
 
 export async function GET() {
