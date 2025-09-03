@@ -40,6 +40,7 @@ export default function AdminFilters() {
           >
             <option value="created_at">생성일</option>
             <option value="recommendation_count">추천 수</option>
+            <option value="summaryExistence">요약 존재여부</option>
           </select>
         </div>
 

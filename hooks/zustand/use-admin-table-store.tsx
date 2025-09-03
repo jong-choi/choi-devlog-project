@@ -5,7 +5,7 @@ import { createStore } from "zustand";
 export interface AdminTableFilters {
   hasSummary: string;
   combine: string;
-  sortBy: string;
+  sortBy: "created_at" | "summaryExistence" | string;
   sortOrder: string;
 }
 
