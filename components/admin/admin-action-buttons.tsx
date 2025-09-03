@@ -19,6 +19,14 @@ export default function AdminActionButtons({
   type,
 }: AdminActionButtonsProps) {
   const revalidateCacheTags = useRevalidator();
+  const revalidateAdminAPI = async () => {
+    await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
 
   const [loading, setLoading] = useState(false);
 
@@ -102,6 +110,7 @@ export default function AdminActionButtons({
         CACHE_TAGS.POST.BY_URL_SLUG(postData.url_slug),
         CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id),
       ]);
+      await revalidateAdminAPI();
       toast.success("요약 생성에 성공하였습니다.");
     } catch (error) {
       console.error(error);
@@ -133,7 +142,7 @@ export default function AdminActionButtons({
       await response.json();
 
       await revalidateCacheTags([CACHE_TAGS.AI_SUMMARY.BY_POST_ID(post.id)]);
-
+      await revalidateAdminAPI();
       toast.success("추천 게시글 생성에 성공했습니다.");
     } catch (error) {
       console.error("추천 게시글 생성 오류:", error);
