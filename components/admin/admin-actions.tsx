@@ -10,7 +10,16 @@ import { CACHE_TAGS } from "@/utils/nextCache";
 export default function AdminActions() {
   const revalidateCacheTags = useRevalidator();
   const revalidateAdminAPI = async () => {
+    await revalidateCacheTags([CACHE_TAGS.CLUSTER.ALL()]);
     await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+  const revalidateJSDOMMap = async () => {
+    await fetch("/api/map/jsdom", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -104,8 +113,15 @@ export default function AdminActions() {
             유사도 생성 중...
           </>
         ) : (
-          "모든 게시글 유사도 생성"
+          "모든 추천 게시글 생성"
         )}
+      </Button>
+      <Button
+        onClick={revalidateJSDOMMap}
+        variant="default"
+        className="px-6 py-2"
+      >
+        지도 캐싱 지우기
       </Button>
     </div>
   );

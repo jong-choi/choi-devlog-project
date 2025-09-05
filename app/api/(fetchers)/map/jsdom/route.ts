@@ -1,20 +1,20 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import {
-  forceSimulation,
-  forceLink,
-  forceManyBody,
+  SimulationLinkDatum,
+  SimulationNodeDatum,
   forceCenter,
   forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
   forceX,
   forceY,
-  SimulationNodeDatum,
-  SimulationLinkDatum,
 } from "d3-force";
 import { select } from "d3-selection";
 import { JSDOM } from "jsdom";
-
-import { ClusteredPostGroup } from "@/types/graph";
 import { getClusterData, getClusterSimData } from "@/app/map/fetchers";
+import { ClusteredPostGroup } from "@/types/graph";
 
 // 내부 시뮬레이션용 타입
 type SimNode = ClusteredPostGroup & SimulationNodeDatum;
@@ -26,17 +26,17 @@ type SimLink = SimulationLinkDatum<SimNode> & {
 
 export async function GET() {
   const { data: nodes } = await getClusterData();
+  const { data: rawLinks } = await getClusterSimData();
   if (!nodes) {
     return NextResponse.json(
       { error: "Missing data : JSDOM Nodes" },
-      { status: 400 }
+      { status: 400 },
     );
   }
-  const { data: rawLinks } = await getClusterSimData();
   if (!rawLinks) {
     return NextResponse.json(
       { error: "Missing data : JSDOM RawLinks" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -58,7 +58,7 @@ export async function GET() {
         "link",
         forceLink<SimNode, SimLink>(simLinks)
           .id((d) => d.id!)
-          .distance(100)
+          .distance(100),
       )
       .force("charge", forceManyBody().strength(-50))
       .force("collide", forceCollide().radius(60))
@@ -85,10 +85,10 @@ export async function GET() {
     .data(simLinks)
     .enter()
     .append("line")
-    .attr("x1", (d) => (typeof d.source === "object" ? d.source.x ?? 0 : 0))
-    .attr("y1", (d) => (typeof d.source === "object" ? d.source.y ?? 0 : 0))
-    .attr("x2", (d) => (typeof d.target === "object" ? d.target.x ?? 0 : 0))
-    .attr("y2", (d) => (typeof d.target === "object" ? d.target.y ?? 0 : 0))
+    .attr("x1", (d) => (typeof d.source === "object" ? (d.source.x ?? 0) : 0))
+    .attr("y1", (d) => (typeof d.source === "object" ? (d.source.y ?? 0) : 0))
+    .attr("x2", (d) => (typeof d.target === "object" ? (d.target.x ?? 0) : 0))
+    .attr("y2", (d) => (typeof d.target === "object" ? (d.target.y ?? 0) : 0))
     .attr("class", "graph-link")
     .attr("stroke-width", (d) => (d.similarity - 0.58) * 60);
 
@@ -148,4 +148,12 @@ export async function GET() {
     });
 
   return NextResponse.json({ html: body.html() });
+}
+
+export async function POST() {
+  // 강제로 지도 다시 만들도록 임시 구현
+  revalidatePath("/api/map/jsdom");
+  revalidatePath("/map");
+  revalidatePath("/");
+  return Response.json({ revalidated: true, now: Date.now() });
 }
