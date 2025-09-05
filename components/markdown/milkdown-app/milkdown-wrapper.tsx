@@ -135,7 +135,7 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
     <MilkdownProvider>
       <div
         className={cn(
-          isMilkdownOn && isRawOn && "w-full grid grid-cols-2 absolute left-0",
+          isMilkdownOn && isRawOn && "w-full grid grid-cols-2  left-0",
         )}
       >
         <div

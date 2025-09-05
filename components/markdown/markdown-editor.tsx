@@ -24,7 +24,7 @@ export default function MarkdownEditor({
   return (
     <div className="markdown-body w-full relative pb-28">
       <div
-        className={cn(isEditMode && "opacity-0")}
+        className={cn(isEditMode && "hidden")}
         aria-hidden={isEditMode || isFullMode}
       >
         {children}
@@ -32,10 +32,8 @@ export default function MarkdownEditor({
       {isMounted && (
         <div
           className={cn(
-            isFullMode && "fixed inset-0 top-56 z-10",
-            isEditMode
-              ? "absolute inset-0 z-10"
-              : "w-0 h-0 opacity-0 overflow-hidden pointer-events-none",
+            !isEditMode &&
+              "w-0 h-0 opacity-0 overflow-hidden pointer-events-none",
           )}
           aria-hidden={!isEditMode}
         >
