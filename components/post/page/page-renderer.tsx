@@ -101,35 +101,37 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
           id="메인레퍼"
           className="flex flex-1 flex-col h-full min-w-0 bg-glass-bg backdrop-blur-2xl text-gray-800 dark:text-white"
         >
-          <header
-            data-component-name="main-header"
-            className="h-[48px] border-b border-border flex justify-between items-center dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400 md:sticky md:top-0 z-20 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm"
-          >
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <div className="flex md:hidden gap-2 item">
-                <Logo />
+          <div className="md:sticky md:top-0 z-20">
+            <header
+              data-component-name="main-header"
+              className="h-[48px] border-b border-border flex justify-between items-center dark:from-[#1b1b1b] dark:to-[#121212] text-sm text-gray-600 dark:text-gray-400  bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2 px-4">
+                <SidebarTrigger className="-ml-1" />
+                <div className="flex md:hidden gap-2 item">
+                  <Logo />
+                </div>
+                <div className="hidden md:flex">
+                  <Separator
+                    orientation="vertical"
+                    className="mr-2 data-[orientation=vertical]:h-4"
+                  />
+                  <PostBreadcrumb
+                    category={category}
+                    subcategory={subcategory}
+                    title={data?.title}
+                  />
+                </div>
               </div>
-              <div className="hidden md:flex">
-                <Separator
-                  orientation="vertical"
-                  className="mr-2 data-[orientation=vertical]:h-4"
-                />
-                <PostBreadcrumb
-                  category={category}
-                  subcategory={subcategory}
-                  title={data?.title}
-                />
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2 px-4 lg:mr-10 xl:mr-0">
-              <ToggleEditButton />
-            </div>
-          </header>
-          <AutosaveApp />
+              <div className="flex items-center gap-2 px-4 lg:mr-10 xl:mr-0">
+                <ToggleEditButton />
+              </div>
+            </header>
+            <AutosaveApp />
+          </div>
           <MainPostSectionContainer>
-            <div className="main-post-section min-w-0">
+            <div className="main-post-section min-w-0 min-h-svh px-6">
               <div className="px-4 sm:px-14 mb-5 flex flex-col gap-2">
                 <div className="text-xs">{subcategory?.name}</div>
                 <div className="flex gap-1">
