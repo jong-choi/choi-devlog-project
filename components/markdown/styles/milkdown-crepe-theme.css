@@ -425,9 +425,7 @@
   }
 
   .tools .language-button {
-    position: relative;
-    margin-bottom: -10px;
-    top: -10px;
+    opacity: 0.5;
     z-index: 10;
   }
 
