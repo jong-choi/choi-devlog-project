@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
-import { ClusterSection } from "@/components/cluster/posts/cluster-section";
-import { getClusterWithPostsById } from "@/app/map/fetchers";
 import { useShallow } from "zustand/react/shallow";
+import { getClusterWithPostsById } from "@/app/map/fetchers";
+import { ClusterSection } from "@/components/cluster/posts/cluster-section";
+import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 
 export default function ClusterPostList() {
   const { clusters, selectedCluster, setSelectedCluster, setClusterWithPost } =
@@ -14,7 +14,7 @@ export default function ClusterPostList() {
         selectedCluster: state.selectedCluster,
         setSelectedCluster: state.setSelectedCluster,
         setClusterWithPost: state.setClusterWithPost,
-      }))
+      })),
     );
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -80,7 +80,7 @@ export default function ClusterPostList() {
 
         handleClusterChange(currentIndex + 1);
       },
-      { threshold: 0.3 }
+      { threshold: 0.1 },
     );
 
     const topObserver = new IntersectionObserver(
@@ -94,7 +94,7 @@ export default function ClusterPostList() {
 
         handleClusterChange(currentIndex - 1);
       },
-      { threshold: 0.3 }
+      { threshold: 0.1 },
     );
 
     if (sentinelRef.current) bottomObserver.observe(sentinelRef.current);

@@ -1,15 +1,16 @@
 "use client";
+
+import { useShallow } from "zustand/react/shallow";
+import { Spinner } from "@ui/spinner";
 import { PostCard } from "@/components/posts/post-card";
 import { useClusterPosts } from "@/providers/cluster-posts-store-provider";
 import { GraphPost, PostTags } from "@/types/graph";
-import { Spinner } from "@ui/spinner";
-import { useShallow } from "zustand/react/shallow";
 
 export function ClusterSection() {
   const { clusterWithPosts } = useClusterPosts(
     useShallow((state) => ({
       clusterWithPosts: state.clusterWithPosts,
-    }))
+    })),
   );
 
   if (!clusterWithPosts) {
@@ -26,7 +27,7 @@ export function ClusterSection() {
   })[];
 
   return (
-    <section className="w-full max-w-3xl px-4 bg-glass-bg backdrop-blur-sm pb-4">
+    <section className="w-full max-w-3xl px-4 bg-glass-bg min-h-[30rem] backdrop-blur-sm pb-4">
       <div className="flex flex-col gap-1 py-4 px-4">
         <h2 className="text-xl font-bold text-shadow">
           {clusterWithPosts.title}

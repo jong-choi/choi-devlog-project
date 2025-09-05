@@ -94,7 +94,7 @@ export async function GET() {
 
   const nodeGroups = g
     .selectAll("g.node")
-    .data(simNodes)
+    .data(simNodes.reverse())
     .enter()
     .append("g")
     .attr("class", "node");
