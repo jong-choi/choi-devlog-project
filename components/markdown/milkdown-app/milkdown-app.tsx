@@ -41,6 +41,7 @@ const MilkdownEditor = ({
     y: 0,
   });
   const [aiCtx, setAiCtx] = useState<Ctx | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
   const [highlightEnabled, setHighlightEnabled] = useState<boolean>(false);
   const [selectedRange, setSelectedRange] = useState<{
     from: number;
@@ -51,6 +52,9 @@ const MilkdownEditor = ({
   const handleAiSubmit = useCallback((prompt: string, ctx: Ctx) => {
     const editor = crepeRef.current?.editor;
     if (!editor) return;
+
+    // 로딩 시작
+    setIsAiLoading(true);
 
     const view = ctx.get(editorViewCtx);
     const { from, to } = view.state.selection;
@@ -86,6 +90,8 @@ const MilkdownEditor = ({
         console.error("inline replace error", e);
       })
       .finally(() => {
+        // 로딩 종료
+        setIsAiLoading(false);
         setAiDockOpen(false);
         setHighlightEnabled(false);
         setSelectedRange(null);
@@ -261,6 +267,7 @@ const MilkdownEditor = ({
         x={aiDockPos.x}
         y={aiDockPos.y}
         ctx={aiCtx}
+        isLoading={isAiLoading}
         onClose={() => {
           setAiDockOpen(false);
           setHighlightEnabled(false);

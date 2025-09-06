@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Loader2, Send } from "lucide-react";
 import { Ctx } from "@milkdown/kit/ctx";
-import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AiInlineDockProps {
@@ -8,6 +8,7 @@ interface AiInlineDockProps {
   x: number;
   y: number;
   ctx: Ctx | null;
+  isLoading?: boolean;
   onClose: () => void;
   onSubmit: (prompt: string, ctx: Ctx) => void;
 }
@@ -17,6 +18,7 @@ export default function AiInlineDock({
   x,
   y,
   ctx,
+  isLoading = false,
   onClose,
   onSubmit,
 }: AiInlineDockProps) {
@@ -97,7 +99,11 @@ export default function AiInlineDock({
             "transition-colors disabled:cursor-not-allowed",
           )}
         >
-          <Send className="w-3.5 h-3.5 text-white" />
+          {isLoading ? (
+            <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+          ) : (
+            <Send className="w-3.5 h-3.5 text-white" />
+          )}
         </button>
       </div>
     </div>
