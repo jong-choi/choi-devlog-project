@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { EditorView } from "@codemirror/view";
 import { Crepe } from "@milkdown/crepe";
 import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
@@ -7,6 +7,7 @@ import { Slice } from "@milkdown/kit/prose/model";
 import { Selection } from "@milkdown/kit/prose/state";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+import AiInlineDock from "./ai-inline-dock";
 
 const MilkdownEditor = ({
   markdown,
@@ -24,8 +25,24 @@ const MilkdownEditor = ({
   };
 
   const crepeRef = useRef<Crepe | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const [body, setBody] = useState<string>(markdown);
+  const [aiDockOpen, setAiDockOpen] = useState<boolean>(false);
+  const [aiDockPos, setAiDockPos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const [aiCtx, setAiCtx] = useState<Ctx | null>(null);
+
+  // AI 제출 핸들러 (필요 시 서버 액션/호출 연결)
+  const handleAiSubmit = useCallback((prompt: string, _ctx: Ctx) => {
+    // TODO: 프롬프트로 변환/삽입 로직 연결
+    // 현재는 자리표시자. 필요 시 서버 액션 호출 후 결과를 에디터에 반영.
+    // 예시: console.log(prompt, ctx)
+    console.log("AI Prompt:", prompt);
+    setAiDockOpen(false);
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -83,7 +100,25 @@ const MilkdownEditor = ({
                   </text>{" "}
                 </svg>`,
               active: () => true, // 활성화 상태
-              onRun: (ctx: Ctx) => {},
+              onRun: (ctx: Ctx) => {
+                // 1) 현재 선택 위치(from)의 뷰포트 좌표를 얻습니다.
+                const view = ctx.get(editorViewCtx);
+                const { from } = view.state.selection;
+                const { left, bottom } = view.coordsAtPos(from);
+
+                // 2) 에디터 컨테이너 기준 좌표로 환산합니다.
+                const container = containerRef.current;
+                if (!container) return;
+                const rect = container.getBoundingClientRect();
+
+                const x = left - rect.left; // 컨테이너 기준 X
+                const y = bottom - rect.top + 8; // 컨테이너 기준 Y (버튼 위쪽에 살짝 오프셋 적용됨; 독 컴포넌트에서 위로 띄움)
+
+                // 3) 팝업 상태를 열고 좌표/CTX를 반영합니다.
+                setAiCtx(ctx);
+                setAiDockPos({ x, y });
+                setAiDockOpen(true);
+              },
             });
           },
         },
@@ -138,7 +173,19 @@ const MilkdownEditor = ({
     }
   }, [isFocused, markdown]);
 
-  return <Milkdown />;
+  return (
+    <div ref={containerRef} className="relative">
+      <Milkdown />
+      <AiInlineDock
+        open={aiDockOpen}
+        x={aiDockPos.x}
+        y={aiDockPos.y}
+        ctx={aiCtx}
+        onClose={() => setAiDockOpen(false)}
+        onSubmit={handleAiSubmit}
+      />
+    </div>
+  );
 };
 
 export default MilkdownEditor;
