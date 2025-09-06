@@ -5,6 +5,7 @@ import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
 import { Ctx } from "@milkdown/kit/ctx";
 import { Slice } from "@milkdown/kit/prose/model";
 import { Selection } from "@milkdown/kit/prose/state";
+import { getMarkdown } from "@milkdown/kit/utils";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import AiInlineDock from "./ai-inline-dock";
@@ -35,12 +36,18 @@ const MilkdownEditor = ({
   });
   const [aiCtx, setAiCtx] = useState<Ctx | null>(null);
 
-  // AI 제출 핸들러 (필요 시 서버 액션/호출 연결)
-  const handleAiSubmit = useCallback((prompt: string, _ctx: Ctx) => {
-    // TODO: 프롬프트로 변환/삽입 로직 연결
-    // 현재는 자리표시자. 필요 시 서버 액션 호출 후 결과를 에디터에 반영.
-    // 예시: console.log(prompt, ctx)
+  // AI 제출 핸들러: 선택 영역을 마크다운으로 추출해 로그 출력
+  const handleAiSubmit = useCallback((prompt: string, ctx: Ctx) => {
+    const editor = crepeRef.current?.editor;
+    if (!editor) return;
+
+    const view = ctx.get(editorViewCtx);
+    const { from, to } = view.state.selection;
+
+    const selectionMarkdown = editor.action(getMarkdown({ from, to }));
     console.log("AI Prompt:", prompt);
+    console.log("Selection Markdown:", selectionMarkdown);
+
     setAiDockOpen(false);
   }, []);
 
