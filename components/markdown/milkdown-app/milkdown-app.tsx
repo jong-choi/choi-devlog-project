@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { EditorView } from "@codemirror/view";
 import { Crepe } from "@milkdown/crepe";
 import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
+import { Ctx } from "@milkdown/kit/ctx";
 import { Slice } from "@milkdown/kit/prose/model";
 import { Selection } from "@milkdown/kit/prose/state";
 import { Milkdown, useEditor } from "@milkdown/react";
@@ -50,6 +51,41 @@ const MilkdownEditor = ({
         [Crepe.Feature.CodeMirror]: {
           extensions: [EditorView.lineWrapping],
           theme: vscodeDark,
+        },
+        [Crepe.Feature.Toolbar]: {
+          buildToolbar: (builder) => {
+            builder.clear(); // 툴바 버튼들 삭제
+            builder.addGroup("ai", "AI"); // AI 그룹 추가
+            const functionGroup = builder.getGroup("ai");
+            functionGroup.addItem("ai-improve", {
+              icon: `<svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                >
+                  {" "}
+                  <rect
+                    width="24"
+                    height="24"
+                    rx="4"
+                    fill="currentColor"
+                    opacity="0.12"
+                  />{" "}
+                  <text
+                    x="12"
+                    y="16"
+                    text-anchor="middle"
+                    font-size="10"
+                    font-family="sans-serif"
+                  >
+                    AI
+                  </text>{" "}
+                </svg>`,
+              active: () => true, // 활성화 상태
+              onRun: (ctx: Ctx) => {},
+            });
+          },
         },
       },
     });
