@@ -396,7 +396,7 @@
   line-height: 1.5;
 }
 
-.milkdown milkdown-code-block {
+.milkdown .milkdown-code-block {
   --crepe-color-background: #1a1a1a;
   --crepe-color-on-background: #e6e6e6;
   --crepe-color-surface: #121212;
@@ -434,7 +434,7 @@
   }
 }
 
-.milkdown milkdown-slash-menu .menu-groups .menu-group li {
+.milkdown .milkdown-slash-menu .menu-groups .menu-group li {
   min-width: 0px;
 }
 
