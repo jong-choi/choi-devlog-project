@@ -104,7 +104,7 @@ const MilkdownEditor = ({
         },
         [Crepe.Feature.Toolbar]: {
           buildToolbar: (builder) => {
-            builder.clear(); // 툴바 버튼들 삭제
+            // builder.clear(); // 툴바 버튼들 삭제
             builder.addGroup("ai", "AI"); // AI 그룹 추가
             const functionGroup = builder.getGroup("ai");
             functionGroup.addItem("ai-improve", {
@@ -143,9 +143,11 @@ const MilkdownEditor = ({
                 const container = containerRef.current;
                 if (!container) return;
                 const rect = container.getBoundingClientRect();
+                const offsetY = -70;
+                const offsetX = 150;
 
-                const x = left - rect.left; // 컨테이너 기준 X
-                const y = bottom - rect.top + 8; // 컨테이너 기준 Y (버튼 위쪽에 살짝 오프셋 적용됨; 독 컴포넌트에서 위로 띄움)
+                const x = left - rect.left + offsetX; // 컨테이너 기준 X
+                const y = bottom - rect.top + offsetY; // 컨테이너 기준 Y
 
                 // 3) 팝업 상태를 열고 좌표/CTX를 반영합니다.
                 setAiCtx(ctx);
