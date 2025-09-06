@@ -1,52 +1,60 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Send } from "lucide-react";
 import { Ctx } from "@milkdown/kit/ctx";
+import { editorViewCtx } from "@milkdown/kit/core";
 import { cn } from "@/lib/utils";
+import { useAiInlineStore } from "@/providers/ai-inline-store-provider";
+import { clearHighlight } from "./highlight-plugin";
 
 interface AiInlineDockProps {
-  open: boolean;
-  x: number;
-  y: number;
-  ctx: Ctx | null;
-  isLoading?: boolean;
-  onClose: () => void;
   onSubmit: (prompt: string, ctx: Ctx) => void;
 }
 
 export default function AiInlineDock({
-  open,
-  x,
-  y,
-  ctx,
-  isLoading = false,
-  onClose,
   onSubmit,
 }: AiInlineDockProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [prompt, setPrompt] = useState<string>("");
 
+  // 전역 상태 사용
+  const isOpen = useAiInlineStore((state) => state.isOpen);
+  const isLoading = useAiInlineStore((state) => state.isLoading);
+  const position = useAiInlineStore((state) => state.position);
+  const ctx = useAiInlineStore((state) => state.ctx);
+  const closeDock = useAiInlineStore((state) => state.closeDock);
+
+  // 독 닫기 핸들러
+  const handleClose = useCallback(() => {
+    // 하이라이트 제거
+    if (ctx) {
+      const view = ctx.get(editorViewCtx);
+      clearHighlight(view);
+    }
+    closeDock();
+  }, [ctx, closeDock]);
+
   // 바깥 클릭으로 닫기
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const handleMouseDown = (e: MouseEvent) => {
       if (!panelRef.current) return;
       if (!panelRef.current.contains(e.target as Node)) {
-        onClose();
+        handleClose();
       }
     };
     document.addEventListener("mousedown", handleMouseDown);
     return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, [open, onClose]);
+  }, [isOpen, handleClose]);
 
   // ESC 키로 닫기
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  }, [isOpen, handleClose]);
 
   const handleSubmit = useCallback(() => {
     if (!ctx) return;
@@ -56,15 +64,15 @@ export default function AiInlineDock({
     setPrompt("");
   }, [ctx, onSubmit, prompt]);
 
-  if (!open) return null;
+  if (!isOpen) return null;
 
   return (
     <div
       ref={panelRef}
       className="absolute z-50 w-[320px] max-w-[80vw]"
       style={{
-        left: x,
-        top: y,
+        left: position.x,
+        top: position.y,
         transform: "translate(-50%, calc(-100% - 8px))", // 기준점 위쪽에 살짝 띄우기
       }}
       aria-label="AI 인라인 편집 독"
@@ -91,7 +99,7 @@ export default function AiInlineDock({
         />
         <button
           type="button"
-          disabled={!ctx || !prompt.trim()}
+          disabled={!ctx || !prompt.trim() || isLoading}
           onClick={handleSubmit}
           className={cn(
             "absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg flex items-center justify-center",

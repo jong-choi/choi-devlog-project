@@ -9,11 +9,12 @@ import { getMarkdown } from "@milkdown/kit/utils";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import "@/components/markdown/styles/milkdown-ai-highliting.css";
+import { useAiInlineStore } from "@/providers/ai-inline-store-provider";
 import AiInlineDock from "./ai-inline-dock";
 import {
   clearHighlight,
   highlightPlugin,
-  setHighlight,
+  setHighlight as setHighlightPlugin,
 } from "./highlight-plugin";
 
 const MilkdownEditor = ({
@@ -35,72 +36,75 @@ const MilkdownEditor = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const [body, setBody] = useState<string>(markdown);
-  const [aiDockOpen, setAiDockOpen] = useState<boolean>(false);
-  const [aiDockPos, setAiDockPos] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [aiCtx, setAiCtx] = useState<Ctx | null>(null);
-  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
-  const [highlightEnabled, setHighlightEnabled] = useState<boolean>(false);
-  const [selectedRange, setSelectedRange] = useState<{
-    from: number;
-    to: number;
-  } | null>(null);
+
+  // 전역 상태 사용 - 액션들만 가져오기
+  const openDock = useAiInlineStore((state) => state.openDock);
+  const closeDock = useAiInlineStore((state) => state.closeDock);
+  const setLoading = useAiInlineStore((state) => state.setLoading);
+  const setHighlight = useAiInlineStore((state) => state.setHighlight);
+
+  // 상태값들
+  const isOpen = useAiInlineStore((state) => state.isOpen);
+  const highlightEnabled = useAiInlineStore((state) => state.highlightEnabled);
+  const selectedRange = useAiInlineStore((state) => state.selectedRange);
 
   // AI 제출 핸들러: 선택 영역을 마크다운으로 추출해 로그 출력
-  const handleAiSubmit = useCallback((prompt: string, ctx: Ctx) => {
-    const editor = crepeRef.current?.editor;
-    if (!editor) return;
+  const handleAiSubmit = useCallback(
+    (prompt: string, ctx: Ctx) => {
+      const editor = crepeRef.current?.editor;
+      if (!editor) return;
 
-    // 로딩 시작
-    setIsAiLoading(true);
+      // 로딩 시작
+      setLoading(true);
 
-    const view = ctx.get(editorViewCtx);
-    const { from, to } = view.state.selection;
+      const view = ctx.get(editorViewCtx);
+      const { from, to } = view.state.selection;
 
-    const selectionMarkdown = editor.action(getMarkdown({ from, to }));
+      const selectionMarkdown = editor.action(getMarkdown({ from, to }));
 
-    // API 호출하여 변환된 마크다운 수신
-    fetch("/api/chat/inline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, selectionMarkdown }),
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Inline API failed");
-        const data: { text?: string } = await res.json();
-        const replaced = (data.text ?? "").trim();
-        if (!replaced) return;
+      // API 호출하여 변환된 마크다운 수신
+      fetch("/api/chat/inline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, selectionMarkdown }),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Inline API failed");
+          const data: { text?: string } = await res.json();
+          const replaced = (data.text ?? "").trim();
+          if (!replaced) return;
 
-        // 응답으로 선택 영역을 마크다운으로 교체 (마크다운 -> 노드 파싱 후 치환)
-        editor.action((innerCtx) => {
-          const innerView = innerCtx.get(editorViewCtx);
-          const parser = innerCtx.get(parserCtx);
-          const doc = parser(replaced);
-          if (!doc) return;
+          // 응답으로 선택 영역을 마크다운으로 교체 (마크다운 -> 노드 파싱 후 치환)
+          editor.action((innerCtx) => {
+            const innerView = innerCtx.get(editorViewCtx);
+            const parser = innerCtx.get(parserCtx);
+            const doc = parser(replaced);
+            if (!doc) return;
 
-          const tr = innerView.state.tr.replaceSelection(
-            new Slice(doc.content, 0, 0),
-          );
-          innerView.dispatch(tr);
+            const tr = innerView.state.tr.replaceSelection(
+              new Slice(doc.content, 0, 0),
+            );
+            innerView.dispatch(tr);
+          });
+
+          // 에디터 내용 변경 후 body 상태 즉시 업데이트
+          const newMarkdown = editor.action(getMarkdown());
+          setBody(newMarkdown);
+        })
+        .catch((e) => {
+          console.error("inline replace error", e);
+        })
+        .finally(() => {
+          // 하이라이트 제거
+          const view = ctx.get(editorViewCtx);
+          clearHighlight(view);
+
+          // 전역 상태로 독 닫기 (로딩도 함께 종료)
+          closeDock();
         });
-      })
-      .catch((e) => {
-        console.error("inline replace error", e);
-      })
-      .finally(() => {
-        // 로딩 종료
-        setIsAiLoading(false);
-        setAiDockOpen(false);
-        setHighlightEnabled(false);
-        setSelectedRange(null);
-
-        // 하이라이트 제거
-        const view = ctx.get(editorViewCtx);
-        clearHighlight(view);
-      });
-  }, []);
+    },
+    [setLoading, closeDock],
+  );
 
   useEffect(() => {
     if (isFocused) {
@@ -116,13 +120,13 @@ const MilkdownEditor = ({
     if (!editor) return;
 
     // 선택 영역이 변경되었을 때 하이라이트 업데이트
-    if (selectedRange && aiDockOpen) {
+    if (selectedRange && isOpen) {
       editor.action((ctx) => {
         const view = ctx.get(editorViewCtx);
-        setHighlight(view, selectedRange.from, selectedRange.to);
+        setHighlightPlugin(view, selectedRange.from, selectedRange.to);
       });
     }
-  }, [highlightEnabled, selectedRange, aiDockOpen]);
+  }, [highlightEnabled, selectedRange, isOpen]);
 
   useEditor((root) => {
     const crepe = new Crepe({
@@ -192,15 +196,12 @@ const MilkdownEditor = ({
 
                 // 3) 선택 영역이 있다면 하이라이트 설정
                 if (from !== to) {
-                  setHighlight(view, from, to);
-                  setHighlightEnabled(true);
-                  setSelectedRange({ from, to });
+                  setHighlightPlugin(view, from, to);
+                  setHighlight(true, { from, to });
                 }
 
                 // 4) 팝업 상태를 열고 좌표/CTX를 반영합니다.
-                setAiCtx(ctx);
-                setAiDockPos({ x, y });
-                setAiDockOpen(true);
+                openDock(x, y, ctx);
               },
             });
           },
@@ -262,25 +263,7 @@ const MilkdownEditor = ({
   return (
     <div ref={containerRef} className="relative">
       <Milkdown />
-      <AiInlineDock
-        open={aiDockOpen}
-        x={aiDockPos.x}
-        y={aiDockPos.y}
-        ctx={aiCtx}
-        isLoading={isAiLoading}
-        onClose={() => {
-          setAiDockOpen(false);
-          setHighlightEnabled(false);
-          setSelectedRange(null);
-
-          // 하이라이트 제거
-          if (aiCtx) {
-            const view = aiCtx.get(editorViewCtx);
-            clearHighlight(view);
-          }
-        }}
-        onSubmit={handleAiSubmit}
-      />
+      <AiInlineDock onSubmit={handleAiSubmit} />
     </div>
   );
 };
