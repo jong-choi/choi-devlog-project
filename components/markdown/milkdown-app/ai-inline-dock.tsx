@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Ctx } from "@milkdown/kit/ctx";
+import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AiInlineDockProps {
@@ -58,10 +59,7 @@ export default function AiInlineDock({
   return (
     <div
       ref={panelRef}
-      className={cn(
-        "absolute z-50 w-[320px] max-w-[80vw] rounded-xl border border-neutral-200 bg-white p-3 shadow-xl",
-        "dark:border-neutral-800 dark:bg-neutral-900",
-      )}
+      className="absolute z-50 w-[320px] max-w-[80vw]"
       style={{
         left: x,
         top: y,
@@ -70,7 +68,7 @@ export default function AiInlineDock({
       aria-label="AI 인라인 편집 독"
       role="dialog"
     >
-      <div className="flex items-center gap-2">
+      <div className="relative">
         <input
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -81,23 +79,25 @@ export default function AiInlineDock({
             }
           }}
           className={cn(
-            "flex-1 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm",
-            "placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400",
-            "dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600",
+            "w-full min-h-[42px] rounded-xl border border-neutral-400 bg-white shadow-sm",
+            "dark:border-neutral-500 dark:bg-neutral-900",
+            "placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-sm text-neutral-900 dark:text-neutral-100",
+            "py-3 px-4 pr-12 focus:outline-none",
           )}
-          placeholder="프롬프트를 입력하세요..."
+          placeholder="AI에게 편집 요청하기..."
+          autoFocus
         />
         <button
           type="button"
           disabled={!ctx || !prompt.trim()}
           onClick={handleSubmit}
           className={cn(
-            "inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium",
-            "bg-black text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50",
-            "dark:bg-white dark:text-black dark:hover:bg-neutral-200",
+            "absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg flex items-center justify-center",
+            "bg-neutral-700 hover:bg-neutral-800 disabled:bg-neutral-300 dark:disabled:bg-neutral-600",
+            "transition-colors disabled:cursor-not-allowed",
           )}
         >
-          전송
+          <Send className="w-3.5 h-3.5 text-white" />
         </button>
       </div>
     </div>
