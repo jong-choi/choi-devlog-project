@@ -45,10 +45,36 @@ const MilkdownEditor = ({
     const { from, to } = view.state.selection;
 
     const selectionMarkdown = editor.action(getMarkdown({ from, to }));
-    console.log("AI Prompt:", prompt);
-    console.log("Selection Markdown:", selectionMarkdown);
 
-    setAiDockOpen(false);
+    // API 호출하여 변환된 마크다운 수신
+    fetch("/api/chat/inline", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, selectionMarkdown }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Inline API failed");
+        const data: { text?: string } = await res.json();
+        const replaced = (data.text ?? "").trim();
+        if (!replaced) return;
+
+        // 응답으로 선택 영역을 마크다운으로 교체 (마크다운 -> 노드 파싱 후 치환)
+        editor.action((innerCtx) => {
+          const innerView = innerCtx.get(editorViewCtx);
+          const parser = innerCtx.get(parserCtx);
+          const doc = parser(replaced);
+          if (!doc) return;
+
+          const tr = innerView.state.tr.replaceSelection(
+            new Slice(doc.content, 0, 0),
+          );
+          innerView.dispatch(tr);
+        });
+      })
+      .catch((e) => {
+        console.error("inline replace error", e);
+      })
+      .finally(() => setAiDockOpen(false));
   }, []);
 
   useEffect(() => {
