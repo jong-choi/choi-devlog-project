@@ -1,0 +1,42 @@
+/* 하이라이트 스타일 - 라이트 모드: 연한 노란색 */
+.milkdown-selection-highlight {
+  background: #fef3c7; /* 연한 노란색 */
+  border-radius: 3px;
+  padding: 1px 2px;
+  animation: highlightFadeIn 0.2s ease-in-out;
+  transition: background 0.15s ease-in-out;
+}
+
+@keyframes highlightFadeIn {
+  from {
+    background: #fbbf24; /* 시작: 더 진한 노란색 */
+  }
+  to {
+    background: #fef3c7; /* 끝: 연한 노란색 */
+  }
+}
+
+/* 다크모드에서의 하이라이트 스타일 */
+@media (prefers-color-scheme: dark) {
+  .milkdown .milkdown-selection-highlight,
+  [data-theme="dark"] .milkdown .milkdown-selection-highlight {
+    background: color-mix(in srgb, var(--crepe-color-primary), transparent 75%);
+  }
+
+  @keyframes highlightFadeIn {
+    from {
+      background: color-mix(
+        in srgb,
+        var(--crepe-color-primary),
+        transparent 55%
+      );
+    }
+    to {
+      background: color-mix(
+        in srgb,
+        var(--crepe-color-primary),
+        transparent 75%
+      );
+    }
+  }
+}

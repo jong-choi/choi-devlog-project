@@ -8,7 +8,13 @@ import { Selection } from "@milkdown/kit/prose/state";
 import { getMarkdown } from "@milkdown/kit/utils";
 import { Milkdown, useEditor } from "@milkdown/react";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+import "@/components/markdown/styles/milkdown-ai-highliting.css";
 import AiInlineDock from "./ai-inline-dock";
+import {
+  clearHighlight,
+  highlightPlugin,
+  setHighlight,
+} from "./highlight-plugin";
 
 const MilkdownEditor = ({
   markdown,
@@ -35,6 +41,11 @@ const MilkdownEditor = ({
     y: 0,
   });
   const [aiCtx, setAiCtx] = useState<Ctx | null>(null);
+  const [highlightEnabled, setHighlightEnabled] = useState<boolean>(false);
+  const [selectedRange, setSelectedRange] = useState<{
+    from: number;
+    to: number;
+  } | null>(null);
 
   // AI 제출 핸들러: 선택 영역을 마크다운으로 추출해 로그 출력
   const handleAiSubmit = useCallback((prompt: string, ctx: Ctx) => {
@@ -74,7 +85,15 @@ const MilkdownEditor = ({
       .catch((e) => {
         console.error("inline replace error", e);
       })
-      .finally(() => setAiDockOpen(false));
+      .finally(() => {
+        setAiDockOpen(false);
+        setHighlightEnabled(false);
+        setSelectedRange(null);
+
+        // 하이라이트 제거
+        const view = ctx.get(editorViewCtx);
+        clearHighlight(view);
+      });
   }, []);
 
   useEffect(() => {
@@ -82,6 +101,22 @@ const MilkdownEditor = ({
       setMarkdown(body);
     }
   }, [body, isFocused, setMarkdown]);
+
+  // 하이라이트 상태 관리
+  useEffect(() => {
+    if (!crepeRef.current || !highlightEnabled) return;
+
+    const editor = crepeRef.current.editor;
+    if (!editor) return;
+
+    // 선택 영역이 변경되었을 때 하이라이트 업데이트
+    if (selectedRange && aiDockOpen) {
+      editor.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        setHighlight(view, selectedRange.from, selectedRange.to);
+      });
+    }
+  }, [highlightEnabled, selectedRange, aiDockOpen]);
 
   useEditor((root) => {
     const crepe = new Crepe({
@@ -136,7 +171,7 @@ const MilkdownEditor = ({
               onRun: (ctx: Ctx) => {
                 // 1) 현재 선택 위치(from)의 뷰포트 좌표를 얻습니다.
                 const view = ctx.get(editorViewCtx);
-                const { from } = view.state.selection;
+                const { from, to } = view.state.selection;
                 const { left, bottom } = view.coordsAtPos(from);
 
                 // 2) 에디터 컨테이너 기준 좌표로 환산합니다.
@@ -149,7 +184,14 @@ const MilkdownEditor = ({
                 const x = left - rect.left + offsetX; // 컨테이너 기준 X
                 const y = bottom - rect.top + offsetY; // 컨테이너 기준 Y
 
-                // 3) 팝업 상태를 열고 좌표/CTX를 반영합니다.
+                // 3) 선택 영역이 있다면 하이라이트 설정
+                if (from !== to) {
+                  setHighlight(view, from, to);
+                  setHighlightEnabled(true);
+                  setSelectedRange({ from, to });
+                }
+
+                // 4) 팝업 상태를 열고 좌표/CTX를 반영합니다.
                 setAiCtx(ctx);
                 setAiDockPos({ x, y });
                 setAiDockOpen(true);
@@ -168,6 +210,9 @@ const MilkdownEditor = ({
         }
       });
     });
+
+    // 하이라이트 플러그인 추가 (항상 활성화)
+    crepe.editor.use(highlightPlugin);
 
     crepeRef.current = crepe;
     return crepe;
@@ -216,7 +261,17 @@ const MilkdownEditor = ({
         x={aiDockPos.x}
         y={aiDockPos.y}
         ctx={aiCtx}
-        onClose={() => setAiDockOpen(false)}
+        onClose={() => {
+          setAiDockOpen(false);
+          setHighlightEnabled(false);
+          setSelectedRange(null);
+
+          // 하이라이트 제거
+          if (aiCtx) {
+            const view = aiCtx.get(editorViewCtx);
+            clearHighlight(view);
+          }
+        }}
         onSubmit={handleAiSubmit}
       />
     </div>
