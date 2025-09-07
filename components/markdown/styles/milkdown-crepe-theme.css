@@ -396,7 +396,7 @@
   line-height: 1.5;
 }
 
-.milkdown milkdown-code-block {
+.milkdown .milkdown-code-block {
   --crepe-color-background: #1a1a1a;
   --crepe-color-on-background: #e6e6e6;
   --crepe-color-surface: #121212;
@@ -421,20 +421,29 @@
 
   .tools {
     display: flex;
-    justify-content: start;
+    justify-content: space-between;
   }
 
   .tools .language-button {
-    opacity: 0.5;
+    opacity: 0.8;
     z-index: 10;
   }
 
   .tools .language-button:hover {
     opacity: 1;
   }
+
+  .tools .copy-button {
+    opacity: 0.5 !important;
+    z-index: 10;
+  }
+
+  .tools .copy-button:hover {
+    opacity: 1 !important;
+  }
 }
 
-.milkdown milkdown-slash-menu .menu-groups .menu-group li {
+.milkdown .milkdown-slash-menu .menu-groups .menu-group li {
   min-width: 0px;
 }
 
@@ -447,4 +456,8 @@
 .milkdown .menu-groups h6 {
   scroll-margin: 0;
   margin: 0;
+}
+
+.milkdown .milkdown-toolbar {
+  translate: 25% 0;
 }

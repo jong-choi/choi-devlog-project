@@ -6,6 +6,7 @@ import { useShallow } from "zustand/react/shallow";
 import { MilkdownProvider } from "@milkdown/react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
+import { AiInlineStoreProvider } from "@/providers/ai-inline-store-provider";
 import { useAuthStore } from "@/providers/auth-provider";
 import { useAutosave } from "@/providers/autosave-store-provider";
 import { useLayoutStore } from "@/providers/layout-store-provider";
@@ -132,55 +133,57 @@ export default function MilkdownWrapper({ markdown }: { markdown: string }) {
   );
 
   return (
-    <MilkdownProvider>
-      <div
-        className={cn(
-          isMilkdownOn && isRawOn && "w-full grid grid-cols-2  left-0",
-        )}
-      >
+    <AiInlineStoreProvider>
+      <MilkdownProvider>
         <div
           className={cn(
-            !isMilkdownOn &&
-              isRawOn &&
-              "h-0 w-0 opacity-0 overflow-hidden pointer-events-none",
+            isMilkdownOn && isRawOn && "w-full grid grid-cols-2  left-0",
           )}
-          aria-hidden={!isMilkdownOn && isRawOn}
-          onFocus={() => {
-            setFocused("milkdown");
-            setMilkdownLoaded(true);
-          }}
         >
-          {isMilkdownLoaded && (
-            <DynamicMilkdownEditor
-              setMarkdown={setBody}
-              markdown={body}
-              onImageUpload={imageUploadHandler}
-              isFocused={focused === "milkdown"}
-            />
-          )}
+          <div
+            className={cn(
+              !isMilkdownOn &&
+                isRawOn &&
+                "h-0 w-0 opacity-0 overflow-hidden pointer-events-none",
+            )}
+            aria-hidden={!isMilkdownOn && isRawOn}
+            onFocus={() => {
+              setFocused("milkdown");
+              setMilkdownLoaded(true);
+            }}
+          >
+            {isMilkdownLoaded && (
+              <DynamicMilkdownEditor
+                setMarkdown={setBody}
+                markdown={body}
+                onImageUpload={imageUploadHandler}
+                isFocused={focused === "milkdown"}
+              />
+            )}
+          </div>
+          <div
+            className={cn(
+              isMilkdownOn &&
+                !isRawOn &&
+                "h-0 w-0 opacity-0 overflow-hidden pointer-events-none",
+            )}
+            aria-hidden={isMilkdownOn && !isRawOn}
+            onFocus={() => {
+              setFocused("codemirror");
+              setRawEditorLoaded(true);
+            }}
+          >
+            {isRawEditorLoaded && (
+              <DynamicMarkdownRawEditor
+                value={body}
+                onChange={setBody}
+                isFocused={focused === "codemirror"}
+              />
+            )}
+          </div>
         </div>
-        <div
-          className={cn(
-            isMilkdownOn &&
-              !isRawOn &&
-              "h-0 w-0 opacity-0 overflow-hidden pointer-events-none",
-          )}
-          aria-hidden={isMilkdownOn && !isRawOn}
-          onFocus={() => {
-            setFocused("codemirror");
-            setRawEditorLoaded(true);
-          }}
-        >
-          {isRawEditorLoaded && (
-            <DynamicMarkdownRawEditor
-              value={body}
-              onChange={setBody}
-              isFocused={focused === "codemirror"}
-            />
-          )}
-        </div>
-      </div>
-    </MilkdownProvider>
+      </MilkdownProvider>
+    </AiInlineStoreProvider>
   );
 }
 
