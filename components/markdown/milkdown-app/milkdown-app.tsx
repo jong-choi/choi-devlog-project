@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { editorViewCtx } from "@milkdown/kit/core";
+import type { Ctx } from "@milkdown/kit/ctx";
+import { getMarkdown } from "@milkdown/kit/utils";
 import { Milkdown } from "@milkdown/react";
 import "@/components/markdown/styles/milkdown-ai-highliting.css";
 import { useCrepeEditor } from "@/hooks/milkdown/useCrepeEditor";
@@ -52,24 +54,13 @@ const MilkdownEditor = ({
   // 인라인 AI 제출 훅
   const { submit: handleAiSubmit } = useInlineAi({
     getSelectionMarkdown: () =>
-      crepeRef.current?.editor?.action?.(
-        (ctx: import("@milkdown/kit/ctx").Ctx) => {
-          const view = ctx.get(editorViewCtx);
-          const { from, to } = view.state.selection;
-          return view.state.doc.textBetween(from, to, "\n");
-        },
-      ) ?? "",
+      crepeRef.current?.editor?.action?.((ctx: Ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const { from, to } = view.state.selection;
+        return view.state.doc.textBetween(from, to, "\n");
+      }) ?? "",
     getFullMarkdown: () =>
-      crepeRef.current?.editor?.action?.(
-        (ctx: import("@milkdown/kit/ctx").Ctx) => {
-          const view = ctx.get(editorViewCtx);
-          return view.state.doc.textBetween(
-            0,
-            view.state.doc.content.size,
-            "\n",
-          );
-        },
-      ) ?? body,
+      crepeRef.current?.editor?.action?.(getMarkdown()) ?? body,
     setMarkdown,
   });
 

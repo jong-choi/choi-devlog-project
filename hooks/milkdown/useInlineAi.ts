@@ -45,7 +45,7 @@ export function useInlineAi({
           if (!doc || !selectedRange) return;
 
           const tr = view.state.tr.replaceWith(
-            selectedRange.from,
+            selectedRange.from - 1,
             selectedRange.to,
             doc.content,
           );
