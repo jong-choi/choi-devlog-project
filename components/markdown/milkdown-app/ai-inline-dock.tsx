@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Send, Wand2 } from "lucide-react";
 import { editorViewCtx } from "@milkdown/kit/core";
 import { Ctx } from "@milkdown/kit/ctx";
+import { clearHighlight } from "@/lib/milkdown/plugins/highlight-plugin";
 import { cn } from "@/lib/utils";
 import { useAiInlineStore } from "@/providers/ai-inline-store-provider";
-import { clearHighlight } from "./highlight-plugin";
 
 interface AiInlineDockProps {
   onSubmit: (prompt: string, ctx: Ctx) => void;
@@ -20,7 +20,6 @@ export default function AiInlineDock({ onSubmit }: AiInlineDockProps) {
   const ctx = useAiInlineStore((state) => state.ctx);
   const closeDock = useAiInlineStore((state) => state.closeDock);
 
-  // 독 닫기 핸들러
   const handleClose = useCallback(() => {
     // 하이라이트 제거
     if (ctx) {

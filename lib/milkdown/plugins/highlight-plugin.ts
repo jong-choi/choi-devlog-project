@@ -1,7 +1,7 @@
 import { Plugin, PluginKey } from "@milkdown/kit/prose/state";
+import { EditorState } from "@milkdown/kit/prose/state";
 import { Decoration, DecorationSet } from "@milkdown/kit/prose/view";
 import { EditorView } from "@milkdown/kit/prose/view";
-import { EditorState } from "@milkdown/kit/prose/state";
 import { $prose } from "@milkdown/kit/utils";
 
 export interface HighlightState {
@@ -16,13 +16,15 @@ export interface HighlightPluginOptions {
   enabled?: boolean;
 }
 
-// ProseMirror 플러그인 생성 함수
-function createProseMirrorHighlightPlugin(options: HighlightPluginOptions = {}) {
-  const { className = "milkdown-selection-highlight", enabled = false } = options;
+function createProseMirrorHighlightPlugin(
+  options: HighlightPluginOptions = {},
+) {
+  const { className = "milkdown-selection-highlight", enabled = true } =
+    options;
 
   return new Plugin<HighlightState>({
     key: highlightPluginKey,
-    
+
     state: {
       init() {
         return {
@@ -30,16 +32,14 @@ function createProseMirrorHighlightPlugin(options: HighlightPluginOptions = {}) 
           highlightRange: null,
         };
       },
-      
+
       apply(tr, oldState) {
         let { decorations, highlightRange } = oldState;
-        
-        // 트랜잭션이 선택을 변경했거나 문서를 수정했다면 데코레이션을 업데이트
+
         if (tr.docChanged || tr.selectionSet) {
           decorations = decorations.map(tr.mapping, tr.doc);
         }
-        
-        // 메타데이터를 통해 하이라이트 상태 업데이트
+
         const meta = tr.getMeta(highlightPluginKey);
         if (meta) {
           if (meta.type === "setHighlight") {
@@ -48,7 +48,7 @@ function createProseMirrorHighlightPlugin(options: HighlightPluginOptions = {}) 
               const decoration = Decoration.inline(
                 highlightRange.from,
                 highlightRange.to,
-                { class: className }
+                { class: className },
               );
               decorations = DecorationSet.create(tr.doc, [decoration]);
             } else {
@@ -59,11 +59,11 @@ function createProseMirrorHighlightPlugin(options: HighlightPluginOptions = {}) 
             decorations = DecorationSet.empty;
           }
         }
-        
+
         return { decorations, highlightRange };
       },
     },
-    
+
     props: {
       decorations(state) {
         if (!enabled) return null;
@@ -73,15 +73,13 @@ function createProseMirrorHighlightPlugin(options: HighlightPluginOptions = {}) 
   });
 }
 
-// Milkdown 플러그인으로 래핑
-export const highlightPlugin = $prose(() => 
-  createProseMirrorHighlightPlugin({ 
-    className: "milkdown-selection-highlight", 
-    enabled: true 
-  })
+export const highlightPlugin = $prose(() =>
+  createProseMirrorHighlightPlugin({
+    className: "milkdown-selection-highlight",
+    enabled: true,
+  }),
 );
 
-// 하이라이트 설정 헬퍼 함수
 export function setHighlight(view: EditorView, from: number, to: number) {
   const tr = view.state.tr.setMeta(highlightPluginKey, {
     type: "setHighlight",
@@ -90,7 +88,6 @@ export function setHighlight(view: EditorView, from: number, to: number) {
   view.dispatch(tr);
 }
 
-// 하이라이트 제거 헬퍼 함수
 export function clearHighlight(view: EditorView) {
   const tr = view.state.tr.setMeta(highlightPluginKey, {
     type: "clearHighlight",
@@ -98,8 +95,9 @@ export function clearHighlight(view: EditorView) {
   view.dispatch(tr);
 }
 
-// 현재 하이라이트 범위 가져오기
-export function getHighlightRange(state: EditorState): { from: number; to: number } | null {
+export function getHighlightRange(
+  state: EditorState,
+): { from: number; to: number } | null {
   const pluginState = highlightPluginKey.getState(state);
   return pluginState?.highlightRange || null;
 }
