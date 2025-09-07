@@ -23,11 +23,9 @@ export function useHighlightSync({
     if (!enabled || !isDockOpen || !range) return;
     const editor = editorRef.current?.editor;
     if (!editor) return;
-    try {
-      editor.action((ctx: Ctx) => {
-        const view = ctx.get(editorViewCtx);
-        setHighlight(view, range.from, range.to);
-      });
-    } catch (_) {}
+    editor.action((ctx: Ctx) => {
+      const view = ctx.get(editorViewCtx);
+      setHighlight(view, range.from, range.to);
+    });
   }, [enabled, isDockOpen, range, editorRef]);
 }

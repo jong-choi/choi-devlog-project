@@ -3,7 +3,6 @@
 import { useCallback } from "react";
 import { editorViewCtx, parserCtx } from "@milkdown/kit/core";
 import { Ctx } from "@milkdown/kit/ctx";
-import { Slice } from "@milkdown/kit/prose/model";
 import { clearHighlight } from "@/lib/milkdown/plugins/highlight-plugin";
 import { useAiInlineStore } from "@/providers/ai-inline-store-provider";
 
@@ -20,6 +19,7 @@ export function useInlineAi({
 }: UseInlineAiOptions) {
   const setLoading = useAiInlineStore((s) => s.setLoading);
   const closeDock = useAiInlineStore((s) => s.closeDock);
+  const selectedRange = useAiInlineStore((s) => s.selectedRange);
 
   const submit = useCallback(
     (prompt: string, ctx: Ctx) => {
@@ -42,17 +42,16 @@ export function useInlineAi({
 
           const parser = ctx.get(parserCtx);
           const doc = parser(replaced);
-          if (!doc) return;
+          if (!doc || !selectedRange) return;
 
-          const tr = view.state.tr.replaceSelection(
-            new Slice(doc.content, 0, 0),
+          const tr = view.state.tr.replaceWith(
+            selectedRange.from,
+            selectedRange.to,
+            doc.content,
           );
           view.dispatch(tr);
-          try {
-            view.focus();
-          } catch (_) {}
+          view.focus();
 
-          // 즉시 부모 상태 업데이트 (포커스와 무관)
           const full = getFullMarkdown();
           setMarkdown(full);
         })
@@ -65,7 +64,14 @@ export function useInlineAi({
           setLoading(false);
         });
     },
-    [getSelectionMarkdown, getFullMarkdown, setMarkdown, setLoading, closeDock],
+    [
+      getSelectionMarkdown,
+      getFullMarkdown,
+      setMarkdown,
+      setLoading,
+      closeDock,
+      selectedRange,
+    ],
   );
 
   return { submit };

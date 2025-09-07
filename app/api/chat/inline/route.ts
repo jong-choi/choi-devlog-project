@@ -6,7 +6,7 @@ import { llmModel } from "@/app/api/chat/_controllers/utils/model";
 // 간단한 체인: 사용자 프롬프트와 선택된 마크다운을 받아 개선된 마크다운을 반환
 // - 필요 시 System 프롬프트/가이드라인을 강화 가능
 const systemTemplate = `You are an assistant that edits markdown inline.
-Follow the user's instruction and return only the edited markdown without extra commentary.`;
+Follow the user's instruction and return only the edited markdown without extra commentary. Use rich markdown syntax`;
 
 export async function POST(request: NextRequest) {
   try {

@@ -25,10 +25,8 @@ export function useMilkdownSync({
     if (!isFocused) return;
     const editor = editorRef.current?.editor;
     if (!editor) return;
-    try {
-      const current = editor.action(getMarkdown());
-      if (typeof current === "string") onBodyChange(current);
-    } catch (_) {}
+    const current = editor.action(getMarkdown());
+    if (typeof current === "string") onBodyChange(current);
   }, [isFocused, editorRef, onBodyChange]);
 
   // 외부 markdown 변경 시 하향 동기화 (상위 -> 에디터)
@@ -36,27 +34,25 @@ export function useMilkdownSync({
     if (isFocused) return;
     const editor = editorRef.current?.editor;
     if (!editor) return;
-    try {
-      editor.action((ctx) => {
-        const view = ctx.get(editorViewCtx);
-        const parser = ctx.get(parserCtx);
-        const doc = parser(markdown);
-        if (!doc) return;
-        const state = view.state;
-        const { from } = state.selection;
-        let tr = state.tr.replace(
-          0,
-          state.doc.content.size,
-          new Slice(doc.content, 0, 0),
-        );
-        if (tr.doc.content.size === 0) {
-          tr = tr.setSelection(Selection.atStart(tr.doc));
-        } else {
-          const safePos = Math.min(from, tr.doc.content.size - 1);
-          tr = tr.setSelection(Selection.near(tr.doc.resolve(safePos)));
-        }
-        view.dispatch(tr);
-      });
-    } catch (_) {}
+    editor.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const parser = ctx.get(parserCtx);
+      const doc = parser(markdown);
+      if (!doc) return;
+      const state = view.state;
+      const { from } = state.selection;
+      let tr = state.tr.replace(
+        0,
+        state.doc.content.size,
+        new Slice(doc.content, 0, 0),
+      );
+      if (tr.doc.content.size === 0) {
+        tr = tr.setSelection(Selection.atStart(tr.doc));
+      } else {
+        const safePos = Math.min(from, tr.doc.content.size - 1);
+        tr = tr.setSelection(Selection.near(tr.doc.resolve(safePos)));
+      }
+      view.dispatch(tr);
+    });
   }, [markdown, isFocused, editorRef]);
 }

@@ -12,6 +12,7 @@ interface AiInlineDockProps {
 
 export default function AiInlineDock({ onSubmit }: AiInlineDockProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const isComposingRef = useRef<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
 
   const isOpen = useAiInlineStore((state) => state.isOpen);
@@ -29,27 +30,29 @@ export default function AiInlineDock({ onSubmit }: AiInlineDockProps) {
     closeDock();
   }, [ctx, closeDock]);
 
-  // 바깥 클릭으로 닫기
+  // 바깥 클릭과 ESC 키로 닫기
   useEffect(() => {
     if (!isOpen) return;
+
     const handleMouseDown = (e: MouseEvent) => {
-      if (!panelRef.current) return;
-      if (!panelRef.current.contains(e.target as Node)) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         handleClose();
       }
     };
-    document.addEventListener("mousedown", handleMouseDown);
-    return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, [isOpen, handleClose]);
 
-  // ESC 키로 닫기
-  useEffect(() => {
-    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        handleClose();
+      }
     };
+
+    document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, handleClose]);
 
   const handleSubmit = useCallback(() => {
@@ -80,10 +83,16 @@ export default function AiInlineDock({ onSubmit }: AiInlineDockProps) {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey && !isComposingRef.current) {
               e.preventDefault();
               handleSubmit();
             }
+          }}
+          onCompositionStart={() => {
+            isComposingRef.current = true;
+          }}
+          onCompositionEnd={() => {
+            isComposingRef.current = false;
           }}
           className={cn(
             "w-full min-h-[42px] rounded-xl border border-neutral-400 bg-white shadow-sm",
