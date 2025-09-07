@@ -47,6 +47,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 ### WYSWYG 에디터 / 자동저장
 
 <p align="center"><img src="./public/docs/edit-h264(1).gif" alt="WYSIWYG Editor Demo" width="800" /></p>
+
 - [마크다운 편집 프레임워크 Milkdown](https://milkdown.dev/)을 이용하여 WYSWYG으로 편집이 가능하도록 하였습니다.
 - 게시글은 [react-remark](https://github.com/remarkjs/react-remark)를 이용하여 view모드를 SSR로 구현하였습니다.
 - 게시글을 실시간으로 편집할 때에는 IndexedDB를 이용해 로컬에 임시 저장됩니다.
