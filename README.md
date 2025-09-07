@@ -19,6 +19,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.08.28 - 챗봇 모델을 HYPERCLOVA X Seed 1.5b에서 Gemma3 4b, 27b로 변경
 
+> 2025.09.07 - Milkdown 버전을 7.7에서 7.15로 판올림. Milkdown Toolbar에 인공지능 코파일럿 기능 추가
+
 ## 프로젝트 목표
 
 #### Problem
@@ -52,6 +54,13 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 - 게시글은 [react-remark](https://github.com/remarkjs/react-remark)를 이용하여 view모드를 SSR로 구현하였습니다.
 - 게시글을 실시간으로 편집할 때에는 IndexedDB를 이용해 로컬에 임시 저장됩니다.
 - [CodeMirror](https://codemirror.net/) RAW 모드 및 DUO 모드를 통해 편집중인 게시글의 Markdown RAW를 확인할 수 있습니다.
+
+### 인라인 AI 편집
+
+<p align="center"><img src="./public/docs/inline-chat-ai.gif" alt="WYSIWYG Editor Demo" width="800" /></p>
+
+- Gemma3 27b를 이용한 인공지능 인라인 편집을 지원합니다.
+- AI 버튼을 누르고 프롬프트를 입력하면, 인공지능이 게시글을 수정해줍니다.
 
 ### 사이드바 DND
 
