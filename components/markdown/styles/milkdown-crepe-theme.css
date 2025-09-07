@@ -457,3 +457,7 @@
   scroll-margin: 0;
   margin: 0;
 }
+
+.milkdown .milkdown-toolbar {
+  translate: 25% 0;
+}
