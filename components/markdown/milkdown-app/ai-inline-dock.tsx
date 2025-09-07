@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, Send } from "lucide-react";
-import { Ctx } from "@milkdown/kit/ctx";
+import { Loader2, Send, Wand2 } from "lucide-react";
 import { editorViewCtx } from "@milkdown/kit/core";
+import { Ctx } from "@milkdown/kit/ctx";
 import { cn } from "@/lib/utils";
 import { useAiInlineStore } from "@/providers/ai-inline-store-provider";
 import { clearHighlight } from "./highlight-plugin";
@@ -10,13 +10,10 @@ interface AiInlineDockProps {
   onSubmit: (prompt: string, ctx: Ctx) => void;
 }
 
-export default function AiInlineDock({
-  onSubmit,
-}: AiInlineDockProps) {
+export default function AiInlineDock({ onSubmit }: AiInlineDockProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [prompt, setPrompt] = useState<string>("");
 
-  // 전역 상태 사용
   const isOpen = useAiInlineStore((state) => state.isOpen);
   const isLoading = useAiInlineStore((state) => state.isLoading);
   const position = useAiInlineStore((state) => state.position);
@@ -69,16 +66,17 @@ export default function AiInlineDock({
   return (
     <div
       ref={panelRef}
-      className="absolute z-50 w-[320px] max-w-[80vw]"
+      className="absolute z-50 w-[320px] max-w-[100vw]"
       style={{
         left: position.x,
         top: position.y,
-        transform: "translate(-50%, calc(-100% - 8px))", // 기준점 위쪽에 살짝 띄우기
+        transform: "translate(-50%, calc(-100% - 8px))",
       }}
       aria-label="AI 인라인 편집 독"
       role="dialog"
     >
       <div className="relative">
+        <Wand2 className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 opacity-50" />
         <input
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -92,7 +90,7 @@ export default function AiInlineDock({
             "w-full min-h-[42px] rounded-xl border border-neutral-400 bg-white shadow-sm",
             "dark:border-neutral-500 dark:bg-neutral-900",
             "placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-sm text-neutral-900 dark:text-neutral-100",
-            "py-3 px-4 pr-12 focus:outline-none",
+            "py-3 pl-8 pr-12 focus:outline-none",
           )}
           placeholder="AI에게 편집 요청하기..."
           autoFocus
