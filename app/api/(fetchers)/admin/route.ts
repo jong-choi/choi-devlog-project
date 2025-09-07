@@ -17,7 +17,6 @@ export type AdminPostRes = {
 };
 
 export const revalidate = 604800; //7일 캐싱
-//revalidatePath("/api/admin")로 리발리데이트;
 
 export async function GET() {
   const supabase = await createClient(undefined, true);
@@ -26,14 +25,16 @@ export async function GET() {
     data: posts,
     error: postsError,
     count,
-  } = await supabase.from("published_posts").select(
+  } = await supabase.from("admin_posts_with_similarity_counts").select(
     `
-      id,
-      title,
-      url_slug,
-      created_at,
-      ai_summaries ( id ) 
-    `,
+        id,
+        title,
+        url_slug,
+        created_at,
+        ai_summaries,
+        post_similarities
+      `,
+    { count: "exact" },
   );
 
   if (postsError) {
@@ -41,45 +42,10 @@ export async function GET() {
     return Response.json({ error: postsError }, { status: 500 });
   }
 
-  // 각 게시글별로 정확한 추천(유사도) 개수를 조회
-  const similarityCountMap = new Map<string, number>();
-  if (posts && posts.length > 0) {
-    const countResults = await Promise.all(
-      posts.map((post) =>
-        supabase
-          .from("post_similarities_with_target_info")
-          .select("target_post_id", { head: true, count: "exact" })
-          .eq("source_post_id", post.id as string),
-      ),
-    );
-
-    countResults.forEach((res, idx) => {
-      const postId = posts[idx]?.id;
-      if (res.error) {
-        console.error(
-          "유사도 개수 조회 오류 (post_id=",
-          postId,
-          "):",
-          res.error,
-        );
-      }
-      if (postId) {
-        similarityCountMap.set(postId, res.count ?? 0);
-      }
-    });
-  }
-
-  // posts 데이터에 정확한 similarity count 추가
-  const postsWithCounts = posts?.map((post) => {
-    const postId = typeof post.id === "string" ? post.id : undefined;
-    const countVal = postId ? (similarityCountMap.get(postId) ?? 0) : 0;
-    return {
-      ...post,
-      post_similarities: [{ count: countVal }],
-    };
-  });
-
-  const res: AdminPostRes = { data: postsWithCounts ?? [], total: count ?? 0 };
+  const res: AdminPostRes = {
+    data: (posts as AdminPostData[]) ?? [],
+    total: count ?? 0,
+  };
 
   return Response.json(res);
 }

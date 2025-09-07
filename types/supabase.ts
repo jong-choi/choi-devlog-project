@@ -47,6 +47,13 @@ export type Database = {
             foreignKeyName: "ai_summaries_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
@@ -300,6 +307,13 @@ export type Database = {
             foreignKeyName: "post_similarities_source_post_id_fkey"
             columns: ["source_post_id"]
             isOneToOne: false
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
@@ -322,6 +336,13 @@ export type Database = {
             columns: ["source_post_id"]
             isOneToOne: false
             referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_posts_with_similarity_counts"
             referencedColumns: ["id"]
           },
           {
@@ -368,6 +389,13 @@ export type Database = {
           tag_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_tags_post_id_fkey"
             columns: ["post_id"]
@@ -419,6 +447,13 @@ export type Database = {
           tsv?: unknown | null
         }
         Relationships: [
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_tsvectors_post_id_fkey"
             columns: ["post_id"]
@@ -624,6 +659,17 @@ export type Database = {
       }
     }
     Views: {
+      admin_posts_with_similarity_counts: {
+        Row: {
+          ai_summaries: Json | null
+          created_at: string | null
+          id: string | null
+          post_similarities: Json | null
+          title: string | null
+          url_slug: string | null
+        }
+        Relationships: []
+      }
       ai_summaries_with_vectors: {
         Row: {
           created_at: string | null
@@ -636,6 +682,13 @@ export type Database = {
           vector: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ai_summaries_post_id_fkey"
             columns: ["post_id"]
