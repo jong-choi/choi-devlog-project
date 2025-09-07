@@ -58,6 +58,8 @@ const MilkdownEditor = ({
       setLoading(true);
 
       const view = ctx.get(editorViewCtx);
+      // 치환 전, 에디터에 포커스를 강제로 부여해 상위 동기화 방향을 고정
+      view.focus();
       const { from, to } = view.state.selection;
 
       const selectionMarkdown = editor.action(getMarkdown({ from, to }));
@@ -85,11 +87,17 @@ const MilkdownEditor = ({
               new Slice(doc.content, 0, 0),
             );
             innerView.dispatch(tr);
+            // 치환 후에도 포커스를 유지해 상향 동기화가 발생하도록 함
+            try {
+              innerView.focus();
+            } catch (_) {}
           });
 
           // 에디터 내용 변경 후 body 상태 즉시 업데이트
           const newMarkdown = editor.action(getMarkdown());
           setBody(newMarkdown);
+          // 포커스 여부와 무관하게 부모에도 즉시 반영해 복원 덮어쓰기를 방지
+          setMarkdown(newMarkdown);
         })
         .catch((e) => {
           console.error("inline replace error", e);
@@ -103,7 +111,7 @@ const MilkdownEditor = ({
           closeDock();
         });
     },
-    [setLoading, closeDock],
+    [setLoading, closeDock, setMarkdown],
   );
 
   useEffect(() => {
@@ -228,6 +236,10 @@ const MilkdownEditor = ({
   useEffect(() => {
     if (!isFocused && crepeRef.current) {
       try {
+        // 현재 에디터 마크다운과 외부 마크다운이 동일하면 재동기화를 건너뜀
+        const currentMarkdown = crepeRef.current.editor.action(getMarkdown());
+        if (currentMarkdown === markdown) return;
+
         crepeRef.current.editor.action((ctx) => {
           const view = ctx.get(editorViewCtx);
           const parser = ctx.get(parserCtx);
