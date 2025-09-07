@@ -44,10 +44,15 @@ export function useInlineAi({
           const doc = parser(replaced);
           if (!doc || !selectedRange) return;
 
+          const contentToInsert =
+            doc.childCount === 1 && doc.firstChild?.type.name === "paragraph"
+              ? doc.firstChild.content
+              : doc.content;
+
           const tr = view.state.tr.replaceWith(
-            selectedRange.from - 1,
+            selectedRange.from,
             selectedRange.to,
-            doc.content,
+            contentToInsert,
           );
           view.dispatch(tr);
           view.focus();
