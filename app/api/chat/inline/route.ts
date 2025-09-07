@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MessageContent } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { llmModel } from "@/app/api/chat/_controllers/utils/model";
 
@@ -24,23 +25,23 @@ export async function POST(request: NextRequest) {
 
     const chain = promptTemplate.pipe(llmModel);
     const result = await chain.invoke({ prompt, selectionMarkdown });
-    const content: unknown = result.content;
+    const content = result.content;
 
-    const toText = (c: unknown): string => {
-      if (typeof c === "string") return c;
-      if (Array.isArray(c)) {
-        return c
-          .map((p) => {
-            if (typeof p === "string") return p;
-            if (p && typeof p === "object" && "text" in p) {
-              const textVal = (p as Record<string, unknown>).text;
+    const toText = (content: MessageContent): string => {
+      if (typeof content === "string") return content;
+      if (Array.isArray(content)) {
+        return content
+          .map((complex) => {
+            if (typeof complex === "string") return complex;
+            if (complex && typeof complex === "object" && "text" in complex) {
+              const textVal = complex.text;
               return typeof textVal === "string" ? textVal : "";
             }
             return "";
           })
           .join("");
       }
-      return String(c ?? "");
+      return String(content ?? "");
     };
 
     const text = toText(content).trim();
