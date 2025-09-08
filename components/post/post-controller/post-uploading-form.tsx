@@ -1,25 +1,29 @@
-import { CategorySelectScrollable } from "@/components/post/post-controller/post-scrollable-select";
-import { useAutosave } from "@/providers/autosave-store-provider";
+import { useEffect, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 import { Switch } from "@ui/switch";
 import { Textarea } from "@ui/textarea";
-import { useEffect, useState } from "react";
-import { useShallow } from "zustand/react/shallow";
+import { CategorySelectScrollable } from "@/components/post/post-controller/post-scrollable-select";
+import { useAutosave } from "@/providers/autosave-store-provider";
 
 export default function PostUploadingForm() {
   const { setDraftPostData, draftPostData } = useAutosave(
     useShallow((state) => ({
       setDraftPostData: state.setDraftPostData,
       draftPostData: state.draftPostData,
-    }))
+    })),
   );
-  const [isPrivate, setIsPrivate] = useState<boolean>(
-    draftPostData.is_private || false
-  );
-  useEffect(() => {
+  const releasedAt = draftPostData.released_at;
+  const isPrivate = draftPostData.is_private;
+
+  const onPrivateChange = (checked: boolean) => {
+    const isPrivate = !checked;
     setDraftPostData({ is_private: isPrivate });
-  }, [setDraftPostData, isPrivate]);
+    if (checked && !releasedAt) {
+      setDraftPostData({ released_at: new Date().toISOString() });
+    }
+  };
 
   const [urlSlug, setUrlSlug] = useState<string>(draftPostData.url_slug);
   useEffect(() => {
@@ -27,7 +31,7 @@ export default function PostUploadingForm() {
   }, [setDraftPostData, urlSlug]);
 
   const [shortDesc, setShortDesc] = useState<string>(
-    draftPostData.short_description || ""
+    draftPostData.short_description || "",
   );
   useEffect(() => {
     setDraftPostData({ short_description: shortDesc });
@@ -61,12 +65,12 @@ export default function PostUploadingForm() {
       </div>
       <div className="flex items-center space-x-2">
         <Switch
-          id="is-praivate"
-          checked={!isPrivate}
-          onCheckedChange={(checked) => setIsPrivate(!checked)}
+          id="is-private"
+          checked={!draftPostData.is_private}
+          onCheckedChange={onPrivateChange}
         />
-        <Label htmlFor="is-praivate-mode">
-          {isPrivate ? "비공개" : "공개"}
+        <Label htmlFor="is-private-mode">
+          {!isPrivate ? "공개" : "비공개"}
         </Label>
       </div>
     </div>

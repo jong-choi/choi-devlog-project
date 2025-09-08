@@ -1,9 +1,6 @@
-import { updatePost } from "@/app/post/actions";
-import { useAuthStore } from "@/providers/auth-provider";
-import { useLayoutStore } from "@/providers/layout-store-provider";
-import { useSidebarStore } from "@/providers/sidebar-store-provider";
-import { Post } from "@/types/post";
-import notSavedToast from "@/utils/not-saved-toast";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useShallow } from "zustand/react/shallow";
 import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
@@ -18,9 +15,13 @@ import {
 } from "@ui/select";
 import { Switch } from "@ui/switch";
 import { Textarea } from "@ui/textarea";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useShallow } from "zustand/react/shallow";
+import { updatePost } from "@/app/post/actions";
+import { useAuthStore } from "@/providers/auth-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
+import { useSidebarStore } from "@/providers/sidebar-store-provider";
+import { Post } from "@/types/post";
+import { Database } from "@/types/supabase";
+import notSavedToast from "@/utils/not-saved-toast";
 
 export default function PostUpdateForm({
   post,
@@ -32,22 +33,22 @@ export default function PostUpdateForm({
   const { setPostsPending } = useLayoutStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
-    }))
+    })),
   );
 
   const [isPrivate, setIsPrivate] = useState<boolean>(post.is_private || false);
   const [urlSlug, setUrlSlug] = useState<string>(post.url_slug);
   const [shortDesc, setShortDesc] = useState<string>(
-    post.short_description || ""
+    post.short_description || "",
   );
   const [subcategoryId, setSubcategoryId] = useState<string>(
-    post.subcategory_id || ""
+    post.subcategory_id || "",
   );
 
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
-    }))
+    })),
   );
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -58,6 +59,23 @@ export default function PostUpdateForm({
     shortDesc !== (post.short_description || "") ||
     subcategoryId !== (post.subcategory_id || "");
 
+  const payload: Partial<Database["public"]["Tables"]["posts"]["Row"]> = {
+    url_slug: urlSlug,
+    short_description: shortDesc,
+    is_private: isPrivate,
+    subcategory_id: subcategoryId,
+  };
+
+  // 공개 됐을 때에만 releasedAt 추가
+  const releasedAt =
+    !isPrivate && post.is_private !== isPrivate
+      ? new Date().toISOString()
+      : null;
+
+  if (releasedAt) {
+    payload.released_at = releasedAt;
+  }
+
   const handleUpdate = async () => {
     setIsSaving(true);
     if (!isValid) {
@@ -66,12 +84,7 @@ export default function PostUpdateForm({
       return setIsSaving(false);
     }
     try {
-      const { data, error } = await updatePost(post.id, {
-        url_slug: urlSlug,
-        short_description: shortDesc,
-        is_private: isPrivate,
-        subcategory_id: subcategoryId,
-      });
+      const { data, error } = await updatePost(post.id, payload);
       if (data) {
         toast.success("게시글이 수정되었습니다.");
         setPostsPending(true);
@@ -154,7 +167,7 @@ function SubcategorySelectScrollable({
   const { categories } = useSidebarStore(
     useShallow((state) => ({
       categories: state.categories,
-    }))
+    })),
   );
 
   return (

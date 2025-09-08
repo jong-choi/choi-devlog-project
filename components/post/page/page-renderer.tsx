@@ -108,7 +108,7 @@ export default async function PostPageRenderer({ data, urlSlug }: PageProps) {
             >
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
-                <div className="flex md:hidden gap-2 item">
+                <div className="flex md:hidden gap-2">
                   <Logo />
                 </div>
                 <div className="hidden md:flex">

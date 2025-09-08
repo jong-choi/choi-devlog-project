@@ -1,11 +1,12 @@
 "use server";
+
+import { revalidatePath, revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
+import { PostgrestSingleResponse, SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
 import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
 import { createClient as createClientClient } from "@/utils/supabase/client";
 import { createClient } from "@/utils/supabase/server";
-import { PostgrestSingleResponse, SupabaseClient } from "@supabase/supabase-js";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
 
 const _createTagsByPostId = async (payload: {
   id: string;
@@ -32,7 +33,7 @@ const _createTagsByPostId = async (payload: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, summary, post_id }),
-    }
+    },
   );
 
   const tagResult = await tagResponse.json();
@@ -49,7 +50,7 @@ export const createTagsByPostId = createWithInvalidation(
   _createTagsByPostId,
   async (result) => {
     revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.post_id || ""));
-  }
+  },
 );
 
 interface GetUniqueSlugParams {
@@ -100,7 +101,7 @@ export const getUniqueSlug = async ({
 const updateSubcategoryThumbnail = async (
   supabase: SupabaseClient<Database>,
   subcategoryId: string,
-  thumbnail: string
+  thumbnail: string,
 ) => {
   const result = await supabase
     .from("subcategories")
@@ -117,7 +118,7 @@ const updateSubcategoryThumbnail = async (
 };
 
 const _createPost = async (
-  payload: Omit<Database["public"]["Tables"]["posts"]["Insert"], "order">
+  payload: Omit<Database["public"]["Tables"]["posts"]["Insert"], "order">,
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
@@ -157,7 +158,7 @@ const _createPost = async (
     updateSubcategoryThumbnail(
       supabase,
       result.data.subcategory_id,
-      result.data.thumbnail
+      result.data.thumbnail,
     );
   }
 
@@ -168,17 +169,17 @@ export const createPost = createWithInvalidation(
   _createPost,
   async (result) => {
     revalidateTag(
-      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id),
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
     revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
-  }
+  },
 );
 
 const _updatePost = async (
   post_id: string,
-  payload: Partial<Database["public"]["Tables"]["posts"]["Update"]>
+  payload: Partial<Database["public"]["Tables"]["posts"]["Update"]>,
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
@@ -198,8 +199,6 @@ const _updatePost = async (
   payload.updated_at = new Date().toISOString();
   if (payload.is_private) {
     payload.released_at = null;
-  } else if (payload.is_private === false && !payload.released_at) {
-    payload.released_at = new Date().toISOString();
   }
 
   const result = await supabase
@@ -213,7 +212,7 @@ const _updatePost = async (
     updateSubcategoryThumbnail(
       supabase,
       result.data.subcategory_id,
-      result.data.thumbnail
+      result.data.thumbnail,
     );
   }
 
@@ -224,18 +223,18 @@ export const updatePost = createWithInvalidation(
   _updatePost,
   async (result) => {
     revalidateTag(
-      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id),
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
     revalidateTag(CACHE_TAGS.AI_SUMMARY.BY_POST_ID(result.data?.id));
     revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
     revalidatePath(`/post/${result.data?.url_slug}`, "page");
-  }
+  },
 );
 
 const _softDeletePost = async (
-  post_id: string
+  post_id: string,
 ): Promise<
   PostgrestSingleResponse<Database["public"]["Tables"]["posts"]["Row"]>
 > => {
@@ -256,10 +255,10 @@ export const softDeletePost = createWithInvalidation(
   _softDeletePost,
   async (result) => {
     revalidateTag(
-      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id)
+      CACHE_TAGS.POST.BY_SUBCATEGORY_ID(result.data?.subcategory_id),
     );
     revalidateTag(CACHE_TAGS.POST.BY_URL_SLUG(result.data?.url_slug));
     revalidateTag(CACHE_TAGS.POST.ALL());
     revalidateTag(CACHE_TAGS.SUBCATEGORY.HOME());
-  }
+  },
 );

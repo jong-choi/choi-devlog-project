@@ -1,3 +1,8 @@
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useShallow } from "zustand/react/shallow";
+import { createPost, updatePost } from "@/app/post/actions";
+import PostUploadingForm from "@/components/post/post-controller/post-uploading-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,19 +14,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAuthStore } from "@/providers/auth-provider";
 import { useAutosave } from "@/providers/autosave-store-provider";
+import { useLayoutStore } from "@/providers/layout-store-provider";
 import {
   extractFirstImageFromText,
   extractTextFromMarkdown,
   slugify,
 } from "@/utils/uploadingUtils";
-import PostUploadingForm from "@/components/post/post-controller/post-uploading-form";
-import { useAuthStore } from "@/providers/auth-provider";
-import { createPost, updatePost } from "@/app/post/actions";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useShallow } from "zustand/react/shallow";
-import { useLayoutStore } from "@/providers/layout-store-provider";
 
 export function UploadingDialogTrigger() {
   const {
@@ -39,19 +39,19 @@ export function UploadingDialogTrigger() {
       postId: state.postId,
       setIsUploading: state.setIsUploading,
       setIsUploaded: state.setIsUploaded,
-    }))
+    })),
   );
 
   const { isValid } = useAuthStore(
     useShallow((state) => ({
       isValid: state.isValid,
-    }))
+    })),
   );
 
   const { setPostsPending } = useLayoutStore(
     useShallow((state) => ({
       setPostsPending: state.setPostsPending,
-    }))
+    })),
   );
 
   const router = useRouter();
@@ -67,6 +67,7 @@ export function UploadingDialogTrigger() {
         draftPostData.thumbnail || extractFirstImageFromText(body) || "",
       url_slug: draftPostData.url_slug || slugify(title),
     };
+
     setDraftPostData(draft);
   };
 
