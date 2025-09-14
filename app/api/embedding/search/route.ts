@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { embeddings } from "@/app/api/embedding/_model/embeddings";
+import { applyReranking } from "@/app/api/embedding/_model/reranker";
 import { createClient } from "@/utils/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,6 @@ type SearchRow = {
   similarity: number;
 };
 
-// 코사인 유사도로 post_chunks를 검색하는 엔드포인트
 export async function POST(req: Request) {
   try {
     const { query, k, minSimilarity }: SearchRequest = await req.json();
@@ -49,19 +49,11 @@ export async function POST(req: Request) {
         ? Math.max(0, Math.min(1, minSimilarity))
         : 0;
 
-    console.log({
-      p_query: vector,
-      p_match_count: matchCount,
-      p_min_similarity: minSim,
-    });
-
     const { data, error } = await supabase.rpc("search_post_chunks_cosine", {
       p_query: vector,
       p_match_count: matchCount,
       p_min_similarity: minSim,
     });
-
-    console.log(data);
 
     if (error) {
       console.error("검색 RPC 호출 실패", error);
@@ -74,7 +66,9 @@ export async function POST(req: Request) {
       );
     }
     const results = (data as SearchRow[]) ?? [];
-    return NextResponse.json({ results });
+    const rerankedResults = await applyReranking(results, query!);
+
+    return NextResponse.json({ results: rerankedResults });
   } catch (error) {
     console.error("검색 처리 오류", error);
     return NextResponse.json(

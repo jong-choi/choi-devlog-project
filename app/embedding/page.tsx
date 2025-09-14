@@ -28,6 +28,7 @@ export default function EmbeddingPage() {
       chunk_index: number;
       content: string;
       similarity: number;
+      rerankScore: number | null;
     }>
   >([]);
 
@@ -280,8 +281,12 @@ export default function EmbeddingPage() {
           {searchResults.map((r) => (
             <div key={r.chunk_id} className="border rounded p-3">
               <div className="flex items-center justify-between">
-                <div className="font-medium">
-                  유사도: {r.similarity.toFixed(3)}
+                <div className="font-medium flex items-center gap-3">
+                  <span>유사도: {r.similarity.toFixed(3)}</span>
+                  <span className="text-slate-600">
+                    리랭킹:{" "}
+                    {r.rerankScore !== null ? r.rerankScore.toFixed(3) : "-"}
+                  </span>
                 </div>
                 <div className="text-xs text-slate-500">
                   post_id: {r.post_id} / chunk_index: {r.chunk_index}

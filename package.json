@@ -23,6 +23,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^4.1.2",
+    "@huggingface/transformers": "^3.7.3",
     "@langchain/core": "^0.3.72",
     "@langchain/google-gauth": "^0.2.16",
     "@langchain/google-genai": "^0.2.16",
