@@ -280,6 +280,116 @@ export type Database = {
         }
         Relationships: []
       }
+      post_chunk_metadata: {
+        Row: {
+          char_end: number | null
+          char_start: number | null
+          chunk_id: string
+          created_at: string
+          end_token: number
+          overlap_tokens: number
+          start_token: number
+          token_count: number
+          updated_at: string
+        }
+        Insert: {
+          char_end?: number | null
+          char_start?: number | null
+          chunk_id: string
+          created_at?: string
+          end_token: number
+          overlap_tokens?: number
+          start_token: number
+          token_count: number
+          updated_at?: string
+        }
+        Update: {
+          char_end?: number | null
+          char_start?: number | null
+          chunk_id?: string
+          created_at?: string
+          end_token?: number
+          overlap_tokens?: number
+          start_token?: number
+          token_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_chunk_metadata_chunk_id_fkey"
+            columns: ["chunk_id"]
+            isOneToOne: true
+            referencedRelation: "post_chunks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_chunks: {
+        Row: {
+          chunk_index: number
+          content: string
+          created_at: string
+          deleted_at: string | null
+          embedding: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          chunk_index: number
+          content: string
+          created_at?: string
+          deleted_at?: string | null
+          embedding: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          deleted_at?: string | null
+          embedding?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_similarities: {
         Row: {
           created_at: string | null
@@ -1005,6 +1115,20 @@ export type Database = {
       l2_normalize: {
         Args: { "": string } | { "": unknown } | { "": unknown }
         Returns: unknown
+      }
+      search_post_chunks_cosine: {
+        Args: {
+          p_match_count?: number
+          p_min_similarity?: number
+          p_query: number[]
+        }
+        Returns: {
+          chunk_id: string
+          chunk_index: number
+          content: string
+          post_id: string
+          similarity: number
+        }[]
       }
       search_posts_with_snippet: {
         Args: { page: number; page_size: number; search_text: string }

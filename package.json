@@ -29,6 +29,7 @@
     "@langchain/langgraph": "^0.4.6",
     "@langchain/langgraph-checkpoint": "^0.1.0",
     "@langchain/ollama": "^0.2.3",
+    "@langchain/textsplitters": "^0.1.0",
     "@mdxeditor/editor": "^3.27.0",
     "@milkdown/crepe": "^7.15.5",
     "@milkdown/react": "^7.15.5",
