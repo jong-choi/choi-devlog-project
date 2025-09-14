@@ -1,6 +1,6 @@
 {
   "name": "next-js-blog",
-  "version": "0.7.78",
+  "version": "0.7.79",
   "private": true,
   "browserslist": [
     "> 0.5%",
@@ -13,6 +13,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "hf:cache": "node scripts/preload-hf-models.mjs",
+    "hf:offline": "HF_ALLOW_REMOTE_MODELS=false next start",
     "supabase:gen": "npx supabase gen types typescript --project-id wknphwqwtywjrfclmhjd --schema public > types/supabase.ts",
     "test": "vitest",
     "analyze": "ANALYZE=true next build"
@@ -23,12 +25,14 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^4.1.2",
+    "@huggingface/transformers": "^3.7.3",
     "@langchain/core": "^0.3.72",
     "@langchain/google-gauth": "^0.2.16",
     "@langchain/google-genai": "^0.2.16",
     "@langchain/langgraph": "^0.4.6",
     "@langchain/langgraph-checkpoint": "^0.1.0",
     "@langchain/ollama": "^0.2.3",
+    "@langchain/textsplitters": "^0.1.0",
     "@mdxeditor/editor": "^3.27.0",
     "@milkdown/crepe": "^7.15.5",
     "@milkdown/react": "^7.15.5",

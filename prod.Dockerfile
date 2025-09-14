@@ -1,5 +1,12 @@
 
-FROM node:20-alpine AS base
+FROM node:20-bookworm-slim AS base
+
+# onnxruntime-node가 필요로 하는 런타임 라이브러리 설치 (glibc 포함 이미지에서 동작)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # 1단계 : 빌드
 FROM base AS builder
@@ -8,6 +15,10 @@ WORKDIR /app
 
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
+# Hugging Face 캐시 디렉토리 (빌드 시 사전 다운로드용)
+ENV TRANSFORMERS_CACHE=/opt/hf-cache
+RUN mkdir -p ${TRANSFORMERS_CACHE}
+
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -15,6 +26,22 @@ RUN \
   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
   fi
 
+# 모델 사전 다운로드 스크립트
+COPY scripts/preload-hf-models.mjs ./scripts/preload-hf-models.mjs
+
+# 사전 다운로드 시 사용할 옵션 (필요 시 빌드 인자 제공)
+ARG HF_EMBEDDING_MODEL_ID
+ENV HF_EMBEDDING_MODEL_ID=${HF_EMBEDDING_MODEL_ID}
+ARG HF_RERANKER_MODEL_ID
+ENV HF_RERANKER_MODEL_ID=${HF_RERANKER_MODEL_ID}
+
+# 원격 허용 (사전 다운로드 단계)
+ENV HF_ALLOW_REMOTE_MODELS=true
+
+# 모델 사전 다운로드 수행
+RUN node scripts/preload-hf-models.mjs
+
+# 나머지 앱 코드 복사
 COPY . .
 
 ARG NEXT_PUBLIC_ENV_VARIABLE
@@ -61,15 +88,17 @@ FROM base AS runner
 
 WORKDIR /app
 
-# nextjs 사용자 생성하여 실행
+# 추출 전까지는 root 유지 - 추출 후에 사용자를 next js 로
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-USER nextjs
 
 # standalone 모드에서 실행하고 public과 static 파일을 이미지로 복사.
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 빌드 시 캐시된 모델 복사
+COPY --from=builder --chown=nextjs:nodejs /opt/hf-cache /opt/hf-cache
 
 # 런타임에도 동일 키 주입
 ARG NEXT_PUBLIC_ENV_VARIABLE
@@ -103,4 +132,9 @@ ENV GOOGLE_SEARCH_CX=${GOOGLE_SEARCH_CX}
 ARG GOOGLE_AI_API_KEY
 ENV GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
 
+# 런타임 캐시 경로 및 오프라인 모드 강제
+ENV TRANSFORMERS_CACHE=/opt/hf-cache
+ENV HF_ALLOW_REMOTE_MODELS=false
+
+USER nextjs
 CMD ["node", "server.js"]
