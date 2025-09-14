@@ -28,6 +28,13 @@ services:
     networks:
       - npm-network
 
+    # 런타임에도 캐시 디렉토리를 볼륨으로 유지
+    volumes:
+      - hf-cache:/opt/hf-cache
+
 networks:
   npm-network:
     external: true
+
+volumes:
+  hf-cache:

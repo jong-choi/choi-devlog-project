@@ -4,6 +4,7 @@ import {
   PreTrainedTokenizer,
   XLMRobertaModel,
 } from "@huggingface/transformers";
+import "../../../../lib/hf/env";
 
 type SearchRow = {
   chunk_id: string;
@@ -23,11 +24,14 @@ let cachedModelPromise: Promise<PreTrainedModel> | null = null;
 // 서버 시작 시 리랭킹 모델 초기화
 const loadReranker = async () => {
   if (!cachedTokenizerPromise) {
-    cachedTokenizerPromise = AutoTokenizer.from_pretrained(RERANKER_MODEL_ID);
+    cachedTokenizerPromise = AutoTokenizer.from_pretrained(RERANKER_MODEL_ID, {
+      local_files_only: true,
+    });
   }
   if (!cachedModelPromise) {
     cachedModelPromise = XLMRobertaModel.from_pretrained(RERANKER_MODEL_ID, {
       dtype: "fp32",
+      local_files_only: true,
     });
   }
   const [tokenizer, model] = await Promise.all([

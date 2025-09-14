@@ -3,10 +3,10 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { postId: string } },
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
     if (typeof postId !== "string" || postId.trim().length === 0) {
       return NextResponse.json(
         { error: "'postId' 파라미터가 필요합니다." },

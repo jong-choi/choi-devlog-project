@@ -1,4 +1,5 @@
 import { pipeline } from "@huggingface/transformers";
+import "../../../../lib/hf/env";
 
 const EMBEDDING_MODEL_ID = "onnx-community/embeddinggemma-300m-ONNX";
 
@@ -22,6 +23,7 @@ const loadEmbeddingPipeline = async (): Promise<FeatureExtractionPipeline> => {
       EMBEDDING_MODEL_ID,
       {
         dtype: "fp32",
+        local_files_only: true,
       },
     );
     cachedPipeline = pipelineResult as FeatureExtractionPipeline;

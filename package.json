@@ -13,6 +13,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "hf:cache": "node scripts/preload-hf-models.mjs",
+    "hf:offline": "HF_ALLOW_REMOTE_MODELS=false next start",
     "supabase:gen": "npx supabase gen types typescript --project-id wknphwqwtywjrfclmhjd --schema public > types/supabase.ts",
     "test": "vitest",
     "analyze": "ANALYZE=true next build"
