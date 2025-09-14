@@ -1,22 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
-// 임베딩 테스트 페이지
+// 임베딩 관리 페이지
 export default function EmbeddingPage() {
-  const [input, setInput] = useState("");
-  const [results, setResults] = useState<
-    Array<{ input: string; vector: number[] }>
-  >([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [recentPosts, setRecentPosts] = useState<
-    Array<{ id: string | null; title: string | null }>
-  >([]);
-  const [generateLoading, setGenerateLoading] = useState<string | null>(null);
+  // 테이블 데이터 상태
+  type TableRow = {
+    id: string;
+    title: string;
+    activeCount: number;
+    totalCount: number;
+  };
+  const [rows, setRows] = useState<TableRow[]>([]);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
+  const [hasMore, setHasMore] = useState(false);
+  const [rowActionLoading, setRowActionLoading] = useState<string | null>(null);
+  const [batchLoading, setBatchLoading] = useState(false);
 
-  // 코사인 검색 테스트용 상태
+  // 코사인 검색 상태
   const [searchInput, setSearchInput] = useState("");
   const [searchK, setSearchK] = useState<number>(8);
   const [searchMinSim, setSearchMinSim] = useState<number>(0);
@@ -33,80 +37,136 @@ export default function EmbeddingPage() {
     }>
   >([]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    const value = input.trim();
-    if (!value) return;
+  const missingCount = useMemo(
+    () => rows.filter((r) => r.activeCount === 0).length,
+    [rows],
+  );
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/embedding/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: value }),
-      });
+  const loadTableData = useCallback(
+    async (targetPage: number) => {
+      setTableLoading(true);
+      try {
+        const supabase = createClient();
 
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody?.error || `status ${res.status}`);
+        const from = targetPage * pageSize;
+        const to = from + pageSize - 1;
+        const { data: rowsData, error } = await supabase
+          .from("v_post_with_chunk_counts")
+          .select("id, title, created_at, active_count, total_count")
+          .order("created_at", { ascending: false })
+          .range(from, to);
+
+        if (error) throw new Error(error.message);
+
+        const nextRows: TableRow[] = (rowsData || [])
+          .filter((post) => post.id && post.title)
+          .map((post) => ({
+            id: post.id!,
+            title: post.title!,
+            activeCount: post.active_count ?? 0,
+            totalCount: post.total_count ?? 0,
+          }));
+
+        setRows(nextRows);
+
+        // 다음 페이지 존재 여부 추정 (다음 범위를 한 건 더 조회)
+        const { data: moreCheck } = await supabase
+          .from("v_post_with_chunk_counts")
+          .select("id")
+          .order("created_at", { ascending: false })
+          .range(to + 1, to + 1);
+        setHasMore((moreCheck || []).length > 0);
+      } finally {
+        setTableLoading(false);
       }
-
-      const data = await res.json();
-      setResults((s) => [{ input: value, vector: data.vector ?? [] }, ...s]);
-      setInput("");
-    } catch (error) {
-      setError(String(error));
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+    [pageSize],
+  );
 
   useEffect(() => {
-    async function fetchRecentPosts() {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("published_posts")
-        .select("id, title")
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false })
-        .limit(10);
+    loadTableData(0);
+  }, [loadTableData]);
 
-      if (!error && data) {
-        setRecentPosts(data);
-      }
-    }
-
-    fetchRecentPosts();
-  }, []);
-
-  async function handleGenerateEmbedding(postId: string) {
-    setGenerateLoading(postId);
+  // 개별 임베딩 생성/업데이트
+  const handleGenerateEmbedding = async (postId: string) => {
+    setRowActionLoading(postId);
     try {
       const res = await fetch("/api/embedding/generate/document", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post_id: postId }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(`에러: ${data.error || `status ${res.status}`}`);
-      } else {
-        alert(
-          `성공: 포스트 ${data.postId}에 대해 ${data.chunkCount}개의 청크가 생성되었습니다.`,
-        );
-      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `status ${res.status}`);
     } catch (error) {
       alert(`에러: ${String(error)}`);
     } finally {
-      setGenerateLoading(null);
+      setRowActionLoading(null);
+      loadTableData(page);
     }
-  }
+  };
 
-  // 코사인 검색 요청 핸들러
-  async function handleSearchSubmit(e: React.FormEvent) {
+  // 개별 임베딩 하드 삭제
+  const handleDeleteEmbedding = async (postId: string) => {
+    if (
+      !confirm("정말로 이 게시글의 모든 임베딩 청크를 삭제할까요? (하드 삭제)")
+    )
+      return;
+    setRowActionLoading(postId);
+    try {
+      const res = await fetch(`/api/embedding/chunks/${postId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `status ${res.status}`);
+    } catch (error) {
+      alert(`에러: ${String(error)}`);
+    } finally {
+      setRowActionLoading(null);
+      loadTableData(page);
+    }
+  };
+
+  // 누락된 임베딩 일괄 생성 (활성 청크 0개 대상)
+  const handleGenerateMissing = async () => {
+    if (missingCount === 0) return;
+    if (
+      !confirm(
+        `활성 청크 0개인 ${missingCount}개 게시글에 대해 임베딩을 생성할까요?`,
+      )
+    )
+      return;
+    setBatchLoading(true);
+    try {
+      const targets = rows.filter((r) => r.activeCount === 0).map((r) => r.id);
+      for (const postId of targets) {
+        // await로 순차처리
+        try {
+          const res = await fetch("/api/embedding/generate/document", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ post_id: postId }),
+          });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            console.error(
+              "임베딩 생성 실패:",
+              postId,
+              body?.error || res.status,
+            );
+          }
+        } catch (e) {
+          console.error("임베딩 생성 에러:", postId, e);
+        }
+      }
+    } finally {
+      setBatchLoading(false);
+      loadTableData(page);
+    }
+  };
+
+  // 코사인 검색 요청 핸들러 (기존 유지)
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSearchError(null);
     const value = searchInput.trim();
@@ -135,86 +195,116 @@ export default function EmbeddingPage() {
     } finally {
       setSearchLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">Embedding 테스트</h1>
+    <div className="max-w-6xl mx-auto p-4">
+      <h1 className="text-2xl font-semibold mb-4">임베딩 관리</h1>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="텍스트를 입력하세요"
-          className="flex-1 rounded border px-3 py-2"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-slate-800 text-white rounded"
-          disabled={loading}
-        >
-          {loading ? "처리중..." : "임베딩"}
-        </button>
-      </form>
-
-      {error && <div className="mb-4 text-red-600">에러: {error}</div>}
-
-      <div className="space-y-4">
-        {results.length === 0 && (
-          <div className="text-slate-500">
-            아직 결과가 없습니다. 텍스트를 입력하여 임베딩을 생성하세요.
-          </div>
-        )}
-
-        {results.map((r, idx) => (
-          <div key={idx} className="border rounded p-3">
-            <div className="font-medium">입력</div>
-            <div className="mb-2">{r.input}</div>
-            <div className="font-medium">벡터 ({r.vector.length})</div>
-            <div className="text-xs font-mono overflow-x-auto mt-2 bg-slate-50 p-2 rounded">
-              {r.vector.length > 0
-                ? JSON.stringify(r.vector.slice(0, 80)) +
-                  (r.vector.length > 80 ? " ..." : "")
-                : "[]"}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-8 border-t pt-6">
-        <h2 className="text-xl font-semibold mb-4">최근 게시글 10개</h2>
-        <div className="space-y-2">
-          {recentPosts.length === 0 && (
-            <div className="text-slate-500">게시글을 불러오는 중...</div>
+      {/* 상단 액션 바 */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-slate-600">
+          페이지 {page + 1}
+          <span className="mx-2">·</span>
+          표시 {rows.length}건
+          {missingCount > 0 && (
+            <span className="ml-2 text-amber-700">(누락 {missingCount}건)</span>
           )}
-          {recentPosts.map((post) => {
-            if (!post.id || !post.title) {
-              return null;
-            }
-            return (
-              <div
-                key={post.id}
-                className="flex items-center justify-between p-3 border rounded hover:bg-slate-50"
-              >
-                <div>
-                  <div className="font-medium">{post.title}</div>
-                  <div className="text-sm text-slate-500">ID: {post.id}</div>
-                </div>
-                <button
-                  onClick={() => handleGenerateEmbedding(post.id!)}
-                  disabled={generateLoading !== null}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {generateLoading === post.id ? "생성중..." : "임베딩 생성"}
-                </button>
-              </div>
-            );
-          })}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleGenerateMissing}
+            disabled={batchLoading || missingCount === 0 || tableLoading}
+            className="px-3 py-2 rounded text-sm bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {batchLoading ? "누락 임베딩 생성중..." : "누락된 임베딩 생성"}
+          </button>
         </div>
       </div>
 
-      {/* 코사인 검색 테스트 섹션 */}
-      <div className="mt-8 border-t pt-6">
+      {/* 테이블 */}
+      <div className="overflow-x-auto border rounded">
+        <table className="min-w-full text-sm">
+          <thead className="bg-slate-50 text-slate-700">
+            <tr>
+              <th className="text-left px-3 py-2 w-[44%]">게시글 제목</th>
+              <th className="text-right px-3 py-2 w-[12%]">임베딩 청크수</th>
+              <th className="text-right px-3 py-2 w-[12%]">전체 청크수</th>
+              <th className="text-center px-3 py-2 w-[16%]">생성/업데이트</th>
+              <th className="text-center px-3 py-2 w-[16%]">
+                임베딩 하드 삭제
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t">
+                <td className="px-3 py-2">
+                  <div className="font-medium text-slate-800 line-clamp-2">
+                    {r.title}
+                  </div>
+                  <div className="text-xs text-slate-500">ID: {r.id}</div>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {r.activeCount}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {r.totalCount}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <button
+                    onClick={() => handleGenerateEmbedding(r.id)}
+                    disabled={!!rowActionLoading || tableLoading}
+                    className="px-3 py-1.5 rounded bg-blue-600 text-white text-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {rowActionLoading === r.id
+                      ? "처리중..."
+                      : "임베딩 생성/업데이트"}
+                  </button>
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <button
+                    onClick={() => handleDeleteEmbedding(r.id)}
+                    disabled={!!rowActionLoading || tableLoading}
+                    className="px-3 py-1.5 rounded bg-rose-600 text-white text-xs hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {rowActionLoading === r.id ? "처리중..." : "임베딩 삭제"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 페이지네이션 */}
+      <div className="flex items-center justify-between mt-3">
+        <button
+          className="px-3 py-1.5 rounded border text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={tableLoading || page === 0}
+          onClick={() => {
+            const next = Math.max(0, page - 1);
+            setPage(next);
+            loadTableData(next);
+          }}
+        >
+          이전
+        </button>
+        <button
+          className="px-3 py-1.5 rounded border text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={tableLoading || !hasMore}
+          onClick={() => {
+            const next = page + 1;
+            setPage(next);
+            loadTableData(next);
+          }}
+        >
+          다음
+        </button>
+      </div>
+
+      {/* 코사인 검색 테스트 섹션 (기존 유지) */}
+      <div className="mt-10 border-t pt-6">
         <h2 className="text-xl font-semibold mb-4">코사인 검색 테스트</h2>
 
         <form

@@ -3,8 +3,6 @@ import { embeddings } from "@/app/api/embedding/_model/embeddings";
 import { applyReranking } from "@/app/api/embedding/_model/reranker";
 import { createClient } from "@/utils/supabase/server";
 
-export const dynamic = "force-dynamic";
-
 type SearchRequest = {
   query?: string;
   k?: number;

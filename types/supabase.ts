@@ -78,6 +78,13 @@ export type Database = {
             referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "v_post_with_chunk_counts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ai_summary_vectors: {
@@ -388,6 +395,13 @@ export type Database = {
             referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_chunks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "v_post_with_chunk_counts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       post_similarities: {
@@ -449,6 +463,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "post_similarities_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "v_post_with_chunk_counts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "post_similarities_target_post_id_fkey"
             columns: ["target_post_id"]
             isOneToOne: false
@@ -481,6 +502,13 @@ export type Database = {
             columns: ["target_post_id"]
             isOneToOne: false
             referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_similarities_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "v_post_with_chunk_counts"
             referencedColumns: ["id"]
           },
         ]
@@ -532,6 +560,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "v_post_with_chunk_counts"
             referencedColumns: ["id"]
           },
           {
@@ -590,6 +625,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: true
             referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tsvectors_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "v_post_with_chunk_counts"
             referencedColumns: ["id"]
           },
         ]
@@ -827,6 +869,13 @@ export type Database = {
             referencedRelation: "published_posts_with_tags_summaries_tsv"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ai_summaries_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "v_post_with_chunk_counts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       clusters_with_published_posts: {
@@ -1024,6 +1073,16 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      v_post_with_chunk_counts: {
+        Row: {
+          active_count: number | null
+          created_at: string | null
+          id: string | null
+          title: string | null
+          total_count: number | null
+        }
+        Relationships: []
       }
     }
     Functions: {

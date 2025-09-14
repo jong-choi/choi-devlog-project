@@ -38,8 +38,9 @@ export async function POST(req: Request) {
 
     const postBody = post.body;
 
+    // 짧은 쿼리에 특화되도록 350으로 값 설정(크지 않은 값)
     const splitter = new TokenTextSplitter({
-      chunkSize: 250,
+      chunkSize: 350,
       chunkOverlap: 50,
       encodingName: "cl100k_base",
     });
