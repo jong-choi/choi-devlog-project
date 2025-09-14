@@ -84,7 +84,7 @@ export default function EmbeddingPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || `status ${res.status}`);
     } catch (error) {
-      alert(`에러: ${String(error)}`);
+      toast.error(`에러: ${String(error)}`);
     } finally {
       setRowActionLoading(null);
       loadTableData(page);
@@ -105,7 +105,7 @@ export default function EmbeddingPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || `status ${res.status}`);
     } catch (error) {
-      alert(`에러: ${String(error)}`);
+      toast.error(`에러: ${String(error)}`);
     } finally {
       setRowActionLoading(null);
       loadTableData(page);
@@ -171,7 +171,9 @@ export default function EmbeddingPage() {
               } else if (eventName === "error") {
                 toast.error(`배치 에러: ${payload.error ?? "알 수 없음"}`);
               }
-            } catch {}
+            } catch (error) {
+              toast.error(`JSON 변환 실패 ${error}`);
+            }
           }
         }
       };

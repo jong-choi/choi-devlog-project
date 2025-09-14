@@ -38,7 +38,7 @@ yarn-error.log*
 .vscode
 .serena
 
-# hugginface
+# huggingface
 .cache
 
 # typescript

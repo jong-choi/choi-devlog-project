@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { generateDocumentEmbeddingsForPost } from "@/app/api/embedding/_service/generate";
+import {
+  createEmptySummary,
+  summarizeResults,
+  updateSummary,
+} from "@/app/api/embedding/_service/summary";
 import { createClient } from "@/utils/supabase/server";
 
 type BatchGenerateRequest = {
@@ -40,25 +45,7 @@ export async function POST(req: Request) {
       results.push(result);
     }
 
-    const summary = results.reduce(
-      (acc, r) => {
-        if (r.status === "ok") acc.success += 1;
-        else if (r.status === "not_found") acc.not_found += 1;
-        else acc.error += 1;
-        acc.totalChunks += r.chunkCount;
-        acc.totalInserted += r.insertedCount;
-        acc.totalUpdated += r.updatedOldEmbeddings;
-        return acc;
-      },
-      {
-        success: 0,
-        not_found: 0,
-        error: 0,
-        totalChunks: 0,
-        totalInserted: 0,
-        totalUpdated: 0,
-      },
-    );
+    const summary = summarizeResults(results);
 
     return NextResponse.json({
       count: uniqueIds.length,
@@ -95,14 +82,7 @@ export async function GET(req: Request) {
       async start(controller) {
         const encoder = new TextEncoder();
         const supabase = await createClient();
-        const summary = {
-          success: 0,
-          not_found: 0,
-          error: 0,
-          totalChunks: 0,
-          totalInserted: 0,
-          totalUpdated: 0,
-        };
+        const summary = createEmptySummary();
 
         const send = (event: string, data: unknown) => {
           const payload =
@@ -117,13 +97,7 @@ export async function GET(req: Request) {
               postId,
             );
             // 누적 집계 업데이트
-            if (result.status === "ok") summary.success += 1;
-            else if (result.status === "not_found") summary.not_found += 1;
-            else summary.error += 1;
-            summary.totalChunks += result.chunkCount;
-            summary.totalInserted += result.insertedCount;
-            summary.totalUpdated += result.updatedOldEmbeddings;
-
+            updateSummary(summary, result);
             send("item", result);
           }
 

@@ -75,7 +75,7 @@ async function main() {
     env.cacheDir || path.join(process.cwd(), ".cache", "transformers");
   ensureWritable(cacheDir);
 
-  // 원격 다운로드 허용 강제 (사전 다운로드 목적)
+  // 원격 다운로드 허용 강제
   env.allowRemoteModels = true;
 
   const targets = (process.env.HF_PRELOAD_TARGETS || "embedding,reranker")

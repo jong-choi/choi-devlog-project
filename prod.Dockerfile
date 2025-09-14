@@ -97,8 +97,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# 캐시 디렉터리만 생성 (모델은 런타임에서 local_files_only로 로드)
-RUN mkdir -p /opt/hf-cache && chown -R nextjs:nodejs /opt/hf-cache
+# 빌드 시 캐시된 모델 복사
+COPY --from=builder --chown=nextjs:nodejs /opt/hf-cache /opt/hf-cache
 
 # 런타임에도 동일 키 주입
 ARG NEXT_PUBLIC_ENV_VARIABLE

@@ -12,7 +12,7 @@
 | `content`     | text        | NOT NULL                        | 실제 청크 텍스트 내용              |
 | `embedding`   | vector(768) | NOT NULL                        | EmbeddingGemma 768차원 임베딩 벡터 |
 | `created_at`  | timestamptz | NOT NULL, default now()         | 청크 생성 시간                     |
-| `deleted_at`  | timestamptz | NOT NULL, default now()         | 청크 삭제 시간                     |
+| `deleted_at`  | timestamptz | default null                    | 청크 삭제 시간                     |
 
 ### 인덱스 설명
 
