@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
+// 임베딩 테스트 페이지
 export default function EmbeddingPage() {
   const [input, setInput] = useState("");
   const [results, setResults] = useState<
@@ -82,7 +83,7 @@ export default function EmbeddingPage() {
   async function handleGenerateEmbedding(postId: string) {
     setGenerateLoading(postId);
     try {
-      const res = await fetch("/api/embedding/generate/post", {
+      const res = await fetch("/api/embedding/generate/document", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post_id: postId }),
@@ -113,7 +114,7 @@ export default function EmbeddingPage() {
 
     setSearchLoading(true);
     try {
-      const res = await fetch("/api/embedding/search", {
+      const res = await fetch("/api/embedding/generate/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,23 +1,11 @@
 import { NextResponse } from "next/server";
-import { OllamaEmbeddings } from "@langchain/ollama";
 import { TokenTextSplitter } from "@langchain/textsplitters";
-// import { embeddings } from "@/app/api/embedding/_model/embeddings";
+import { embeddings } from "@/app/api/embedding/_model/embeddings";
 import { createClient } from "@/utils/supabase/server";
-
-export const embeddings = new OllamaEmbeddings({
-  model: "embeddinggemma:300m",
-  baseUrl: "http://localhost:11434",
-});
 
 type GenerateRequest = {
   post_id: string;
 };
-
-// 벡터 정규화 함수 (Ollama EmbeddingGemma는 자동 정규화되지 않음)
-function normalizeVector(vector: number[]): number[] {
-  const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-  return vector.map((val) => val / norm);
-}
 
 export async function POST(req: Request) {
   try {
@@ -56,18 +44,12 @@ export async function POST(req: Request) {
       encodingName: "cl100k_base",
     });
 
-    // Document 생성으로 변경하여 시작 위치 추적 가능
     const documents = await splitter.createDocuments([postBody]);
     const textChunks = documents.map((doc) => doc.pageContent);
 
-    // 임베딩 생성 (Ollama Embeddings - EmbeddingGemma)
-    const vectors = await Promise.all(
-      textChunks.map((t) => embeddings.embedQuery(t)),
-    );
-
-    // 벡터 정규화 (Ollama는 자동 정규화되지 않음)
-    const normalizedVectors = vectors.map((vector) => normalizeVector(vector));
-    console.log(normalizedVectors);
+    // 임베딩 생성 (Transformers.js - EmbeddingGemma)
+    const vectors = await embeddings.embedDocuments(textChunks);
+    console.log("Generated embeddings for", vectors.length, "chunks");
 
     // 저장 payload 작성
     const insertRows = textChunks.map((content, i) => ({
@@ -75,10 +57,11 @@ export async function POST(req: Request) {
       chunk_index: i,
       content,
       // string으로 임의 캐스팅
-      embedding: normalizedVectors[i] as unknown as string,
+      embedding: vectors[i] as unknown as string,
     }));
 
     // 기존 임베딩이 있으면 deleted_at을 현재 시각으로 업데이트
+    // (참고 : 임베딩은 soft-delete가 아닌 hard-delete를 해야 임베딩 품질이 좋아짐 - 현재는 soft-delete)
     const { data: existingChunks } = await supabase
       .from("post_chunks")
       .select("id")
