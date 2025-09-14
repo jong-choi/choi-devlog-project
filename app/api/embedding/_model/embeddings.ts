@@ -1,5 +1,5 @@
 import { pipeline } from "@huggingface/transformers";
-import "../../../../lib/hf/env";
+import "@/lib/hf/env";
 
 const EMBEDDING_MODEL_ID = "onnx-community/embeddinggemma-300m-ONNX";
 

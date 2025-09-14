@@ -4,7 +4,7 @@ import {
   PreTrainedTokenizer,
   XLMRobertaModel,
 } from "@huggingface/transformers";
-import "../../../../lib/hf/env";
+import "@/lib/hf/env";
 
 type SearchRow = {
   chunk_id: string;
