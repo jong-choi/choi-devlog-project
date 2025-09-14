@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { embeddings } from "@/app/api/embedding/_model/embeddings";
 
-export const dynamic = "force-dynamic";
-
 type EmbedRequest = {
   input?: string;
 };
