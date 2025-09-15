@@ -82,7 +82,7 @@ export default function SearchInput({
         )}
         placeholder="검색어 입력"
         onChange={(e) => {
-          setDisabled(!e.target.value || e.target.value == initialSearch);
+          setDisabled(!e.target.value || e.target.value === initialSearch);
         }}
       />
       <GlassButton
