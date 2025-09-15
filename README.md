@@ -21,6 +21,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.07 - Milkdown 버전을 7.7에서 7.15로 판올림. Milkdown Toolbar에 인공지능 코파일럿 기능 추가
 
+> 2025.09.15 - RAG : TFS에서 Semantic Search로 게시글 검색 방식 변경(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
+
 ## 프로젝트 목표
 
 #### Problem
@@ -80,11 +82,14 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 - 게시글 요약들을 DBSCAN으로 분류한 지도입니다.
 - 각 군집 간의 유사도도 함께 표시하여 지금까지 학습한 내용들과 그 연관성을 지도로 확인할 수 있습니다.
 
-### 검색
+### 의미 기반 검색
 
-<p align="center"><img src="https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image/posts/d7a7820c-597d-42eb-81c1-618855ff4111-Screenshot_2025-06-07_08-37-14.png" alt="검색" width="600" /></p>
+<p align="center"><img src="./public/docs/semantic-search.png" alt="의미 기반 검색" width="400" /></p>
 
-- PostgresSQL의 Text Full Search를 이용하여 어절 단위 검색 및 스니펫을 지원하여 게시글 검색의 정확도를 높였습니다.
+- 검색어의 의미를 중심으로 게시글을 검색합니다.
+  1. PostgreSQL의 FTS를 통해 검색어가 들어간 게시글을 수집합니다.
+  2. GOOGLE EmbeddingGemma를 통해 게시글을 코사인 유사도 기반으로 수집합니다.
+  3. Jina AI Reranker를 통해 수집된 게시글에 순위를 매겨 연관된 게시글만 검색결과에 반영합니다.
 
 ## 챗봇
 
