@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { ScrollCard } from "@/components/posts/infinite-scroll/scroll-card";
 import { useInfinitePostsStore } from "@/providers/infinite-posts-provider";
 
-export default function InfiniteScrollPosts() {
-  const searchParams = useSearchParams();
-  const keyword = searchParams.get("keyword") || "";
-
+type InfiniteScrollPostsProps = {
+  keyword?: string;
+};
+export default function InfiniteScrollPosts({
+  keyword,
+}: InfiniteScrollPostsProps) {
   const { fetchNextPage, loading, hasMore, resetState } = useInfinitePostsStore(
     useShallow((store) => {
       return {

@@ -28,7 +28,7 @@ export default function PostsPageRenderer({
         <p className="flex gap-2 flex-col">
           <LinkLoader
             className="text-sm text-color-muted hover:text-color-base flex items-center"
-            href="/posts"
+            href="/post"
           >
             <ChevronLeft className="w-4 h-4" /> 전체 게시글 보기
           </LinkLoader>
@@ -48,7 +48,7 @@ export default function PostsPageRenderer({
           hasMore: !!initialPosts && initialPosts.length > 0,
         }}
       >
-        <InfiniteScrollPosts />
+        <InfiniteScrollPosts keyword={keyword} />
       </InfinitePostsStoreProvider>
     </PageContainer>
   );
