@@ -1,9 +1,12 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
-import { CardPost } from "@/types/post";
 import { PostTags } from "@/types/graph";
-import { SemanticSearchResult } from "@/types/semantic-search";
+import { CardPost } from "@/types/post";
+import {
+  HybridSearchRequest,
+  SemanticSearchResult,
+} from "@/types/semantic-search";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +27,13 @@ export async function generateMetadata({
 export default async function SearchPage({ searchParams }: PageProps) {
   const keyword = decodeURIComponent((await searchParams).keyword);
   if (!keyword) return redirect("/post");
-
+  const req: HybridSearchRequest = {
+    query: keyword,
+    overSampleCount: 10,
+    maxResults: 10,
+    minResults: 0,
+    minThreshold: 0.2,
+  };
   // 시멘틱 서치 API 호출
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/semantic-search`,
@@ -33,12 +42,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        query: keyword,
-        overSampleCount: 10,
-        maxResults: 10,
-        minResults: 0,
-      }),
+      body: JSON.stringify(req),
     },
   );
 
