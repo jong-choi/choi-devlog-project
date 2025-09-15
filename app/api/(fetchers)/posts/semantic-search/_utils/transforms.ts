@@ -50,4 +50,4 @@ export const formatSearchResponse = (selectedResults: RerankedCombinedRow[]): Se
     cosine_similarity: Number(searchResult.cosine_similarity ?? 0),
     tags: searchResult.tags ?? null,
   }));
-};;
+};
