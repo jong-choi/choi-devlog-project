@@ -1,20 +1,13 @@
 import { NextResponse } from "next/server";
 import { embeddings } from "@/app/api/embedding/_model/embeddings";
 import { applyReranking } from "@/app/api/embedding/_model/reranker";
+import { RerankerInputRow } from "@/types/semantic-search";
 import { createClient } from "@/utils/supabase/server";
 
 type SearchRequest = {
   query?: string;
   k?: number;
   minSimilarity?: number;
-};
-
-type SearchRow = {
-  chunk_id: string;
-  post_id: string;
-  chunk_index: number;
-  content: string;
-  similarity: number;
 };
 
 export async function POST(req: Request) {
@@ -63,7 +56,7 @@ export async function POST(req: Request) {
         { status: 500 },
       );
     }
-    const results = (data as SearchRow[]) ?? [];
+    const results = (data as RerankerInputRow[]) ?? [];
     const rerankedResults = await applyReranking(results, query!);
 
     return NextResponse.json({ results: rerankedResults });

@@ -52,10 +52,10 @@ export async function POST(req: Request) {
     // 리랭킹 적용 준비 (전체 후보군에 대해 적용)
     const combinedResults = transformToCombinedRows(dbResults);
 
-    const rerankedResults = (await applyReranking(
+    const rerankedResults: RerankedCombinedRow[] = await applyReranking(
       combinedResults,
       searchParams.query,
-    )) as RerankedCombinedRow[];
+    );
 
     // 선택 규칙 적용
     const finalSelected = selectOptimalResults(

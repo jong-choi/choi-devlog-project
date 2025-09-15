@@ -23,7 +23,8 @@ export type RerankerInputRow = {
 };
 
 export type CombinedRow = HybridSearchDbRow & RerankerInputRow;
-export type RerankedCombinedRow = CombinedRow & { rerankScore: number | null };
+export type Reranked<T> = T & { rerankScore: number | null };
+export type RerankedCombinedRow = Reranked<CombinedRow>;
 
 export type SemanticSearchResult = {
   post_id: string;
@@ -39,3 +40,18 @@ export type SemanticSearchResult = {
   cosine_similarity: number;
   tags: Json | null;
 };
+
+export type SearchTestResult = Omit<
+  SemanticSearchResult,
+  "released_at" | "tags"
+>;
+
+export type SearchTestParams = Required<HybridSearchRequest>;
+
+export type QueryTestResult = Reranked<RerankerInputRow>;
+
+export interface QueryTestParams {
+  query: string;
+  k: number;
+  minSimilarity: number;
+}
