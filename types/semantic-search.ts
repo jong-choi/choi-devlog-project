@@ -1,4 +1,4 @@
-import { Database } from "@/types/supabase";
+import { Database, Json } from "@/types/supabase";
 
 export type HybridSearchRequest = {
   query: string;
@@ -11,7 +11,8 @@ export type HybridSearchRequest = {
   rrfK?: number;
 };
 
-export type HybridSearchDbRow = Database["public"]["Functions"]["search_posts_hybrid"]["Returns"][0];
+export type HybridSearchDbRow =
+  Database["public"]["Functions"]["search_posts_hybrid"]["Returns"][0];
 
 export type RerankerInputRow = {
   chunk_id: string;
@@ -36,4 +37,5 @@ export type SemanticSearchResult = {
   rerank_score: number | undefined;
   fts_rank: number;
   cosine_similarity: number;
+  tags: Json | null;
 };

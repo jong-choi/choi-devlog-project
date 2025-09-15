@@ -48,5 +48,6 @@ export const formatSearchResponse = (selectedResults: RerankedCombinedRow[]): Se
     rerank_score: searchResult.rerankScore ?? undefined,
     fts_rank: Number(searchResult.fts_rank ?? 0),
     cosine_similarity: Number(searchResult.cosine_similarity ?? 0),
+    tags: searchResult.tags ?? null,
   }));
-};
+};;

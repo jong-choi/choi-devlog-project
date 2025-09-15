@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
 import { CardPost } from "@/types/post";
+import { PostTags } from "@/types/graph";
 import { SemanticSearchResult } from "@/types/semantic-search";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         released_at: result.released_at,
         url_slug: result.url_slug,
         snippet: result.chunk_content, // chunk_content를 snippet으로 매핑
-        tags: null, // 시멘틱 서치 응답에는 태그 정보 없음
+        tags: result.tags as PostTags[] | null,
       })) || [];
   }
 

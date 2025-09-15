@@ -2,6 +2,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import { LangNodeName } from "@/types/chat";
 import { CardPost } from "@/types/post";
+import { PostTags } from "@/types/graph";
 import { SemanticSearchResult } from "@/types/semantic-search";
 import { SessionMessagesAnnotation } from "./graph";
 
@@ -64,7 +65,7 @@ export async function blogSearchNode(state: State) {
         released_at: result.released_at,
         url_slug: result.url_slug,
         snippet: result.chunk_content,
-        tags: null,
+        tags: result.tags as PostTags[] | null,
       }));
 
       allPosts.push(...posts);
