@@ -1,31 +1,32 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import PostsPageRenderer from "@/components/posts/page/posts-page-renderer";
+import { PostCard } from "@/components/posts/post-card";
 import { PostTags } from "@/types/graph";
 import { CardPost } from "@/types/post";
 import {
   HybridSearchRequest,
   SemanticSearchResult,
 } from "@/types/semantic-search";
+import { withJosa } from "@/utils/withJosa";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ keyword: string }>;
+  params: Promise<{ keyword: string }>;
 }
 
 export async function generateMetadata({
-  searchParams,
+  params,
 }: PageProps): Promise<Metadata> {
-  const keyword = decodeURIComponent((await searchParams).keyword);
+  const keyword = decodeURIComponent((await params).keyword);
   return {
     title: `검색 - ${keyword}`,
     description: `"${keyword}"로 검색한 결과입니다.`,
   };
 }
 
-export default async function SearchPage({ searchParams }: PageProps) {
-  const keyword = decodeURIComponent((await searchParams).keyword);
+export default async function SearchPage({ params }: PageProps) {
+  const keyword = decodeURIComponent((await params).keyword);
   if (!keyword) return redirect("/post");
   const req: HybridSearchRequest = {
     query: keyword,
@@ -46,12 +47,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
     },
   );
 
-  let postLists: CardPost[] = [];
+  let initialPosts: CardPost[] = [];
 
   if (response.ok) {
     const data = await response.json();
-    // 시멘틱 서치 결과를 CardPost 형식으로 변환
-    postLists =
+    initialPosts =
       data.results?.map((result: SemanticSearchResult) => ({
         id: result.post_id,
         title: result.title,
@@ -64,5 +64,20 @@ export default async function SearchPage({ searchParams }: PageProps) {
       })) || [];
   }
 
-  return <PostsPageRenderer keyword={keyword} initialPosts={postLists} />;
+  return (
+    <>
+      {initialPosts && initialPosts.length > 0 ? (
+        <span className="text-sm text-color-base">
+          {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과입니다.`}
+        </span>
+      ) : (
+        <span className="text-sm text-color-base">
+          {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과가 없습니다.`}
+        </span>
+      )}
+      {initialPosts.map((post) => (
+        <PostCard key={post.id + "initial"} post={post} />
+      ))}
+    </>
+  );
 }
