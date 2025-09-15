@@ -21,7 +21,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.07 - Milkdown 버전을 7.7에서 7.15로 판올림. Milkdown Toolbar에 인공지능 코파일럿 기능 추가
 
-> 2025.09.15 - RAG : TFS에서 Semantic Search로 게시글 검색 방식 변경(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
+> 2025.09.15 - TFS에서 Semantic Search로 게시글 검색 방식 변경, RAG 구현(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
 
 ## 프로젝트 목표
 
