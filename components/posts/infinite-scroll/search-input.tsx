@@ -19,7 +19,9 @@ export default function SearchInput({
   const router = useRouter();
   const params = useParams();
   const initialSearch =
-    typeof params.keyword === "string" ? params.keyword : "";
+    typeof params.keyword === "string"
+      ? decodeURIComponent(params.keyword)
+      : "";
   const inputRef = useRef<HTMLInputElement>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
 
@@ -32,7 +34,7 @@ export default function SearchInput({
   const handleSearch = () => {
     if (disabled) return;
     const inputValue = inputRef.current?.value;
-    if (!inputValue) return router.push("/posts");
+    if (!inputValue) return router.push("/post");
 
     setDisabled(true);
     router.push(`/search/${inputValue}`, {

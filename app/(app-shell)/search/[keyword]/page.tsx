@@ -66,17 +66,13 @@ export default async function SearchPage({ params }: PageProps) {
 
   return (
     <>
-      {initialPosts && initialPosts.length > 0 ? (
-        <span className="text-sm text-color-base">
-          {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과입니다.`}
-        </span>
-      ) : (
-        <span className="text-sm text-color-base">
-          {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과가 없습니다.`}
-        </span>
-      )}
+      <span className="text-sm text-color-base">
+        {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과${
+          initialPosts.length > 0 ? "입니다." : "가 없습니다."
+        }`}
+      </span>
       {initialPosts.map((post) => (
-        <PostCard key={post.id + "initial"} post={post} />
+        <PostCard key={post.id} post={post} />
       ))}
     </>
   );
