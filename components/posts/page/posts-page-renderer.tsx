@@ -1,15 +1,13 @@
-"use client";
-
-import { InfinitePostsStoreProvider } from "@/providers/infinite-posts-provider";
-import { withJosa } from "@/utils/withJosa";
+import { Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
 import { PageContainer } from "@ui/glass-container";
 import { LinkLoader } from "@ui/route-loader";
-import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import InfiniteScrollPosts from "@/components/posts/infinite-scroll/infinite-scroll-posts";
-import { CardPost } from "@/types/post";
+import SearchInput from "@/components/posts/infinite-scroll/search-input";
 import { PostCard } from "@/components/posts/post-card";
-import { Suspense } from "react";
+import { InfinitePostsStoreProvider } from "@/providers/infinite-posts-provider";
+import { CardPost } from "@/types/post";
+import { withJosa } from "@/utils/withJosa";
 
 interface PostsPageRendererProps {
   keyword?: string;

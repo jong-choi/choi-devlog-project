@@ -1,19 +1,23 @@
+import { createStore } from "zustand";
 import { getPublishedPosts } from "@/app/(app-shell)/posts/fetchers";
 import { CardPost } from "@/types/post";
-import { createStore } from "zustand";
 
-export interface InfinitePostsState {
+interface State {
   posts: CardPost[];
   page: number;
   keyword: string;
   loading: boolean;
   hasMore: boolean;
+}
+
+export interface InfinitePostsState extends State {
   setKeyword: (keyword: string) => void;
   fetchNextPage: () => Promise<void>;
+  resetState: (state: Partial<State>) => void;
 }
 
 export const createInfinitePostsStore = (
-  initialState?: Partial<InfinitePostsState>
+  initialState?: Partial<InfinitePostsState>,
 ) =>
   createStore<InfinitePostsState>((set, get) => ({
     posts: [],
@@ -33,6 +37,16 @@ export const createInfinitePostsStore = (
         page: page + 1,
         loading: false,
         hasMore: nextPosts.length > 0,
+      });
+    },
+    resetState: (state) => {
+      set({
+        posts: [],
+        page: 1,
+        keyword: "",
+        loading: false,
+        hasMore: true,
+        ...state,
       });
     },
     ...initialState, // 초기값 덮어쓰기
