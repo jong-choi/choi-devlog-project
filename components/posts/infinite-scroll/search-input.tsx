@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
@@ -22,21 +22,27 @@ export default function SearchInput({
   const params = useSearchParams();
   const initialSearch = params.get("keyword") || "";
   const inputRef = useRef<HTMLInputElement>(null);
-  const { start } = useRouteLoadingStore(
+  const [disabled, setDisabled] = useState<boolean>(true);
+
+  const { start, stop } = useRouteLoadingStore(
     useShallow((state) => ({
       start: state.start,
+      stop: state.stop,
     })),
   );
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.value = initialSearch;
+      stop();
     }
-  }, [initialSearch]);
+  }, [initialSearch, stop]);
 
   const handleSearch = () => {
-    const inputValue = inputRef.current?.value || "";
+    if (disabled) return;
+    const inputValue = inputRef.current?.value;
     if (!inputValue) return router.push("/posts");
+
     const newParams = new URLSearchParams(params);
     if (inputValue) newParams.set("keyword", inputValue);
     else newParams.delete("keyword");
@@ -47,14 +53,14 @@ export default function SearchInput({
     });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSearch();
   };
 
   return (
-    <div
+    <form
+      onSubmit={submitHandler}
       className={cn(
         "flex items-center max-w-md gap-2 rounded-xl bg-glass-bg px-3 py-2 backdrop-blur-lg shadow-glass",
         className,
@@ -75,15 +81,18 @@ export default function SearchInput({
           onSidebar && "focus-visible:ring-0",
         )}
         placeholder="검색어 입력"
-        onKeyDown={handleKeyDown}
+        onChange={(e) => {
+          setDisabled(!e.target.value || e.target.value == initialSearch);
+        }}
       />
       <GlassButton
         variant="primary"
         onClick={handleSearch}
         className={cn("whitespace-nowrap", !withButton && "hidden")}
+        disabled={disabled}
       >
         검색
       </GlassButton>
-    </div>
+    </form>
   );
 }
