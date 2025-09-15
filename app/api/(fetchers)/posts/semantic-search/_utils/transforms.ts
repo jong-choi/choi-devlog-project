@@ -4,10 +4,10 @@ export const transformToCombinedRows = (searchResults: HybridSearchDbRow[]): Com
   return searchResults.map((searchResult) => {
     const normalizedChunkIndex = Number(searchResult.chunk_index ?? 0);
     const content =
-      (searchResult.chunk_content ||
-       searchResult.short_description ||
-       searchResult.body ||
-       searchResult.title || "") + "";
+      searchResult.chunk_content ||
+      searchResult.short_description ||
+      searchResult.body ||
+      searchResult.title || "";
 
     const combinedRow: CombinedRow = {
       // HybridSearchDbRow 필드
