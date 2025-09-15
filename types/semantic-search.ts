@@ -23,3 +23,17 @@ export type RerankerInputRow = {
 
 export type CombinedRow = HybridSearchDbRow & RerankerInputRow;
 export type RerankedCombinedRow = CombinedRow & { rerankScore: number | null };
+
+export type SemanticSearchResult = {
+  post_id: string;
+  title: string;
+  short_description: string | null;
+  url_slug: string;
+  thumbnail: string | null;
+  released_at: string | null;
+  chunk_content: string | null;
+  chunk_index: number | null;
+  rerank_score: number | undefined;
+  fts_rank: number;
+  cosine_similarity: number;
+};

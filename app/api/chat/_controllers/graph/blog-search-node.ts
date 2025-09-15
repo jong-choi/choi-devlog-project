@@ -2,13 +2,8 @@ import { SystemMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import { LangNodeName } from "@/types/chat";
 import { CardPost } from "@/types/post";
+import { SemanticSearchResult } from "@/types/semantic-search";
 import { SessionMessagesAnnotation } from "./graph";
-
-const MAX_RESULTS_LEN = 25;
-
-type BlogSearchResult = {
-  data: CardPost[];
-};
 
 type State = typeof SessionMessagesAnnotation.State;
 type NextState = Partial<State>;
@@ -30,34 +25,51 @@ export async function blogSearchNode(state: State) {
     ? state.routingQuery
     : [state.routingQuery];
 
-  const limitPerQuery = Math.ceil(MAX_RESULTS_LEN / queries.length);
-
   for (const query of queries) {
-    const params = new URLSearchParams({
-      keyword: query,
-      limit: String(limitPerQuery),
-    });
-    const url = `/api/posts/search?${params}`;
-
     try {
       const res: Response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}${url}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/semantic-search`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: query,
+            overSampleCount: 10,
+            maxResults: 10,
+            minResults: 0,
+          }),
+        },
       );
 
       if (!res.ok) {
         console.error(
-          "Blog search API response not ok:",
+          "Semantic search API response not ok:",
           res.status,
           res.statusText,
         );
         continue;
       }
 
-      const data: BlogSearchResult = await res.json();
-      const posts = data.data || [];
+      const data = await res.json();
+      const results: SemanticSearchResult[] = data.results || [];
+
+      // SemanticSearchResult를 CardPost로 변환
+      const posts: CardPost[] = results.map((result) => ({
+        id: result.post_id,
+        title: result.title,
+        short_description: result.short_description,
+        thumbnail: result.thumbnail,
+        released_at: result.released_at,
+        url_slug: result.url_slug,
+        snippet: result.chunk_content,
+        tags: null,
+      }));
+
       allPosts.push(...posts);
     } catch (error) {
-      console.error("Blog search error for query:", query, error);
+      console.error("Semantic search error for query:", query, error);
       continue;
     }
   }

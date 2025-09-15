@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { selectOptimalResults } from "@/app/api/(fetchers)/posts/symantic-search/_utils/selection";
+import { selectOptimalResults } from "@/app/api/(fetchers)/posts/semantic-search/_utils/selection";
 import {
   formatSearchResponse,
   transformToCombinedRows,
-} from "@/app/api/(fetchers)/posts/symantic-search/_utils/transforms";
-import { validateAndNormalizeSearchParams } from "@/app/api/(fetchers)/posts/symantic-search/_utils/validation";
+} from "@/app/api/(fetchers)/posts/semantic-search/_utils/transforms";
+import { validateAndNormalizeSearchParams } from "@/app/api/(fetchers)/posts/semantic-search/_utils/validation";
 import { embeddings } from "@/app/api/embedding/_model/embeddings";
 import { applyReranking } from "@/app/api/embedding/_model/reranker";
 import {

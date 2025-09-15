@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import QueryTestSection from "@/components/admin/embedding/query-test-section";
-import SymanticSearchTestSection from "@/components/admin/embedding/symantic-search-test-section";
+import SemanticSearchTestSection from "@/components/admin/embedding/semantic-search-test-section";
 import { createClient } from "@/utils/supabase/client";
 
 // 임베딩 관리 페이지
@@ -302,8 +302,8 @@ export default function EmbeddingPage() {
       </div>
       {/* 쿼리 검색 섹션 */}
       <QueryTestSection />
-      {/* 시맨틱 검색 섹션 */}
-      <SymanticSearchTestSection />
+      {/* 시멘틱 검색 섹션 */}
+      <SemanticSearchTestSection />
     </div>
   );
 }

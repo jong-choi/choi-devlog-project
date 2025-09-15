@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-export default function SymanticSearchTestSection() {
+export default function SemanticSearchTestSection() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export default function SymanticSearchTestSection() {
     if (!value) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/posts/symantic-search", {
+      const res = await fetch("/api/posts/semantic-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -64,7 +64,7 @@ export default function SymanticSearchTestSection() {
   return (
     <div className="mt-10 border-t pt-6">
       <h2 className="text-xl font-semibold mb-4">
-        하이브리드 시맨틱 검색 테스트
+        하이브리드 시멘틱 검색 테스트
       </h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 mb-4">

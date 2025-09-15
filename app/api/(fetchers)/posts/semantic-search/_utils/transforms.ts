@@ -1,4 +1,4 @@
-import { HybridSearchDbRow, CombinedRow, RerankedCombinedRow } from "@/types/semantic-search";
+import { HybridSearchDbRow, CombinedRow, RerankedCombinedRow, SemanticSearchResult } from "@/types/semantic-search";
 
 export const transformToCombinedRows = (searchResults: HybridSearchDbRow[]): CombinedRow[] => {
   return searchResults.map((searchResult) => {
@@ -35,13 +35,14 @@ export const transformToCombinedRows = (searchResults: HybridSearchDbRow[]): Com
   });
 };
 
-export const formatSearchResponse = (selectedResults: RerankedCombinedRow[]) => {
+export const formatSearchResponse = (selectedResults: RerankedCombinedRow[]): SemanticSearchResult[] => {
   return selectedResults.map((searchResult) => ({
     post_id: searchResult.post_id,
     title: searchResult.title,
     short_description: searchResult.short_description ?? null,
     url_slug: searchResult.url_slug,
     thumbnail: searchResult.thumbnail ?? null,
+    released_at: searchResult.released_at ?? null,
     chunk_content: searchResult.chunk_content ?? null,
     chunk_index: searchResult.chunk_index ?? null,
     rerank_score: searchResult.rerankScore ?? undefined,
