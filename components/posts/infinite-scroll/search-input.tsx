@@ -1,13 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import { useShallow } from "zustand/react/shallow";
 import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
 import { cn } from "@/lib/utils";
-import { useRouteLoadingStore } from "@/providers/route-loading-provider";
 
 export default function SearchInput({
   className,
@@ -19,36 +17,27 @@ export default function SearchInput({
   onSidebar?: boolean;
 }) {
   const router = useRouter();
-  const params = useSearchParams();
-  const initialSearch = params.get("keyword") || "";
+  const params = useParams();
+  const initialSearch =
+    typeof params.keyword === "string"
+      ? decodeURIComponent(params.keyword)
+      : "";
   const inputRef = useRef<HTMLInputElement>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
-
-  const { start, stop } = useRouteLoadingStore(
-    useShallow((state) => ({
-      start: state.start,
-      stop: state.stop,
-    })),
-  );
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.value = initialSearch;
-      stop();
     }
-  }, [initialSearch, stop]);
+  }, [initialSearch]);
 
   const handleSearch = () => {
     if (disabled) return;
     const inputValue = inputRef.current?.value;
-    if (!inputValue) return router.push("/posts");
+    if (!inputValue) return router.push("/post");
 
-    const newParams = new URLSearchParams(params);
-    if (inputValue) newParams.set("keyword", inputValue);
-    else newParams.delete("keyword");
-
-    start();
-    router.push(`/posts/search?keyword=${inputValue}`, {
+    setDisabled(true);
+    router.push(`/search/${inputValue}`, {
       scroll: false,
     });
   };

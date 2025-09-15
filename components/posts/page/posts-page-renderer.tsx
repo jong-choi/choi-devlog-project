@@ -25,7 +25,7 @@ export default function PostsPageRenderer({
         <SearchInput />
       </Suspense>
       {isSearching && (
-        <p className="flex gap-2 flex-col">
+        <div className="flex gap-2 flex-col">
           <LinkLoader
             className="text-sm text-color-muted hover:text-color-base flex items-center"
             href="/post"
@@ -35,7 +35,7 @@ export default function PostsPageRenderer({
           <span className="text-sm text-color-base">
             {`${withJosa(`"${keyword}"`, ["으로", "로"])} 검색한 결과입니다.`}
           </span>
-        </p>
+        </div>
       )}
       {initialPosts.map((post) => (
         <PostCard key={post.id + "initial"} post={post} />
