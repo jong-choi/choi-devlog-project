@@ -1189,6 +1189,32 @@ export type Database = {
           similarity: number
         }[]
       }
+      search_posts_hybrid: {
+        Args: {
+          p_fts_weight?: number
+          p_oversample_count?: number
+          p_query_vector: number[]
+          p_rrf_k?: number
+          p_search_text: string
+          p_vector_weight?: number
+        }
+        Returns: {
+          body: string
+          chunk_content: string
+          chunk_index: number
+          cosine_similarity: number
+          final_score: number
+          fts_rank: number
+          post_id: string
+          released_at: string
+          rrf_score: number
+          short_description: string
+          tags: Json
+          thumbnail: string
+          title: string
+          url_slug: string
+        }[]
+      }
       search_posts_with_snippet: {
         Args: { page: number; page_size: number; search_text: string }
         Returns: {

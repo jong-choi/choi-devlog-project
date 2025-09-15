@@ -5,16 +5,7 @@ import {
   XLMRobertaModel,
 } from "@huggingface/transformers";
 import "@/lib/hf/env";
-
-type SearchRow = {
-  chunk_id: string;
-  post_id: string;
-  chunk_index: number;
-  content: string;
-  similarity: number;
-};
-
-type RerankedRow = SearchRow & { rerankScore: number | null };
+import { Reranked, RerankerInputRow } from "@/types/semantic-search";
 
 const RERANKER_MODEL_ID = "jinaai/jina-reranker-v2-base-multilingual";
 
@@ -67,10 +58,10 @@ const rerank = async (
     .slice(0, options.top_k || documents.length);
 };
 
-export const applyReranking = async (
-  results: SearchRow[],
+export const applyReranking = async <T extends RerankerInputRow>(
+  results: T[],
   query: string,
-): Promise<RerankedRow[]> => {
+): Promise<Array<Reranked<T>>> => {
   if (results.length <= 1) {
     return results.map((r) => ({ ...r, rerankScore: null }));
   }

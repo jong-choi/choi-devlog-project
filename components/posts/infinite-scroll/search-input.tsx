@@ -1,11 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { GlassButton } from "@ui/glass-button";
 import { Input } from "@ui/input";
-import { Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useRouteLoadingStore } from "@/providers/route-loading-provider";
 
 export default function SearchInput({
   className,
@@ -19,62 +21,78 @@ export default function SearchInput({
   const router = useRouter();
   const params = useSearchParams();
   const initialSearch = params.get("keyword") || "";
-  const [input, setInput] = useState(initialSearch);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [disabled, setDisabled] = useState<boolean>(true);
+
+  const { start, stop } = useRouteLoadingStore(
+    useShallow((state) => ({
+      start: state.start,
+      stop: state.stop,
+    })),
+  );
 
   useEffect(() => {
-    setInput(initialSearch);
-  }, [initialSearch]);
+    if (inputRef.current) {
+      inputRef.current.value = initialSearch;
+      stop();
+    }
+  }, [initialSearch, stop]);
 
   const handleSearch = () => {
-    if (!input) return router.push("/posts");
-    console.log(params);
+    if (disabled) return;
+    const inputValue = inputRef.current?.value;
+    if (!inputValue) return router.push("/posts");
+
     const newParams = new URLSearchParams(params);
-    if (input) newParams.set("keyword", input);
+    if (inputValue) newParams.set("keyword", inputValue);
     else newParams.delete("keyword");
 
-    router.push(`/posts/search?keyword=${input}`, {
+    start();
+    router.push(`/posts/search?keyword=${inputValue}`, {
       scroll: false,
     });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSearch();
   };
 
   return (
-    <div
+    <form
+      onSubmit={submitHandler}
       className={cn(
         "flex items-center max-w-md gap-2 rounded-xl bg-glass-bg px-3 py-2 backdrop-blur-lg shadow-glass",
-        className
+        className,
       )}
     >
       <Search
         onClick={handleSearch}
         className={cn(
           "h-5 w-5 text-color-base",
-          onSidebar && "h-4 w-4 text-color-muted"
+          onSidebar && "h-4 w-4 text-color-muted",
         )}
       />
       <Input
         id="search"
+        ref={inputRef}
         className={cn(
           "flex-1 bg-transparent border-none text-color-base placeholder:text-glass-text-secondary shadow-none",
-          onSidebar && "focus-visible:ring-0"
+          onSidebar && "focus-visible:ring-0",
         )}
         placeholder="검색어 입력"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
+        onChange={(e) => {
+          setDisabled(!e.target.value || e.target.value === initialSearch);
+        }}
       />
       <GlassButton
         variant="primary"
         onClick={handleSearch}
         className={cn("whitespace-nowrap", !withButton && "hidden")}
+        disabled={disabled}
       >
         검색
       </GlassButton>
-    </div>
+    </form>
   );
 }

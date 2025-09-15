@@ -23,6 +23,9 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("임베딩 에러", error);
-    return NextResponse.json({ error: "임베딩 생성 중 오류가 발생했습니다." }, { status: 500 });
+    return NextResponse.json(
+      { error: "임베딩 생성 중 오류가 발생했습니다." },
+      { status: 500 },
+    );
   }
 }

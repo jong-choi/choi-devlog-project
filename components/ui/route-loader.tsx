@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { useRouteLoadingStore } from "@/providers/route-loading-provider";
-import { Spinner } from "@ui/spinner";
 import Link from "next/link";
-import { useShallow } from "zustand/react/shallow";
+import { usePathname } from "next/navigation";
 import { UrlObject } from "url";
+import { useShallow } from "zustand/react/shallow";
+import { Spinner } from "@ui/spinner";
+import { useRouteLoadingStore } from "@/providers/route-loading-provider";
 
 type Props = React.ComponentProps<typeof Link>;
 
@@ -15,7 +15,7 @@ export function LinkLoader({ href, onClick, ...rest }: Props) {
   const { start } = useRouteLoadingStore(
     useShallow((state) => ({
       start: state.start,
-    }))
+    })),
   );
 
   return (
@@ -42,7 +42,7 @@ export function RouteLoader() {
     useShallow((state) => ({
       stop: state.stop,
       state: state.state,
-    }))
+    })),
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function RouteLoader() {
   if (state !== "loading") return null;
 
   return (
-    <div className="fixed inset-0 z-[100] md:z-30 flex items-center justify-center bg-glass-bg-20 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-glass-bg-20 backdrop-blur-sm">
       <div className="text-muted-foreground">
         <Spinner size="lg" />
       </div>
