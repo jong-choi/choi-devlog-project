@@ -67,7 +67,6 @@ export default function SearchInput({
       )}
     >
       <Search
-        onClick={handleSearch}
         className={cn(
           "h-5 w-5 text-color-base",
           onSidebar && "h-4 w-4 text-color-muted",
@@ -86,8 +85,8 @@ export default function SearchInput({
         }}
       />
       <GlassButton
+        type="submit"
         variant="primary"
-        onClick={handleSearch}
         className={cn("whitespace-nowrap", !withButton && "hidden")}
         disabled={disabled}
       >
