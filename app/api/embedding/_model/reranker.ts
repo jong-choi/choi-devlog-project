@@ -7,7 +7,9 @@ import {
 import "@/lib/hf/env";
 import { Reranked, RerankerInputRow } from "@/types/semantic-search";
 
-const RERANKER_MODEL_ID = "jinaai/jina-reranker-v2-base-multilingual";
+const RERANKER_MODEL_ID =
+  process.env.HF_RERANKER_MODEL_ID ||
+  "jinaai/jina-reranker-v2-base-multilingual";
 
 let cachedTokenizerPromise: Promise<PreTrainedTokenizer> | null = null;
 let cachedModelPromise: Promise<PreTrainedModel> | null = null;
@@ -21,7 +23,7 @@ const loadReranker = async () => {
   }
   if (!cachedModelPromise) {
     cachedModelPromise = XLMRobertaModel.from_pretrained(RERANKER_MODEL_ID, {
-      dtype: "fp32",
+      dtype: "q4",
       local_files_only: true,
     });
   }

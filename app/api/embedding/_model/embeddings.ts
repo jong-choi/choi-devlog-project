@@ -1,7 +1,9 @@
 import { pipeline } from "@huggingface/transformers";
 import "@/lib/hf/env";
 
-const EMBEDDING_MODEL_ID = "onnx-community/embeddinggemma-300m-ONNX";
+const EMBEDDING_MODEL_ID =
+  process.env.HF_EMBEDDING_MODEL_ID ||
+  "onnx-community/embeddinggemma-300m-ONNX";
 
 interface FeatureExtractionOutput {
   data: Float32Array | number[];

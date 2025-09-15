@@ -59,7 +59,7 @@ async function preloadReranker() {
   console.log(`[preload] Reranker model warm-up: ${rerankerModelId}`);
   const tokenizer = await AutoTokenizer.from_pretrained(rerankerModelId);
   const model = await XLMRobertaModel.from_pretrained(rerankerModelId, {
-    dtype: "fp32",
+    dtype: "q4",
   });
   const inputs = tokenizer(["q"], {
     text_pair: ["d"],
