@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
-import { PageContainer } from "@ui/glass-container";
 import { LinkLoader } from "@ui/route-loader";
 import InfiniteScrollPosts from "@/components/posts/infinite-scroll/infinite-scroll-posts";
 import SearchInput from "@/components/posts/infinite-scroll/search-input";
@@ -20,7 +19,7 @@ export default function PostsPageRenderer({
 }: PostsPageRendererProps) {
   const isSearching = !!keyword;
   return (
-    <PageContainer>
+    <main className="flex flex-1 flex-col gap-4 h-full min-w-0 bg-white/10 px-4 py-8">
       <Suspense>
         <SearchInput />
       </Suspense>
@@ -50,6 +49,6 @@ export default function PostsPageRenderer({
       >
         <InfiniteScrollPosts keyword={keyword} />
       </InfinitePostsStoreProvider>
-    </PageContainer>
+    </main>
   );
 }

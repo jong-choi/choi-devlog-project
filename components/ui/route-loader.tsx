@@ -52,7 +52,7 @@ export function RouteLoader() {
   if (state !== "loading") return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-glass-bg-20 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 hidden lg:flex items-center justify-center bg-glass-bg-20 backdrop-blur-sm">
       <div className="text-muted-foreground">
         <Spinner size="lg" />
       </div>
