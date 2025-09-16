@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
-import "@/components/markdown/styles/small-header-markdown.css";
 import ReactMarkdownApp from "@/components/markdown/react-markdown-app";
+import "@/components/markdown/styles/small-header-markdown.css";
+import { cn } from "@/lib/utils";
 
 interface ReactMarkdownWrapperProps {
   className?: string;
@@ -12,7 +12,7 @@ export default function AiMarkdownWrapper({
   className,
 }: ReactMarkdownWrapperProps) {
   return (
-    <div className={cn("p-[12px] new-york-small break-words", className || "")}>
+    <div className={cn("p-[12px] new-york-small break-all", className || "")}>
       <ReactMarkdownApp>{children}</ReactMarkdownApp>
     </div>
   );
