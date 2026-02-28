@@ -1,16 +1,18 @@
-export const revalidate = 31536000;
-
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import "./globals.css";
-import AuthProvider from "@/providers/auth-store-provider";
-import { AuthStoreProvider } from "@/providers/auth-provider";
-import { Toaster } from "@ui/sonner";
-import { RouteLoadingProvider } from "@/providers/route-loading-provider";
 import { RouteLoader } from "@ui/route-loader";
+import { Toaster } from "@ui/sonner";
+import { RootAnalyticsTracker } from "@/components/analytics/root-analytics-tracker";
+import { AuthStoreProvider } from "@/providers/auth-provider";
+import AuthProvider from "@/providers/auth-store-provider";
+import { RouteLoadingProvider } from "@/providers/route-loading-provider";
+import "./globals.css";
+
+export const revalidate = 31536000;
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "https://blog.jongchoi.com"
+    process.env.NEXT_PUBLIC_BASE_URL || "https://blog.jongchoi.com",
   ),
   title: {
     default: "Scribbly",
@@ -80,6 +82,9 @@ export default function RootLayout({
         </div>
         <AuthStoreProvider>
           <RouteLoadingProvider>
+            <Suspense>
+              <RootAnalyticsTracker />
+            </Suspense>
             <AuthProvider />
             <div className="z-10">
               <RouteLoader />

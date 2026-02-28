@@ -117,6 +117,85 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          id: string
+          params: string | null
+          path: string
+          post_id: string | null
+          referer: string | null
+          search: string | null
+          ua: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          params?: string | null
+          path: string
+          post_id?: string | null
+          referer?: string | null
+          search?: string | null
+          ua?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          params?: string | null
+          path?: string
+          post_id?: string | null
+          referer?: string | null
+          search?: string | null
+          ua?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_posts_with_similarity_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "published_posts_with_tags_summaries_tsv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "v_post_with_chunk_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -581,15 +660,15 @@ export type Database = {
       post_tsvectors: {
         Row: {
           post_id: string
-          tsv: unknown | null
+          tsv: unknown
         }
         Insert: {
           post_id: string
-          tsv?: unknown | null
+          tsv?: unknown
         }
         Update: {
           post_id?: string
-          tsv?: unknown | null
+          tsv?: unknown
         }
         Relationships: [
           {
@@ -1030,7 +1109,7 @@ export type Database = {
           tags: Json[] | null
           thumbnail: string | null
           title: string | null
-          tsv: unknown | null
+          tsv: unknown
           url_slug: string | null
         }
         Relationships: [
@@ -1090,17 +1169,10 @@ export type Database = {
         Args: { data: Json }
         Returns: Json
       }
-      batch_update_orders_for_posts: {
-        Args: { data: Json }
-        Returns: Json
-      }
+      batch_update_orders_for_posts: { Args: { data: Json }; Returns: Json }
       batch_update_orders_for_subcategories: {
         Args: { data: Json }
         Returns: Json
-      }
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
       }
       create_cluster_with_vector: {
         Args: {
@@ -1123,58 +1195,6 @@ export type Database = {
           vector: string
         }[]
       }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: unknown
-      }
       search_post_chunks_cosine: {
         Args: {
           p_match_count?: number
@@ -1192,6 +1212,7 @@ export type Database = {
       search_posts_hybrid: {
         Args: {
           p_fts_weight?: number
+          p_min_similarity?: number
           p_oversample_count?: number
           p_query_vector: number[]
           p_rrf_k?: number
@@ -1227,42 +1248,6 @@ export type Database = {
           title: string
           url_slug: string
         }[]
-      }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      vector_avg: {
-        Args: { "": number[] }
-        Returns: string
-      }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
     }
     Enums: {
