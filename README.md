@@ -5,8 +5,7 @@
 WYSIWYG으로 작성하고, 인공지능으로 게시글을 분류하는 프론트엔드 기술블로그입니다.
 
 URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
-[➡ 블로그 개발일지](public/blog-devlog/README.md)\
-[➡ Next JS 보일러 플레이트 프로젝트](https://github.com/jong-Choi/next-supabase-boilerplate)
+[➡ 블로그 개발일지](public/blog-devlog/README.md)
 
 ## 프로젝트 기간
 
