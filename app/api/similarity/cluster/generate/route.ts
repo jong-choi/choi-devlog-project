@@ -1,11 +1,17 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { DBSCAN } from "density-clustering";
+import {
+  DEFAULT_EMBEDDING_GEMMA_PRESET,
+  EMBEDDING_GEMMA_PRESETS,
+  parseEmbeddingGemmaPreset,
+} from "@/lib/ai/embedding-gemma";
+import { serializeVector, parseStoredVector } from "@/lib/supabase/vector";
 import { cosineSimilarity, summaryParser } from "@/utils/api/analysis-utils";
 import { generateClusterTitleAndSummary } from "@/app/api/similarity/cluster/generate/utils";
 import { createClient } from "@/utils/supabase/server";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const cookiesStore = await cookies();
     const supabase = await createClient(cookiesStore);
@@ -15,6 +21,29 @@ export async function POST() {
       return NextResponse.json(
         { error: "사용자 정보 불러오기 실패" },
         { status: 500 }
+      );
+    }
+
+    let requestBody: ClusterGenerateRequest = {};
+    try {
+      const raw = await req.text();
+      requestBody = raw ? (JSON.parse(raw) as ClusterGenerateRequest) : {};
+    } catch (_error) {
+      requestBody = {};
+    }
+
+    const embeddingPreset =
+      requestBody.embeddingPreset === undefined
+        ? DEFAULT_EMBEDDING_GEMMA_PRESET
+        : parseEmbeddingGemmaPreset(requestBody.embeddingPreset);
+
+    if (!embeddingPreset) {
+      return NextResponse.json(
+        {
+          error: "Invalid embeddingPreset",
+          allowedPresets: EMBEDDING_GEMMA_PRESETS,
+        },
+        { status: 400 },
       );
     }
 
@@ -43,20 +72,15 @@ export async function POST() {
     for (const item of data) {
       if (!item.vector || !item.post_id) continue;
 
-      try {
-        const parsed =
-          typeof item.vector === "string"
-            ? JSON.parse(item.vector)
-            : item.vector;
-
-        if (Array.isArray(parsed)) {
-          vectors.push(parsed);
-          postIds.push(item.post_id);
-          summaries.push(summaryParser(item.summary || ""));
-        }
-      } catch (_e) {
+      const parsed = parseStoredVector(item.vector);
+      if (!parsed) {
         console.warn("파싱 실패:", item.vector);
+        continue;
       }
+
+      vectors.push(parsed);
+      postIds.push(item.post_id);
+      summaries.push(summaryParser(item.summary || ""));
     }
 
     if (vectors.length === 0) {
@@ -67,16 +91,9 @@ export async function POST() {
     const dbscan = new DBSCAN();
     const distance = (a: number[], b: number[]) => 1 - cosineSimilarity(a, b);
     const epsilons = [
-      // 고밀도
-      0.33, 0.34, 0.35,
-      // 중간 밀도 (간격 넓힘)
-      0.37, 0.39, 0.41,
-      // 느슨한 군집 (0.04 간격)
-      0.44, 0.48, 0.52, 0.56, 0.6,
-      // 끝물
-      0.65, 0.7, 0.75,
+      0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22,
     ];
-    const MIN_SAMPLES = 4;
+    const MIN_SAMPLES = 7;
 
     // 군집들을 저장할 배혈
     const allClusters: {
@@ -123,7 +140,8 @@ export async function POST() {
 
         // 4. AI 태깅 단계! 군집화가 끝난 후, 군집에 대한 요약, 키워드, 군집의 이름을 CHATGPT로 생성함!
         const result = await generateClusterTitleAndSummary(
-          clusterData.summaries
+          clusterData.summaries,
+          embeddingPreset,
         );
 
         if (!result.vector.length) {
@@ -152,19 +170,20 @@ export async function POST() {
 
     const resultSummary = allClusters.map((c) => c.post_ids.length);
     const totalClustered = resultSummary.reduce((a, b) => a + b, 0);
+    const clusterPayloads = allClusters.map((cluster) => ({
+      title: cluster.result.title,
+      summary: cluster.result.summary,
+      keywords: cluster.result.keywords,
+      vector: serializeVector(cluster.result.vector),
+      quality: cluster.quality,
+      post_ids: cluster.post_ids,
+    }));
 
     // 5. 생성된 군집 배열을 clusters 테이블에 삽입함.
     const { data: groups, error: insertError } = await supabase.rpc(
       "create_clusters_with_vectors",
       {
-        clusters: allClusters.map((cluster) => ({
-          title: cluster.result.title,
-          summary: cluster.result.summary,
-          keywords: cluster.result.keywords,
-          vector: cluster.result.vector,
-          quality: cluster.quality,
-          post_ids: cluster.post_ids,
-        })),
+        clusters: clusterPayloads,
       }
     );
 
@@ -173,14 +192,7 @@ export async function POST() {
       return NextResponse.json(
         {
           error: "군집을 군집 테이블에 삽입 실패",
-          clusters: allClusters.map((cluster) => ({
-            title: cluster.result.title,
-            summary: cluster.result.summary,
-            keywords: cluster.result.keywords,
-            vector: cluster.result.vector,
-            quality: cluster.quality,
-            post_ids: cluster.post_ids,
-          })),
+          clusters: clusterPayloads,
         },
         { status: 500 }
       );
@@ -195,14 +207,8 @@ export async function POST() {
 
     for (let i = 0; i < groups.length; i++) {
       for (let j = i + 1; j < groups.length; j++) {
-        const vectorI =
-          typeof groups[i].vector === "string"
-            ? JSON.parse(groups[i].vector || "")
-            : groups[i].vector;
-        const vectorJ =
-          typeof groups[j].vector === "string"
-            ? JSON.parse(groups[j].vector || "")
-            : groups[j].vector;
+        const vectorI = parseStoredVector(groups[i].vector);
+        const vectorJ = parseStoredVector(groups[j].vector);
 
         if (!vectorI || !vectorJ) continue;
         const sim = cosineSimilarity(vectorI, vectorJ);
@@ -246,6 +252,7 @@ export async function POST() {
     return NextResponse.json({
       count: allClusters.length, // 생성된 군집의 수
       clusteredPostCount: totalClustered, // 군집에 포함된 게시글 수
+      embeddingPreset,
       results: resultSummary, // 군집 결과 배열
     });
   } catch (err) {
@@ -253,3 +260,7 @@ export async function POST() {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }
+
+type ClusterGenerateRequest = {
+  embeddingPreset?: string;
+};

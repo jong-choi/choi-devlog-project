@@ -3,16 +3,16 @@ import {
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { summaryParser } from "@/utils/api/analysis-utils";
 import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
+import {
+  DEFAULT_EMBEDDING_GEMMA_PRESET,
+  embedSummary,
+  EMBEDDING_GEMMA_PRESETS,
+  parseEmbeddingGemmaPreset,
+} from "@/lib/ai/embedding-gemma";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // 클라이언트에서 노출되지 않는 환경 변수 사용
-});
 
 export async function POST(req: Request) {
   const cookiesStore = await cookies();
@@ -27,12 +27,28 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { title, body } = await req.json();
+    const { title, body, embeddingPreset } =
+      (await req.json()) as SummaryRequestBody;
 
     if (!title || !body) {
       return NextResponse.json(
         { error: "title과 body가 필요합니다." },
         { status: 400 }
+      );
+    }
+
+    const resolvedPreset =
+      embeddingPreset === undefined
+        ? DEFAULT_EMBEDDING_GEMMA_PRESET
+        : parseEmbeddingGemmaPreset(embeddingPreset);
+
+    if (!resolvedPreset) {
+      return NextResponse.json(
+        {
+          error: "Invalid embeddingPreset",
+          allowedPresets: EMBEDDING_GEMMA_PRESETS,
+        },
+        { status: 400 },
       );
     }
 
@@ -52,18 +68,11 @@ export async function POST(req: Request) {
     ]);
 
     const summary = summaryResponse.text.trim() || "요약을 생성하지 못했습니다.";
+    const vector = await embedSummary(summary, resolvedPreset);
 
-    // 📌 2️⃣ 벡터 생성 (text-embedding-ada-002)
-    const embeddingResponse = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: summaryParser(summary), // 서머리를 벡터화
-    });
-
-    const vector = embeddingResponse.data[0]?.embedding || [];
-
-    return NextResponse.json({ summary, vector });
+    return NextResponse.json({ summary, vector, preset: resolvedPreset });
   } catch (error) {
-    console.error("OpenAI API 오류:", error);
+    console.error("요약 생성 오류:", error);
     return NextResponse.json(
       { error: "요약 생성 중 오류 발생" },
       { status: 500 }
@@ -72,6 +81,12 @@ export async function POST(req: Request) {
 }
 
 const MAX_TOKENS = 600;
+
+type SummaryRequestBody = {
+  body: string;
+  embeddingPreset?: string;
+  title: string;
+};
 
 const MARKDOWN_SUMMARY = `
 ## ✨ 한눈에 보는 요약

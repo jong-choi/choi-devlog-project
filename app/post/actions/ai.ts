@@ -6,6 +6,7 @@ import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
 import { CACHE_TAGS, createWithInvalidation } from "@/utils/nextCache";
 import { createClient } from "@/utils/supabase/server";
+import { serializeVector } from "@/lib/supabase/vector";
 
 const _createAISummary = async (
   payload: Omit<
@@ -30,11 +31,10 @@ const _createAISummary = async (
   if (result.data?.id) {
     vecResult = await supabase
       .from("ai_summary_vectors")
-      //@ts-expect-error : vector값이 불일치
       .upsert(
         {
           summary_id: result.data.id,
-          vector,
+          vector: vector ? serializeVector(vector) : null,
         },
         { onConflict: "summary_id" },
       )

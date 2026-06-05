@@ -22,7 +22,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.15 - TFS에서 Semantic Search로 게시글 검색 방식 변경, RAG 구현(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
 
-> 2026.06.05 - Supabase Cloud에서 self-hosted Supabase로 데이터베이스 및 Storage를 이전하고, 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경
+> 2026.06.05 - Supabase Cloud에서 self-hosted Supabase로 데이터베이스 및 Storage를 이전하고, 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경, openai text-embedding 모델을 onnx/embeddinggemma로 통일 및 재군집화
 
 ## 프로젝트 목표
 
@@ -37,7 +37,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 - SSG에 특화된 Next.js 15를 이용하여, 페이지 정적 캐싱 및 즉각적인 페이지 이동
 - 편집 모드로 넘어가기 위한 토글 버튼을 둬, 편집 도구를 동적으로 impot하도록하여 로딩 성능 최적화
 - Supabase로 백엔드를 구축하여 빠르게 기능을 구현하고, Next.js 15 라우트 핸들러로 데이터를 정적 캐싱하여 사용
-- GPT-OSS 언어 모델과 text-embedding 모델을 사용하여 게시글을 요약하고, DBSCAN 방식으로 분류
+- GPT-OSS 언어 모델과 EmbeddingGemma를 사용하여 게시글을 요약하고, DBSCAN 방식으로 분류
 - LangChain.js를 활용한 챗봇을 통해 게시글 요약 및 추천 기능을 통합하고, 게시글 검색 및 웹 검색 기능을 추가하여 학습에 활용
 
 ## 기술 스택
@@ -89,7 +89,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 - 검색어의 의미를 중심으로 게시글을 검색합니다.
   1. PostgreSQL의 FTS를 통해 검색어가 들어간 게시글을 수집합니다.
-  2. GOOGLE EmbeddingGemma를 통해 게시글을 코사인 유사도 기반으로 수집합니다.
+  2. EmbeddingGemma를 통해 게시글을 코사인 유사도 기반으로 수집합니다.
   3. Jina AI Reranker를 통해 수집된 게시글에 순위를 매겨 연관된 게시글만 검색결과에 반영합니다.
 
 ## 챗봇
@@ -113,7 +113,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 | <img src="./public/docs/langgraph-v2/ai-summary.png" alt="AI Summary" height="400" /> | <img src="./public/docs/langgraph-v2/ai-recommend.png" alt="AI Recommend" height="400" /> |
 
 - GPT-OSS 120B를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
-- 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
+- 요약은 EmbeddingGemma를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
 - 코사인 유사도를 통해 검색된 추천 게시글이 서버에 저장되어 있으며, 추천 게시글 버튼을 누르면 서버에 저장된 추천 게시글이 채팅창에 추가됩니다.
 - 챗봇은 응답을 생성하기 전, 게시글의 정보가 필요하다고 판단되면 서버에 저장된 요약 게시글을 조회하고 응답을 생성합니다.
 
