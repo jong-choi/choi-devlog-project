@@ -22,6 +22,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.15 - TFS에서 Semantic Search로 게시글 검색 방식 변경, RAG 구현(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
 
+> 2026.06.05 - 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경
+
 ## 프로젝트 목표
 
 #### Problem
@@ -35,7 +37,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 - SSG에 특화된 Next.js 15를 이용하여, 페이지 정적 캐싱 및 즉각적인 페이지 이동
 - 편집 모드로 넘어가기 위한 토글 버튼을 둬, 편집 도구를 동적으로 impot하도록하여 로딩 성능 최적화
 - Supabase로 백엔드를 구축하여 빠르게 기능을 구현하고, Next.js 15 라우트 핸들러로 데이터를 정적 캐싱하여 사용
-- Open AI의 GPT, text-embedding 모델을 사용하여 게시글을 요약하고, DBSCAN 방식으로 분류
+- GPT-OSS 언어 모델과 text-embedding 모델을 사용하여 게시글을 요약하고, DBSCAN 방식으로 분류
 - LangChain.js를 활용한 챗봇을 통해 게시글 요약 및 추천 기능을 통합하고, 게시글 검색 및 웹 검색 기능을 추가하여 학습에 활용
 
 ## 기술 스택
@@ -60,7 +62,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 <p align="center"><img src="./public/docs/inline-chat-ai.gif" alt="WYSIWYG Editor Demo" width="800" /></p>
 
-- Gemma3 27b를 이용한 인공지능 인라인 편집을 지원합니다.
+- GPT-OSS 120B를 이용한 인공지능 인라인 편집을 지원합니다.
 - AI 버튼을 누르고 프롬프트를 입력하면, 인공지능이 게시글을 수정해줍니다.
 
 ### 사이드바 DND
@@ -99,9 +101,9 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 도구 호출을 지원하지 않는 Micro-LLM 활용을 고려하여 두 개의 소형 LLM을 활용한 라우팅 노드 방식으로 구성하였습니다.\
 중앙집중화된 구조로 새로운 기능들을 추가하기에 용이하며, 라우팅 노드의 에이전트가 슈퍼바이저 역할을 할 수 있는 이점이 있습니다.
 
-- 소형 모델인 Gemma3 4B가 사용자의 요청을 파악하고 필요한 노드를 선택합니다.
+- 소형 모델인 GPT-OSS 20B가 사용자의 요청을 파악하고 필요한 노드를 선택합니다.
 - 선택된 노드에서 Google 검색, 게시글 조회 등의 기능을 수행하고 결과를 저장합니다.
-- Gemma3 27B가 사용자의 요청과 저장된 상태를 토대로 적절한 응답을 생성하여 응답합니다.
+- GPT-OSS 120B가 사용자의 요청과 저장된 상태를 토대로 적절한 응답을 생성하여 응답합니다.
 - 서버에서는 SSE(Server-Sent-Event)로 진행 상태를 메시지로 전송합니다.
 
 ### AI 요약 및 추천 게시글 분석
@@ -110,7 +112,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | <img src="./public/docs/langgraph-v2/ai-summary.png" alt="AI Summary" height="400" /> | <img src="./public/docs/langgraph-v2/ai-recommend.png" alt="AI Recommend" height="400" /> |
 
-- OpenAI `GPT-4o`를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
+- GPT-OSS 120B를 통해 게시글을 요약하고 추천 학습주제를 추천합니다. 추천 학습 주제를 통해 더 공부하면 좋은 주제나 모르는 개념이 없는지 체크할 수 있습니다.
 - 요약은 OpenAI의 `text-embedding-3-small`를 통해 벡터화되며, 추천 게시글 검색이나 분류 등에 사용됩니다.
 - 코사인 유사도를 통해 검색된 추천 게시글이 서버에 저장되어 있으며, 추천 게시글 버튼을 누르면 서버에 저장된 추천 게시글이 채팅창에 추가됩니다.
 - 챗봇은 응답을 생성하기 전, 게시글의 정보가 필요하다고 판단되면 서버에 저장된 요약 게시글을 조회하고 응답을 생성합니다.

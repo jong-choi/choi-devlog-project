@@ -19,8 +19,13 @@ import { LangNodeName } from "@/types/chat";
 
 // 외부 의존성 Mock 설정
 vi.mock("@/app/api/chat/_controllers/utils/model", () => ({
-  llmModel: {
+  mediumModel: {
     invoke: vi.fn().mockResolvedValue(new AIMessage("Mock AI response")),
+  },
+  smallModel: {
+    invoke: vi.fn().mockResolvedValue(
+      new AIMessage('{"type":"chat","query":"리액트"}'),
+    ),
   },
   MAX_MESSAGES_LEN: 5,
 }));
@@ -35,12 +40,13 @@ vi.mock("@/app/post/fetchers/ai", () => ({
 }));
 
 // Mock environment variables
-vi.stubEnv("GOOGLE_SEARCH_API_KEY", "test-api-key");
-vi.stubEnv("GOOGLE_SEARCH_CX", "test-cx");
-vi.stubEnv("ORACLE_OLLAMA_HOST", "http://localhost:11434");
-vi.stubEnv("LLM_SECRET_KEY", "test-secret");
+vi.stubEnv("METASEARCH_API_KEY", "test-api-key");
+vi.stubEnv("OLLAMA_API_KEY", "test-api-key");
+vi.stubEnv("OLLAMA_BASE_URL", "https://ollama.com");
+vi.stubEnv("OLLAMA_SMALL_MODEL", "gpt-oss:20b");
+vi.stubEnv("OLLAMA_MEDIUM_MODEL", "gpt-oss:120b");
 
-// Mock fetch for Google API
+// Mock fetch for meta search API
 global.fetch = vi.fn();
 
 describe("랭그래프 채팅 API 테스트", () => {
@@ -55,7 +61,7 @@ describe("랭그래프 채팅 API 테스트", () => {
       statusText: "OK",
       json: () =>
         Promise.resolve({
-          items: [{ title: "Test Result", snippet: "Test snippet" }],
+          results: [{ title: "Test Result", content: "Test snippet" }],
         }),
       headers: new Headers(),
       redirected: false,
@@ -133,7 +139,7 @@ describe("랭그래프 채팅 API 테스트", () => {
 
       // AI 응답이 생성되고 플로우가 종료되는지 확인
       expect(result.messages.length).toBeGreaterThan(0);
-      expect(result.routeType).toBe(""); // 빈 문자열이면 종료
+      expect(result.routeType).toBe("end");
     });
 
     it("포스트 요약과 함께 채팅 플로우가 실행되는지 확인", async () => {
@@ -156,11 +162,12 @@ describe("랭그래프 채팅 API 테스트", () => {
       expect(result.postSummary).toBeDefined();
     });
 
-    it("구글 검색 플로우가 실행되는지 확인", async () => {
-      // 사용자 검색 요청시 구글 API를 호출하는지 테스트
+    it("웹 검색 플로우가 실행되는지 확인", async () => {
+      // 사용자 검색 요청시 메타서치 API를 호출하는지 테스트
       const initialState = {
         messages: [new HumanMessage("리액트 훅 튜토리얼을 검색해주세요")],
         routeType: "google" as const,
+        routingQuery: "리액트 훅 튜토리얼",
         postId: undefined,
         postSummary: null,
       };
@@ -168,14 +175,20 @@ describe("랭그래프 채팅 API 테스트", () => {
       const config = { configurable: { thread_id: "google-thread" } };
       const result = await graph.invoke(initialState, config);
 
-      // 구글 검색 API가 호출되고 플로우가 종료되는지 확인
+      // 메타서치 API가 호출되고 플로우가 종료되는지 확인
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("googleapis.com/customsearch"),
+        expect.stringContaining("metasearch.jongchoi.com/search"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Accept: "application/json",
+            "X-API-Key": "test-api-key",
+          }),
+        }),
       );
-      expect(result.routeType).toBe("");
+      expect(result.routeType).toBe("end");
     });
 
-    it("구글 API 오류를 적절히 처리하는지 확인", async () => {
+    it("메타서치 API 오류를 적절히 처리하는지 확인", async () => {
       // API 호출 실패시 에러 메시지를 반환하는지 테스트
       (global.fetch as MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: false,
@@ -198,6 +211,7 @@ describe("랭그래프 채팅 API 테스트", () => {
       const initialState = {
         messages: [new HumanMessage("뭔가를 검색해주세요")],
         routeType: "google" as const,
+        routingQuery: "뭔가",
         postId: undefined,
         postSummary: null,
       };
@@ -213,13 +227,14 @@ describe("랭그래프 채팅 API 테스트", () => {
             msg.content.includes("일시적인 오류"),
         ),
       ).toBe(true);
+      expect(result.routeType).toBe("end");
     });
 
     it("포스트 요약을 올바르게 가져오는지 확인", async () => {
       // 포스트 ID가 주어졌을 때 해당 포스트의 요약을 가져오는지 테스트
       const initialState = {
         messages: [new HumanMessage("요약을 가져와주세요")],
-        routeType: "chat" as const, // chat으로 시작하여 포스트 ID 변경으로 fetchSummary가 트리거되도록
+        routeType: "summary" as const,
         postId: "test-post",
         postSummary: null,
       };
@@ -235,7 +250,7 @@ describe("랭그래프 채팅 API 테스트", () => {
         id: "test-post",
         summary: "Mock post summary",
       });
-      expect(result.routeType).toBe("");
+      expect(result.routeType).toBe("end");
     });
   });
 
@@ -244,7 +259,7 @@ describe("랭그래프 채팅 API 테스트", () => {
       // 현재 포스트 ID와 저장된 요약의 ID가 다르면 새 요약을 가져오는지 테스트
       const initialState = {
         messages: [new HumanMessage("안녕하세요")],
-        routeType: "chat" as const,
+        routeType: "summary" as const,
         postId: "test-post", // mock이 반환하는 ID와 동일하게 설정해 루프 방지
         postSummary: { id: "old-post", summary: "이전 요약" }, // 이전 포스트 요약
       };
@@ -257,13 +272,13 @@ describe("랭그래프 채팅 API 테스트", () => {
 
       // 새 포스트 요약이 가져와지고 플로우가 종료되는지 확인
       expect(result.postSummary?.id).toBe("test-post");
-      expect(result.routeType).toBe("");
+      expect(result.routeType).toBe("end");
     });
 
     it("routeType이 비어있을 때 종료되는지 확인", async () => {
       // routeType이 빈 문자열이면 그래프가 END로 이동하여 종료되는지 테스트
       const initialState = {
-        messages: [new HumanMessage("안녕하세요")],
+        messages: [],
         routeType: "" as const, // 빈 라우트 타입 = 종료 신호
         postId: undefined,
         postSummary: null,
@@ -280,11 +295,11 @@ describe("랭그래프 채팅 API 테스트", () => {
   describe("에러 처리 테스트", () => {
     it("LLM 호출 오류를 처리하는지 확인", async () => {
       // LLM API 호출 실패시 예외가 제대로 발생하는지 테스트
-      const { llmModel } = await import(
+      const { mediumModel } = await import(
         "@/app/api/chat/_controllers/utils/model"
       );
       (
-        llmModel.invoke as MockedFunction<typeof llmModel.invoke>
+        mediumModel.invoke as MockedFunction<typeof mediumModel.invoke>
       ).mockRejectedValueOnce(new Error("LLM Error"));
 
       const initialState = {
@@ -311,7 +326,7 @@ describe("랭그래프 채팅 API 테스트", () => {
 
       const initialState = {
         messages: [new HumanMessage("요약을 가져와주세요")],
-        routeType: "chat" as const, // chat으로 시작하여 자연스럽게 fetchSummary가 호출되도록
+        routeType: "summary" as const,
         postId: "test-post",
         postSummary: null,
       };
@@ -322,21 +337,18 @@ describe("랭그래프 채팅 API 테스트", () => {
       };
       const result = await graph.invoke(initialState, config);
 
-      // 첫 호출 에러 후 재시도 성공으로 postSummary가 설정되고 플로우가 종료되는지 확인
-      expect(result.postSummary).toEqual({
-        id: "test-post",
-        summary: "Mock post summary",
-      });
-      expect(result.routeType).toBe("");
+      // 요약 API 실패시 요약 없이 채팅 플로우로 넘어가는지 확인
+      expect(result.postSummary).toBeNull();
+      expect(result.routeType).toBe("end");
     });
 
-    it("구글 API 비정상 응답 형식을 처리하는지 확인", async () => {
-      // 구글 API가 예상과 다른 형식의 데이터를 반환할 때 에러 처리 테스트
+    it("메타서치 API 비정상 응답 형식을 처리하는지 확인", async () => {
+      // 메타서치 API가 예상과 다른 형식의 데이터를 반환할 때 에러 처리 테스트
       (global.fetch as MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         status: 200,
         statusText: "OK",
-        json: () => Promise.resolve({ items: "invalid" }),
+        json: () => Promise.resolve({ results: "invalid" }),
         headers: new Headers(),
         redirected: false,
         type: "basic" as ResponseType,
@@ -353,6 +365,7 @@ describe("랭그래프 채팅 API 테스트", () => {
       const initialState = {
         messages: [new HumanMessage("비정상 검색")],
         routeType: "google" as const,
+        routingQuery: "비정상 검색",
         postId: undefined,
         postSummary: null,
       };
@@ -360,14 +373,15 @@ describe("랭그래프 채팅 API 테스트", () => {
       const config = { configurable: { thread_id: "invalid-response" } };
       const result = await graph.invoke(initialState, config);
 
-      // 말우된 데이터 형식에서도 빈 배열로 에러를 처리하는지 확인
+      // 잘못된 데이터 형식에서도 에러 메시지를 컨텍스트로 넘기는지 확인
       expect(
         result.messages.some(
           (msg) =>
             typeof msg.content === "string" &&
-            msg.content === JSON.stringify([]),
+            msg.content.includes("일시적인 오류"),
         ),
       ).toBe(true);
+      expect(result.routeType).toBe("end");
     });
   });
 
@@ -382,7 +396,7 @@ describe("랭그래프 채팅 API 테스트", () => {
 
       const chatState = {
         messages: [new HumanMessage("리액트에 대해 알려주세요")],
-        routeType: "chat" as const,
+        routeType: "summary" as const,
         postId: "test-post",
         postSummary: null,
       };
@@ -392,16 +406,17 @@ describe("랭그래프 채팅 API 테스트", () => {
       // 포스트 요약이 가져와지고, AI 응답이 생성되고, 플로우가 종료되는지 확인
       expect(result.postSummary).toBeDefined();
       expect(result.messages.length).toBeGreaterThan(0);
-      expect(result.routeType).toBe("");
+      expect(result.routeType).toBe("end");
     });
 
-    it("구글 검색 후 채팅 워크플로우를 처리하는지 확인", async () => {
-      // 구글 검색만 실행하는 단순 플로우 테스트
+    it("웹 검색 후 채팅 워크플로우를 처리하는지 확인", async () => {
+      // 웹 검색만 실행하는 단순 플로우 테스트
       const config = { configurable: { thread_id: "google-chat-test" } };
 
       const searchState = {
         messages: [new HumanMessage("타입스크립트를 검색해주세요")],
         routeType: "google" as const,
+        routingQuery: "타입스크립트",
         postId: undefined,
         postSummary: null,
       };

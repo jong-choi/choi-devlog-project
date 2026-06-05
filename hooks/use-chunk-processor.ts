@@ -24,9 +24,13 @@ export function useChunkProcessor() {
         return;
       }
 
-      const chunk = chunkQueueRef.current.shift();
-      if (chunk) {
-        updateLastMessage(chunk);
+      // 렌더링 속도 동적 조절
+      const queueLength = chunkQueueRef.current.length;
+      const extractCount = Math.floor(1 + queueLength / 2);
+      const chunks = chunkQueueRef.current.splice(0, extractCount);
+
+      if (chunks.length > 0) {
+        updateLastMessage(chunks.join(""));
       }
 
       processingTimeoutRef.current = setTimeout(

@@ -23,7 +23,7 @@ export default function ChatHeader({
           <span className="text-sm font-semibold tracking-tight">AI 채팅</span>
         </div>
         <span className="text-[8px] font-light tracking-tight text-color-muted">
-          MODEL : gemma-3-27b-it
+          MODEL : gpt-oss:120b
         </span>
       </div>
     </div>

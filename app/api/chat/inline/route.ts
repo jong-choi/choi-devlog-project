@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MessageContent } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { llmModel } from "@/app/api/chat/_controllers/utils/model";
+import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
 
 // 간단한 체인: 사용자 프롬프트와 선택된 마크다운을 받아 개선된 마크다운을 반환
 // - 필요 시 System 프롬프트/가이드라인을 강화 가능
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       ],
     ]);
 
-    const chain = promptTemplate.pipe(llmModel);
+    const chain = promptTemplate.pipe(mediumModel);
     const result = await chain.invoke({ prompt, selectionMarkdown });
     const content = result.content;
 
