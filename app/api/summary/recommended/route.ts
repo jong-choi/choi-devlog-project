@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { parseStoredVector } from "@/lib/supabase/vector";
+import { cosineSimilarity } from "@/utils/api/analysis-utils";
 import { createClient } from "@/utils/supabase/server";
 
 export async function POST(req: Request) {
@@ -46,11 +48,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const sourceData = {
+    const sourceVector = parseStoredVector(
+      sourceNestedData.ai_summary_vectors?.vector ?? null,
+    );
+
+    if (!sourceNestedData.id || !sourceNestedData.post_id || !sourceVector) {
+      console.error("소스 벡터가 없거나 파싱에 실패함");
+      return NextResponse.json(
+        { error: "소스 벡터를 불러오는데 오류가 발생하였습니다." },
+        { status: 500 },
+      );
+    }
+
+    const sourceData: SummaryVector = {
       id: sourceNestedData.id,
       post_id: sourceNestedData.post_id,
-      vector: sourceNestedData.ai_summary_vectors?.vector ?? null,
-      posts: sourceNestedData.posts,
+      vector: sourceVector,
     };
 
     const { data: targetNestedata } = await supabase
@@ -83,16 +96,21 @@ export async function POST(req: Request) {
       targetNestedata?.map((item) => ({
         id: item.id,
         post_id: item.post_id,
-        vector: item.ai_summary_vectors?.vector ?? null,
-        posts: item.posts ?? null,
+        vector: parseStoredVector(item.ai_summary_vectors?.vector ?? null),
       })) ?? [];
 
     // 데이터 중복 방지 (map을 이용해서 중복된 key 제거)
     const targetData = Array.from(
-      new Map(targetDataRaw.map((item) => [item.post_id, item])).values(),
+      new Map(
+        targetDataRaw
+          .filter(
+            (item): item is SummaryVector =>
+              Boolean(item.id && item.post_id && item.vector),
+          )
+          .map((item) => [item.post_id, item]),
+      ).values(),
     );
 
-    // @ts-expect-error: Supabase가 posts 데이터를 배열로 반환하는 경우가 있어서 첫 번째 요소를 사용
     const sims = findTopSimilarPosts(sourceData, targetData);
 
     if (!sims || sims.length === 0) {
@@ -131,42 +149,16 @@ export async function POST(req: Request) {
   }
 }
 
-interface VectorJsonData {
-  sourceData: {
-    id: string;
-    vector: number[];
-    post_id: string;
-    posts: {
-      title: string;
-      url_slug: string;
-    };
-  };
-  targetData: VectorJsonData["sourceData"][];
-}
-
-function cosineSimilarity(
-  vec1raw: number[] | string,
-  vec2raw: number[] | string,
-) {
-  const vec1 = typeof vec1raw === "string" ? JSON.parse(vec1raw) : vec1raw;
-  const vec2 = typeof vec2raw === "string" ? JSON.parse(vec2raw) : vec2raw;
-  const dotProduct = vec1.reduce(
-    (sum: number, v: number, i: string | number) => sum + v * vec2[i],
-    0,
-  );
-  const magnitudeA = Math.sqrt(
-    vec1.reduce((sum: number, v: number) => sum + v ** 2, 0),
-  );
-  const magnitudeB = Math.sqrt(
-    vec2.reduce((sum: number, v: number) => sum + v ** 2, 0),
-  );
-  return dotProduct / (magnitudeA * magnitudeB);
-}
+type SummaryVector = {
+  id: string;
+  post_id: string;
+  vector: number[];
+};
 
 // 유사도 기반 정렬 후 상위 10개 필터링
 function findTopSimilarPosts(
-  sourceData: VectorJsonData["sourceData"],
-  targetData: VectorJsonData["targetData"],
+  sourceData: SummaryVector,
+  targetData: SummaryVector[],
 ) {
   // id가 다른 게시글만 필터링
 

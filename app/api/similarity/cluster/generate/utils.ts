@@ -2,12 +2,8 @@ import {
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import OpenAI from "openai";
+import { embedClusterText } from "@/lib/ai/embedding-gemma";
 import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // 환경 변수에서 API 키를 불러옴
-});
 
 export async function generateClusterTitleAndSummary(summaries: string[]) {
   const prompt = `
@@ -99,12 +95,10 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
   };
 
   if (parsedGptRes.summary) {
-    const response = await openai.embeddings.create({
-      input: parsedGptRes.summary + " " + parsedGptRes.keywords.join(" "),
-      model: "text-embedding-3-small",
+    result.vector = await embedClusterText({
+      summary: parsedGptRes.summary,
+      keywords: parsedGptRes.keywords,
     });
-    const [embedding] = response.data;
-    result.vector = embedding.embedding || [];
     if (!result.vector || !result.vector.length) {
       console.error(`벡터 생성 실패`, result);
     }

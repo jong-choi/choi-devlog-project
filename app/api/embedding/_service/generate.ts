@@ -1,6 +1,7 @@
 import { TokenTextSplitter } from "@langchain/textsplitters";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { embeddings } from "@/app/api/embedding/_model/embeddings";
+import { serializeVector } from "@/lib/supabase/vector";
 import { Database } from "@/types/supabase";
 
 export type GenerateDocumentEmbeddingResult = {
@@ -69,8 +70,7 @@ export async function generateDocumentEmbeddingsForPost(
       post_id: postId,
       chunk_index: i,
       content,
-      // string으로 임의 캐스팅 (DB 스키마 상 text/array 저장 방식에 따라 조정)
-      embedding: vectors[i] as unknown as string,
+      embedding: serializeVector(vectors[i]),
     }));
 
     // 기존 임베딩이 있으면 deleted_at을 현재 시각으로 업데이트

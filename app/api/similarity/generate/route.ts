@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { parseStoredVector } from "@/lib/supabase/vector";
 import { Database } from "@/types/supabase";
 import { cosineSimilarity } from "@/utils/api/analysis-utils";
 import { createClient } from "@/utils/supabase/server";
@@ -33,19 +34,28 @@ export async function POST() {
     // 3. 유사도 계산 및 쌍 정리
     const pairs: Database["public"]["Tables"]["post_similarities"]["Insert"][] =
       [];
+    const parsedSummaries = summaries
+      .map((summary) => ({
+        post_id: summary.post_id,
+        vector: parseStoredVector(summary.vector),
+      }))
+      .filter(
+        (
+          summary,
+        ): summary is {
+          post_id: string;
+          vector: number[];
+        } => Boolean(summary.post_id && summary.vector),
+      );
 
-    for (let i = 0; i < summaries.length; i++) {
-      for (let j = i + 1; j < summaries.length; j++) {
-        const a = summaries[i];
-        const b = summaries[j];
+    for (let i = 0; i < parsedSummaries.length; i++) {
+      for (let j = i + 1; j < parsedSummaries.length; j++) {
+        const a = parsedSummaries[i];
+        const b = parsedSummaries[j];
 
-        if (!a.post_id || !b.post_id) continue;
         if (a.post_id === b.post_id) continue;
 
-        const sim = cosineSimilarity(
-          JSON.parse(a.vector!),
-          JSON.parse(b.vector!),
-        );
+        const sim = cosineSimilarity(a.vector, b.vector);
 
         const [source_post_id, target_post_id] = [a.post_id, b.post_id].sort();
 

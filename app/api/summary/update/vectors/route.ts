@@ -1,13 +1,8 @@
-import { summaryParser } from "@/utils/api/analysis-utils";
-// app/api/ai-summaries/embed/route.ts
+import { embedSummary } from "@/lib/ai/embedding-gemma";
+import { serializeVector } from "@/lib/supabase/vector";
 import { NextResponse } from "next/server";
-import { OpenAI } from "openai";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST() {
   const cookiesStore = await cookies();
@@ -35,22 +30,22 @@ export async function POST() {
 
     // 2. 각 summary를 embedding 처리 - promise.all을 쓰면 더 빠르긴 한데 일단 이렇게 유지.
     for (const summary of summaries) {
-      if (!summary.summary || !summary.id) break;
-      summary.summary = summaryParser(summary.summary);
-      const response = await openai.embeddings.create({
-        input: summaryParser(summary.summary),
-        model: "text-embedding-3-small",
-      });
-
-      const [embedding] = response.data;
-      if (!embedding || !embedding.embedding) continue;
+      if (!summary.summary || !summary.id) continue;
+      const vector = await embedSummary(summary.summary);
+      if (vector.length === 0) continue;
 
       // 3. Supabase에 vector 업데이트
-      await supabase
+      const { error: upsertError } = await supabase
         .from("ai_summary_vectors")
-        // @ts-expect-error : vector 타입 불일치
-        .update({ vector: embedding.embedding })
-        .eq("summary_id", summary.id);
+        .upsert(
+          {
+            summary_id: summary.id,
+            vector: serializeVector(vector),
+          },
+          { onConflict: "summary_id" },
+        );
+
+      if (upsertError) throw upsertError;
     }
 
     return NextResponse.json({

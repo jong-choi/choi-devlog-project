@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { DBSCAN } from "density-clustering";
+import { serializeVector, parseStoredVector } from "@/lib/supabase/vector";
 import { cosineSimilarity, summaryParser } from "@/utils/api/analysis-utils";
 import { generateClusterTitleAndSummary } from "@/app/api/similarity/cluster/generate/utils";
 import { createClient } from "@/utils/supabase/server";
@@ -43,20 +44,15 @@ export async function POST() {
     for (const item of data) {
       if (!item.vector || !item.post_id) continue;
 
-      try {
-        const parsed =
-          typeof item.vector === "string"
-            ? JSON.parse(item.vector)
-            : item.vector;
-
-        if (Array.isArray(parsed)) {
-          vectors.push(parsed);
-          postIds.push(item.post_id);
-          summaries.push(summaryParser(item.summary || ""));
-        }
-      } catch (_e) {
+      const parsed = parseStoredVector(item.vector);
+      if (!parsed) {
         console.warn("파싱 실패:", item.vector);
+        continue;
       }
+
+      vectors.push(parsed);
+      postIds.push(item.post_id);
+      summaries.push(summaryParser(item.summary || ""));
     }
 
     if (vectors.length === 0) {
@@ -152,19 +148,20 @@ export async function POST() {
 
     const resultSummary = allClusters.map((c) => c.post_ids.length);
     const totalClustered = resultSummary.reduce((a, b) => a + b, 0);
+    const clusterPayloads = allClusters.map((cluster) => ({
+      title: cluster.result.title,
+      summary: cluster.result.summary,
+      keywords: cluster.result.keywords,
+      vector: serializeVector(cluster.result.vector),
+      quality: cluster.quality,
+      post_ids: cluster.post_ids,
+    }));
 
     // 5. 생성된 군집 배열을 clusters 테이블에 삽입함.
     const { data: groups, error: insertError } = await supabase.rpc(
       "create_clusters_with_vectors",
       {
-        clusters: allClusters.map((cluster) => ({
-          title: cluster.result.title,
-          summary: cluster.result.summary,
-          keywords: cluster.result.keywords,
-          vector: cluster.result.vector,
-          quality: cluster.quality,
-          post_ids: cluster.post_ids,
-        })),
+        clusters: clusterPayloads,
       }
     );
 
@@ -173,14 +170,7 @@ export async function POST() {
       return NextResponse.json(
         {
           error: "군집을 군집 테이블에 삽입 실패",
-          clusters: allClusters.map((cluster) => ({
-            title: cluster.result.title,
-            summary: cluster.result.summary,
-            keywords: cluster.result.keywords,
-            vector: cluster.result.vector,
-            quality: cluster.quality,
-            post_ids: cluster.post_ids,
-          })),
+          clusters: clusterPayloads,
         },
         { status: 500 }
       );
@@ -195,14 +185,8 @@ export async function POST() {
 
     for (let i = 0; i < groups.length; i++) {
       for (let j = i + 1; j < groups.length; j++) {
-        const vectorI =
-          typeof groups[i].vector === "string"
-            ? JSON.parse(groups[i].vector || "")
-            : groups[i].vector;
-        const vectorJ =
-          typeof groups[j].vector === "string"
-            ? JSON.parse(groups[j].vector || "")
-            : groups[j].vector;
+        const vectorI = parseStoredVector(groups[i].vector);
+        const vectorJ = parseStoredVector(groups[j].vector);
 
         if (!vectorI || !vectorJ) continue;
         const sim = cosineSimilarity(vectorI, vectorJ);
