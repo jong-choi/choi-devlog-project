@@ -4,19 +4,26 @@ import { Command } from "@langchain/langgraph";
 import { LangNodeName } from "@/types/chat";
 import { SessionMessagesAnnotation } from "./graph";
 
-const GOOGLE_API_KEY = process.env.GOOGLE_SEARCH_API_KEY!;
-const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX!;
-const MEX_RESULTS_LEN = 10;
-const ItemSchema = z.object({
+const METASEARCH_URL = "https://metasearch.jongchoi.com/search";
+const MAX_RESULTS_LEN = 10;
+const MetaSearchResultSchema = z.object({
   title: z.string(),
-  snippet: z.string().optional(),
+  content: z.string().optional().nullable(),
 });
 
-const ItemArraySchema = z.array(ItemSchema);
+const MetaSearchResponseSchema = z.object({
+  results: z.array(MetaSearchResultSchema),
+});
 
-type Item = z.infer<typeof ItemSchema>;
+type MetaSearchResult = z.infer<typeof MetaSearchResultSchema>;
+type Item = {
+  title: string;
+  snippet?: string;
+};
 type State = typeof SessionMessagesAnnotation.State;
 type NextState = Partial<State>;
+
+const getMetaSearchApiKey = () => process.env.METASEARCH_API_KEY;
 
 export async function googleNode(state: State) {
   if (state.routingQuery === null) {
@@ -24,6 +31,7 @@ export async function googleNode(state: State) {
       routeType: "chat" as const,
     };
   }
+  const apiKey = getMetaSearchApiKey();
 
   let nextState: NextState = {
     routingQuery: null,
@@ -35,44 +43,51 @@ export async function googleNode(state: State) {
     ? state.routingQuery
     : [state.routingQuery];
 
-  const limitPerQuery = Math.ceil(MEX_RESULTS_LEN / queries.length);
-
   // 각 검색어로 검색 수행
   for (const query of queries) {
     const params = new URLSearchParams({
-      key: GOOGLE_API_KEY,
-      cx: GOOGLE_CX,
       q: query,
-      num: String(limitPerQuery),
-      fields: "items(title,snippet),searchInformation(totalResults)",
+      format: "json",
+      categories: "general",
+      language: "ko-KR",
+      pageno: "1",
     });
-    const url = `https://www.googleapis.com/customsearch/v1?${params}`;
+    const url = `${METASEARCH_URL}?${params}`;
 
     try {
-      const res: Response = await fetch(url);
+      const res: Response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "X-API-Key": apiKey ?? "",
+        },
+      });
 
       if (!res.ok) {
         console.error(
-          "Google API response not ok:",
+          "Meta search response not ok:",
           res.status,
           res.statusText,
         );
-        console.log(res);
         continue;
       }
 
       const data = await res.json();
 
-      let items: Array<Item>;
       try {
-        items = ItemArraySchema.parse(data.items);
+        const parsed = MetaSearchResponseSchema.parse(data);
+        const items: Array<Item> = parsed.results.map(
+          (result: MetaSearchResult) => ({
+            title: result.title,
+            snippet: result.content ?? undefined,
+          }),
+        );
         allItems.push(...items);
       } catch (error) {
-        console.error("Failed to parse Google search results:", error);
+        console.error("Failed to parse meta search results:", error);
         continue;
       }
     } catch (error) {
-      console.error("Google search error for query:", query, error);
+      console.error("Meta search error for query:", query, error);
       continue;
     }
   }
@@ -91,7 +106,7 @@ export async function googleNode(state: State) {
 
   nextState = {
     ...nextState,
-    messages: [new SystemMessage(JSON.stringify(allItems))],
+    messages: [new SystemMessage(JSON.stringify(allItems.slice(0, MAX_RESULTS_LEN)))],
     routeType: "chat",
   };
 
