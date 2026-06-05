@@ -20,15 +20,15 @@ export const mediumModel = new ChatOllama({
   model: OLLAMA_MEDIUM_MODEL,
   baseUrl: OLLAMA_BASE_URL,
   headers,
-  think: "high" as never,
-  numPredict: 4096,
+  think: "low" as unknown as boolean, // gpt-oss는 예외적으로 string 허용
+  numPredict: 32768,
 });
 
 export const smallModel = new ChatOllama({
   model: OLLAMA_SMALL_MODEL,
   baseUrl: OLLAMA_BASE_URL,
   headers,
-  think: "high" as never,
-  numPredict: 512,
+  think: "low" as unknown as boolean, // gpt-oss는 예외적으로 string 허용
+  numPredict: 8192,
   streaming: false,
 });
