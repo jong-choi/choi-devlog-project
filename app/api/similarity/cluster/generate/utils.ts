@@ -1,4 +1,9 @@
+import {
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import OpenAI from "openai";
+import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // 환경 변수에서 API 키를 불러옴
@@ -31,7 +36,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     title: "PWA 개발",
     summary:
       "이 군집은 Next.js와 Firebase를 활용한 PWA 웹앱 개발 과정을 다룹니다.",
-    keywords: "[pwa, next js, firebase, quiz]",
+    keywords: ["pwa", "next js", "firebase", "quiz"],
   };
 
   let parsedGptRes = {
@@ -54,29 +59,18 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
       };
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-2024-11-20",
-      messages: [
-        {
-          role: "system",
-          content:
-            "당신은 글들을 주제로 군집화하고, 군집의 대표 제목과 요약문을 만드는 요약가입니다. 응답은 json으로 반환합니다. ❗형식은 반드시 JSON 객체로 : " +
-            JSON.stringify(obj),
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.3,
-    });
+    const completion = await mediumModel.invoke([
+      new SystemMessage(
+        "당신은 글들을 주제로 군집화하고, 군집의 대표 제목과 요약문을 만드는 요약가입니다. 최종 응답은 JSON 객체 raw text만 반환하세요. 코드펜스, 설명, 서두, 마크다운을 포함하지 마세요. 형식 예시는 다음과 같습니다: " +
+          JSON.stringify(obj),
+      ),
+      new HumanMessage(prompt),
+    ]);
 
-    const gptRes = completion.choices[0].message.content;
+    const gptRes = completion.text.trim();
 
     try {
-      parsedGptRes = JSON.parse(
-        gptRes!.replaceAll("```json", "").replaceAll("```", "")
-      ) as {
+      parsedGptRes = JSON.parse(gptRes) as {
         title: string;
         summary: string;
         keywords: string[];

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { OpenAI } from "openai";
+import {
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import { summaryParser } from "@/utils/api/analysis-utils";
+import { smallModel } from "@/app/api/chat/_controllers/utils/model";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
 export async function POST(req: Request) {
   const cookiesStore = await cookies();
@@ -60,7 +60,6 @@ export async function POST(req: Request) {
       let tags: string[] = [];
 
       try {
-        // 2. GPT 호출
         const prompt = `
         다음 글의 요약을 기반으로 핵심 기술 스택 또는 주제를 
         2개에서 5개 정도의 **짧은 키워드(tag)** 로 뽑아줘.
@@ -79,14 +78,15 @@ export async function POST(req: Request) {
         요약:
         ${summaryParser(s.summary)}
         `;
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4.1-nano-2025-04-14",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.4,
-        });
+        const completion = await smallModel.invoke([
+          new SystemMessage(
+            "최종 응답은 JSON 배열 raw text만 반환하세요. 코드펜스, 설명, 서두, 마크다운을 포함하지 마세요.",
+          ),
+          new HumanMessage(prompt),
+        ]);
 
-        const rawText = completion.choices[0].message.content ?? "[]";
-        console.log("GPT 응답:", rawText);
+        const rawText = completion.text.trim();
+        console.log("LLM 응답:", rawText);
 
         try {
           tags = JSON.parse(rawText);

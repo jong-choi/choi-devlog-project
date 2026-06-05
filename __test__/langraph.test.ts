@@ -19,10 +19,10 @@ import { LangNodeName } from "@/types/chat";
 
 // 외부 의존성 Mock 설정
 vi.mock("@/app/api/chat/_controllers/utils/model", () => ({
-  llmModel: {
+  mediumModel: {
     invoke: vi.fn().mockResolvedValue(new AIMessage("Mock AI response")),
   },
-  routingModel: {
+  smallModel: {
     invoke: vi.fn().mockResolvedValue(
       new AIMessage('{"type":"chat","query":"리액트"}'),
     ),
@@ -41,8 +41,10 @@ vi.mock("@/app/post/fetchers/ai", () => ({
 
 // Mock environment variables
 vi.stubEnv("METASEARCH_API_KEY", "test-api-key");
-vi.stubEnv("ORACLE_OLLAMA_HOST", "http://localhost:11434");
-vi.stubEnv("LLM_SECRET_KEY", "test-secret");
+vi.stubEnv("OLLAMA_API_KEY", "test-api-key");
+vi.stubEnv("OLLAMA_BASE_URL", "https://ollama.com");
+vi.stubEnv("OLLAMA_SMALL_MODEL", "gpt-oss:20b");
+vi.stubEnv("OLLAMA_MEDIUM_MODEL", "gpt-oss:120b");
 
 // Mock fetch for meta search API
 global.fetch = vi.fn();
@@ -293,11 +295,11 @@ describe("랭그래프 채팅 API 테스트", () => {
   describe("에러 처리 테스트", () => {
     it("LLM 호출 오류를 처리하는지 확인", async () => {
       // LLM API 호출 실패시 예외가 제대로 발생하는지 테스트
-      const { llmModel } = await import(
+      const { mediumModel } = await import(
         "@/app/api/chat/_controllers/utils/model"
       );
       (
-        llmModel.invoke as MockedFunction<typeof llmModel.invoke>
+        mediumModel.invoke as MockedFunction<typeof mediumModel.invoke>
       ).mockRejectedValueOnce(new Error("LLM Error"));
 
       const initialState = {

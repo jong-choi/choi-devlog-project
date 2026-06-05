@@ -2,7 +2,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
 import {
   MAX_MESSAGES_LEN,
-  llmModel,
+  mediumModel,
 } from "@/app/api/chat/_controllers/utils/model";
 import { LangNodeName } from "@/types/chat";
 import { SessionMessagesAnnotation } from "./graph";
@@ -18,7 +18,7 @@ export async function chatNode(state: typeof SessionMessagesAnnotation.State) {
 
   // 최신 대화 n개 + 시스템 프롬프트
   try {
-    const aiMessage = await llmModel.invoke([
+    const aiMessage = await mediumModel.invoke([
       ...systemPrompt,
       ...contextMessages,
     ]);

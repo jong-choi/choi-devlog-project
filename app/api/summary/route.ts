@@ -1,5 +1,10 @@
 // app/api/summary/route.ts (서버 전용 API Route)
+import {
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import { summaryParser } from "@/utils/api/analysis-utils";
+import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -33,28 +38,20 @@ export async function POST(req: Request) {
 
     const prompt = `제목: ${title}\n\n본문: ${body}`;
 
-    const summaryResponse = await openai.chat.completions.create({
-      model: "gpt-4o-2024-11-20",
-      messages: [
-        {
-          role: "system",
-          content: `The response must be **strictly** limited to ${
-            ~~((MAX_TOKENS * 0.9) / 100) * 100
-          } tokens or fewer. Keep the answer concise and within the specified token limit.`,
-        },
-        {
-          role: "system",
-          content: `당신은 개발자를 위한 AI 멘토입니다. 유저로부터 기술블로그의 게시글을 전달받으면, 내용을 요약하고 공부할 거리를 추천해줍니다. 다음의 예시와 같이 작성하여 반환하여주세요.`,
-        },
-        { role: "system", content: MARKDOWN_SUMMARY },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: MAX_TOKENS,
-    });
+    const summaryResponse = await mediumModel.invoke([
+      new SystemMessage(
+        `The response must be strictly limited to ${
+          ~~((MAX_TOKENS * 0.9) / 100) * 100
+        } tokens or fewer. Keep the answer concise and within the specified token limit.`,
+      ),
+      new SystemMessage(
+        "당신은 개발자를 위한 AI 멘토입니다. 유저로부터 기술블로그의 게시글을 전달받으면, 내용을 요약하고 공부할 거리를 추천해줍니다. 다음의 예시와 같이 작성하여 반환하여주세요.",
+      ),
+      new SystemMessage(MARKDOWN_SUMMARY),
+      new HumanMessage(prompt),
+    ]);
 
-    const summary =
-      summaryResponse.choices[0]?.message?.content?.trim() ||
-      "요약을 생성하지 못했습니다.";
+    const summary = summaryResponse.text.trim() || "요약을 생성하지 못했습니다.";
 
     // 📌 2️⃣ 벡터 생성 (text-embedding-ada-002)
     const embeddingResponse = await openai.embeddings.create({

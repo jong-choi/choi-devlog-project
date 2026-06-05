@@ -1,7 +1,7 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { Command, END } from "@langchain/langgraph";
 import { SessionMessagesAnnotation } from "@/app/api/chat/_controllers/graph/graph";
-import { routingModel } from "@/app/api/chat/_controllers/utils/model";
+import { smallModel } from "@/app/api/chat/_controllers/utils/model";
 import { LangNodeName, RouteType, routeKeys } from "@/types/chat";
 
 export async function routingNode(
@@ -22,9 +22,9 @@ export async function routingNode(
       });
     }
 
-    const decisionRes = await routingModel.invoke([
+    const decisionRes = await smallModel.invoke([
       new SystemMessage(
-        `당신은 기술블로그 챗봇의 라우팅을 결정하는 AI입니다. 사용자의 질문을 분석하여 다음 형태로 응답해야 합니다.
+        `당신은 기술블로그 챗봇의 라우팅을 결정하는 AI입니다. 사용자의 질문을 분석하여 아래 JSON 객체 하나만 raw text로 반환해야 합니다. 코드펜스, 설명, 서두, 마크다운을 붙이지 마세요.
 
 응답 형태:
 - 웹 검색이 필요한 경우: {"type": "google", "query": ["검색어1", "검색어2", "검색어 3"]}
@@ -42,9 +42,10 @@ export async function routingNode(
       ),
       new HumanMessage(lastUserMessage.content as string),
     ]);
-    if (typeof decisionRes.content === "string") {
+    const decisionText = decisionRes.text.trim();
+    if (decisionText) {
       try {
-        const decision = JSON.parse(decisionRes.content.trim());
+        const decision = JSON.parse(decisionText);
         if (decision.type && routeKeys.includes(decision.type as RouteType)) {
           next = decision.type as RouteType;
           if (decision.query) {
@@ -58,7 +59,7 @@ export async function routingNode(
         }
       } catch (error) {
         console.error(error);
-        console.log(decisionRes.content);
+        console.log(decisionText);
         next = "chat";
       }
     } else {
