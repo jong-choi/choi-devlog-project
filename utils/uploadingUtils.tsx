@@ -41,8 +41,10 @@ export function slugify(title: string): string {
  * extractFirstImageFromText("텍스트만 있는 게시글"); // ""
  */
 export function extractFirstImageFromText(postText: string): string {
-  const commonImagePath =
-    "https://wknphwqwtywjrfclmhjd.supabase.co/storage/v1/object/public/image";
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    "https://wknphwqwtywjrfclmhjd.supabase.co";
+  const commonImagePath = `${supabaseUrl}/storage/v1/object/public/image`;
   const regex = new RegExp(
     `!\\[.*?\\]\\(((${commonImagePath}[^\\s)]+))\\)`,
     "i"

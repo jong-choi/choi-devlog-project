@@ -32,6 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!infra/supabase/.env.example
+
+# supabase self-host runtime data and local migration artifacts
+infra/supabase/.env
+infra/supabase/dumps/
+infra/supabase/rclone.conf
+infra/supabase/volumes/db/data/
+infra/supabase/volumes/storage/
+infra/supabase/volumes/snippets/
 
 # vercel
 .vercel

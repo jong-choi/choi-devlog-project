@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "blog-supabase.jongchoi.com",
+      },
+      {
+        protocol: "https",
         hostname: "loremflickr.com",
       },
     ],
