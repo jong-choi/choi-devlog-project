@@ -2,10 +2,16 @@ import {
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { embedClusterText } from "@/lib/ai/embedding-gemma";
+import {
+  embedClusterText,
+  type EmbeddingGemmaPreset,
+} from "@/lib/ai/embedding-gemma";
 import { mediumModel } from "@/app/api/chat/_controllers/utils/model";
 
-export async function generateClusterTitleAndSummary(summaries: string[]) {
+export async function generateClusterTitleAndSummary(
+  summaries: string[],
+  preset: EmbeddingGemmaPreset = "search_document",
+) {
   const prompt = `
 당신은 요약가입니다.
 다음은 같은 주제를 다루는 여러 블로그 글들의 요약입니다.  
@@ -98,7 +104,7 @@ ${summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     result.vector = await embedClusterText({
       summary: parsedGptRes.summary,
       keywords: parsedGptRes.keywords,
-    });
+    }, preset);
     if (!result.vector || !result.vector.length) {
       console.error(`벡터 생성 실패`, result);
     }

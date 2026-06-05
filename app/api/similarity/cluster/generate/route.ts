@@ -1,12 +1,17 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { DBSCAN } from "density-clustering";
+import {
+  DEFAULT_EMBEDDING_GEMMA_PRESET,
+  EMBEDDING_GEMMA_PRESETS,
+  parseEmbeddingGemmaPreset,
+} from "@/lib/ai/embedding-gemma";
 import { serializeVector, parseStoredVector } from "@/lib/supabase/vector";
 import { cosineSimilarity, summaryParser } from "@/utils/api/analysis-utils";
 import { generateClusterTitleAndSummary } from "@/app/api/similarity/cluster/generate/utils";
 import { createClient } from "@/utils/supabase/server";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const cookiesStore = await cookies();
     const supabase = await createClient(cookiesStore);
@@ -16,6 +21,29 @@ export async function POST() {
       return NextResponse.json(
         { error: "사용자 정보 불러오기 실패" },
         { status: 500 }
+      );
+    }
+
+    let requestBody: ClusterGenerateRequest = {};
+    try {
+      const raw = await req.text();
+      requestBody = raw ? (JSON.parse(raw) as ClusterGenerateRequest) : {};
+    } catch (_error) {
+      requestBody = {};
+    }
+
+    const embeddingPreset =
+      requestBody.embeddingPreset === undefined
+        ? DEFAULT_EMBEDDING_GEMMA_PRESET
+        : parseEmbeddingGemmaPreset(requestBody.embeddingPreset);
+
+    if (!embeddingPreset) {
+      return NextResponse.json(
+        {
+          error: "Invalid embeddingPreset",
+          allowedPresets: EMBEDDING_GEMMA_PRESETS,
+        },
+        { status: 400 },
       );
     }
 
@@ -63,16 +91,9 @@ export async function POST() {
     const dbscan = new DBSCAN();
     const distance = (a: number[], b: number[]) => 1 - cosineSimilarity(a, b);
     const epsilons = [
-      // 고밀도
-      0.33, 0.34, 0.35,
-      // 중간 밀도 (간격 넓힘)
-      0.37, 0.39, 0.41,
-      // 느슨한 군집 (0.04 간격)
-      0.44, 0.48, 0.52, 0.56, 0.6,
-      // 끝물
-      0.65, 0.7, 0.75,
+      0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22,
     ];
-    const MIN_SAMPLES = 4;
+    const MIN_SAMPLES = 7;
 
     // 군집들을 저장할 배혈
     const allClusters: {
@@ -119,7 +140,8 @@ export async function POST() {
 
         // 4. AI 태깅 단계! 군집화가 끝난 후, 군집에 대한 요약, 키워드, 군집의 이름을 CHATGPT로 생성함!
         const result = await generateClusterTitleAndSummary(
-          clusterData.summaries
+          clusterData.summaries,
+          embeddingPreset,
         );
 
         if (!result.vector.length) {
@@ -230,6 +252,7 @@ export async function POST() {
     return NextResponse.json({
       count: allClusters.length, // 생성된 군집의 수
       clusteredPostCount: totalClustered, // 군집에 포함된 게시글 수
+      embeddingPreset,
       results: resultSummary, // 군집 결과 배열
     });
   } catch (err) {
@@ -237,3 +260,7 @@ export async function POST() {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }
+
+type ClusterGenerateRequest = {
+  embeddingPreset?: string;
+};
