@@ -21,13 +21,14 @@ fi
 if [[ -z "${SELF_HOSTED_DB_URL:-}" ]]; then
   SELF_HOSTED_DB_HOST="${SELF_HOSTED_DB_HOST:-blog-supabase.jongchoi.com}"
   POSTGRES_DB="${POSTGRES_DB:-postgres}"
+  POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 
   if [[ -z "${POSTGRES_PASSWORD:-}" || -z "${POOLER_TENANT_ID:-}" ]]; then
     echo "SELF_HOSTED_DB_URL is required unless POSTGRES_PASSWORD and POOLER_TENANT_ID are set." >&2
     exit 1
   fi
 
-  SELF_HOSTED_DB_URL="postgres://postgres.${POOLER_TENANT_ID}:${POSTGRES_PASSWORD}@${SELF_HOSTED_DB_HOST}:5432/${POSTGRES_DB}"
+  SELF_HOSTED_DB_URL="postgres://postgres.${POOLER_TENANT_ID}:${POSTGRES_PASSWORD}@${SELF_HOSTED_DB_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 fi
 
 REPORT_FILE="${REPORT_FILE:-${DUMP_DIR}/self-hosted-inventory.txt}"

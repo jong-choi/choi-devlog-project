@@ -22,7 +22,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.15 - TFS에서 Semantic Search로 게시글 검색 방식 변경, RAG 구현(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
 
-> 2026.06.05 - 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경
+> 2026.06.05 - Supabase Cloud에서 self-hosted Supabase로 데이터베이스 및 Storage를 이전하고, 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경
 
 ## 프로젝트 목표
 
@@ -206,3 +206,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
   1. Webhook이나 Jenkins를 사용하는 방식과 달리 별도의 서버가 필요하지 않습니다.
   2. GitHub 레포지토리 내에서 환경변수를 안전하게 관리할 수 있고, 나머지 작업은 VPS에서 집중 관리하여 유지보수 및 확장면에서 용이합니다.
   3. VPS의 성능에 따라 GitHub Actions의 Hosted-Runner보다 빠른 속도로 빌드를 진행할 수 있게 됩니다. (OCI의 A1 인스턴스 사용)
+
+### Supabase 셀프 호스팅
+
+- 기존 Supabase Cloud에서 사용하던 Postgres, RLS, DB 함수, Storage 데이터를 VPS에 구성한 self-hosted Supabase로 이전하였습니다.
+- 애플리케이션은 self-hosted Supabase의 API URL과 anon/service role key를 사용하도록 구성하였으며, 게시글 데이터와 이미지 파일을 동일한 VPS 인프라 안에서 관리합니다.
