@@ -15,6 +15,10 @@ const rerankWithVoyage = async (
   if (documents.length === 0) return [];
 
   if (!VOYAGE_API_KEY) {
+    console.warn("[RERANK FALLBACK] VOYAGE_API_KEY 누락", {
+      query,
+      documentCount: documents.length,
+    });
     throw new Error("VOYAGE_API_KEY가 설정되지 않았습니다.");
   }
 

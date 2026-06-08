@@ -67,10 +67,16 @@ const logEmbeddingFailure = (
 
 const getEmbedEndpoint = (): string => {
   if (!OLLAMA_EMBED_BASE_URL || OLLAMA_EMBED_BASE_URL.trim().length === 0) {
+    logEmbeddingFailure("OLLAMA_EMBED_BASE_URL 누락", {
+      model: OLLAMA_EMBED_MODEL,
+    });
     throw new Error("OLLAMA_EMBED_BASE_URL environment variable is required");
   }
 
   if (!OLLAMA_EMBED_API_KEY || OLLAMA_EMBED_API_KEY.trim().length === 0) {
+    logEmbeddingFailure("OLLAMA_EMBED_API_KEY 누락", {
+      model: OLLAMA_EMBED_MODEL,
+    });
     throw new Error("OLLAMA_EMBED_API_KEY environment variable is required");
   }
 
@@ -80,17 +86,27 @@ const getEmbedEndpoint = (): string => {
 const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
   if (inputs.length === 0) return [];
 
-  const response = await fetch(getEmbedEndpoint(), {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OLLAMA_EMBED_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  let response: Response;
+  try {
+    response = await fetch(getEmbedEndpoint(), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OLLAMA_EMBED_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OLLAMA_EMBED_MODEL,
+        input: inputs,
+      }),
+    });
+  } catch (error) {
+    logEmbeddingFailure("Ollama embed 네트워크 예외", {
       model: OLLAMA_EMBED_MODEL,
-      input: inputs,
-    }),
-  });
+      inputCount: inputs.length,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
 
   if (!response.ok) {
     const errorMessage = await response
@@ -107,7 +123,17 @@ const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
     );
   }
 
-  const payload = (await response.json()) as OllamaEmbedResponse;
+  let payload: OllamaEmbedResponse;
+  try {
+    payload = (await response.json()) as OllamaEmbedResponse;
+  } catch (error) {
+    logEmbeddingFailure("Ollama embed JSON 파싱 실패", {
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
   if (
     !payload ||
     !Array.isArray(payload.embeddings) ||
