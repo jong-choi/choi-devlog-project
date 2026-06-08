@@ -62,7 +62,7 @@ export async function generateDocumentEmbeddingsForPost(
     const documents = await splitter.createDocuments([postBody]);
     const textChunks = documents.map((doc) => doc.pageContent);
 
-    // 임베딩 생성 (Transformers.js - EmbeddingGemma)
+    // 임베딩 생성 (Ollama EmbeddingGemma)
     const vectors = await embeddings.embedDocuments(textChunks);
 
     // 저장 payload 작성

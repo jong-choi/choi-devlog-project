@@ -13,8 +13,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "hf:cache": "node scripts/preload-hf-models.mjs",
-    "hf:offline": "HF_ALLOW_REMOTE_MODELS=false next start",
     "supabase:gen": "npx supabase gen types typescript --project-id wknphwqwtywjrfclmhjd --schema public > types/supabase.ts",
     "test": "vitest",
     "analyze": "ANALYZE=true next build"
@@ -25,7 +23,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^4.1.2",
-    "@huggingface/transformers": "^3.7.3",
     "@langchain/core": "^1.1.48",
     "@langchain/google-gauth": "^2.1.31",
     "@langchain/google-genai": "^2.1.31",
