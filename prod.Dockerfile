@@ -1,10 +1,7 @@
-
 FROM node:20-bookworm-slim AS base
 
-# onnxruntime-node가 필요로 하는 런타임 라이브러리 설치 (glibc 포함 이미지에서 동작)
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    libgomp1 \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
@@ -15,31 +12,12 @@ WORKDIR /app
 
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
-# Hugging Face 캐시 디렉토리 (빌드 시 사전 다운로드용)
-ENV TRANSFORMERS_CACHE=/opt/hf-cache
-RUN mkdir -p ${TRANSFORMERS_CACHE}
-
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
   fi
-
-# 모델 사전 다운로드 스크립트
-COPY scripts/preload-hf-models.mjs ./scripts/preload-hf-models.mjs
-
-# 사전 다운로드 시 사용할 옵션 (필요 시 빌드 인자 제공)
-ARG HF_EMBEDDING_MODEL_ID
-ENV HF_EMBEDDING_MODEL_ID=${HF_EMBEDDING_MODEL_ID}
-ARG HF_RERANKER_MODEL_ID
-ENV HF_RERANKER_MODEL_ID=${HF_RERANKER_MODEL_ID}
-
-# 원격 허용 (사전 다운로드 단계)
-ENV HF_ALLOW_REMOTE_MODELS=true
-
-# 모델 사전 다운로드 수행
-RUN node scripts/preload-hf-models.mjs
 
 # 나머지 앱 코드 복사
 COPY . .
@@ -60,6 +38,12 @@ ARG OLLAMA_API_KEY
 ENV OLLAMA_API_KEY=${OLLAMA_API_KEY}
 ARG OLLAMA_BASE_URL
 ENV OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+ARG OLLAMA_EMBED_API_KEY
+ENV OLLAMA_EMBED_API_KEY=${OLLAMA_EMBED_API_KEY}
+ARG OLLAMA_EMBED_BASE_URL
+ENV OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL}
+ARG OLLAMA_EMBED_MODEL
+ENV OLLAMA_EMBED_MODEL=${OLLAMA_EMBED_MODEL}
 ARG OLLAMA_SMALL_MODEL
 ENV OLLAMA_SMALL_MODEL=${OLLAMA_SMALL_MODEL}
 ARG OLLAMA_MEDIUM_MODEL
@@ -97,9 +81,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# 빌드 시 캐시된 모델 복사
-COPY --from=builder --chown=nextjs:nodejs /opt/hf-cache /opt/hf-cache
-
 # 런타임에도 동일 키 주입
 ARG NEXT_PUBLIC_ENV_VARIABLE
 ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
@@ -117,6 +98,12 @@ ARG OLLAMA_API_KEY
 ENV OLLAMA_API_KEY=${OLLAMA_API_KEY}
 ARG OLLAMA_BASE_URL
 ENV OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+ARG OLLAMA_EMBED_API_KEY
+ENV OLLAMA_EMBED_API_KEY=${OLLAMA_EMBED_API_KEY}
+ARG OLLAMA_EMBED_BASE_URL
+ENV OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL}
+ARG OLLAMA_EMBED_MODEL
+ENV OLLAMA_EMBED_MODEL=${OLLAMA_EMBED_MODEL}
 ARG OLLAMA_SMALL_MODEL
 ENV OLLAMA_SMALL_MODEL=${OLLAMA_SMALL_MODEL}
 ARG OLLAMA_MEDIUM_MODEL
@@ -131,10 +118,6 @@ ARG VALID_USER_CREATED_AT
 ENV VALID_USER_CREATED_AT=${VALID_USER_CREATED_AT}
 ARG METASEARCH_API_KEY
 ENV METASEARCH_API_KEY=${METASEARCH_API_KEY}
-
-# 런타임 캐시 경로 및 오프라인 모드 강제
-ENV TRANSFORMERS_CACHE=/opt/hf-cache
-ENV HF_ALLOW_REMOTE_MODELS=false
 
 USER nextjs
 CMD ["node", "server.js"]

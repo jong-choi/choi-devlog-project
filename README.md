@@ -22,7 +22,7 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 > 2025.09.15 - TFS에서 Semantic Search로 게시글 검색 방식 변경, RAG 구현(임베딩 : EmbeddingGemma:300m, 리랭킹 : Jina Reranker v2)
 
-> 2026.06.05 - Supabase Cloud에서 self-hosted Supabase로 데이터베이스 및 Storage를 이전하고, 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경, openai text-embedding 모델을 onnx/embeddinggemma로 통일 및 재군집화
+> 2026.06.05 - Supabase Cloud에서 self-hosted Supabase로 데이터베이스 및 Storage를 이전하고, 주요 언어 모델을 GPT-OSS 20B, GPT-OSS 120B 기반 Ollama 모델로 변경, 임베딩과 검색 파이프라인을 Ollama EmbeddingGemma와 Voyage reranker 중심으로 재정비
 
 ## 프로젝트 목표
 
@@ -89,8 +89,8 @@ URL : [blog.jongchoi.com](https://blog.jongchoi.com)\
 
 - 검색어의 의미를 중심으로 게시글을 검색합니다.
   1. PostgreSQL의 FTS를 통해 검색어가 들어간 게시글을 수집합니다.
-  2. EmbeddingGemma를 통해 게시글을 코사인 유사도 기반으로 수집합니다.
-  3. Jina AI Reranker를 통해 수집된 게시글에 순위를 매겨 연관된 게시글만 검색결과에 반영합니다.
+  2. Ollama의 EmbeddingGemma를 통해 게시글을 코사인 유사도 기반으로 수집합니다.
+  3. Voyage reranker를 통해 수집된 게시글에 순위를 매겨 연관된 게시글만 검색결과에 반영합니다.
 
 ## 챗봇
 

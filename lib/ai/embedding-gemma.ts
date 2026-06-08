@@ -1,23 +1,10 @@
-import { pipeline } from "@huggingface/transformers";
-import "@/lib/hf/env";
 import { summaryParser } from "@/utils/api/analysis-utils";
 
-const EMBEDDING_MODEL_ID =
-  process.env.HF_EMBEDDING_MODEL_ID ||
-  "onnx-community/embeddinggemma-300m-ONNX";
+const OLLAMA_EMBED_BASE_URL = process.env.OLLAMA_EMBED_BASE_URL;
+const OLLAMA_EMBED_API_KEY = process.env.OLLAMA_EMBED_API_KEY;
+const OLLAMA_EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || "embeddinggemma";
 
 export const EMBEDDING_GEMMA_DIMENSION = 768;
-
-interface FeatureExtractionOutput {
-  data: Float32Array | number[];
-}
-
-type FeatureExtractionPipeline = {
-  (
-    input: string,
-    options?: { pooling?: string; normalize?: boolean },
-  ): Promise<FeatureExtractionOutput>;
-};
 
 type ClusterEmbeddingInput = {
   summary: string;
@@ -41,29 +28,6 @@ export type EmbeddingGemmaPreset =
 export const DEFAULT_EMBEDDING_GEMMA_PRESET: EmbeddingGemmaPreset =
   "search_document";
 
-const createFeatureExtractionPipeline = pipeline as unknown as (
-  task: "feature-extraction",
-  model: string,
-  options: { dtype: "fp32"; local_files_only: true },
-) => Promise<FeatureExtractionPipeline>;
-
-let cachedPipelinePromise: Promise<FeatureExtractionPipeline> | null = null;
-
-const loadEmbeddingPipeline = async (): Promise<FeatureExtractionPipeline> => {
-  if (!cachedPipelinePromise) {
-    cachedPipelinePromise = createFeatureExtractionPipeline(
-      "feature-extraction",
-      EMBEDDING_MODEL_ID,
-      {
-        dtype: "fp32",
-        local_files_only: true,
-      },
-    );
-  }
-
-  return cachedPipelinePromise;
-};
-
 const EMBEDDING_INPUT_TEMPLATES: Record<EmbeddingGemmaPreset, string> = {
   search_query: "task: search result | query: {{text}}",
   search_document: "title: none | text: {{text}}",
@@ -73,18 +37,6 @@ const EMBEDDING_INPUT_TEMPLATES: Record<EmbeddingGemmaPreset, string> = {
   question_answering: "task: question answering | query: {{text}}",
   fact_checking: "task: fact checking | query: {{text}}",
   code_retrieval: "task: code retrieval | query: {{text}}",
-};
-
-const embed = async (input: string): Promise<number[]> => {
-  if (input.trim().length === 0) return [];
-
-  const extractor = await loadEmbeddingPipeline();
-  const result = (await extractor(input, {
-    pooling: "mean",
-    normalize: true,
-  }));
-
-  return Array.from(result.data);
 };
 
 const isEmbeddingGemmaPreset = (
@@ -102,10 +54,154 @@ const formatEmbeddingInput = (
   text: string,
 ): string => EMBEDDING_INPUT_TEMPLATES[preset].replace("{{text}}", text);
 
+type OllamaEmbedResponse = {
+  embeddings?: number[][];
+};
+
+const logEmbeddingFailure = (
+  message: string,
+  details?: Record<string, unknown>,
+): void => {
+  console.error("[OLLAMA EMBED FALLBACK]", message, details ?? {});
+};
+
+const getEmbedEndpoint = (): string => {
+  if (!OLLAMA_EMBED_BASE_URL || OLLAMA_EMBED_BASE_URL.trim().length === 0) {
+    logEmbeddingFailure("OLLAMA_EMBED_BASE_URL 누락", {
+      model: OLLAMA_EMBED_MODEL,
+    });
+    throw new Error("OLLAMA_EMBED_BASE_URL environment variable is required");
+  }
+
+  if (!OLLAMA_EMBED_API_KEY || OLLAMA_EMBED_API_KEY.trim().length === 0) {
+    logEmbeddingFailure("OLLAMA_EMBED_API_KEY 누락", {
+      model: OLLAMA_EMBED_MODEL,
+    });
+    throw new Error("OLLAMA_EMBED_API_KEY environment variable is required");
+  }
+
+  return new URL("/api/embed", OLLAMA_EMBED_BASE_URL).toString();
+};
+
+const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
+  if (inputs.length === 0) return [];
+
+  let response: Response;
+  try {
+    response = await fetch(getEmbedEndpoint(), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OLLAMA_EMBED_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OLLAMA_EMBED_MODEL,
+        input: inputs,
+      }),
+    });
+  } catch (error) {
+    logEmbeddingFailure("Ollama embed 네트워크 예외", {
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+
+  if (!response.ok) {
+    const errorMessage = await response
+      .text()
+      .catch(() => "응답 본문을 읽지 못했습니다.");
+    logEmbeddingFailure("Ollama embed 요청 실패", {
+      status: response.status,
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+      errorMessage,
+    });
+    throw new Error(
+      `Ollama embed 요청 실패 (${response.status}): ${errorMessage}`,
+    );
+  }
+
+  let payload: OllamaEmbedResponse;
+  try {
+    payload = (await response.json()) as OllamaEmbedResponse;
+  } catch (error) {
+    logEmbeddingFailure("Ollama embed JSON 파싱 실패", {
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+  if (
+    !payload ||
+    !Array.isArray(payload.embeddings) ||
+    payload.embeddings.some(
+      (embedding) =>
+        !Array.isArray(embedding) ||
+        embedding.some((value) => typeof value !== "number"),
+    )
+  ) {
+    logEmbeddingFailure("Ollama embed 응답 형식 오류", {
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+    });
+    throw new Error("Ollama embed 응답 형식이 올바르지 않습니다.");
+  }
+
+  return payload.embeddings;
+};
+
+const embed = async (input: string): Promise<number[]> => {
+  if (input.trim().length === 0) return [];
+
+  const [embedding] = await requestEmbeddings([input]);
+  return embedding ?? [];
+};
+
+const embedMany = async (inputs: string[]): Promise<number[][]> => {
+  if (inputs.length === 0) return [];
+
+  const nonEmptyEntries = inputs
+    .map((input, index) => ({ input, index }))
+    .filter(({ input }) => input.trim().length > 0);
+
+  if (nonEmptyEntries.length === 0) {
+    return inputs.map(() => []);
+  }
+
+  const embeddings = await requestEmbeddings(
+    nonEmptyEntries.map(({ input }) => input),
+  );
+
+  if (embeddings.length !== nonEmptyEntries.length) {
+    logEmbeddingFailure("Ollama embed 응답 개수 불일치", {
+      requestedCount: nonEmptyEntries.length,
+      receivedCount: embeddings.length,
+      model: OLLAMA_EMBED_MODEL,
+    });
+    throw new Error("Ollama embed 응답 개수가 요청 개수와 일치하지 않습니다.");
+  }
+
+  const results = inputs.map(() => [] as number[]);
+  nonEmptyEntries.forEach(({ index }, embeddingIndex) => {
+    results[index] = embeddings[embeddingIndex] ?? [];
+  });
+
+  return results;
+};
+
 const embedWithPreset = async (
   text: string,
   preset: EmbeddingGemmaPreset,
 ): Promise<number[]> => embed(formatEmbeddingInput(preset, text));
+
+const embedManyWithPreset = async (
+  texts: string[],
+  preset: EmbeddingGemmaPreset,
+): Promise<number[][]> =>
+  embedMany(texts.map((text) => formatEmbeddingInput(preset, text)));
 
 export const embedSearchQuery = async (query: string): Promise<number[]> =>
   embedWithPreset(query, "search_query");
@@ -115,8 +211,7 @@ export const embedSearchDocument = async (text: string): Promise<number[]> =>
 
 export const embedSearchDocuments = async (
   texts: string[],
-): Promise<number[][]> =>
-  Promise.all(texts.map((text) => embedSearchDocument(text)));
+): Promise<number[][]> => embedManyWithPreset(texts, "search_document");
 
 export const embedSummary = async (
   summaryMarkdown: string,
