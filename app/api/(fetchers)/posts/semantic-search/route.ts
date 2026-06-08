@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { selectOptimalResults } from "@/app/api/(fetchers)/posts/semantic-search/_utils/selection";
 import {
   formatSearchResponse,
@@ -10,8 +11,65 @@ import { applyReranking } from "@/app/api/embedding/_model/reranker";
 import {
   HybridSearchRequest,
   RerankedCombinedRow,
+  SemanticSearchResult,
 } from "@/types/semantic-search";
 import { createClient } from "@/utils/supabase/server";
+
+const fallbackTagsSchema: z.ZodType<SemanticSearchResult["tags"]> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(fallbackTagsSchema),
+    z.record(fallbackTagsSchema),
+  ]),
+);
+
+const fallbackPostSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  short_description: z.string().nullable(),
+  url_slug: z.string(),
+  thumbnail: z.string().nullable(),
+  released_at: z.string().nullable(),
+  snippet: z.string().nullable(),
+  tags: fallbackTagsSchema,
+});
+
+const fallbackPostsSchema = z.array(fallbackPostSchema);
+
+const searchWithSnippetFallback = async (
+  query: string,
+  limit: number,
+): Promise<SemanticSearchResult[]> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("search_posts_with_snippet", {
+    search_text: query,
+    page: 1,
+    page_size: limit,
+  });
+
+  if (error) {
+    console.error("기본 검색 fallback 실패", error);
+    throw new Error(`기본 검색 fallback 실패: ${error.message}`);
+  }
+
+  return fallbackPostsSchema.parse(data ?? []).map((post) => ({
+    post_id: post.id,
+    title: post.title,
+    short_description: post.short_description,
+    url_slug: post.url_slug,
+    thumbnail: post.thumbnail,
+    released_at: post.released_at,
+    chunk_content: post.snippet,
+    chunk_index: null,
+    rerank_score: undefined,
+    fts_rank: 0,
+    cosine_similarity: 0,
+    tags: post.tags,
+  }));
+};
 
 export async function POST(req: Request) {
   try {
@@ -26,7 +84,17 @@ export async function POST(req: Request) {
     );
 
     // 1) 쿼리 임베딩 생성
-    const queryVector = await embeddings.embedQuery(searchParams.query);
+    let queryVector: number[];
+    try {
+      queryVector = await embeddings.embedQuery(searchParams.query);
+    } catch (error) {
+      console.error("쿼리 임베딩 생성 실패, 기본 검색으로 fallback", error);
+      const results = await searchWithSnippetFallback(
+        searchParams.query,
+        searchParams.maxResults,
+      );
+      return NextResponse.json({ results });
+    }
 
     // 2) Supabase RPC 호출 (DB 하이브리드 검색)
     const supabase = await createClient();

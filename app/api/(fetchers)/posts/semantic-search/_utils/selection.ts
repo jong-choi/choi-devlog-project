@@ -7,12 +7,28 @@ export const selectOptimalResults = (
     minThreshold: number;
     maxResults: number;
     effectiveMinResults: number;
-  }
+  },
 ): RerankedCombinedRow[] => {
   const { minThreshold, maxResults, effectiveMinResults } = params;
 
+  const hasRerankScores = rerankedResults.some(
+    (result) => result.rerankScore !== null,
+  );
+
+  if (!hasRerankScores) {
+    const rerankedById = new Map(
+      rerankedResults.map((result) => [result.chunk_id, result] as const),
+    );
+
+    return [...originalResults]
+      .sort((a, b) => (b?.final_score ?? 0) - (a?.final_score ?? 0))
+      .map((result) => rerankedById.get(result.chunk_id))
+      .filter((result): result is RerankedCombinedRow => Boolean(result))
+      .slice(0, maxResults);
+  }
+
   const aboveThreshold = rerankedResults.filter(
-    (result) => Number(result.rerankScore ?? -1) >= minThreshold
+    (result) => Number(result.rerankScore ?? -1) >= minThreshold,
   );
 
   let finalSelected: RerankedCombinedRow[] = [];
@@ -21,14 +37,16 @@ export const selectOptimalResults = (
     finalSelected = aboveThreshold.slice(0, maxResults);
   } else if (aboveThreshold.length < effectiveMinResults) {
     const needed = effectiveMinResults - aboveThreshold.length;
-    const selectedIds = new Set(aboveThreshold.map((result) => result.chunk_id));
+    const selectedIds = new Set(
+      aboveThreshold.map((result) => result.chunk_id),
+    );
 
     const finalScoreSorted = [...originalResults].sort(
-      (a, b) => (b?.final_score ?? 0) - (a?.final_score ?? 0)
+      (a, b) => (b?.final_score ?? 0) - (a?.final_score ?? 0),
     );
 
     const rerankedById = new Map(
-      rerankedResults.map((result) => [result.chunk_id, result] as const)
+      rerankedResults.map((result) => [result.chunk_id, result] as const),
     );
 
     const fillers: RerankedCombinedRow[] = [];
