@@ -94,6 +94,10 @@ export const applyReranking = async <T extends RerankerInputRow>(
       rerankScore: r.score,
     }));
   } catch (error) {
+    console.warn("[RERANK FALLBACK] Voyage rerank 실패, 원본 순서로 반환", {
+      query,
+      resultCount: results.length,
+    });
     console.error("리랭킹 실패", error);
     return results.map((r) => ({ ...r, rerankScore: null }));
   }

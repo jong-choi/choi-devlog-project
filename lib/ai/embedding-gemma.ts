@@ -1,7 +1,7 @@
 import { summaryParser } from "@/utils/api/analysis-utils";
 
 const OLLAMA_EMBED_BASE_URL = process.env.OLLAMA_EMBED_BASE_URL;
-const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY;
+const OLLAMA_EMBED_API_KEY = process.env.OLLAMA_EMBED_API_KEY;
 const OLLAMA_EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || "embeddinggemma";
 
 export const EMBEDDING_GEMMA_DIMENSION = 768;
@@ -58,13 +58,20 @@ type OllamaEmbedResponse = {
   embeddings?: number[][];
 };
 
+const logEmbeddingFailure = (
+  message: string,
+  details?: Record<string, unknown>,
+): void => {
+  console.error("[OLLAMA EMBED FALLBACK]", message, details ?? {});
+};
+
 const getEmbedEndpoint = (): string => {
   if (!OLLAMA_EMBED_BASE_URL || OLLAMA_EMBED_BASE_URL.trim().length === 0) {
     throw new Error("OLLAMA_EMBED_BASE_URL environment variable is required");
   }
 
-  if (!OLLAMA_API_KEY || OLLAMA_API_KEY.trim().length === 0) {
-    throw new Error("OLLAMA_API_KEY environment variable is required");
+  if (!OLLAMA_EMBED_API_KEY || OLLAMA_EMBED_API_KEY.trim().length === 0) {
+    throw new Error("OLLAMA_EMBED_API_KEY environment variable is required");
   }
 
   return new URL("/api/embed", OLLAMA_EMBED_BASE_URL).toString();
@@ -76,7 +83,7 @@ const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
   const response = await fetch(getEmbedEndpoint(), {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${OLLAMA_API_KEY}`,
+      Authorization: `Bearer ${OLLAMA_EMBED_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -89,6 +96,12 @@ const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
     const errorMessage = await response
       .text()
       .catch(() => "응답 본문을 읽지 못했습니다.");
+    logEmbeddingFailure("Ollama embed 요청 실패", {
+      status: response.status,
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+      errorMessage,
+    });
     throw new Error(
       `Ollama embed 요청 실패 (${response.status}): ${errorMessage}`,
     );
@@ -104,6 +117,10 @@ const requestEmbeddings = async (inputs: string[]): Promise<number[][]> => {
         embedding.some((value) => typeof value !== "number"),
     )
   ) {
+    logEmbeddingFailure("Ollama embed 응답 형식 오류", {
+      model: OLLAMA_EMBED_MODEL,
+      inputCount: inputs.length,
+    });
     throw new Error("Ollama embed 응답 형식이 올바르지 않습니다.");
   }
 
@@ -133,6 +150,11 @@ const embedMany = async (inputs: string[]): Promise<number[][]> => {
   );
 
   if (embeddings.length !== nonEmptyEntries.length) {
+    logEmbeddingFailure("Ollama embed 응답 개수 불일치", {
+      requestedCount: nonEmptyEntries.length,
+      receivedCount: embeddings.length,
+      model: OLLAMA_EMBED_MODEL,
+    });
     throw new Error("Ollama embed 응답 개수가 요청 개수와 일치하지 않습니다.");
   }
 
